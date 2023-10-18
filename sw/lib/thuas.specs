@@ -1,0 +1,8 @@
+%rename link_gcc_c_sequence                thuas_link_gcc_c_sequence
+
+*thuas:
+-lthuasrv32
+
+*link_gcc_c_sequence:
+%(thuas_link_gcc_c_sequence) --start-group %G %(thuas) --end-group
+

@@ -1,0 +1,32 @@
+
+# This is the startup section and must be the first to be called
+  .section .text.start_up_code
+#  .text
+  .global _start
+  .global Universal_Handler
+  .type   _start, @function
+  .type   Universal_Hander, @function
+_start:
+  # Initialize global pointer
+.option push
+.option norelax
+
+	la gp, __global_pointer$
+        la sp, __stack_pointer$ 
+
+	li x9,1
+	li x5,4000
+	li x6,33
+
+	mul x7,x5,x6
+	mulu x8,x5,x6
+
+	nop
+	nop
+
+einde:	j einde
+
+
+.option pop
+
+  .size  _start, .-_start

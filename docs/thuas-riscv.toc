@@ -1,0 +1,59 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {section}{\numberline {2}The processor}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Registers}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}ALU}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}PC}{7}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Instruction Decoder}{7}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Control Unit}{8}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Trap handling}{8}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Address Decoder and Data Router}{10}{subsection.2.7}%
+\contentsline {subsection}{\numberline {2.8}Instruction Router}{10}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.9}Control and Status registers}{10}{subsection.2.9}%
+\contentsline {subsection}{\numberline {2.10}Local Interrupt Controller}{12}{subsection.2.10}%
+\contentsline {subsection}{\numberline {2.11}Multiply/Divide Unit}{12}{subsection.2.11}%
+\contentsline {subsection}{\numberline {2.12}Stack pointer}{13}{subsection.2.12}%
+\contentsline {subsection}{\numberline {2.13}ROM}{13}{subsection.2.13}%
+\contentsline {subsection}{\numberline {2.14}Booloader ROM}{13}{subsection.2.14}%
+\contentsline {subsection}{\numberline {2.15}RAM}{13}{subsection.2.15}%
+\contentsline {subsection}{\numberline {2.16}I/O}{14}{subsection.2.16}%
+\contentsline {subsection}{\numberline {2.17}Implemented instructions}{16}{subsection.2.17}%
+\contentsline {section}{\numberline {3}The FPGA}{16}{section.3}%
+\contentsline {section}{\numberline {4}Processor hardware}{18}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Pin assignments}{20}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Simulation}{22}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Customizing the design}{23}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Cloning the RISC-V project}{24}{section.5}%
+\contentsline {section}{\numberline {6}Setting up the GNU C compiler for \textit {this} RISC-V}{24}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Register subset}{27}{subsection.6.1}%
+\contentsline {section}{\numberline {7}Compiling a C program by hand}{27}{section.7}%
+\contentsline {section}{\numberline {8}Implemented system calls}{28}{section.8}%
+\contentsline {section}{\numberline {9}Using trap handlers in software}{30}{section.9}%
+\contentsline {section}{\numberline {10}Software programs}{33}{section.10}%
+\contentsline {subsection}{\numberline {10.1}srec2vhdl}{37}{subsection.10.1}%
+\contentsline {section}{\numberline {11}Address ranges and memory sizes}{38}{section.11}%
+\contentsline {section}{\numberline {12}Using the bootloader}{39}{section.12}%
+\contentsline {subsection}{\numberline {12.1}S-record file}{39}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Startup sequence}{39}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Uploading an S-record file}{39}{subsection.12.3}%
+\contentsline {subsection}{\numberline {12.4}Using the monitor}{40}{subsection.12.4}%
+\contentsline {subsection}{\numberline {12.5}Upload protocol}{41}{subsection.12.5}%
+\contentsline {subsection}{\numberline {12.6}Implications on the hardware design}{41}{subsection.12.6}%
+\contentsline {section}{\numberline {13}Future plans (or not) and issues}{41}{section.13}%
+\contentsline {section}{\numberline {A}C Runtime startup code}{42}{appendix.A}%
+\contentsline {section}{\numberline {B}The I/O at a glance}{46}{appendix.B}%
+\contentsline {section}{\numberline {C}Port I/O}{49}{appendix.C}%
+\contentsline {section}{\numberline {D}UART1 Code}{50}{appendix.D}%
+\contentsline {section}{\numberline {E}I\textsuperscript {2}C code}{53}{appendix.E}%
+\contentsline {section}{\numberline {F}TIMER1 code}{55}{appendix.F}%
+\contentsline {section}{\numberline {G}The external \texttt {time} registers}{55}{appendix.G}%
+\contentsline {section}{\numberline {H}I/O registers}{56}{appendix.H}%
+\contentsline {subsection}{\numberline {H.1}GPIOA -- General Purpose I/O}{56}{subsection.H.1}%
+\contentsline {subsection}{\numberline {H.2}UART1 -- Universal Asynchronous Receiver/Transmitter}{57}{subsection.H.2}%
+\contentsline {subsection}{\numberline {H.3}I2C1 -- Inter-Integrated Circuit master-only controller}{58}{subsection.H.3}%
+\contentsline {subsection}{\numberline {H.4}I2C2 -- Inter-Integrated Circuit master-only controller}{60}{subsection.H.4}%
+\contentsline {subsection}{\numberline {H.5}SPI1 -- Serial Peripheral Interface}{61}{subsection.H.5}%
+\contentsline {subsection}{\numberline {H.6}SPI2 -- Serial Peripheral Interface}{62}{subsection.H.6}%
+\contentsline {subsection}{\numberline {H.7}TIMER1 -- a simple timer}{63}{subsection.H.7}%
+\contentsline {subsection}{\numberline {H.8}TIMER2 -- a more elaborate timer}{65}{subsection.H.8}%
+\contentsline {subsection}{\numberline {H.9}TIME -- RISC-V system timer}{68}{subsection.H.9}%

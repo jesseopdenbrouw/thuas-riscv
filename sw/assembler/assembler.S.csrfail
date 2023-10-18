@@ -1,0 +1,52 @@
+
+# This is the startup section and must be the first to be called
+  .section .text.start_up_code
+#  .text
+  .global _start
+  .global Universal_Handler
+  .type   _start, @function
+  .type   Universal_Hander, @function
+_start:
+  # Initialize global pointer
+.option push
+.option norelax
+
+	la gp, __global_pointer$
+    la sp, __stack_pointer$ 
+
+#	la x9,handler
+#	csrs mtvec,x9
+#	csrsi mstatus,(1<<3)
+
+	nop
+	nop
+	nop
+	nop
+
+	li x3,-2
+	li x15,-1
+
+	nop
+	nop
+
+	csrrw x3,mcountinhibit,x15
+
+	nop
+	nop
+	nop
+	nop
+
+	csrrw x3,time,x15
+	nop
+	nop
+	nop
+
+einde:	j einde
+
+handler: mret
+
+here:	 j here
+
+.option pop
+
+  .size  _start, .-_start

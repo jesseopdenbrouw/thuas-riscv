@@ -1,0 +1,35 @@
+Have a look at:
+   https://mindchasers.com/dev/rv-getting-started
+
+* apt install texinfo
+
+* type in command:
+
+   git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
+
+* wait for the cloning to be completed (takes a long time)
+
+* cd riscv-gnu-toolchain
+* mkdir build; cd build
+
+* ../configure --help | grep abi
+    --with-abi=lp64d        Sets the base RISC-V ABI, defaults to lp64d
+  
+* ../configure --prefix=/opt/riscv32 --with-arch=rv32im --with-abi=ilp32
+  checking for gcc... gcc
+  ...
+  config.status: creating Makefile
+  config.status: creating scripts/wrapper/awk/awk
+  config.status: creating scripts/wrapper/sed/sed
+
+Note that ilp32 specifies that int, long, and pointers are all 32-bits
+
+After configure is complete, we can make our code. Note that make also performs an install into the path specified by --prefix: /opt/riscv32. 
+
+* make
+  (takes a long time) 
+
+
+
+
+* export PATH=/opt/riscv32/bin:$PATH

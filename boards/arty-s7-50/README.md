@@ -5,13 +5,13 @@ In this directory, two files are present:
 
 * `arty_s7_50_board.vhd`: board top-level file
 
-* `riscv.xdc`: XDC file
+* `arty_s7_50_board.xdc`: XDC file
 
 Please complete the following steps:
 
 * Create a new Vivado project with a sensible name
 
-* During creation, add all VHDL file from the `rtl` directory (execpt testbenches). Make sure to **copy** the files.
+* During creation, add all VHDL file from the `rtl` directory (execpt testbenches and the DE0-CV top level file). Make sure to **copy** the files.
 
 * Add the board top-level file. Make sure to **copy** the file.
 

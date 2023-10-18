@@ -1,14 +1,22 @@
 
 # Arty S7/50 Board
 
-Two files are provided: the board top-level file and the XDC file.
+In this directory, two files are present:
 
-Create a new Vivado project with a sensible name
+* `arty_s7_50_board.vhd`: board top-level file
 
-Copy the VHDL files from the RTL directory to srcs directory (create one first)
+* `risxc.xdc`: XDC file
 
-Copy the XDC file to the constraints directory (create one first)
+Please complete the following steps:
 
-Add the files to the project
+* Create a new Vivado project with a sensible name
 
-Synthesize the design
+* During creation, add all VHDL file from the `rtl` directory (execpt testbenches). Make sure to **copy** the files.
+
+* Add the board top-level file. Make sure to **copy** the file.
+
+* Add the XDC file to the constraints directory. Make sure to **copy** the file.
+
+* A default synthesis and implementation are provided at creation time
+
+* Synthesize the design

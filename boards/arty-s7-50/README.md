@@ -5,7 +5,7 @@ In this directory, two files are present:
 
 * `arty_s7_50_board.vhd`: board top-level file
 
-* `risxc.xdc`: XDC file
+* `riscv.xdc`: XDC file
 
 Please complete the following steps:
 

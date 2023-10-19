@@ -7,7 +7,7 @@ In this directory, two files are present:
 
 * `cmod_s7_25_board.vhd`: board top-level file.
 
-* `cmod_s7_25.xdc`: XDC file.
+* `cmod_s7_25_board.xdc`: XDC file.
 
 Please complete the following steps:
 

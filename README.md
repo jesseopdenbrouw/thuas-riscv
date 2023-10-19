@@ -65,7 +65,7 @@ The microcontroller does not support caches and external memory.
 
 ## CSR
 
-A number CSR registers are implemented: `[m]time`, `[m]timeh`, `[m]cycle`, `[m]cycleh`,
+A number CSR registers are implemented: `time`, `timeh`, `[m]cycle`, `[m]cycleh`,
 `[m]instret`, `[m]instreth`, `mvendorid`, `marchid`, `mimpid`, `mhartid`, `mstatus`,
 `mstatush`, `misa`, `mie`, `mtvec`, `mscratch`, `mepc`, `mcause`, `mip`,
 `mcountinhibit`. Some of these CSRs are hardwired. Others will be implemented

@@ -1,5 +1,5 @@
 
-# Cmos S7/25 Board
+# Cmod S7/25 Board
 
 The Cmod S7/25 board has a clock oscillator of 83.333 ns (12 MHz). Use a MMCM to get 10 ns (100 MHz).
 

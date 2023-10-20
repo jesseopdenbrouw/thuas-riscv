@@ -30,6 +30,8 @@ entity riscv is
           RAM_HIGH_NIBBLE : memory_high_nibble := x"2";
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble := x"F";
+          -- Do we have fast store?
+          HAVE_FAST_STORE : boolean := false;
           -- Do we have UART1?
           HAVE_UART1 : boolean := TRUE;
           -- Do we have SPI1?

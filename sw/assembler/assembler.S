@@ -17,20 +17,31 @@ _start:
 	# Register trap hanlder and enable
 	# interrupts (direct mode)
 
-	la t0, Universal_Handler
-	csrw mtvec,t0
-	li t0, 0x8 | (0x3<<11)
-	csrw mstatus,t0
+#	la t0, Universal_Handler
+#	csrw mtvec,t0
+#	li t0, 0x8 | (0x3<<11)
+#	csrw mstatus,t0
 
 
 	nop
 	nop
 
 	li t0, 0x00000001
-	jalr 0(t0)
+	la t1, 0x20000000
 
 	nop
 	nop
+
+	sw t0, 0(t1)
+	sw t0, 4(t1)
+	sw t0, 8(t1)
+	sw t0, 12(t1)
+	lw t2, 0(t1)
+
+	nop
+	nop
+	nop
+
 
 einde:	j einde
 

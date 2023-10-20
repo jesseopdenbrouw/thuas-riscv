@@ -86,7 +86,7 @@ This is work in progress. Things will certainly change in the future.
 
 \clearpage
 \section{Introduction}
-This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one HART (Hardware Thread). The processor is able to run a compiled C-program. C++ is supported but some concepts (\texttt{cout} with \texttt{iostream}, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ``The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr and Zba extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 80\,MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic DE0-CV board.
+This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one HART (Hardware Thread). The processor is able to run a compiled C-program. C++ is supported but some concepts (\texttt{cout} with \texttt{iostream}, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ``The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr and Zba extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85\,MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic DE0-CV board.
 
 The processor requires three clock cycles to complete an instruction, but the next instructions are fetched and decoded while the current instruction is executed. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), MTIME and MTIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
 
@@ -446,13 +446,15 @@ The stack pointer is fully implemented although the ISA does not provide pushes 
 
 \subsection{ROM}
 \label{sec:rom}
-The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. Reading ROM (as data) requires two three cycles.  This is automatically handled by the processor. The pipeline is stalled for two clock cycles when reading from ROM (data). Reading instructions requires two clock cycles.
+The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. Reading ROM (as data) requires three cycles.  This is automatically handled by the processor. The pipeline is stalled for two clock cycles when reading from ROM (data). Reading instructions requires two clock cycles.
+
+When the bootloader hardware is installed, the ROM is writable as words only. Although this write option is reserved for the bootloader,  a user program can manipulate the ROM. A write requires one or two clock cycles, depending on the VHDL generic \lstinline|HAVE_FAST_STORE|. See Section~\ref{sec:customize}.
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
 Note: instructions can only be fetched from the ROM and bootloader ROM. Note: when the bootloader is synthesized in the FPGA, the ROM may also be written with 32-bit data on 4-byte boundaries.
 
-\subsection{Booloader ROM}
+\subsection{Bootloader ROM}
 \label{sec:bootloaderrom}
 The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is places in onboard immutable RAM blocks. See Section~\ref{sec:bootloader}. The bootloader may be excluded from synthesis.
 
@@ -462,11 +464,11 @@ The RAM consists of bytes and is byte, half word and word addressable. Half word
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
-Reading the RAM (byte, half word, word) requires three clock cycles. A write requires two clock cycles.
+Reading the RAM (byte, half word, word) requires three clock cycles. A write requires one or two clock cycles, depending on the VHDL generic \lstinline|HAVE_FAST_STORE|. See Section~\ref{sec:customize}.
 
 \subsection{I/O}
 \label{sec/io}
-Currently, the I/O consists of one 32-bit data input and one 32-bit data output, a simple UART with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I\textsuperscript{2}C peripherals with interrupt, a general purpose SPI peripheral with interrupt, a dedicated SPI peripheral for SD card access and the TIME and TIMEH memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A read requires three clock cycles, a write requires two clock cycles. Note that not all I/O addresses are used.
+Currently, the I/O consists of one 32-bit data input and one 32-bit data output, a simple UART with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I\textsuperscript{2}C peripherals with interrupt, a general purpose SPI peripheral with interrupt, a dedicated SPI peripheral for SD card access and the TIME and TIMEH memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A read requires three clock cycles, a write requires one or two clock cycles, depending on the VHDL generic \lstinline|HAVE_FAST_STORE| (s)ee Section~\ref{sec:customize}). Note that not all I/O addresses are used.
 
 GPIOA has separate inputs and output, both 32 bits. This is because some FPGAs/synthesizers don't allow buried tri-state signals, i.e.\@ the tri-state action must be done in the top level entity. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons. Note that KEY4 a.k.a.\@ FPGA\_RESET is connected to the reset of the processor. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt is a rising and/or falling edge is detected.
 
@@ -567,7 +569,7 @@ The processor hardware is composed of the following VHDL files:
 
 The entity of the top level (\lstinline|riscv.vhd|) is shown in the listing below.
 
-\lstinputlisting[language=C,breaklines=false]{code/riscv.vhd}
+\lstinputlisting[language=VHDL,breaklines=false]{code/riscv.vhd}
 
 \subsection{Pin assignments}
 The pin assignments for the DE0-CV board are as follows (Table~\ref{tab:pins}). Note that not all signals are assigned to a pin, in which case the fitter will assign a suitable pin.
@@ -691,6 +693,7 @@ Some pins are connected to the onboard GPIO headers. The DE0-CV board has two he
 The design can be simulated fully, using QuestaSim Intel Starter or ModelSim Intel Starter. You need a (free) license for QuestaSim. During simulation, all essential signals can be viewed, as is the RAM. The RAM is viewed as 32-bit entries, so we need to do some manual calculations to correctly find byte, half word and word accesses. Simulation can be started from Quartus. Please note that the bootloader must be disabled for normal program start up. 
 
 \subsection{Customizing the design}
+\label{sec:customize}
 Using VHDL generics, the design can be customized. See Table~\ref{tab:custom}.
 
 \begin{table}[!ht]
@@ -716,6 +719,7 @@ Generic & Type & Default & Comment \\
 \lstinline|BOOT_HIGH_NIBBLE| & slv(3 downto 0) & x"1" & Boot at 0x1yyyyyyy\\
 \lstinline|RAM_HIGH_NIBBLE| & slv(3 downto 0) & x"2" & RAM at 0x2yyyyyyy\\
 \lstinline|IO_HIGH_NIBBLE| & slv(3 downto 0) & x"F" & I/O at 0xFyyyyyyy\\
+\lstinline|HAVE_FAST_STORE| & boolean & false & Store takes one clock cycle \\
 \lstinline|HAVE_UART1| & boolean & TRUE & Use UART1 \\
 \lstinline|HAVE_SPI1| & boolean & TRUE & Use SPI1 \\
 \lstinline|HAVE_SPI2| & boolean & TRUE & Use SPI1 \\

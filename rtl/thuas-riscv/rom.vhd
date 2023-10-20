@@ -55,7 +55,8 @@ use work.rom_image.all;
 entity rom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
-          ROM_ADDRESS_BITS : integer
+          ROM_ADDRESS_BITS : integer;
+          HAVE_FAST_STORE : boolean
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -169,7 +170,9 @@ begin
             end if;
         end if;
 
-        O_memready <= readready_v or (I_csrom and I_wren);
+        -- Fuse read ready and write ready
+        O_memready <= readready_v  or (I_csrom and I_wren and boolean_to_std_logic(not HAVE_FAST_STORE));
+        
     end process;
 
 

@@ -114,6 +114,8 @@ begin
               RAM_HIGH_NIBBLE => x"2",
               -- 4 high bits of I/O address
               IO_HIGH_NIBBLE => x"F",
+              -- Do we have fast store?
+              HAVE_FAST_STORE => false,
               -- Use UART1?
               HAVE_UART1 => TRUE,
               -- Use SPI1?

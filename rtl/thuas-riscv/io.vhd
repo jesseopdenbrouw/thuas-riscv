@@ -76,6 +76,8 @@ entity io is
           SYSTEM_FREQUENCY : integer;
           -- Frequency of the clock (1 MHz)_
           CLOCK_FREQUENCY : integer;
+          -- Do we use fast store?
+          HAVE_FAST_STORE : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have SPI1?
@@ -2356,7 +2358,8 @@ begin
 
     end process;
 
-    O_memready <= readready or (I_csio and I_wren);
+    -- Fuse read ready and write ready
+    O_memready <= readready  or (I_csio and I_wren and boolean_to_std_logic(not HAVE_FAST_STORE));
    
     -- Only for view in the simulator 
 -- synthesis translate_off

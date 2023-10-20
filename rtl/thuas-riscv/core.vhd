@@ -70,6 +70,8 @@ entity core is
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
           BOOT_HIGH_NIBBLE : memory_high_nibble;
+          -- Do we have fast store?
+          HAVE_FAST_STORE : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have SPI1?
@@ -320,6 +322,8 @@ begin
                     control.state <= state_exec;
                 -- The executing state, can be interrupted.
                 when state_exec =>
+                    -- If there is a trap request, it can be an interrupt
+                    -- or an exception.
                     if control.trap_request = '1' then
                         control.state <= state_trap;
                     -- If we have an mret request (MRET)
@@ -897,21 +901,21 @@ begin
                                     id_ex.memaccess <= memaccess_write;
                                     id_ex.memsize <= memsize_byte;
                                     id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= '1';
+                                    id_ex.ismem <= boolean_to_std_logic(not HAVE_FAST_STORE);
                                 -- Store halfword (no sign extension or zero extension)
                                 when "001" =>
                                     id_ex.alu_op <= alu_sh;
                                     id_ex.memaccess <= memaccess_write;
                                     id_ex.memsize <= memsize_halfword;
                                     id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= '1';
+                                    id_ex.ismem <= boolean_to_std_logic(not HAVE_FAST_STORE);
                                     -- Store word (no sign extension or zero extension)
                                 when "010" =>
                                     id_ex.alu_op <= alu_sw;
                                     id_ex.memaccess <= memaccess_write;
                                     id_ex.memsize <= memsize_word;
                                     id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= '1';
+                                    id_ex.ismem <= boolean_to_std_logic(not HAVE_FAST_STORE);
                                 when others =>
                                     control.illegal_instruction_decode <= '1';
                             end case;

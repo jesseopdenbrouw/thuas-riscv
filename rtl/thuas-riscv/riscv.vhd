@@ -78,6 +78,8 @@ entity riscv is
           RAM_HIGH_NIBBLE : memory_high_nibble := x"2";
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble := x"F";
+          -- Do we use fast store?
+          HAVE_FAST_STORE : boolean := false;
           -- Do we have UART1?
           HAVE_UART1 : boolean := TRUE;
           -- Do we have SPI1?
@@ -149,6 +151,8 @@ component core is
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
           BOOT_HIGH_NIBBLE : memory_high_nibble;
+          -- Do we have fast store?
+          HAVE_FAST_STORE : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have SPI1?
@@ -241,7 +245,8 @@ end component instruction_router;
 component rom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
-          ROM_ADDRESS_BITS : integer
+          ROM_ADDRESS_BITS : integer;
+          HAVE_FAST_STORE : boolean
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -262,7 +267,8 @@ component rom is
 end component rom;
 component ram is
     generic (
-          RAM_ADDRESS_BITS : integer
+          RAM_ADDRESS_BITS : integer;
+          HAVE_FAST_STORE : boolean
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -302,6 +308,8 @@ component io is
           SYSTEM_FREQUENCY : integer;
           -- Frequency of the clock (1 MHz)_
           CLOCK_FREQUENCY : integer;
+          -- Do we have fast store?
+          HAVE_FAST_STORE : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have SPI1?
@@ -432,6 +440,7 @@ begin
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
               BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE,
+              HAVE_FAST_STORE => HAVE_FAST_STORE,
               HAVE_UART1 => HAVE_UART1,
               HAVE_SPI1 => HAVE_SPI1,
               HAVE_SPI2 => HAVE_SPI2,
@@ -509,7 +518,8 @@ begin
     rom0: rom
     generic map (
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
-              ROM_ADDRESS_BITS => ROM_ADDRESS_BITS
+              ROM_ADDRESS_BITS => ROM_ADDRESS_BITS,
+              HAVE_FAST_STORE => HAVE_FAST_STORE
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
@@ -546,7 +556,8 @@ begin
         
     ram0: ram
     generic map (
-              RAM_ADDRESS_BITS => RAM_ADDRESS_BITS
+              RAM_ADDRESS_BITS => RAM_ADDRESS_BITS,
+              HAVE_FAST_STORE => HAVE_FAST_STORE
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
@@ -565,6 +576,7 @@ begin
     generic map (
           SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
           CLOCK_FREQUENCY => CLOCK_FREQUENCY,
+          HAVE_FAST_STORE => HAVE_FAST_STORE,
           HAVE_UART1 => HAVE_UART1,
           HAVE_SPI1 => HAVE_SPI1,
           HAVE_SPI2 => HAVE_SPI2,

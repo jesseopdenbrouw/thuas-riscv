@@ -48,7 +48,8 @@ use work.processor_common.all;
 
 entity ram is
     generic (
-          RAM_ADDRESS_BITS : integer
+          RAM_ADDRESS_BITS : integer;
+          HAVE_FAST_STORE : boolean
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -218,7 +219,8 @@ begin
             end if;
         end if;
 
-        O_memready <= readready_v or (I_csram and I_wren);
+        -- Fuse read ready and write ready
+        O_memready <= readready_v  or (I_csram and I_wren and boolean_to_std_logic(not HAVE_FAST_STORE));
 
     end process;
 

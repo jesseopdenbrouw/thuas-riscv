@@ -185,6 +185,8 @@ package processor_common is
           RAM_HIGH_NIBBLE : memory_high_nibble := x"2";
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble := x"F";
+          -- Do we use fast store?
+          HAVE_FAST_STORE : boolean := false;
           -- Do we have UART1?
           HAVE_UART1 : boolean := TRUE;
           -- Do we have SPI1?
@@ -239,6 +241,9 @@ package processor_common is
     -- Politely reused from S.T. Nolting (neorv32)
     impure function initialize_memory(init : memory_type ; depth : integer) return memory_type;
 
+    -- Function to change boolean into a std_logic
+    function boolean_to_std_logic(condition : boolean) return std_logic;
+
 end package processor_common;
 
 package body processor_common is
@@ -268,5 +273,15 @@ package body processor_common is
         end loop;
         return mem_v;
     end function initialize_memory;
+    
+    -- Function to change boolean into a std_logic
+    function boolean_to_std_logic(condition : boolean) return std_logic is
+    begin
+        if condition then
+            return '1';
+        else
+            return '0';
+        end if;
+    end function boolean_to_std_logic;
 
 end package body processor_common;

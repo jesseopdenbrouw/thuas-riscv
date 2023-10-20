@@ -49,7 +49,7 @@ all:
 	$(MAKE) -C malloc all
 	$(MAKE) -C mcountinhibit all
 	$(MAKE) -C monitor all
-#	$(MAKE) -C mult all
+	$(MAKE) -C mult all
 	$(MAKE) -C mxhw all
 	$(MAKE) -C qsort all
 	$(MAKE) -C riemann_left all
@@ -61,6 +61,7 @@ all:
 	$(MAKE) -C sprintf all
 	$(MAKE) -C string all
 	$(MAKE) -C structio all
+	$(MAKE) -C testexceptions all
 	$(MAKE) -C testio all
 	$(MAKE) -C timer1 all
 	$(MAKE) -C timer2ic all
@@ -119,6 +120,7 @@ clean:
 	$(MAKE) -C sprintf clean
 	$(MAKE) -C string clean
 	$(MAKE) -C structio clean
+	$(MAKE) -C testexceptions clean
 	$(MAKE) -C testio clean
 	$(MAKE) -C timer1 clean
 	$(MAKE) -C timer2ic clean

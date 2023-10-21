@@ -91,18 +91,25 @@ begin
     
     -- Reset button of CMOD-S7 is active high
     areset_int <= I_areset;
-    --O_spi1nss <= '0';
 
     riscv0: riscv
     generic map (
               SYSTEM_FREQUENCY => 12000000,
+              CLOCK_FREQUENCY => 1000000,
               HAVE_RISCV_E => false,
               HAVE_MULDIV => TRUE,
               FAST_DIVIDE => TRUE,
-              HAVE_ZBA => TRUE,
+              HAVE_ZBA => false,
               VECTORED_MTVEC => TRUE,
               HAVE_REGISTERS_IN_RAM => TRUE,
               HAVE_BOOTLOADER_ROM => TRUE,
+              ROM_ADDRESS_BITS => 16,
+              RAM_ADDRESS_BITS => 15,
+              ROM_HIGH_NIBBLE => x"0",
+              BOOT_HIGH_NIBBLE => x"1",
+              RAM_HIGH_NIBBLE => x"2",
+              IO_HIGH_NIBBLE => x"F",
+              HAVE_FAST_STORE => false,
               HAVE_UART1 => TRUE,
               HAVE_SPI1 => TRUE,
               HAVE_SPI2 => TRUE,

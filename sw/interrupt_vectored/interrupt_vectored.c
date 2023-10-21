@@ -30,8 +30,8 @@ int main(int argc, char *argv[], char *envp[])
 	char buffer[40] = {0};
 #endif
 
-	/* Set the trap handler vector + mode */
-	set_mtvec(handler_jump_table, TRAP_VECTORED_MODE);
+	/* Set the trap handler vectors + mode */
+	set_mtvec(trap_handler_jump_table, TRAP_VECTORED_MODE);
 
 	/* Initialize the USART*/
 	uart1_init(BAUD_RATE, UART_CTRL_RCIE);

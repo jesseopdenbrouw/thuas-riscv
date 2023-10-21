@@ -135,12 +135,13 @@ package processor_common is
     
     -- Constants for interrupt priority
     -- Changes here must be reflected in the interrupt handler in software
-    constant INTR_PRIO_SPI1 : integer := 21;
-    constant INTR_PRIO_I2C1 : integer := 20;
-    constant INTR_PRIO_TIMER2: integer := 19;
-    constant INTR_PRIO_UART1 : integer := 18;
-    constant INTR_PRIO_TIMER1 : integer := 17;
-    constant INTR_PRIO_EXTI : integer := 16;
+    constant INTR_PRIO_SPI1 : integer := 27;
+    constant INTR_PRIO_I2C1 : integer := 26;
+    constant INTR_PRIO_I2C2 : integer := 24;
+    constant INTR_PRIO_UART1 : integer := 23;
+    constant INTR_PRIO_TIMER2: integer := 21;
+    constant INTR_PRIO_TIMER1 : integer := 20;
+    constant INTR_PRIO_EXTI : integer := 18;
     -- System Timer fixed to 7, do not change
     constant INTR_PRIO_SYSTIME : integer := 7;
     

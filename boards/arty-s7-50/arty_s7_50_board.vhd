@@ -90,7 +90,7 @@ begin
     O_gpioapout <= pouta_int(14 downto 0);
     
     -- Reset signal is active low
-	areset_int <= not I_areset;
+    areset_int <= not I_areset;
 
     riscv0: riscv
     generic map (
@@ -109,6 +109,7 @@ begin
               BOOT_HIGH_NIBBLE => x"1",
               RAM_HIGH_NIBBLE => x"2",
               IO_HIGH_NIBBLE => x"F",
+              HAVE_FAST_STORE => false,
               HAVE_UART1 => TRUE,
               HAVE_SPI1 => TRUE,
               HAVE_SPI2 => TRUE,

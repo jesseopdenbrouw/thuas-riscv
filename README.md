@@ -51,7 +51,7 @@ executable is transformed to a VHDL synthesizable ROM table.
 * I/O: a simple 32-bit input and 32-bit output is available, as
 is a simple 7/8/9-bit UART with interrupt capabilities. Two SPI devices are
 available, with one device used for SD card socket (no interrupt) and a
-general purpose SPI device with hardware NSS. Two I2C device is
+general purpose SPI device with hardware NSS. Two I2C devices are
 available. A simple timer
 with interrupt is provided. A more elaborate timer is included and can
 generate waveforms (Output Compare and PWM) or count edges (Input Capture).

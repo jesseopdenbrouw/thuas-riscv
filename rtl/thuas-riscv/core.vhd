@@ -36,8 +36,8 @@
 
 -- This file contains the description of a RISC-V RV32IM core,
 -- using a three-stage pipeline. It contains the PC, the
--- instruction decoder and the ALU, the MD unit and the
--- memory interface unit.
+-- instruction decoder and the ALU, the MD unit, the memory
+-- interface unit, the CSR and the LIC.
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -417,8 +417,8 @@ begin
     
     -- Check if the currently executing instruction address is aligned to word
     -- We need to make a one-shot, because the PC is incremented by 4 each clock
-    -- cycle so the pipeline PC's will all be misaligned and the misaligned signal
-    -- would be multiple clock cycles which messes up trap entry
+    -- cycle so the pipeline PCs will all be misaligned and the misaligned signal
+    -- would be multiple clock cycles which messes up trap entry.
     process (I_clk, I_areset) is
     begin
         if I_areset = '1' then
@@ -1642,37 +1642,6 @@ begin
     -- Memory interface block
     --
 
---    -- Disable the bus when flushing
---    O_memaccess <= memaccess_nop when control.flush = '1' else id_ex.memaccess;
---    O_memsize <= id_ex.memsize;
---    -- Only memory access when there's no interrupt pending
---    O_memvma <= '1';
---    
---    -- This is the interface between the core and the memory (ROM, RAM, I/O)
---    -- Memory access type and size are computed in the instruction decoding unit
---    process (control, id_ex, ex_wb) is
---    variable address_v : unsigned(31 downto 0);
---    begin
---        -- Check if we need forward or not
---        if control.forwarda = '1' then
---            address_v := unsigned(ex_wb.rddata);
---        else
---            address_v := unsigned(id_ex.rs1data);
---        end if;
---        address_v := address_v + unsigned(id_ex.imm);
---
---        -- Data out to memory
---        O_memaddress <= std_logic_vector(address_v);
---        
---        if control.forwardb = '1' then
---            O_memdataout <= ex_wb.rddata;
---        else
---            O_memdataout <= id_ex.rs2data;
---        end if;
---        
---    end process;
-
-
     -- This is the interface between the core and the memory (ROM, RAM, I/O)
     -- Memory access type and size are computed in the instruction decoding unit
     process (I_clk, I_areset, I_memready, control, id_ex, ex_wb) is
@@ -2031,8 +2000,7 @@ end process;
     -- Hard wired CSR's
     csr_reg.mvendorid <= (others => '0'); --
     csr_reg.marchid <= (others => '0');
-    --csr_reg.mimpid <= (others => '0');
-    csr_reg.mimpid <= std_logic_vector(to_unsigned(HW_VERSION, 32)); --(others => '0');
+    csr_reg.mimpid <= std_logic_vector(to_unsigned(HW_VERSION, 32));
     csr_reg.mhartid <= (others => '0');
     -- mstatush is hardcoded to all zero
     csr_reg.mstatush <= (others => '0');
@@ -2079,9 +2047,9 @@ end process;
     --
 
     -- The Local Interrupt Controller (LIC) determines which
-    -- trap is to be served. Not that interrupts will only
+    -- trap is to be served. Note that interrupts will only
     -- be served if the processor is in the exec state.
-    -- Exceptions will be served in every state,
+    -- Exceptions will be served in the exec en mem states,
     process (I_clk, I_areset, I_intrio, I_load_misaligned_error,
              I_store_misaligned_error, I_load_access_error,
              I_instr_access_error,

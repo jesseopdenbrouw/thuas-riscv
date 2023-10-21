@@ -33,6 +33,7 @@ int main(void)
 	uart1_printf("has fast divide: %s\r\n", (hw & CSR_MXHW_FASTDV) ? "yes" : "no");
 	uart1_printf("has bootloader: %s\r\n", (hw & CSR_MXHW_BOOT) ? "yes" : "no");
 	uart1_printf("has registers in RAM: %s\r\n", (hw & CSR_MXHW_REGRAM) ? "yes" : "no");
+	uart1_printf("has Zba extension: %s\r\n", (hw & CSR_MXHW_ZBA) ? "yes" : "no");
 	uart1_printf("Done.\r\n");
 
 }

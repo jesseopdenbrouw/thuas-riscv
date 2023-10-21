@@ -113,6 +113,7 @@ begin
             if I_memaccess = memaccess_read then
                 O_csboot <= '1';
             end if;
+            -- The boot ROM cannot be written
             if I_memaccess = memaccess_write then
                 O_store_access_error <= '1';
             end if;            
@@ -135,6 +136,7 @@ begin
                 O_wrio <='1';
             end if;
             O_dataout <= I_iodatain;
+        -- Referencing unimplemented memory results in an access error
         else
             if I_memaccess = memaccess_read then
                 O_load_access_error <= '1';

@@ -731,6 +731,8 @@ Generic & Type & Default & Comment \\
 \end{tabular}
 \end{table}
 
+Notes: leave \lstinline|CLOCK_FREQUENCY| at 1000000. The toolchain depends on it.
+
 \section{Cloning the RISC-V project}
 \label{sec:cloning}
 Now we have to clone the RISC-V project. It incorporates the full Quartus Prime Lite project with the processor written in VHDL. It also incorporates many C program examples and a taylor-made program to convert a RISC-V executable to a VHDL table suitable for the ROM. Create a working directory (and change to that directory) and issue the command:
@@ -741,11 +743,10 @@ git clone https:/github.com/jesseopdenbrouw/riscv-rv32
 
 In the created directory, you will see the following directories:
 
-\lstinline|sw| -- Sample software programs, linker script, library and startup files \\
+\lstinline|boards| -- Files needed to use other boards.
 \lstinline|docs| -- Documentation \\
 \lstinline|rtl| -- the VHDL description(s)
-%\lstinline|olc| -- yes, really old files for backup \\
-%\lstinline|retired| -- Descriptions that are not used anymore
+\lstinline|sw| -- Sample software programs, linker script, library and startup files \\
 
 Change directory to \lstinline|sw|. Make sure the RISC-V C compiler is available (see Section~\ref{sec:ccompiler}) and is in your path environment variable. Now enter the command \lstinline|make|. It will compile all programs and the support programs \lstinline|srec2vhdl| and \lstinline|upload|. To clean up the programs, issue the command \lstinline|make clean|.
 

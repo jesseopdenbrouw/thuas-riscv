@@ -58,7 +58,7 @@ typedef struct {
 
 /*
  * I2C1, I2C2
-*/
+ */
 typedef struct {
 	volatile uint32_t CTRL;
 	volatile uint32_t STAT;

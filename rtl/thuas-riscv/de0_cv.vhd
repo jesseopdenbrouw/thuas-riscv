@@ -136,7 +136,7 @@ begin
               -- GPIO
               I_gpioapin => I_gpioapin,
               O_gpioapout => O_gpioapout,
-              -- USART (UART1)
+              -- UART1
               I_uart1rxd => I_uart1rxd,
               O_uart1txd => O_uart1txd,
               -- I2C1

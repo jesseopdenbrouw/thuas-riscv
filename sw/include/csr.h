@@ -83,19 +83,20 @@ uint64_t csr_get_instret(void);
 })
 
 /* mxhw CSR, if installed */
-#define CSR_MXHW_GPIOA  (1 << 0)
-#define CSR_MXHW_UART1  (1 << 4)
-#define CSR_MXHW_I2C1   (1 << 6)
-#define CSR_MXHW_I2C2   (1 << 7)
-#define CSR_MXHW_SPI1   (1 << 8)
-#define CSR_MXHW_SPI2   (1 << 9)
-#define CSR_MXHW_TIMER1 (1 << 10)
-#define CSR_MXHW_TIMER2 (1 << 11)
-#define CSR_MXHW_MULDIV (1 << 16)
-#define CSR_MXHW_FASTDV (1 << 17)
-#define CSR_MXHW_BOOT   (1 << 18)
-#define CSR_MXHW_REGRAM (1 << 19)
-#define CSR_MXHW_ZBA    (1 << 20)
+#define CSR_MXHW_GPIOA     (1 << 0)
+#define CSR_MXHW_UART1     (1 << 4)
+#define CSR_MXHW_I2C1      (1 << 6)
+#define CSR_MXHW_I2C2      (1 << 7)
+#define CSR_MXHW_SPI1      (1 << 8)
+#define CSR_MXHW_SPI2      (1 << 9)
+#define CSR_MXHW_TIMER1    (1 << 10)
+#define CSR_MXHW_TIMER2    (1 << 11)
+#define CSR_MXHW_MULDIV    (1 << 16)
+#define CSR_MXHW_FASTDV    (1 << 17)
+#define CSR_MXHW_BOOT      (1 << 18)
+#define CSR_MXHW_REGRAM    (1 << 19)
+#define CSR_MXHW_ZBA       (1 << 20)
+#define CSR_MXHW_FASTSTORE (1 << 21)
 
 
 #ifdef __cplusplus

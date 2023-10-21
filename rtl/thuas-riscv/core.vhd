@@ -2032,7 +2032,8 @@ end process;
     csr_reg.mxhw(18) <= '1' when HAVE_BOOTLOADER_ROM else '0';
     csr_reg.mxhw(19) <= '1' when HAVE_REGISTERS_IN_RAM else '0';
     csr_reg.mxhw(20) <= '1' when HAVE_ZBA else '0';
-    csr_reg.mxhw(31 downto 21) <= (others => '0');
+    csr_reg.mxhw(21) <= '1' when HAVE_FAST_STORE else '0';
+    csr_reg.mxhw(31 downto 22) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));

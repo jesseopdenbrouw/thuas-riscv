@@ -2281,7 +2281,7 @@ begin
     -- Interrupt generation
     --
 
-    process (spi1, i2c1, timer2, timer1, uart1, gpioa) is
+    process (spi1, i2c1, i2c2, timer2, timer1, uart1, gpioa) is
     begin
        -- Default all interrupts to 0.
         O_intrio(31 downto 8) <= (others => '0');
@@ -2295,6 +2295,10 @@ begin
         -- I2C1 transmit interrupt.
         if i2c1.ctrl(3) = '1' and i2c1.stat(3) = '1' then
             O_intrio(INTR_PRIO_I2C1) <= '1';
+        end if;
+        -- I2C2 transmit interrupt.
+        if i2c2.ctrl(3) = '1' and i2c2.stat(3) = '1' then
+            O_intrio(INTR_PRIO_I2C2) <= '1';
         end if;
         -- TIMER2 compare match T/A/B/C interrupt
         if (timer2.ctrl(4) = '1' and timer2.stat(4) = '1') or

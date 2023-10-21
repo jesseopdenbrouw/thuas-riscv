@@ -24,3 +24,6 @@ Please complete the following steps:
 * Synthesize the design.
 
 In the XDC file, the clock period is set to 8 ns (125 MHz). This makes sure the actual clock period will be less than 10 ns. You can add a new synthesis/implementation with increased performance to get a better clock period.
+
+
+Note that not all GPIOA pins (in and out) are connected to physical FPGA pins.

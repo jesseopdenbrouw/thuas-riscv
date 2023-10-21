@@ -431,7 +431,7 @@ Writing read-only registers causes an illegal instruction trap. Accessing a non-
 \subsection{Local Interrupt Controller}
 The Local Interrupt Controller is responsible for selecting which trap request must be serviced by the core. Interrupts have higher priority than exceptions. The state of the serviced trap is visible in the CSR.
 
-The LIC can handle 16 local interrupts (numbered 16 to 31) and the Machine mode external timer interrupt (numbered 7). Other standard RISC-V interrupts (numbered 0 to 6 and 8 to 15) are not available. SPI1 has the highest priority, followed (currently) by the I2C1, TIMER2, UART1, TIMER1, EXTI external input interrupt and external system timer interrupts.
+The LIC can handle 16 local interrupts (numbered 16 to 31) and the Machine mode external timer interrupt (numbered 7). Other standard RISC-V interrupts (numbered 0 to 6 and 8 to 15) are not available. SPI1 has the highest priority, followed (currently) by the I2C1, I2C2, UART1, TIMER2, TIMER1, EXTI external input interrupt and external system timer interrupts. We reserve number 31 for the NMI, if ever implemented.
 
 Exceptions are handled as set forward in Table 3.7 of ``The RISC-V Instruction Set Manual, Volume II: Privileged Architecture'': instruction access fault, instruction address misaligned, ECALL (M mode only), EBREAK, load/store address misaligned, load/store access fault. Note that ECALL and EBREAK are user instructions and can be interrupted by an interrupt (i.e. when the ECALL or EBREAK instruction is executing).
 
@@ -709,7 +709,7 @@ Generic & Type & Default & Comment \\
 \lstinline|HAVE_RISCV_E| & boolean & false & Embedded subset of registers\\
 \lstinline|HAVE_MULDIV| & boolean & TRUE &  Hardware multiply/divide \\
 \lstinline|FAST_DIVIDE| & boolean & TRUE & Use fast divider\\
-\lstinline|HAVE_ZBA| & boolean & TRUE & Use Zba extension \\
+\lstinline|HAVE_ZBA| & boolean & false & Use Zba extension \\
 \lstinline|VECTORED_MTVEC| & boolean & TRUE & Use vectored interrupts\\
 \lstinline|HAVE_REGISTERS_IN_RAM| & boolean & TRUE & Use registers is onboard RAM\\
 \lstinline|HAVE_BOOTLOADER_ROM| & boolean & TRUE & Use the bootloader\\
@@ -731,7 +731,8 @@ Generic & Type & Default & Comment \\
 \end{tabular}
 \end{table}
 
-Notes: leave \lstinline|CLOCK_FREQUENCY| at 1000000. The toolchain depends on it.
+Notes: leave \lstinline|CLOCK_FREQUENCY| at 1000000. The toolchain depends on it. Also for correct synthesis, \lstinline|SYSTEM_FREQUENCY| must be a integer multiple of \lstinline|CLOCK_FREQUENCY|.
+Setting \lstinline|HAVE_FAST_STORE| makes a store \emph{effectively} one clock cycle. The store still needs two clock cycles but the next instruction is executed while the store is taking place. If \lstinline|VECTORED_MTVEC| is set to false, the core cannot execute vectored interrupts.
 
 \section{Cloning the RISC-V project}
 \label{sec:cloning}
@@ -743,10 +744,10 @@ git clone https:/github.com/jesseopdenbrouw/riscv-rv32
 
 In the created directory, you will see the following directories:
 
-\lstinline|boards| -- Files needed to use other boards.
+\lstinline|boards| -- Files needed to use other boards.\\
 \lstinline|docs| -- Documentation \\
-\lstinline|rtl| -- the VHDL description(s)
-\lstinline|sw| -- Sample software programs, linker script, library and startup files \\
+\lstinline|rtl| -- the VHDL description(s)\\
+\lstinline|sw| -- Sample software programs, linker script, library and startup files
 
 Change directory to \lstinline|sw|. Make sure the RISC-V C compiler is available (see Section~\ref{sec:ccompiler}) and is in your path environment variable. Now enter the command \lstinline|make|. It will compile all programs and the support programs \lstinline|srec2vhdl| and \lstinline|upload|. To clean up the programs, issue the command \lstinline|make clean|.
 
@@ -917,7 +918,7 @@ Note: when using traps, the system calls are handled by a trap handler (by using
 
 \section{Using trap handlers in software}
 \label{sec:traphandling}
-We provide (see software examples \lstinline|interrupt_direct| and \lstinline|interrupt_vectored|) a basic implementation of trap handlers. In direct mode, the \lstinline|universal_handler| handles all traps (interrupts and exceptions). The entry point (the address loaded in the \lstinline|mtvec| CSR) must be set in the \lstinline|main| function on a 4-byte boundary, as is enabling traps. In vectored mode, interrupts are redirected to their own handlers via a jump table. The start address of the jump table must be set in the \lstinline|main| function on a 4-byte boundary \textit{and} bit 0 of \lstinline|mtvec| must be set to 1, and traps must be enabled. The first entry of the jump table points the universal handler that only handles exceptions. The external timer has its own handler called \lstinline|external_timer_handler|. I2C1 has its own handler called \lstinline|i2c1_handler|. TIMER1 has its own handler called \lstinline|timer1_handler|. TIMER2 has its own handler called \lstinline|timer2_handler|. Note that there is only one handler for all four interrupt sources. SPI1 has it own handler called \lstinline|spi1_handler|. UART1 has its own handler called \lstinline|uart1_handler|. This handler is used for both receive and transmit interrupts. Note that negating an interrupt request must be done by software in the respective handlers. The interrupt requests are \emph{not} negated by hardware. Note: the external timer interrupt has to be enabled by writing a 1 to \lstinline|mie.MTIE|. Both software examples implement all available interrupts: SPI1, I2C1, TIMER2, UART1, TIMER1 and external system timer. SPI2 doesn't have interrupts. When using traps, you need to set up the trap handler and interrupt service routines.
+We provide (see software examples \lstinline|interrupt_direct| and \lstinline|interrupt_vectored|) a basic implementation of trap handlers. In direct mode, the \lstinline|universal_handler| handles all traps (interrupts and exceptions). The entry point (the address loaded in the \lstinline|mtvec| CSR) must be set in the \lstinline|main| function on a 4-byte boundary, as is enabling traps. In vectored mode, interrupts are redirected to their own handlers via a jump table. The start address of the jump table must be set in the \lstinline|main| function on a 4-byte boundary \textit{and} bit 0 of \lstinline|mtvec| must be set to 1, and traps must be enabled. The first entry of the jump table points the universal handler that only handles exceptions. The external timer has its own handler called \lstinline|external_timer_handler|. I2C1 has its own handler called \lstinline|i2c1_handler|. I2C2 has its own handler called \lstinline|i2c2_handler|. TIMER1 has its own handler called \lstinline|timer1_handler|. TIMER2 has its own handler called \lstinline|timer2_handler|. Note that there is only one handler for all four interrupt sources. SPI1 has it own handler called \lstinline|spi1_handler|. UART1 has its own handler called \lstinline|uart1_handler|. This handler is used for both receive and transmit interrupts. Note that negating an interrupt request must be done by software in the respective handlers. The interrupt requests are \emph{not} negated by hardware. Note: the external timer interrupt has to be enabled by writing a 1 to \lstinline|mie.MTIE|. Both software examples implement all available interrupts: SPI1, I2C1, I2C2, TIMER2, UART1, TIMER1 and external system timer. SPI2 doesn't have interrupts. When using traps, you need to set up the trap handler and interrupt service routines.
 
 \paragraph*{Set up traps in direct mode.} The trap handler's entry address must be set up using \lstinline|set_mtvec|. Next, set up the I/O. Then, enable interrupts. The trap handler will be called for both interrupts and exceptions.
 
@@ -945,44 +946,44 @@ void trap_handler(void)
 
 \begin{lstlisting}[]
 __attribute__ ((naked))
-void handler_jump_table(void)
+void trap_handler_jump_table(void)
 {
-	/* Handlers for RISC-V interrupts. Only Machine
-	 * Timer Interrupt is available. */
-	__asm__ volatile ("j exception_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j external_timer_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
+    /* Handlers for RISC-V interrupts. Only Machine
+     * Timer Interrupt is available. */
+    __asm__ volatile ("j trap_handler_vectored;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j external_timer_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
 
-	/* Next are the core local interrupts (16 max) */
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j timer1_handler;");
-	__asm__ volatile ("j uart1_handler;");
-	__asm__ volatile ("j timer2_handler;");
-	__asm__ volatile ("j i2c1_handler;");
-	__asm__ volatile ("j spi1_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
+    /* Next are the core local interrupts (16 max) */
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j external_input_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j timer1_handler;");
+    __asm__ volatile ("j timer2_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j uart1_handler;");
+    __asm__ volatile ("j i2c2_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j i2c1_handler;");
+    __asm__ volatile ("j spi1_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j default_handler;");
 }
 
 int main(void)

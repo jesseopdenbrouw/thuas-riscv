@@ -2056,7 +2056,7 @@ begin
 
     gen_bootrom: if HAVE_BOOTLOADER_ROM generate
 
-        -- ROM, for both instructions and read-only data
+        -- Boot ROM, for both instructions and read-only data
         process (I_clk, I_areset, I_pc, I_memaddress, I_csboot, I_memsize, I_stall) is
         variable address_instr : integer range 0 to bootloader_size-1;
         variable address_data : integer range 0 to bootloader_size-1;

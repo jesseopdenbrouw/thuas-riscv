@@ -37,7 +37,9 @@ typedef struct {
 #define GPIOA_EXTS (*(volatile uint32_t*)(GPIOA_BASE+0x0000001cUL))
 
 
-/* UART1 */
+/*
+ * UART1i
+ */
 typedef struct {
 	volatile uint32_t CTRL;
 	volatile uint32_t STAT;
@@ -55,8 +57,8 @@ typedef struct {
 
 
 /*
- * I2C1
-*/
+ * I2C1, I2C2
+ */
 typedef struct {
 	volatile uint32_t CTRL;
 	volatile uint32_t STAT;

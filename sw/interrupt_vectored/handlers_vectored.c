@@ -1,5 +1,5 @@
 /*
- * handlers.c -- exception and interrupt handlers
+ * handlers_vectored.c -- exception and interrupt handlers
  *
  * Except for the debugger function, all other handlers are
  * called via the jump table since we are using vectored
@@ -145,7 +145,7 @@ void spi1_handler(void)
 	GPIOA->POUT ^= 0x10;
 }
 
-/* I2C1 transmit and/or receive complete interrupt handler */
+/* I2C1 transmit complete interrupt handler */
 __attribute__ ((interrupt))
 void i2c1_handler(void)
 {
@@ -153,6 +153,16 @@ void i2c1_handler(void)
 	I2C1->STAT &= ~(1<<3);
 	/* Flip output bit 5 */
 	GPIOA->POUT ^= 0x20;
+}
+
+/* I2C2 transmit complete interrupt handler */
+__attribute__ ((interrupt))
+void i2c2_handler(void)
+{
+	/* Remove TC interrupt flags */
+	I2C2->STAT &= ~(1<<3);
+	/* Flip output bit 7 */
+	GPIOA->POUT ^= 0x80;
 }
 
 /* External pin input interrupt handler */

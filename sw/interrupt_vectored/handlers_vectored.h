@@ -1,12 +1,12 @@
 /*
- * handlers.h -- prototypes for handlers
+ * handlers_vectored.h -- prototypes for handlers
  *
  * (c) 2022  Jesse E.J. op den Brouw
  *
  */
 
-#ifndef _HANDLERS_H
-#define _HANDLERS_H
+#ifndef _HANDLERS_VECTORED_H
+#define _HANDLERS_VECTORED_H
 
 #include <thuasrv32.h>
 
@@ -24,6 +24,8 @@ void timer2_handler(void);
 void spi1_handler(void);
 /* I2C1 transmit complete interrupt */
 void i2c1_handler(void);
+/* I2C2 transmit complete interrupt */
+void i2c2_handler(void);
 /* External input handler */
 void external_input_handler(void);
 /* Default handler */

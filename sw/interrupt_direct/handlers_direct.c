@@ -135,13 +135,22 @@ void spi1_handler(void)
 	GPIOA->POUT ^= 0x10;
 }
 
-/* I2C1 transmit and/or receive complete interrupt handler */
+/* I2C1 transmit complete interrupt handler */
 void i2c1_handler(void)
 {
 	/* Remove TC interrupt flags */
 	I2C1->STAT &= ~(1<<3);
 	/* Flip output bit 5 (led) */
 	GPIOA->POUT ^= 0x20;
+}
+
+/* I2C2 transmit complete interrupt handler */
+void i2c2_handler(void)
+{
+	/* Remove TC interrupt flags */
+	I2C2->STAT &= ~(1<<3);
+	/* Flip output bit 5 (led) */
+	GPIOA->POUT ^= 0x80;
 }
 
 /* External input interrupt handler */

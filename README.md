@@ -111,7 +111,7 @@ memory contents.
 ## Plans (or not) and issues
 
 * We are *not* planning the C standard.
-* Implement clock stretching and arbitration in the I2C1 peripheral.
+* Implement clock stretching and arbitration in the I2C1/I2C2 peripherals.
 * Adding input synchronization for SPI1/SPI2 peripherals.
 * Implement an I/O input/output multiplexer for GPIOA PIN and POUT. This will enable I/O functions to be multiplexed with normal port I/O.
 * Smaller (in cells) divide unit.

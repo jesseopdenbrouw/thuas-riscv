@@ -1659,15 +1659,15 @@ begin
         if I_areset = '1' then
             O_memsize <= memsize_unknown;
             O_memaccess <= memaccess_nop;
-            O_memaddress <= (others => '0');
             O_memdataout <= (others => '0');
+            csr_transfer.address_to_mtval <= (others => '0');
         elsif rising_edge(I_clk) then
             -- If current transaction is completed, reset the bus
             if I_memready = '1' then
                 O_memsize <= memsize_unknown;
                 O_memaccess <= memaccess_nop;
-                O_memaddress <= (others => '0');
                 O_memdataout <= (others => '0');
+                csr_transfer.address_to_mtval <= (others => '0');
             -- else clock in the credentials for memory access
             else
                 -- Disable the bus when flushing or trap
@@ -1679,8 +1679,6 @@ begin
                     O_memsize <= id_ex.memsize;
                 end if;
 
-                -- Address of the memory operation
-                O_memaddress <= std_logic_vector(address_v);
                 -- In case of a trap, record the memory address in MTVAL CSR
                 csr_transfer.address_to_mtval <= std_logic_vector(address_v);
                 
@@ -1692,8 +1690,9 @@ begin
                 end iF;
             end if;
         end if;
-        
     end process;
+    -- Address of the memory operation
+    O_memaddress <= csr_transfer.address_to_mtval;
     
         --
     -- Interface to the CSR

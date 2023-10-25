@@ -1,6 +1,6 @@
 ## Clock signal
 set_property -dict {PACKAGE_PIN M9 IOSTANDARD LVCMOS33} [get_ports {I_clk} ]
-# Clock has 12 MHz osccilator (83.333333 ns)
+# Clock has 12 MHz oscillator (83.333333 ns)
 #create_clock -period 83.333 -name I_clk -waveform {0.000 41.667} -add [get_ports {I_clk} ]
 # When using a MMCM at 100 MHz
 #create_clock -period 10.000 -name I_clk -waveform {0.000 5.000} -add [get_ports {I_clk} ]
@@ -78,7 +78,6 @@ set_property -dict {PACKAGE_PIN A4 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[9
 
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]
-#set_property INTERNAL_VREF 0.675 [get_iobanks 34]
 
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]

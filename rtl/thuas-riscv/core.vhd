@@ -59,7 +59,9 @@ entity core is
           -- Fast divide (needs more area)?
           FAST_DIVIDE : boolean;
           -- Do we have Zba (sh?add)
-          HAVE_ZBA : boolean;          
+          HAVE_ZBA : boolean;
+          -- Do we have Zicond (czero.{eqz|nez})?
+          HAVE_ZICOND : boolean;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
@@ -869,6 +871,14 @@ begin
                             elsif func3_v = "110" and func7_v = "0010000" and HAVE_ZBA then
                                 id_ex.alu_op <= alu_sh3add;
                                 id_ex.rd_en <= '1';
+                            -- CZERO.EQZ
+                            elsif func3_v = "101" and func7_v = "0000111" and HAVE_ZICOND then
+                                id_ex.alu_op <= alu_czeroeqz;
+                                id_ex.rd_en <= '1';
+                            -- CZERO.NEZ
+                            elsif func3_v = "111" and func7_v = "0000111" and HAVE_ZICOND then
+                                id_ex.alu_op <= alu_czeronez;
+                                id_ex.rd_en <= '1';
                             -- Multiply, divide, remainder
                             elsif func7_v = "0000001" then
                                 -- Set operation to multiply or divide/remainder
@@ -1166,9 +1176,11 @@ begin
             when alu_nop | alu_unknown | alu_sw | alu_sh | alu_sb | alu_trap =>
                 null;
 
+            -- Return from trap
             when alu_mret =>
                 control.penalty <= '1';
                 
+            -- Simple arithmetic and logic
             when alu_add | alu_addi | alu_sh1add | alu_sh2add | alu_sh3add =>
                 if HAVE_ZBA then
                     if id_ex.alu_op = alu_sh1add then
@@ -1188,6 +1200,22 @@ begin
                 r_v := a_v or b_v;
             when alu_xor | alu_xori =>
                 r_v := a_v xor b_v;
+            when alu_czeroeqz =>
+                if HAVE_ZICOND then
+                    if b_v = all_zeros_c then
+                        r_v := all_zeros_c;
+                    else
+                        r_v := a_v;
+                    end if;
+                end if;
+            when alu_czeronez =>
+                if HAVE_ZICOND then
+                    if b_v /= all_zeros_c then
+                        r_v := all_zeros_c;
+                    else
+                        r_v := a_v;
+                    end if;
+                end if;
                 
             -- Test register & immediate signed/unsigned
             when alu_slt | alu_slti =>
@@ -2032,7 +2060,8 @@ end process;
     csr_reg.mxhw(19) <= '1' when HAVE_REGISTERS_IN_RAM else '0';
     csr_reg.mxhw(20) <= '1' when HAVE_ZBA else '0';
     csr_reg.mxhw(21) <= '1' when HAVE_FAST_STORE else '0';
-    csr_reg.mxhw(31 downto 22) <= (others => '0');
+    csr_reg.mxhw(22) <= '1' when HAVE_ZICOND else '0';
+    csr_reg.mxhw(31 downto 23) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));

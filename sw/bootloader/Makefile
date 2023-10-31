@@ -9,7 +9,7 @@ TARGET = bootloader
 # Compiler flags
 CFLAGS = -flto -g -Os -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) $(MARCHABISTRING) -DNO_ARGC_ARGV
 # Linker flags
-LDFLAGS = -flto -g -lm -lnosys -Wall -nostartfiles -T bl_riscv.ld $(LIBTHUASRV32STRING) $(MARCHABISTRING) -specs=../lib/thuas.specs -specs=../lib/nano.specs $(EXTRA_LINKER_FLAGS)
+LDFLAGS = -flto -g -lm -Wall -nostartfiles -T bl_riscv.ld $(LIBTHUASRV32STRING) $(MARCHABISTRING) -specs=../lib/thuas.specs -specs=../lib/nano.specs $(EXTRA_LINKER_FLAGS)
 
 
 #-----

@@ -1,8 +1,12 @@
+/* Bootloader linker script
+ * The bootloader is located at address 0x10000000
+ * and has a size of 4 kB */
+
 ENTRY( _start )
 
 MEMORY
 {
-   ROM (rx)   : ORIGIN = 0x10000000, LENGTH = 8K
+   ROM (rx)   : ORIGIN = 0x10000000, LENGTH = 4K
    RAM (rw)	  : ORIGIN = 0x20000000, LENGTH = 32K
    IO (rw)    : ORIGIN = 0xf0000000, LENGTH = 16K
 }

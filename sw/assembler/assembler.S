@@ -22,6 +22,8 @@ _start:
 #	li t0, 0x8 | (0x3<<11)
 #	csrw mstatus,t0
 
+#	czero.nez x5,x6,x7
+#	czero.eqz x5,x6,x7
 
 	nop
 	nop

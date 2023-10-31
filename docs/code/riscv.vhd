@@ -1,3 +1,11 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.processor_common.all;
+
+-- The microcontroller
 entity riscv is
     generic (
           -- The frequency of the system
@@ -12,6 +20,8 @@ entity riscv is
           FAST_DIVIDE : boolean := TRUE;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean := TRUE;
+          -- Do we have Zicond (czero.{eqz|nez})?
+          HAVE_ZICOND : boolean := TRUE;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean := TRUE;
           -- Do we have registers is RAM?
@@ -30,7 +40,7 @@ entity riscv is
           RAM_HIGH_NIBBLE : memory_high_nibble := x"2";
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble := x"F";
-          -- Do we have fast store?
+          -- Do we use fast store?
           HAVE_FAST_STORE : boolean := false;
           -- Do we have UART1?
           HAVE_UART1 : boolean := TRUE;

@@ -60,6 +60,8 @@ entity riscv is
           FAST_DIVIDE : boolean := TRUE;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean := TRUE;
+          -- Do we have Zicond (czero.{eqz|nez})?
+          HAVE_ZICOND : boolean := TRUE;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean := TRUE;
           -- Do we have registers is RAM?
@@ -140,7 +142,9 @@ component core is
           -- Fast divide (needs more area)?
           FAST_DIVIDE : boolean;
           -- Do we have Zba (sh?add)
-          HAVE_ZBA : boolean;          
+          HAVE_ZBA : boolean;
+          -- Do we have Zicnd (czero.{eqz|nez})?
+          HAVE_ZICOND : boolean;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
@@ -435,6 +439,7 @@ begin
               HAVE_MULDIV => HAVE_MULDIV,
               FAST_DIVIDE => FAST_DIVIDE,
               HAVE_ZBA => HAVE_ZBA,
+              HAVE_ZICOND => HAVE_ZICOND,
               VECTORED_MTVEC => VECTORED_MTVEC,
               HAVE_REGISTERS_IN_RAM => HAVE_REGISTERS_IN_RAM,
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,

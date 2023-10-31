@@ -85,7 +85,8 @@ package processor_common is
                          alu_multiply,
                          alu_divrem,
                          alu_trap, alu_mret,
-                         alu_sh1add, alu_sh2add, alu_sh3add
+                         alu_sh1add, alu_sh2add, alu_sh3add, -- Zba
+                         alu_czeroeqz, alu_czeronez          -- Zicond
                         );
                         
     -- Control and State register operations
@@ -168,6 +169,8 @@ package processor_common is
           FAST_DIVIDE : boolean := TRUE;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean := TRUE;
+          -- Do we have Zicond (czero.{eqz|nez})?
+          HAVE_ZICOND : boolean := TRUE;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean := TRUE;
           -- Do we have registers is RAM?

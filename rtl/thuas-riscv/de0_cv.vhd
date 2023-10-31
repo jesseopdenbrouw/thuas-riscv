@@ -48,6 +48,7 @@ entity de0_cv is
           -- GPIOA
           I_gpioapin : in data_type;
           O_gpioapout : out data_type;
+          
           -- UART1
           I_uart1rxd : in std_logic;
           O_uart1txd : out std_logic;
@@ -96,6 +97,8 @@ begin
               FAST_DIVIDE => TRUE,
               -- Do we have the Zba extension?
               HAVE_ZBA => false,
+              -- Do we have Zicond (czero.{eqz|nez})?
+              HAVE_ZICOND => false,
               -- Do we have vectored MTVEC (for interrupts)?
               VECTORED_MTVEC => TRUE,
               -- Do we have registers in onboard RAM?

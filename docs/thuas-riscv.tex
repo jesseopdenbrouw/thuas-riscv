@@ -88,9 +88,9 @@ This is work in progress. Things will certainly change in the future.
 \section{Introduction}
 This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one HART (Hardware Thread). The processor is able to run a compiled C-program. C++ is supported but some concepts (\texttt{cout} with \texttt{iostream}, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ``The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr and Zba extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85\,MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic DE0-CV board.
 
-The processor requires three clock cycles to complete an instruction, but the next instructions are fetched and decoded while the current instruction is executed. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), MTIME and MTIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
+The processor requires three clock cycles to complete an instruction, but the next instructions are fetched and decoded while the current instruction is executed. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. A preliminary test with CoreMark showed an average CPI of 1.82 with a throughput of 1.92 coremark/MHz.
+The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. A preliminary test with CoreMark showed an average CPI of 1.78 with a throughput of 1.98 coremark/MHz.
 
 \section{The processor}
 The RISC-V processor consists of one \textit{core} and some building blocks:
@@ -456,7 +456,7 @@ Note: instructions can only be fetched from the ROM and bootloader ROM. Note: wh
 
 \subsection{Bootloader ROM}
 \label{sec:bootloaderrom}
-The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is places in onboard immutable RAM blocks. See Section~\ref{sec:bootloader}. The bootloader may be excluded from synthesis.
+The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is places in onboard immutable RAM blocks. See Section~\ref{sec:bootloader}. The bootloader may be excluded from synthesis. Note that the bootloader firmware is generated with RV32IM.
 
 \subsection{RAM}
 \label{sec:ram}
@@ -480,7 +480,7 @@ TIMER2 has a 16-bit count register and a 16-bit prescaler, and increments on eve
 
 I2C1 is a minimal I\textsuperscript{2}C controller peripheral (master-only). It cannot react to clock stretching and lost arbitration, so only modern targets (slaves) can be connected in a one-master-only system. Both Standard mode (Sm) with a transmission speed of up to 100 kbps and Fast mode (Fm) with a transmission speed up to 400 kbps are implemented. Before sending the address byte, the send-start bit must be set and a START condition is send to the target when the address is written to the I2C1 data register. Before sending or receiving the last data byte, the send-stop bit must be set and a STOP condition is send to the target after the byte is send or received by the controller. The last byte received will not be acknowledged by the controller. When receiving intermediate bytes, the controller must acknowledge the reception with an ACK. This is controlled by the MACK bit in the control register. Sending a byte is straightforward: just write the byte to the data register. When receiving a byte, a dummy byte (data value of 0xff) must be send to the target. This way, the processor can create a pause in the transmission if needed. Note that the SCL line is kept low between byte transmissions. The baud rate prescaler must be loaded with the number of system clock cycles of \textbf{one-half} bit time minus~1 for Standard mode and \textbf{one-third} bit time minus~1 for Fast mode. Note that the prescaler is part of the control register CTRL and its value must be preserved when setting or clearing other bits. The SCL and SDA inputs are synchronized to the system clock using two 2-bit shift registers.
 
-I2C2 is exact copy of I2C1, except that it doesn't have an interrupt.
+I2C2 is exact copy of I2C1.
 
 SPI1 is a full-fledged SPI master. It can transfer 8-bit, 16-bit, 24-bit and 32-bit data in one SPI cycle. It incorporates a programmable prescaler (from /2 to /256 in powers of 2) and all four phases of clock polarity (CPOL) and phase polarity (CPHA), hardware NSS (Slave Select, active low) and programmable Slave Select setup and hold time. It is possible to use a GPIO pin to use software-controlled NSS. Currently, the MISO is not synchronized to the system clock.
 
@@ -545,29 +545,8 @@ The processor hardware is composed of the following VHDL files:
 \item \lstinline|tb_riscv.do| -- QuestaSim/Modelsim command script.
 \end{itemize}
 
-%In the file \lstinline|processor_common.vhd|, a number of constant parameters are available:
-%\begin{itemize}
-%\item \lstinline|SYSTEM_FREQUENCY| -- Set to 50 MHz. Change this to suit the system clock frequency, for example when using a PLL.
-%\item \lstinline|CLOCK_FREQUENCY| -- Set to 1 MHz. Used to calibrate the internal clock. The compiler assumes 1 MHz and some library functions depend on it. Used for measuring time in microseconds.
-%\item \lstinline|NUMBER_OF_REGISTERS| -- Set to 32 for I standard. Set to 16 for E standard. You need to supply the correct architecture and ABI.
-%\item \lstinline|HAVE_MULDIV| -- Set to TRUE, the MD unit is included. Set to FALSE to exclude MD unit. If set to false, you must not specify the hardware multiply/divide options while compiling software, i.e.\@ multiply and division occur in software.
-%\item \lstinline|FAST_DIVIDE| -- Set to TRUE to use the radix-4 divider. Set to FALSE to use the radix-2 divider.
-%\item \lstinline|VECTORED_MTVEC| -- Set to TRUE to provide vectored interrupts. You still have to set bit 0 to 1 in \lstinline|mtvec| CSR. You can still use direct mode. Set to FALSE to only use direct interrupts.
-%\item \lstinline|MSTATUS_MIE_DISABLES_INTERRUPTS| -- Set to TRUE to only disable interrupts when \lstinline|mstatus.MIE| is 0. Set to FALSE to disable all traps (so including exceptions and when \lstinline|mstatus.MIE| is 0). This option can be used in simulations.
-%\item \lstinline|HAVE_BOOTLOADER_ROM| -- Set to TRUE to provide the bootloader ROM and the PC is set to the start of the bootloader. Set to FALSE to disable the bootloader ROM and the PC is set to the start of the ROM. Disabling the bootloader reduces the RAM block count considerably.
-%\item \lstinline|HAVE_REGISTERS_IN_RAM| -- Set to TRUE to place the registers in onboard RAM blocks. This lowers the ALM count drastically, but may have an impact on the system frequency. Set to FALSE to place the registers in ALM flip-flops.
-%\item \lstinline|HAVE_UART1| -- Set to TRUE to include UART1 hardware. Set to FALSE to remove UART1 hardware.
-%%\item \lstinline|HAVE_UART2| -- Set to TRUE to include UART2 hardware. Set to FALSE to remove UART2 hardware.
-%\item \lstinline|HAVE_I2C1| -- Set to TRUE to include IC21 hardware. Set to FALSE to remove I2C1 hardware.
-%\item \lstinline|HAVE_SPI1| -- Set to TRUE to include SPI1 hardware. Set to FALSE to remove SPI1 hardware.
-%\item \lstinline|HAVE_SPI2| -- Set to TRUE to include SPI2 hardware. Set to FALSE to remove SPI2 hardware.
-%\item \lstinline|HAVE_TIMER1| -- Set to TRUE to include TIMER1 hardware. Set to FALSE to remove TIMER1 hardware.
-%\item \lstinline|HAVE_TIMER2| -- Set to TRUE to include TIMER2 hardware. Set to FALSE to remove TIMER2 hardware.
-%\end{itemize}
-%
-%Note: GPIOA and the external timer (TIME et al.) are always included.
 
-The entity of the top level (\lstinline|riscv.vhd|) is shown in the listing below.
+he entity of the top level (\lstinline|riscv.vhd|) is shown in the listing below.
 
 \lstinputlisting[language=VHDL,breaklines=false]{code/riscv.vhd}
 
@@ -710,6 +689,7 @@ Generic & Type & Default & Comment \\
 \lstinline|HAVE_MULDIV| & boolean & TRUE &  Hardware multiply/divide \\
 \lstinline|FAST_DIVIDE| & boolean & TRUE & Use fast divider\\
 \lstinline|HAVE_ZBA| & boolean & false & Use Zba extension \\
+\lstinline|HAVE_ZICOND| & boolean & false & Use Zicond extension \\
 \lstinline|VECTORED_MTVEC| & boolean & TRUE & Use vectored interrupts\\
 \lstinline|HAVE_REGISTERS_IN_RAM| & boolean & TRUE & Use registers is onboard RAM\\
 \lstinline|HAVE_BOOTLOADER_ROM| & boolean & TRUE & Use the bootloader\\
@@ -763,7 +743,7 @@ Compilation of the hardware design is independent of the size of the software pr
 
 \section{Setting up the GNU C compiler for \textit{this} RISC-V}
 \label{sec:ccompiler}
-The processor can run C and C++ programs that are compiled using the GNU C/C++ compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. Building the C/C++ compiler (from Linux) is straightforward:
+The processor can run C and C++ programs that are compiled using the GNU C/C++ compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 13.2.0. Building the C/C++ compiler (from Linux) is straightforward:
 
 \begin{enumerate}
 \item You need a current GNU C/C++ compiler installed or your Linux box. You also need all essential building tools:
@@ -1148,13 +1128,13 @@ Note: unused ROM addresses are not output, except when the \lstinline|-0| or \ls
 The processor uses a 32-bit linear address space (4 GB) and is divided in 16 blocks of 256 MB each. The top four bits (31 to 28) select a block while the remaining bits select the address within a block.
 By default, the ROM starts at address 0x00000000 and and has a size of 64 kB (16 k words). The Program Counter then starts at 0x00000000. The bootloader ROM starts at address 0x10000000 and has a size of 4 kB (1 k words). The Program Counter then starts at address 0x10000000. The RAM starts at address 0x20000000 and has a size of 32 kB (8 k words). The stack pointer is set to one address above the last RAM byte, by default at 0x20008000. The I/O starts at address 0xF0000000 and has a size of 16 kB (4 k words).
 
-The ROM, bootloader ROM, RAM and I/O may be moved to another start location. The Program Counter is started at the correct address. The placement of the ROM is in 256 MB intervals, which are the 4 most significant bits of a 32-bit address. The same holds for the RAM and the I/O. To move the memories, find the toplevel of the \lstinline|riscv|-entity. There you will see the following generics:
+The ROM, bootloader ROM, RAM and I/O may be moved to another start location. The Program Counter is started at the correct address. The placement of the ROM is in 256 MB intervals, which are the 4 most significant bits of a 32-bit address. The same holds for the RAM and the I/O. To move the memories, find the toplevel of the \lstinline|riscv| entity. There you will see the following generics:
 
-\lstinputlisting[language=C,breaklines=false,linerange={25-32}]{code/riscv.vhd}
+\lstinputlisting[language=C,breaklines=false,linerange={35-42}]{code/riscv.vhd}
 
 Change the start locations of the memories by changing the constants. Make sure the memories do not overlap. To change the sizes of the ROM and the RAM, look for the lines as shown below:
 
-\lstinputlisting[language=C,breaklines=false,linerange={21-24}]{code/riscv.vhd}
+\lstinputlisting[language=C,breaklines=false,linerange={31-34}]{code/riscv.vhd}
 
 Note that you also have to make changes to the linker script. In the file \lstinline|riscv.ld|, at the top you will find the following lines. Change the origins in accordance with the VHDL description.
 

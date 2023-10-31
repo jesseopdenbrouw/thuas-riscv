@@ -45,10 +45,10 @@ LIBTHUASRV32STRING = -L../lib
 # Architecture and ABI
 # KEEP THIS FOR NOW
 MARCHABISTRING = -march=rv32im_zicsr -mabi=ilp32
-#MARCHABISTRING = -march=rv32im_zicsr_zba -mabi=ilp32
+#MARCHABISTRING = -march=rv32im_zicsr_zba_zicond -mabi=ilp32
 
 # Linker specs files
 SPECSSTRING = --specs=../lib/thuas.specs --specs=../lib/nano.specs
 
-# options for the UPLOAD program
+# Options for the UPLOAD program
 UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0

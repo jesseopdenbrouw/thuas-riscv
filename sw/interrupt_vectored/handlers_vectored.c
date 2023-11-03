@@ -112,11 +112,11 @@ void uart1_handler(void)
 	/* Test to see if character is received or transmitted.
 	 * Test to see if there are any errors. */
 
-	if (UART1->STAT & 0x04) {
+	if (UART1->STAT & UART_STAT_RC) {
 		/* Flip output bit 3 */
 		GPIOA->POUT ^= 0x8;
 		/* Clear all receive flags, discard data */
-		UART1->DATA;
+		(void) UART1->DATA;
 	}
 
 	/* Don't use UART1->STAT = 0x00 otherwise the
@@ -140,7 +140,7 @@ __attribute__ ((interrupt))
 void spi1_handler(void)
 {
 	/* Remove TC interrupt flag */
-	SPI1->STAT &= ~(1<<3);
+	SPI1->STAT &= ~SPI_TC;
 	/* Flip output bit 4*/
 	GPIOA->POUT ^= 0x10;
 }
@@ -150,7 +150,7 @@ __attribute__ ((interrupt))
 void i2c1_handler(void)
 {
 	/* Remove TC interrupt flags */
-	I2C1->STAT &= ~(1<<3);
+	I2C1->STAT &= ~I2C_TC;
 	/* Flip output bit 5 */
 	GPIOA->POUT ^= 0x20;
 }
@@ -160,7 +160,7 @@ __attribute__ ((interrupt))
 void i2c2_handler(void)
 {
 	/* Remove TC interrupt flags */
-	I2C2->STAT &= ~(1<<3);
+	I2C2->STAT &= ~I2C_TC;
 	/* Flip output bit 7 */
 	GPIOA->POUT ^= 0x80;
 }

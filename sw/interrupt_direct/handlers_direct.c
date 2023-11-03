@@ -104,7 +104,7 @@ void uart1_handler(void)
 	/* Test to see if character is received or transmitted.
 	 * Test to see if there are any errors. */
 
-	if (UART1->STAT & 0x04) {
+	if (UART1->STAT & UART_STAT_TC) {
 		/* Flip output bit 3 (led) */
 		GPIOA->POUT ^= 0x8;
 		/* Clear all receive flags, discard data */
@@ -130,7 +130,7 @@ void timer2_handler(void)
 void spi1_handler(void)
 {
 	/* Remove TC interrupt flag */
-	SPI1->STAT &= ~(1<<3);
+	SPI1->STAT &= ~SPI_TC;
 	/* Flip output bit 4 (led) */
 	GPIOA->POUT ^= 0x10;
 }
@@ -139,7 +139,7 @@ void spi1_handler(void)
 void i2c1_handler(void)
 {
 	/* Remove TC interrupt flags */
-	I2C1->STAT &= ~(1<<3);
+	I2C1->STAT &= ~I2C_TC;
 	/* Flip output bit 5 (led) */
 	GPIOA->POUT ^= 0x20;
 }
@@ -148,7 +148,7 @@ void i2c1_handler(void)
 void i2c2_handler(void)
 {
 	/* Remove TC interrupt flags */
-	I2C2->STAT &= ~(1<<3);
+	I2C2->STAT &= ~I2C_TC;
 	/* Flip output bit 5 (led) */
 	GPIOA->POUT ^= 0x80;
 }

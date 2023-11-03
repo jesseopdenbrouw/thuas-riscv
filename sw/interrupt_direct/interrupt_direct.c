@@ -1,36 +1,8 @@
-// #################################################################################################
-// # This file is part of the THUAS RV32 processor                                                 #
-// # ********************************************************************************************* #
-// # BSD 3-Clause License                                                                          #
-// #                                                                                               #
-// # Copyright (c) 2022, Jesse op den Brouw. All rights reserved.                                  #
-// #                                                                                               #
-// # Redistribution and use in source and binary forms, with or without modification, are          #
-// # permitted provided that the following conditions are met:                                     #
-// #                                                                                               #
-// # 1. Redistributions of source code must retain the above copyright notice, this list of        #
-// #    conditions and the following disclaimer.                                                   #
-// #                                                                                               #
-// # 2. Redistributions in binary form must reproduce the above copyright notice, this list of     #
-// #    conditions and the following disclaimer in the documentation and/or other materials        #
-// #    provided with the distribution.                                                            #
-// #                                                                                               #
-// # 3. Neither the name of the copyright holder nor the names of its contributors may be used to  #
-// #    endorse or promote products derived from this software without specific prior written      #
-// #    permission.                                                                                #
-// #                                                                                               #
-// # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS   #
-// # OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF               #
-// # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE    #
-// # COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,     #
-// # EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE #
-// # GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED    #
-// # AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING     #
-// # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED  #
-// # OF THE POSSIBILITY OF SUCH DAMAGE.                                                            #
-// # ********************************************************************************************* #
-// # Direct interrupt handling.                                                                    #
-// #################################################################################################
+/*
+ * interrupt_direct.c -- handle interrupts in direct mode
+ *
+ */
+
 
 #include <stdint.h>
 #include <malloc.h>
@@ -59,10 +31,15 @@ int main(int argc, char *argv[], char *envp[])
 	struct timeval tv;
 	uint32_t hour, min, sec;
 	uint32_t ebreak_counter = 0;
+	uint32_t speed;
 
 #if USEPRINTF != 1
 	char buffer[40] = {0};
 #endif
+
+	/* Set processor frequency */
+	speed = csr_read(0xfc1);
+	speed = (speed == 0) ? F_CPU : speed;
 
 	/* Set the trap handler vector */
 	set_mtvec(trap_handler_direct, TRAP_DIRECT_MODE);
@@ -71,24 +48,26 @@ int main(int argc, char *argv[], char *envp[])
 	uart1_init(BAUD_RATE, UART_CTRL_RCIE);
 
 	/* Activate TIMER1 with a cycle of 1 Hz */
-	/* for a 50 MHz clock. Use interrupt. */
-	TIMER1->CMPT = csr_read(0xfc1)/2-1;
+	TIMER1->CMPT = speed/2-1;
 	/* Bit 0 = enable, bit 4 is interrupt enable */
 	TIMER1->CTRL = (1<<4)|(1<<0);
 
 	/* Activate TIMER2 compare match T with a cycle of 0.5 Hz */
-	/* for a 50 MHz clock. Use interrupt. */
-	TIMER2->PRSC = csr_read(0xfc1)/10000-1;
+	TIMER2->PRSC = speed/10000-1;
 	TIMER2->CMPT = 9999;
 	TIMER2->CTRL = (1<<4)|(1<<0);
 
 	/* Activate SPI1 transmission complete interrupt */
 	/* with /256 prescaler, 8-bit data, mode 0 */
-	SPI1->CTRL = (7 << 8) | (1 << 3);
+	SPI1->CTRL = SPI_PRESCALER7 | SPI_TCIE | SPI_SIZE8 | SPI_MODE0;
 
 	/* Activate I2C1 transmit/receive complete interrupt */
 	/* Standard mode, 100 kHz */
-	I2C1->CTRL = I2C_PRESCALER_SM(csr_read(0xfc1)) | (1 << 3);
+	I2C1->CTRL = I2C_PRESCALER_SM(speed) | I2C_TCIE | I2C_STANDARD_MODE;
+
+	/* Activate I2C2 transmit/receive complete interrupt */
+	/* Fast mode, 400 kHz */
+	I2C2->CTRL = I2C_PRESCALER_FM(speed) | I2C_TCIE | I2C_FAST_MODE;
 
 	/* External input pin interrupt, pin 15, rising edge */	
 	GPIOA->EXTC = (15 << 3) | (1 << 1);
@@ -143,8 +122,12 @@ int main(int argc, char *argv[], char *envp[])
 			SPI1->DATA = 0xff;
 			/* Start I2C1 transmission, send START and STOP */
 			/* Send address 0x48 (TMP102 device) */
-			I2C1->CTRL |= (1 << 9) | (1 << 8);
+			I2C1->CTRL |= I2C_START | I2C_STOP;
 			I2C1->DATA = (0x48 << 1);
+			/* Start I2C2 transmission, send START and STOP */
+			/* Send address 0x48 (TMP102 device) */
+			I2C2->CTRL |= I2C_START | I2C_STOP;
+			I2C2->DATA = (0x48 << 1);
 		}
 	}
 

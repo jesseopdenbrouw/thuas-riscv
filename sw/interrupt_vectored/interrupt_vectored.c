@@ -25,10 +25,15 @@ int main(int argc, char *argv[], char *envp[])
 	struct timeval tv;
 	uint32_t hour, min, sec;
 	uint32_t ebreak_counter = 0;
+	uint32_t speed;
 
 #if USEPRINTF != 1
 	char buffer[40] = {0};
 #endif
+
+	/* Get system frequency */
+	speed = csr_read(0xfc1);
+	speed = (speed == 0) ? F_CPU : speed;
 
 	/* Set the trap handler vectors + mode */
 	set_mtvec(trap_handler_jump_table, TRAP_VECTORED_MODE);
@@ -37,24 +42,26 @@ int main(int argc, char *argv[], char *envp[])
 	uart1_init(BAUD_RATE, UART_CTRL_RCIE);
 
 	/* Activate TIMER1 with a cycle of 100 Hz */
-	/* for a 50 MHz clock. */
-	TIMER1->CMPT = csr_read(0xfc1)/100UL - 1;
+	TIMER1->CMPT = speed/100UL - 1;
 	/* Bit 0 is enable, bit 4 is interrupt enable */
 	TIMER1->CTRL = (1<<4)|(1<<0);
 
 	/* Activate TIMER2 compare T interrupt with a cycle of 0.5 Hz */
-	/* for a 50 MHz clock */
-	TIMER2->PRSC = csr_read(0xfc1)/10000UL-1;
+	TIMER2->PRSC = speed/10000UL-1;
 	TIMER2->CMPT = 9999UL;
 	TIMER2->CTRL = (1<<4)|(1<<0);
 
 	/* Activate SPI1 transmission complete interrupt */
 	/* with /256 prescaler, 8-bit data, mode 0 */
-	SPI1->CTRL = (7<<8) | (1<<3);
+	SPI1->CTRL = SPI_PRESCALER7 | SPI_TCIE | SPI_SIZE8 | SPI_MODE0;
 
 	/* Activate I2C1 transmit/receive complete interrupt */
 	/* Standard mode, 100 kHz */
-	I2C1->CTRL = I2C_PRESCALER_SM(csr_read(0xfc1)) | (1 << 3);
+	I2C1->CTRL = I2C_PRESCALER_SM(speed) | I2C_TCIE | I2C_STANDARD_MODE;
+
+	/* Activate I2C2 transmit/receive complete interrupt */
+	/* Fast mode, 400 kHz */
+	I2C2->CTRL = I2C_PRESCALER_FM(speed) | I2C_TCIE | I2C_FAST_MODE;
 
 	/* External pin input interrupt, rising edge */
 	GPIOA->EXTC = (15 << 3) | (1 << 1);
@@ -110,8 +117,12 @@ int main(int argc, char *argv[], char *envp[])
 			SPI1->DATA = 0xff;
 			/* Start I2C1 transmission, send START and STOP */
 			/* Send address 0x48 (TMP102 device) */
-			I2C1->CTRL |= (1 << 9) | (1 << 8);
+			I2C1->CTRL |= I2C_START | I2C_STOP;
 			I2C1->DATA = (0x48 << 1);
+			/* Start I2C2 transmission, send START and STOP */
+			/* Send address 0x48 (TMP102 device) */
+			I2C2->CTRL |= I2C_START | I2C_STOP;
+			I2C2->DATA = (0x48 << 1);
 
 		}
 	}

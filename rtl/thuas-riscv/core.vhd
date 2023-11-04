@@ -1839,8 +1839,6 @@ begin
             -- misa is hard wired
             csr_reg.mie <= (others => '0');
             csr_reg.mtvec <= (others => '0');
-            -- mcounteren does not exists, because we have no U mode
-            --csr_reg.mcounteren <= (0 => '1', 1 => '1', 2 => '1', others => '0');
             csr_reg.mcountinhibit <= (others => '0');
             csr_reg.mscratch <= (others => '0');
             csr_reg.mepc <= (others => '0');
@@ -1848,7 +1846,6 @@ begin
             csr_reg.mtval <= (others => '0');
             -- mip is hardcoded, read only
             --csr_reg.mip <= (others => '0');
-            -- mtval - trap value = address on address bus
             csr_reg.mtval <= (others => '0');
             csr_reg.mcycle <= (others => '0');
             csr_reg.mcycleh <= (others => '0');
@@ -1886,8 +1883,6 @@ begin
                     --when misa_addr => csr_content_v := csr_reg.misa;
                     when mie_addr => csr_content_v := csr_reg.mie;
                     when mtvec_addr => csr_content_v := csr_reg.mtvec;
-                    -- mcounteren not available since we have M mode only
-                    --when mcounteren_addr => csr_content_v := csr_reg.mcounteren;
                     when mcountinhibit_addr => csr_content_v := csr_reg.mcountinhibit;
                     when mscratch_addr => csr_content_v := csr_reg.mscratch;
                     when mepc_addr => csr_content_v := csr_reg.mepc;
@@ -1928,8 +1923,6 @@ begin
                     --when misa_addr => csr_reg.misa <= csr_content_v;
                     when mie_addr => csr_reg.mie <= csr_content_v;
                     when mtvec_addr => csr_reg.mtvec <= csr_content_v;
-                    -- mcounteren does not exists
-                    --when mcounteren_addr => csr_reg.mcounteren <= csr_content_v;
                     when mcountinhibit_addr => csr_reg.mcountinhibit <= csr_content_v;
                     when mscratch_addr => csr_reg.mscratch <= csr_content_v;
                     when mepc_addr => csr_reg.mepc <= csr_content_v;

@@ -6,7 +6,7 @@ for an FPGA.
 ## Description
 
 This RISC-V microcontroller uses the RV32IM instruction set
-and the Zicsr, Zicntr and Zba extensions. The microcontroller
+and the Zicsr, Zicntr, Zicond and Zba extensions. The microcontroller
 supports exceptions and interrupts. `ECALL`, `EBREAK`
 and `MRET` are supported. `WFI`, `FENCE` and `FENCE.I`
 act as no-operation
@@ -26,7 +26,7 @@ Jumps/calls/branches taken require 3 clock cycles, the
 processor does not implement branch prediction. All other
 instructions require 1 clock cycle. Interrupts
 are direct or vectored. Current Coremark testbench shows
-a CPI of 1.82 and a score of 1.92 coremark/MHz.
+a CPI of 1.78 and a score of 1.98 coremark/MHz.
 
 Software is written in C, (C++ is supported but there are
 some limitations) and compiled using the RISC-V GNU C/C++

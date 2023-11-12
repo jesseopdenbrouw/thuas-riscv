@@ -38,7 +38,12 @@ _start:
 	sw t0, 4(t1)
 	sw t0, 8(t1)
 	sw t0, 12(t1)
-	lw t2, 0(t1)
+	sw t0, 16(t1)
+	sw t0, 20(t1)
+	lw t2, 20(t1)
+	lw t3, 20(t1)
+	lw t4, 20(t1)
+	lw t5, 20(t1)
 
 	nop
 	nop

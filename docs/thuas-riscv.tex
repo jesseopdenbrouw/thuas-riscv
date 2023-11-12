@@ -370,7 +370,7 @@ The \lstinline|mtval| CSR is written with offending memory address for load/stor
 
 \subsection{Address Decoder and Data Router}
 \label{sec:addressdecoderanddatarouter}
-The Address Decoder and Data Router routes reads and writes to the ROM, bootloader ROM (only reads), RAM and the I/O. The processor uses a 32-bit linear address space for ROM, boot ROM, RAM and I/O. The address space is divided in 16 parts of 256 MB each. In the default setting, ROM starts at address 0x00000000 and the length is 64 kB. The bootloader ROM starts at address 0x10000000 and the length is 4 kB. Unused ROM addresses return 0x0000000. The RAM starts at address 0x20000000 and length is 32 kB. The I/O starts at address 0xF0000000 and the length is 16 kB by default.
+The Address Decoder and Data Router routes reads and writes to the memory (ROM, bootloader ROM (only reads), RAM and the I/O). The processor uses a 32-bit linear address space for memory accesses. The address space is divided in 16 parts of 256 MB each. In the default setting, ROM starts at address 0x00000000 and the length is 64 kB. The bootloader ROM starts at address 0x10000000 and the length is 4 kB. Unused ROM addresses return 0x0000000. The RAM starts at address 0x20000000 and length is 32 kB. The I/O starts at address 0xF0000000 and the length is 16 kB by default.
 
 When data is read, the data is collected from the accessed memory and put on an internal bus to the ALU. The ALU can perform sign extension (byte and half word accesses) if needed. Please note that reading data from the ROM, bootloader ROM, RAM and I/O requires three clock cycles. Writing requires two clock cycles.
 
@@ -488,6 +488,9 @@ SPI2 is a simple SPI master dedicated for the micro SC card reader. It can trans
 
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Currently the TIMEH and TIME registers cannot be written. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since \lstinline|clock()| and \lstinline|gettimeofday()| depend on this value. As such, the system clock frequency must be a integer multiple of 1\,MHz. Note that TIMEH:TIME is writable by software.
 
+\subsection{Reset}
+The asynchronous reset is active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed.
+
 \subsection{Implemented instructions}
 For the processor, all RV32IM Unprivileged instructions are implemented but the FENCE instruction act as a no-operation (NOP). ECALL and EBREAK are supported and execute an exception. Also, the Zicsr instructions are implemented. From the Privileged instruction, MRET is used to return from an exception or an interrupt. WFI is not implemented and acts as a no-operation (NOP). FENCE and FENCE.I are not implemented and act as a NOP.
 
@@ -545,8 +548,7 @@ The processor hardware is composed of the following VHDL files:
 \item \lstinline|tb_riscv.do| -- QuestaSim/Modelsim command script.
 \end{itemize}
 
-
-he entity of the top level (\lstinline|riscv.vhd|) is shown in the listing below.
+The entity of the top level (\lstinline|riscv.vhd|) is shown in the listing below.
 
 \lstinputlisting[language=VHDL,breaklines=false]{code/riscv.vhd}
 
@@ -695,10 +697,10 @@ Generic & Type & Default & Comment \\
 \lstinline|HAVE_BOOTLOADER_ROM| & boolean & TRUE & Use the bootloader\\
 \lstinline|ROM_ADDRESS_BITS| & integer & 16 & ROM size is $2^{16} = 64$ kB \\
 \lstinline|RAM_ADDRESS_BITS| & integer & 15 & RAM size is $2^{15} = 32$ kB \\
-\lstinline|ROM_HIGH_NIBBLE| & slv(3 downto 0) & x"0" & ROM at 0x0yyyyyyy\\
-\lstinline|BOOT_HIGH_NIBBLE| & slv(3 downto 0) & x"1" & Boot at 0x1yyyyyyy\\
-\lstinline|RAM_HIGH_NIBBLE| & slv(3 downto 0) & x"2" & RAM at 0x2yyyyyyy\\
-\lstinline|IO_HIGH_NIBBLE| & slv(3 downto 0) & x"F" & I/O at 0xFyyyyyyy\\
+\lstinline|ROM_HIGH_NIBBLE| & slv(3..0) & x"0" & ROM at 0x0yyyyyyy\\
+\lstinline|BOOT_HIGH_NIBBLE| & slv(3..0) & x"1" & Boot at 0x1yyyyyyy\\
+\lstinline|RAM_HIGH_NIBBLE| & slv(3..0) & x"2" & RAM at 0x2yyyyyyy\\
+\lstinline|IO_HIGH_NIBBLE| & slv(3..0) & x"F" & I/O at 0xFyyyyyyy\\
 \lstinline|HAVE_FAST_STORE| & boolean & false & Store takes one clock cycle \\
 \lstinline|HAVE_UART1| & boolean & TRUE & Use UART1 \\
 \lstinline|HAVE_SPI1| & boolean & TRUE & Use SPI1 \\

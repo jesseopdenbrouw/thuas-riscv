@@ -25,6 +25,7 @@ all:
 	$(MAKE) -C basel_problem all
 	$(MAKE) -C bootloader all
 	$(MAKE) -C clock all
+	$(MAKE) -C complex all
 	$(MAKE) -C coremark all
 	$(MAKE) -C ctor_c all
 	$(MAKE) -C ctor_cpp all
@@ -84,6 +85,7 @@ clean:
 	$(MAKE) -C basel_problem clean
 	$(MAKE) -C bootloader clean
 	$(MAKE) -C clock clean
+	$(MAKE) -C complex clean
 	$(MAKE) -C coremark clean
 	$(MAKE) -C ctor_c clean
 	$(MAKE) -C ctor_cpp clean

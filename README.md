@@ -26,7 +26,7 @@ Jumps/calls/branches taken require 3 clock cycles, the
 processor does not implement branch prediction. All other
 instructions require 1 clock cycle. Interrupts
 are direct or vectored. Current Coremark testbench shows
-a CPI of 1.78 and a score of 1.98 coremark/MHz.
+a CPI of 1.78 and a score of 1.95 coremark/MHz.
 
 Software is written in C, (C++ is supported but there are
 some limitations) and compiled using the RISC-V GNU C/C++
@@ -80,7 +80,7 @@ The microcontroller is developed on a Cyclone V FPGA (5CEBA4F23C7)
 with the use of the DE0-CV board by Terasic and Intel Quartus Prime
 Lite 22.0. Simulation is possible with QuestaSim Intel Starter Edition.
 You need a (free) license for that. The processor uses about
-2800 ALM (cells) of 18480, depending on the settings. In the default
+2900 ALM (cells) of 18480, depending on the settings. In the default
 settings, ROM, BOOT, RAM and registers uses 43% of the available RAM blocks.
 
 The design is also tested on a Digilent Arty S7/50 and a Cmod S7/25 (Spartan 7) board.
@@ -118,6 +118,7 @@ memory contents.
 * Test more functions of the standard and mathematical libraries.
 * It is not possible to print `long long` (i.e. 64-bit) using `printf` et al. When using the format specifier `%lld`, `printf` just prints `ld`. This due to lack of support in the `nano` library.
 * Further optimize the ALU for size and speed.
+* Adding Zbb and Zbs extensions.
 * To start the pre-programmed bootloader, make sure the UART1 RxD pin is connected to a serial device OR make sure this pin is pulled high (DE0-CV board).
 
 ## Disclaimer

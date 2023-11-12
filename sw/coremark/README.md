@@ -21,7 +21,7 @@ Default `EFFORT` is `-O3`.
 
 # Scores
 
-The current design has a Coremark speed of 1.92 coremarks/MHz with an average CPI of 1.82.
+The current design has a Coremark speed of 1.95 coremarks/MHz with an average CPI of 1.78.
 
 # Running
 

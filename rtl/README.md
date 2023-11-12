@@ -1,7 +1,7 @@
 # Hardware
 
 This directory contains the hardware description of the
-THUAS RISC-V RV32IM Zicsr Zba 32-bit processor.
+THUAS RISC-V RV32IM Zicsr Zicntr Zicond Zba 32-bit processor.
 
 
 ## thuas-riscv

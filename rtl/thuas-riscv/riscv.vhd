@@ -59,9 +59,11 @@ entity riscv is
           -- Fast divide (needs more area)?
           FAST_DIVIDE : boolean := TRUE;
           -- Do we have Zba (sh?add)
-          HAVE_ZBA : boolean := TRUE;
+          HAVE_ZBA : boolean := false;
+          -- Do we have Zbs (bit instructions)?
+          HAVE_ZBS : boolean := false;
           -- Do we have Zicond (czero.{eqz|nez})?
-          HAVE_ZICOND : boolean := TRUE;
+          HAVE_ZICOND : boolean := false;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean := TRUE;
           -- Do we have registers is RAM?
@@ -133,8 +135,8 @@ component core is
     generic (
           -- The frequency of the system
           SYSTEM_FREQUENCY : integer;
-          -- Hardware version
-          HW_VERSION : integer := 16#00_09_09_00#;
+          -- Hardware version in BCD
+          HW_VERSION : integer := 16#00_09_09_01#;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -143,6 +145,8 @@ component core is
           FAST_DIVIDE : boolean;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean;
+          -- Do we have Zbs (bit instructions)?
+          HAVE_ZBS : boolean;
           -- Do we have Zicnd (czero.{eqz|nez})?
           HAVE_ZICOND : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -439,6 +443,7 @@ begin
               HAVE_MULDIV => HAVE_MULDIV,
               FAST_DIVIDE => FAST_DIVIDE,
               HAVE_ZBA => HAVE_ZBA,
+              HAVE_ZBS => HAVE_ZBS,
               HAVE_ZICOND => HAVE_ZICOND,
               VECTORED_MTVEC => VECTORED_MTVEC,
               HAVE_REGISTERS_IN_RAM => HAVE_REGISTERS_IN_RAM,

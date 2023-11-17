@@ -1,7 +1,7 @@
 /* 
  * srec2vhdl - Motorola S-record to VHDL table generator
  *
- * (c)2022, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c)2023, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  * This program converts a file with Motorola S-records to
  * a series of VHDL table statements.
@@ -20,6 +20,8 @@
  *      -b         Output as bytes
  *      -h         Output as half words (16 bits, Little Endian)
  *      -w         Output as words (32 bits, Little Endian)
+ *      -0         Output unused data as 0's
+ *      -d         Output unused data as don't cares
  *
  * The address of the first record is used as an offset
  * so that the first records starts at vector element 0.
@@ -181,7 +183,7 @@ int main(int argc, char *argv[]) {
 	            unused = '0';
 	            break;
 	        default: /* '?' */
-		    fprintf(stderr, "Unknown option '%c'\n", opt);
+		    	fprintf(stderr, "Unknown option '%c'\n", opt);
 	            exit(EXIT_FAILURE);
 	        }
 	}

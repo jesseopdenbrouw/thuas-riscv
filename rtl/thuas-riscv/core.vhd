@@ -50,7 +50,7 @@ entity core is
     generic (
           -- The frequency of the system
           SYSTEM_FREQUENCY : integer;
-          -- Hardware version
+          -- Hardware version in BCD
           HW_VERSION : integer;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
@@ -60,6 +60,8 @@ entity core is
           FAST_DIVIDE : boolean;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean;
+          -- Do we have Zbs (bit instructions)?
+          HAVE_ZBS : boolean;
           -- Do we have Zicond (czero.{eqz|nez})?
           HAVE_ZICOND : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -812,6 +814,30 @@ begin
                                 id_ex.rd_en <= '1';
                                 id_ex.imm <= imm_shamt_v;
                                 id_ex.isimm <= '1';
+                            -- BCLRI
+                            elsif func3_v = "001" and func7_v = "0100100" and HAVE_ZBS then
+                                id_ex.alu_op <= alu_bclri;
+                                id_ex.rd_en <= '1';
+                                id_ex.imm <= imm_shamt_v;
+                                id_ex.isimm <= '1';
+                            -- BEXTI
+                            elsif func3_v = "101" and func7_v = "0100100" and HAVE_ZBS then
+                                id_ex.alu_op <= alu_bexti;
+                                id_ex.rd_en <= '1';
+                                id_ex.imm <= imm_shamt_v;
+                                id_ex.isimm <= '1';
+                            -- BINVI
+                            elsif func3_v = "001" and func7_v = "0110100" and HAVE_ZBS then
+                                id_ex.alu_op <= alu_binvi;
+                                id_ex.rd_en <= '1';
+                                id_ex.imm <= imm_shamt_v;
+                                id_ex.isimm <= '1';
+                             -- BSETI
+                             elsif func3_v = "001" and func7_v = "0010100" and HAVE_ZBS then
+                                id_ex.alu_op <= alu_bseti;
+                                id_ex.rd_en <= '1';
+                                id_ex.imm <= imm_shamt_v;
+                                id_ex.isimm <= '1';
                             else
                                 control.illegal_instruction_decode <= '1';
                             end if;
@@ -870,6 +896,22 @@ begin
                             -- SH3ADD
                             elsif func3_v = "110" and func7_v = "0010000" and HAVE_ZBA then
                                 id_ex.alu_op <= alu_sh3add;
+                                id_ex.rd_en <= '1';
+                            -- BCLR
+                            elsif func3_v = "001" and func7_v = "0100100" and HAVE_ZBS then
+                                id_ex.alu_op <= alu_bclr;
+                                id_ex.rd_en <= '1';
+                            -- BEXT
+                            elsif func3_v = "101" and func7_v = "0100100" and HAVE_ZBS then
+                                id_ex.alu_op <= alu_bext;
+                                id_ex.rd_en <= '1';
+                            -- BINV
+                            elsif func3_v = "001" and func7_v = "0110100" and HAVE_ZBS then
+                                id_ex.alu_op <= alu_binv;
+                                id_ex.rd_en <= '1';
+                            -- BSET
+                            elsif func3_v = "001" and func7_v = "0010100" and HAVE_ZBS then
+                                id_ex.alu_op <= alu_bset;
                                 id_ex.rd_en <= '1';
                             -- CZERO.EQZ
                             elsif func3_v = "101" and func7_v = "0000111" and HAVE_ZICOND then
@@ -1127,6 +1169,7 @@ begin
     variable signs_v : data_type;
     constant zeros_v : data_type := (others => '0');
     variable cmpeq_v, cmplt_v : std_logic;
+    variable bitsft_v : data_type;
     begin
     
         -- Check if forwarding result is needed
@@ -1216,7 +1259,32 @@ begin
                         r_v := a_v;
                     end if;
                 end if;
-                
+            when alu_bclr | alu_bclri =>
+                if HAVE_ZBS then
+                    bitsft_v := (others => '0');
+                    bitsft_v(to_integer(unsigned(b_v(4 downto 0)))) := '1';
+                    r_v := a_v and not bitsft_v;
+                 end if;
+            when alu_binv | alu_binvi =>
+                if HAVE_ZBS then
+                    bitsft_v := (others => '0');
+                    bitsft_v(to_integer(unsigned(b_v(4 downto 0)))) := '1';
+                    r_v := a_v xor bitsft_v;
+                 end if;
+            when alu_bset | alu_bseti =>
+                if HAVE_ZBS then
+                    bitsft_v := (others => '0');
+                    bitsft_v(to_integer(unsigned(b_v(4 downto 0)))) := '1';
+                    r_v := a_v or bitsft_v;
+                 end if;
+            when alu_bext | alu_bexti =>
+                if HAVE_ZBS then
+                    if a_v(to_integer(unsigned(b_v(4 downto 0)))) = '1' then
+                        r_v(0) := '1';
+                    end if;
+                 end if;
+                 
+                 
             -- Test register & immediate signed/unsigned
             when alu_slt | alu_slti =>
                 r_v := (others => '0');
@@ -1813,8 +1881,6 @@ begin
             when misa_addr          => csr_access.datain <= csr_reg.misa;
             when mie_addr           => csr_access.datain <= csr_reg.mie;
             when mtvec_addr         => csr_access.datain <= csr_reg.mtvec;
-            -- mcounteren is not implemented, because we only support M mode
-            --when mcounteren_addr => csr_access.datain <= csr_reg.mcounteren;
             when mcycle_addr        => csr_access.datain <= csr_reg.mcycle;
             when minstret_addr      => csr_access.datain <= csr_reg.minstret;
             when mcycleh_addr       => csr_access.datain <= csr_reg.mcycleh;
@@ -2022,7 +2088,6 @@ end process;
     csr_reg.marchid <= (others => '0');
     csr_reg.mimpid <= std_logic_vector(to_unsigned(HW_VERSION, 32));
     csr_reg.mhartid <= (others => '0');
-    -- mstatush is hardcoded to all zero
     csr_reg.mstatush <= (others => '0');
     csr_reg.mconfigptr <= (others => '0');
     csr_reg.misa(31 downto 13) <= x"4000" & "000";
@@ -2054,7 +2119,8 @@ end process;
     csr_reg.mxhw(20) <= '1' when HAVE_ZBA else '0';
     csr_reg.mxhw(21) <= '1' when HAVE_FAST_STORE else '0';
     csr_reg.mxhw(22) <= '1' when HAVE_ZICOND else '0';
-    csr_reg.mxhw(31 downto 23) <= (others => '0');
+    csr_reg.mxhw(23) <= '1' when HAVE_ZBS else '0';
+    csr_reg.mxhw(31 downto 24) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));

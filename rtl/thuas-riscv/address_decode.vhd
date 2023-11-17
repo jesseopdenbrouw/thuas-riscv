@@ -95,7 +95,6 @@ begin
         O_csram <= '0';
         O_csio <= '0';
         
-        -- Currently not used. May be used to fault unimplemented memory.
         O_load_access_error <= '0';
         O_store_access_error <= '0';
         

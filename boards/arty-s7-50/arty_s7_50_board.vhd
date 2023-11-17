@@ -100,6 +100,7 @@ begin
               HAVE_MULDIV => TRUE,
               FAST_DIVIDE => TRUE,
               HAVE_ZBA => false,
+              HAVE_ZBS => false,
               HAVE_ZICOND => false,
               VECTORED_MTVEC => TRUE,
               HAVE_REGISTERS_IN_RAM => TRUE,

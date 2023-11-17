@@ -25,8 +25,30 @@ _start:
 #	czero.nez x5,x6,x7
 #	czero.eqz x5,x6,x7
 
+/*
+	li x6,0
+	li x5,0
+
+	bseti x5,x6,23
+	binvi x6,x5,22
+	bseti x5,x6,3
+
+	li x10,23
+	li x11,22
+	li x12,3
+
+	li x6,0
+	li x5,0
+
+	bset x5,x6,x10
+	binv x6,x5,x11
+	bset x5,x6,x12
+*/
+
 	nop
 	nop
+
+/*
 
 	li t0, 0x00000001
 	la t1, 0x20000000
@@ -44,6 +66,7 @@ _start:
 	lw t3, 20(t1)
 	lw t4, 20(t1)
 	lw t5, 20(t1)
+*/
 
 	nop
 	nop

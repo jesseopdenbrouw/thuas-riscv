@@ -20,6 +20,8 @@ entity riscv is
           FAST_DIVIDE : boolean := TRUE;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean := TRUE;
+          -- Do we have Zbs (bit instructions)?
+          HAVE_ZBS : boolean := TRUE;
           -- Do we have Zicond (czero.{eqz|nez})?
           HAVE_ZICOND : boolean := TRUE;
           -- Do we enable vectored mode for mtvec?

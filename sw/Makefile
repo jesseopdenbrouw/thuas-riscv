@@ -1,7 +1,7 @@
 #
 # General makefile that makes all targets
 #
-# First the `srec2vhdl`, `srec2mif` and `upload`
+# First the `srec2vhdl` and `upload`
 # are made. `srec2vhdl` is needed for the
 # next build steps. Next is the library.
 # Other targets depend on it.
@@ -15,8 +15,6 @@ all:
 	if [ ! -d bin ]; then mkdir bin; fi
 	$(MAKE) -C srec2vhdl all
 	cp srec2vhdl/srec2vhdl bin
-	$(MAKE) -C srec2mif all
-	cp srec2mif/srec2mif bin
 	$(MAKE) -C upload all
 	cp upload/upload bin
 	$(MAKE) -C lib all
@@ -76,7 +74,6 @@ all:
 
 clean:
 	$(MAKE) -C srec2vhdl clean
-	$(MAKE) -C srec2mif clean
 	$(MAKE) -C upload clean
 	rm -rf bin
 	$(MAKE) -C lib clean

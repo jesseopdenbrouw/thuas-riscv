@@ -1,5 +1,5 @@
 -- #################################################################################################
--- # cmod_s7_board.vhd - The board top level of the processor                                      #
+-- # cmod_s7_25_board.vhd - The board top level of the processor                                   #
 -- # ********************************************************************************************* #
 -- # This file is part of the THUAS RISCV RV32 Project                                             #
 -- # ********************************************************************************************* #
@@ -45,7 +45,7 @@ library work;
 use work.processor_common.all;
 
 -- The microcontroller
-entity cmod_s7_board is
+entity cmod_s7_25_board is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- GPIO
@@ -75,9 +75,9 @@ entity cmod_s7_board is
           IO_timer2icocb : inout std_logic;
           IO_timer2icocc : inout std_logic
          );
-end entity cmod_s7_board;
+end entity cmod_s7_25_board;
 
-architecture rtl of cmod_s7_board is
+architecture rtl of cmod_s7_25_board is
 
 signal pina_int : data_type;
 signal pouta_int : data_type;
@@ -100,6 +100,7 @@ begin
               HAVE_MULDIV => TRUE,
               FAST_DIVIDE => TRUE,
               HAVE_ZBA => false,
+              HAVE_ZBS => false,
               HAVE_ZICOND => false,
               VECTORED_MTVEC => TRUE,
               HAVE_REGISTERS_IN_RAM => TRUE,

@@ -81,12 +81,13 @@ package processor_common is
                          alu_sw, alu_sh, alu_sb,
                          alu_jal_jalr,
                          alu_beq, alu_bne, alu_blt, alu_bge, alu_bltu, alu_bgeu,
-                         alu_csr,
-                         alu_multiply,
-                         alu_divrem,
                          alu_trap, alu_mret,
-                         alu_sh1add, alu_sh2add, alu_sh3add, -- Zba
-                         alu_czeroeqz, alu_czeronez          -- Zicond
+                         alu_multiply, alu_divrem,                 -- M standard
+                         alu_csr,                                  -- Zicsr
+                         alu_sh1add, alu_sh2add, alu_sh3add,       -- Zba
+                         alu_bclr, alu_bclri, alu_bext, alu_bexti, -- Zbs
+                         alu_binv, alu_binvi, alu_bset, alu_bseti, -- Zbs
+                         alu_czeroeqz, alu_czeronez                 -- Zicond
                         );
                         
     -- Control and State register operations
@@ -169,6 +170,8 @@ package processor_common is
           FAST_DIVIDE : boolean := TRUE;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean := TRUE;
+          -- Do we have Zbs (bit instructions)?
+          HAVE_ZBS : boolean := TRUE;
           -- Do we have Zicond (czero.{eqz|nez})?
           HAVE_ZICOND : boolean := TRUE;
           -- Do we enable vectored mode for mtvec?

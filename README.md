@@ -118,7 +118,7 @@ memory contents.
 * Test more functions of the standard and mathematical libraries.
 * It is not possible to print `long long` (i.e. 64-bit) using `printf` et al. When using the format specifier `%lld`, `printf` just prints `ld`. This due to lack of support in the `nano` library.
 * Further optimize the ALU for size and speed.
-* Adding Zbb and Zbs extensions.
+* Adding Zbb extension.
 * To start the pre-programmed bootloader, make sure the UART1 RxD pin is connected to a serial device OR make sure this pin is pulled high (DE0-CV board).
 
 ## Disclaimer

@@ -86,7 +86,7 @@ This is work in progress. Things will certainly change in the future.
 
 \clearpage
 \section{Introduction}
-This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one HART (Hardware Thread). The processor is able to run a compiled C-program. C++ is supported but some concepts (\texttt{cout} with \texttt{iostream}, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ``The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond and Zba extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85\,MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic DE0-CV board.
+This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one HART (Hardware Thread). The processor is able to run a compiled C-program. C++ is supported but some concepts (\texttt{cout} with \texttt{iostream}, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ``The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zba and Zbs extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85\,MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic DE0-CV board.
 
 The processor requires three clock cycles to complete an instruction, but the next instructions are fetched and decoded while the current instruction is executed. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
 
@@ -480,7 +480,7 @@ TIMER2 has a 16-bit count register and a 16-bit prescaler, and increments on eve
 
 I2C1 is a minimal I\textsuperscript{2}C controller peripheral (master-only). It cannot react to clock stretching and lost arbitration, so only modern targets (slaves) can be connected in a one-master-only system. Both Standard mode (Sm) with a transmission speed of up to 100 kbps and Fast mode (Fm) with a transmission speed up to 400 kbps are implemented. Before sending the address byte, the send-start bit must be set and a START condition is send to the target when the address is written to the I2C1 data register. Before sending or receiving the last data byte, the send-stop bit must be set and a STOP condition is send to the target after the byte is send or received by the controller. The last byte received will not be acknowledged by the controller. When receiving intermediate bytes, the controller must acknowledge the reception with an ACK. This is controlled by the MACK bit in the control register. Sending a byte is straightforward: just write the byte to the data register. When receiving a byte, a dummy byte (data value of 0xff) must be send to the target. This way, the processor can create a pause in the transmission if needed. Note that the SCL line is kept low between byte transmissions. The baud rate prescaler must be loaded with the number of system clock cycles of \textbf{one-half} bit time minus~1 for Standard mode and \textbf{one-third} bit time minus~1 for Fast mode. Note that the prescaler is part of the control register CTRL and its value must be preserved when setting or clearing other bits. The SCL and SDA inputs are synchronized to the system clock using two 2-bit shift registers.
 
-I2C2 is exact copy of I2C1.
+I2C2 is exact copy of I2C1, but with a different interrupt priority.
 
 SPI1 is a full-fledged SPI master. It can transfer 8-bit, 16-bit, 24-bit and 32-bit data in one SPI cycle. It incorporates a programmable prescaler (from /2 to /256 in powers of 2) and all four phases of clock polarity (CPOL) and phase polarity (CPHA), hardware NSS (Slave Select, active low) and programmable Slave Select setup and hold time. It is possible to use a GPIO pin to use software-controlled NSS. Currently, the MISO is not synchronized to the system clock.
 
@@ -492,7 +492,7 @@ The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Wh
 The asynchronous reset is active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed.
 
 \subsection{Implemented instructions}
-For the processor, all RV32IM Unprivileged instructions are implemented but the FENCE instruction act as a no-operation (NOP). ECALL and EBREAK are supported and execute an exception. Also, the Zicsr instructions are implemented. From the Privileged instruction, MRET is used to return from an exception or an interrupt. WFI is not implemented and acts as a no-operation (NOP). FENCE and FENCE.I are not implemented and act as a NOP.
+For the processor, all RV32IM Unprivileged instructions are implemented but the FENCE instruction act as a no-operation (NOP). ECALL and EBREAK are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented. From the Privileged instruction, MRET is used to return from an exception or an interrupt. WFI is not implemented and acts as a no-operation (NOP). FENCE and FENCE.I are not implemented and act as a NOP.
 
 \section{The FPGA}
 For this project, we use the Cyclone V FPGA from Intel (formerly Altera). See \url{https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html}.
@@ -527,7 +527,7 @@ RAM  & 786,432 & 788,480 & 1,376,256 & 1,378,304 \\ \bottomrule
 \end{tabular}
 \end{table}
 
-As you can see, there's a big difference is maximum frequency. Please select different seed values in the options of the synthesizer. Also disabling the Zba extension and unused peripherals may increase the maximum frequency and lowers the ALM and register count.
+As you can see, there's a big difference is maximum frequency. Please select different seed values in the options of the synthesizer. Also disabling the Zba, Zbs and Zicond extension and unused peripherals may increase the maximum frequency and lowers the ALM and register count.
 
 \section{Processor hardware}
 \label{sec:hardware}
@@ -691,6 +691,7 @@ Generic & Type & Default & Comment \\
 \lstinline|HAVE_MULDIV| & boolean & TRUE &  Hardware multiply/divide \\
 \lstinline|FAST_DIVIDE| & boolean & TRUE & Use fast divider\\
 \lstinline|HAVE_ZBA| & boolean & false & Use Zba extension \\
+\lstinline|HAVE_ZBS| & boolean & false & Use Zbs extension \\
 \lstinline|HAVE_ZICOND| & boolean & false & Use Zicond extension \\
 \lstinline|VECTORED_MTVEC| & boolean & TRUE & Use vectored interrupts\\
 \lstinline|HAVE_REGISTERS_IN_RAM| & boolean & TRUE & Use registers is onboard RAM\\
@@ -780,9 +781,9 @@ mkdir build; cd build
 The toolchain is currently configured for 64-bit RISC-V. That is not what we want.
 \item Enter:
 \begin{lstlisting}[language=]
-../configure --prefix=/opt/riscv32 --with-arch=rv32im --with-abi=ilp32 --with-multilib-generator="rv32im_zicsr_zba-ilp32--;rv32e-ilp32e--"
+../configure --prefix=/opt/riscv32 --with-arch=rv32im --with-abi=ilp32 --with-multilib-generator="rv32im_zicsr_zba_zbs_zicond-ilp32--;rv32e-ilp32e--"
 \end{lstlisting}
-This will set the default architecture to RV32IM, with options for RV32IM with Zicsr and Zba and RV32E (reduced registers, without hardware integer multiply/divide), and the ABI to ilp32 and ilp32e (reduced registers). This means that integers, long integers and pointers use 32-bit entities. The destination directory is \lstinline|/opt/riscv32|.
+This will set the default architecture to RV32IM, with options for RV32IM with Zicsr, Zba, Zbs, Zicond and RV32E (reduced registers, without hardware integer multiply/divide), and the ABI to ilp32 and ilp32e (reduced registers). This means that integers, long integers and pointers use 32-bit entities. The destination directory is \lstinline|/opt/riscv32|.
 
 \item Now enter the \lstinline|make| command: \lstinline|sudo make -j 6|\\
 Here \lstinline|make| has to run with supervisor privilege, because the toolchain is put in \lstinline|/opt/riscv32|. This takes a some time (about 15 minutes on a Zbook G5). At some points the compilation seems to hang, but it is just compiling complicated C-files. By the way, you will see a lot of warnings.
@@ -1031,6 +1032,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 \item \lstinline|basel_problem| -- a program that calculates the sum of the inverses of the squares of natural numbers, up to 1000. For use in the simulator. Used to test the divider.
 \item \lstinline|bootloader| -- the bootloader program, placed in the bootloader ROM. It has separate startup and linker files. Uses UART1. Works on the board.
 \item \lstinline|clock| -- a simple clock using the CSR MTIME and MTIMEH registers to fetch the time since last reset. Uses UART1. Works on the board.
+\item \lstinline|complex| -- a simple program that shows the use of complex numbers.
 \item \lstinline|coremark| -- implementation of the CoreMark test suite. Uses UART1. Works on the board.
 \item \lstinline|ctor_c| -- C test to check if global constructors are called upon program execution. Uses UART1. Works on the board.
 \item \lstinline|ctor_cpp| -- C++ test to check if global constructors are called upon program execution. Uses UART1. Works on the board.
@@ -1099,8 +1101,8 @@ srec2vhdl [-fbwhqvd0] [-i <arg>] inputfile [outputfile]
 
 \begin{itemize}
 \item \lstinline|-f| makes a full output that directly can be used. If not used, only the ROM table contents itself is produced.
-\item \lstinline|-w| ROM contents is in words (32 bits).
-\item \lstinline|-h| ROM contents is in half words (16 bits).
+\item \lstinline|-w| ROM contents is in words (32 bits, Little Endian).
+\item \lstinline|-h| ROM contents is in half words (16 bits, Little Endian).
 \item \lstinline|-b| ROM contents is in bytes (8 bits).
 \item \lstinline|-v| Verbose output.
 \item \lstinline|-d| Output unused ROM data as don't care.
@@ -1160,7 +1162,7 @@ Note that we do not use full address decoding for ROM, boot ROM, RAM and I/O. Th
 The design incorporates a hard-coded bootloader with an upload and a simple monitor program. The bootloader is placed in a separate ROM starting at address 0x10000000 and has a maximum length of 4 KB (may be extended). The bootloader cannot be overwritten by an upload. The bootloader can be disabled.
 
 \subsection{S-record file}
-The S-record standard is invented by Motorola in the 1980's. It consists of formatted lines, called records. Each line can be seen as a record. A record starts with \lstinline|S| followed by a single digit. \lstinline|S0| is used as header record. This record is ignored by the bootloader. \lstinline|S1|,  \lstinline|S2| and \lstinline|S3| are data record using a 2-byte, 3-byte and 4-byte start address respectively. \lstinline|S4| is reserved and skipped by the bootloader. \lstinline|S5| and \lstinline|S6| are count records and are ignored. \lstinline|S7|, \lstinline|S8| and \lstinline|S9| are termination records with a start address incorporated, with 4-byte, 3-byte and 2-byte address respectively. This start address is used by the bootloader to start the application. Records have a checksum at the end, this checksum is ignored by the bootloader.
+The S-record standard is invented by Motorola in the 1980's. It consists of formatted lines, called records. A record starts with \lstinline|S| followed by a single digit. \lstinline|S0| is used as header record. This record is ignored by the bootloader. \lstinline|S1|,  \lstinline|S2| and \lstinline|S3| are data record using a 2-byte, 3-byte and 4-byte start address respectively. \lstinline|S4| is reserved and skipped by the bootloader. \lstinline|S5| and \lstinline|S6| are count records and are ignored. \lstinline|S7|, \lstinline|S8| and \lstinline|S9| are termination records with a start address incorporated, with 4-byte, 3-byte and 2-byte address respectively. This start address is used by the bootloader to start the application. Records have a checksum at the end, this checksum is ignored by the bootloader.
 
 \subsection{Startup sequence}
 After loading the design in the FPGA, or after resetting the FPGA, the bootloader starts. It presents itself with a welcome string printed via UART1 at default 115200 bps. Then the bootloader waits for about 5 seconds before starting the application at address 0x00000000. During these 5 seconds, at half second intervals, a \lstinline|*| is printed via UART1. At the same time, the 10 red leds on the DE0-CV board are lit and dimmed on half second intervals from left (high led) to right (low led). If a character is received within the five seconds, either a S-record file can be uploaded or the bootloader falls to a simple monitor program.

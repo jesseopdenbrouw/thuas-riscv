@@ -1,7 +1,7 @@
 
 # Arty S7/50 Board
 
-The Arty S7/50 board has a clock oscillator of 10 ns (100 MHz).
+The Arty S7/50 board has a clock oscillator with a period of 10 ns (100 MHz).
 
 In this directory, two files are present:
 

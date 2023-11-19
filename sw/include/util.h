@@ -21,6 +21,8 @@ void printdec(int32_t v);
 uint32_t gethex(int n);
 /* Delay in milliseconds */
 void delayms(uint32_t delay);
+/* Print hardware version */
+void printhwversion(void);
 
 #ifdef __cplusplus
 }

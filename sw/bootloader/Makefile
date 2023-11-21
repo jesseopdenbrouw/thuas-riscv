@@ -53,7 +53,7 @@ $(CRT):
 $(TARGET).elf: $(OBJS) $(HFILES) $(COMMON_FILE)
 	$(CC) -O2 -g -o $(TARGET).elf $(OBJS) $(LDFLAGS)
 	$(OBJCOPY) -O srec $(TARGET).elf $(TARGET).srec
-	$(SREC2VHDL) -w0 -i 8 $(TARGET).srec $(TARGET).vhd
+	$(SREC2VHDL) -wBf -i 8 $(TARGET).srec $(TARGET).vhd
 	$(SIZE) $(TARGET).elf
 
 .PHONY: upload

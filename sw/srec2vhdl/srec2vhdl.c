@@ -21,7 +21,8 @@
  *      -h         Output as half words (16 bits, Little Endian)
  *      -w         Output as words (32 bits, Little Endian)
  *      -0         Output unused data as 0's
- *      -d         Output unused data as don't cares
+ *      -x         Output unused data as don't cares
+ *      -B         Output as bootloader ROM
  *
  * The address of the first record is used as an offset
  * so that the first records starts at vector element 0.
@@ -121,6 +122,7 @@ int main(int argc, char *argv[]) {
 	int size = BYTE;
 	char unused = '-';
 	int writeunused = 0;
+	int asboot = 0;
 
 	/* Set defaults on options */
 	full = 0;
@@ -140,7 +142,8 @@ int main(int argc, char *argv[]) {
 		printf("   -h        Halfword output (16 bits, Little Endian)\n");
 		printf("   -w        Word output (32 bits, Little Endian)\n");
 		printf("   -0        Output unused data as 0's\n");
-		printf("   -d        Output unused data as don't care\n");
+		printf("   -x        Output unused data as don't care\n");
+		printf("   -B        Output as bootloader ROM\n");
 		printf("If outputfile is omitted, stdout is used\n");
 		printf("Program size must be less then 1 MB\n\n");
 		printf("The address of the first record is used as an offset\n"
@@ -149,7 +152,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Parse options */
-	while ((opt = getopt(argc, argv, "0dbhwvqfi:")) != -1) {
+	while ((opt = getopt(argc, argv, "0xbhwvqfi:B")) != -1) {
 	        switch (opt) {
        		case 'f':
 	            full = 1;
@@ -174,7 +177,7 @@ int main(int argc, char *argv[]) {
 	            break;
 	        case 'q':
 	            verbose = 0;
-	        case 'd':
+	        case 'x':
 				writeunused = 1;
 	            unused = '-';
 	            break;
@@ -182,6 +185,9 @@ int main(int argc, char *argv[]) {
 				writeunused = 1;
 	            unused = '0';
 	            break;
+			case 'B':
+				asboot = 1;
+				break;
 	        default: /* '?' */
 		    	fprintf(stderr, "Unknown option '%c'\n", opt);
 	            exit(EXIT_FAILURE);
@@ -232,8 +238,13 @@ int main(int argc, char *argv[]) {
 		fprintf(fout, "use ieee.std_logic_1164.all;\n\n");
 		fprintf(fout, "library work;\n");
 		fprintf(fout, "use work.processor_common.all;\n\n");
-		fprintf(fout, "package rom_image is\n");
-		fprintf(fout, "    constant rom_contents : memory_type := (\n");
+		if (asboot) {
+			fprintf(fout, "package bootrom_image is\n");
+			fprintf(fout, "    constant bootrom_contents : memory_type := (\n");
+		} else {
+			fprintf(fout, "package rom_image is\n");
+			fprintf(fout, "    constant rom_contents : memory_type := (\n");
+		}
 	}
 
 	while (fgets(buffer, LEN_BUFFER, fp) != NULL) {
@@ -375,7 +386,11 @@ int main(int argc, char *argv[]) {
    	fprintf(fout, "    );\n");
 
 	if (full) {
-		fprintf(fout, "end package rom_image;\n");
+		if (asboot) {
+			fprintf(fout, "end package bootrom_image;\n");
+		} else {
+			fprintf(fout, "end package rom_image;\n");
+		}
 	}
 
 	if (verbose) {

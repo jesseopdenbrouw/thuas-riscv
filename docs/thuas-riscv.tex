@@ -539,7 +539,8 @@ The processor hardware is composed of the following VHDL files:
 \item \lstinline|instr_router.vhd| -- Description of the instruction router.
 \item \lstinline|rom.vhd| -- Description of the ROM. Will be placed in onboard, initialized RAM blocks. 
 \item \lstinline|rom_image.vhd| -- Description of the ROM contents.
-\item \lstinline|bootloader.vhd| -- Description of the bootloader ROM. The bootloader program will be placed in onboard, initialized RAM blocks. 
+\item \lstinline|bootloader.vhd| -- Description of the bootloader ROM. The bootloader program will be placed in onboard, initialized RAM blocks.
+\item \lstinline|bootrom_image.vhd| -- Description of the boot ROM contents.
 \item \lstinline|ram.vhd| -- Description of the RAM. Will be placed in onboard, uninitialized RAM blocks. 
 \item \lstinline|io.vhd| -- Description of the I/O. It contains a 32-bit input register, a 32-bit output register, an UART, I2C, SPI, timers and the TIME and TIMECMP memory mapped registers.
 \item \lstinline|riscv.vhd| -- Top-level description of the processor. Connects all the building blocks to a viable processor.
@@ -1213,6 +1214,9 @@ Note: the capabilities of the monitor may be extended.
 (When not using the \lstinline|-n| option) Uploading an S-record file uses a simple handshake protocol. The \lstinline|upload| program sends a single exclamation mark (\lstinline|!|). The bootloader responds with an question mark (\lstinline|?|) and a newline (\lstinline|\n|). Now each S-record line is transmitted character by character, including the end-of-line termination character (\lstinline|\r| and/or \lstinline|\n|). After a line is processed, the bootloader responds with a question mark and a newline. After all S-record lines are transmitted, the \lstinline|upload| program either sends a \lstinline|J| to start the application, or a \lstinline|#| to start the monitor.
 
 (When using the \lstinline|-n| option) The \lstinline|upload| program transmits n dollar sign (\lstinline|$|) to inform the bootloader that handshake is turned off. The \lstinline|upload| program then transmits the S-record file and doesn't wait for acknowledge (the bootloader will not send an acknowledge). This provides a fast upload scenario (about 4 times faster then when using acknowledge).
+
+\subsection{Updating the bootloader}
+The ROM contents of the bootloader is created as part of the \lstinline|make| process and is available in the \lstinline|sw/bootloader| directory. The file \lstinline|bootloader.vhd| holds a copy of the program. When modifying the bootloader, the \lstinline|make| process has to be run again and the file \lstinline|bootloader.vhd| must be copied to the RTL directory with the name \lstinline|bootrom_image.vhd|.
 
 \subsection{Implications on the hardware design}
 The design has a separate ROM that incorporates the bootloader. The original ROM, at address 0x00000000 is extended with a write port, together with the instruction read port and the data read port. In fact, the ROM has become a (program) RAM. Because the Cyclone FPGA ROMs (and RAMs) can only have two ports (out/out or in/out), the original ROM hardware is duplicated (by the synthesizer). This takes up onboard RAM blocks, but very few ALMs (cells). % The speed decrements by a few MHz.

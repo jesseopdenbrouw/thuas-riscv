@@ -250,6 +250,9 @@ package processor_common is
 
     -- Function to change boolean into a std_logic
     function boolean_to_std_logic(condition : boolean) return std_logic;
+    
+    -- Function to reverse bits in std_logic_vector
+    function bit_reverse(input : std_logic_vector) return std_logic_vector;
 
 end package processor_common;
 
@@ -291,4 +294,14 @@ package body processor_common is
         end if;
     end function boolean_to_std_logic;
 
+    -- Function to reverse bits in std_logic_vector
+    function bit_reverse(input : std_logic_vector) return std_logic_vector is
+    variable output : std_logic_vector(input'range);
+    begin
+        for i in input'range loop
+            output(input'length-i-1) := input(i);
+        end loop;
+        return output;
+    end function bit_reverse;
+    
 end package body processor_common;

@@ -66,6 +66,7 @@ if [ string match "*simulation/modelsim" [pwd] ] {
 vcom -93 -work work ${prefix}processor_common.vhd
 vcom -93 -work work ${prefix}rom_image.vhd
 vcom -93 -work work ${prefix}rom.vhd
+vcom -93 -work work ${prefix}bootrom_image.vhd
 vcom -93 -work work ${prefix}bootloader.vhd
 vcom -93 -work work ${prefix}ram.vhd
 vcom -93 -work work ${prefix}io.vhd

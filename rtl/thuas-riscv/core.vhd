@@ -1167,7 +1167,7 @@ begin
     variable a_v, b_v, r_v, imm_v : data_type;
     variable al_v, bl_v : std_logic_vector(32 downto 0);
     variable signs_v : data_type;
-    constant zeros_v : data_type := (others => '0');
+    --constant zeros_v : data_type := (others => '0');
     variable cmpeq_v, cmplt_v : std_logic;
     variable bitsft_v : data_type;
     begin
@@ -1296,40 +1296,30 @@ begin
             -- Shifts et al
             when alu_sll | alu_slli =>
                 if b_v(4) = '1' then
-                    a_v := a_v(15 downto 0) & zeros_v(15 downto 0);
+                    a_v := a_v(15 downto 0) & all_zeros_c(15 downto 0);
                 end if;
                 if b_v(3) = '1' then
-                    a_v := a_v(23 downto 0) & zeros_v(7 downto 0);
+                    a_v := a_v(23 downto 0) & all_zeros_c(7 downto 0);
                 end if;
                 if b_v(2) = '1' then
-                    a_v := a_v(27 downto 0) & zeros_v(3 downto 0);
+                    a_v := a_v(27 downto 0) & all_zeros_c(3 downto 0);
                 end if;
                 if b_v(1) = '1' then
-                    a_v := a_v(29 downto 0) & zeros_v(1 downto 0);
+                    a_v := a_v(29 downto 0) & all_zeros_c(1 downto 0);
                 end if;
                 if b_v(0) = '1' then
-                    a_v := a_v(30 downto 0) & zeros_v(0 downto 0);
+                    a_v := a_v(30 downto 0) & all_zeros_c(0 downto 0);
                 end if;
                 r_v := a_v;
-            when alu_srl | alu_srli =>
-                if b_v(4) = '1' then
-                    a_v := zeros_v(15 downto 0) & a_v(31 downto 16);
+
+            when alu_sra | alu_srai | alu_srl | alu_srli =>
+                if id_ex.alu_op = alu_srl or id_ex.alu_op = alu_srli then
+                    signs_v := all_zeros_c;
+                else
+                    signs_v := (others => a_v(31));
                 end if;
-                if b_v(3) = '1' then
-                    a_v := zeros_v(7 downto 0) & a_v(31 downto 8);
-                end if;
-                if b_v(2) = '1' then
-                    a_v := zeros_v(3 downto 0) & a_v(31 downto 4);
-                end if;
-                if b_v(1) = '1' then
-                    a_v := zeros_v(1 downto 0) & a_v(31 downto 2);
-                end if;
-                if b_v(0) = '1' then
-                    a_v := zeros_v(0 downto 0) & a_v(31 downto 1);
-                end if;
-                r_v := a_v;
-            when alu_sra | alu_srai =>
-                signs_v := (others => a_v(31));
+
+                
                 if b_v(4) = '1' then
                     a_v := signs_v(15 downto 0) & a_v(31 downto 16);
                 end if;
@@ -1345,6 +1335,7 @@ begin
                 if b_v(0) = '1' then
                     a_v := signs_v(0 downto 0) & a_v(31 downto 1);
                 end if;
+
                 r_v := a_v;
                 
             -- Loads etc

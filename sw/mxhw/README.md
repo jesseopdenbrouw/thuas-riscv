@@ -25,10 +25,15 @@ custom CS register `mxhw`. The register is located at address
 | 12   | Reserved                |
 | 13   | Reserved                |
 | 14   | Reserved                |
-| 15   | Multiply/divide enabled |
-| 16   | Fast divide enabled     |
-| 17   | Bootloader enabled      |
-| 18   | Registers in RAM        |
+| 15   | System Timer            |
+| 16   | Multiply/divide enabled |
+| 17   | Fast divide enabled     |
+| 18   | Bootloader enabled      |
+| 19   | Registers in RAM        |
+| 20   | Zba extension           |
+| 21   | Fast store              |
+| 22   | Zicond extension        |
+| 23   | Zbs extension           |
 | rest | Reserved                |
 
 It also prints the synthesized clock frequency and the hardware version.

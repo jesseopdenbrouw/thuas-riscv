@@ -19,11 +19,11 @@ entity riscv is
           -- Fast divide (needs more area)?
           FAST_DIVIDE : boolean := TRUE;
           -- Do we have Zba (sh?add)
-          HAVE_ZBA : boolean := TRUE;
+          HAVE_ZBA : boolean := false;
           -- Do we have Zbs (bit instructions)?
-          HAVE_ZBS : boolean := TRUE;
+          HAVE_ZBS : boolean := false;
           -- Do we have Zicond (czero.{eqz|nez})?
-          HAVE_ZICOND : boolean := TRUE;
+          HAVE_ZICOND : boolean := false;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean := TRUE;
           -- Do we have registers is RAM?

@@ -42,11 +42,13 @@
 #define LEN_BUFFER (1000)
 
 /* This should really be enough */
+/* Must be a multple of 8 (DWORD) */
 #define LEN_CODE (10000000)
 
 #define BYTE (1)
 #define HALFWORD (2)
 #define WORD (4)
+#define DWORD (8)
 
 /* Make next global, otherwise it can be on the stack */
 unsigned char code[LEN_CODE] = { 0 };
@@ -141,6 +143,7 @@ int main(int argc, char *argv[]) {
 		printf("   -b        Byte output (default)\n");
 		printf("   -h        Halfword output (16 bits, Little Endian)\n");
 		printf("   -w        Word output (32 bits, Little Endian)\n");
+		printf("   -d        Double word output (64 bits, Little Endian)\n");
 		printf("   -0        Output unused data as 0's\n");
 		printf("   -x        Output unused data as don't care\n");
 		printf("   -B        Output as bootloader ROM\n");
@@ -152,7 +155,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Parse options */
-	while ((opt = getopt(argc, argv, "0xbhwvqfi:B")) != -1) {
+	while ((opt = getopt(argc, argv, "0xbhwvqfi:Bd")) != -1) {
 	        switch (opt) {
        		case 'f':
 	            full = 1;
@@ -174,6 +177,9 @@ int main(int argc, char *argv[]) {
 	            break;
 	        case 'w':
 	            size = WORD;
+	            break;
+	        case 'd':
+	            size = DWORD;
 	            break;
 	        case 'q':
 	            verbose = 0;
@@ -366,6 +372,8 @@ int main(int argc, char *argv[]) {
 			fprintf(fout, "%4d => x\"%02x%02x\"", i/size, code[i], code[i+1]);
 		} else if (size == WORD) {
 			fprintf(fout, "%4d => x\"%02x%02x%02x%02x\"", i/size, code[i], code[i+1], code[i+2], code[i+3]);
+		} else if (size == DWORD) {
+			fprintf(fout, "%4d => x\"%02x%02x%02x%02x%02x%02x%02x%02x\"", i/size, code[i], code[i+1], code[i+2], code[i+3], code[i+4], code[i+5], code[i+6], code[i+7]);
 		} else {
 			fprintf(stderr, "BUG:: size unknown\n");
 		}

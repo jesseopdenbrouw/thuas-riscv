@@ -188,7 +188,7 @@ type gpioa_type is record
     ext_sync : std_logic_vector(2 downto 0);
 end record;    
 signal gpioa : gpioa_type;
--- registers 2 - 7 not used -- reserved
+-- Note: registers 2 - 5 not used -- reserved
 
 
 -- UART1

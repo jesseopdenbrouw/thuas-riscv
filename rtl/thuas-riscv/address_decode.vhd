@@ -74,6 +74,7 @@ entity address_decode is
           I_bootdatain : in data_type;
           I_ramdatain : in data_type;
           I_iodatain : in data_type;
+          -- Load/store access error of unimplemented memeory
           O_load_access_error : out std_logic;
           O_store_access_error : out std_logic
          );

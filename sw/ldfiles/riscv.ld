@@ -10,8 +10,8 @@ ENTRY( _start )
 MEMORY
 {
    ROM (rx)  : ORIGIN = 0x00000000, LENGTH = 64K
-   RAM (rw)  : ORIGIN = 0x20000000, LENGTH = 32K
-   IO (rw)   : ORIGIN = 0xf0000000, LENGTH = 16K
+   RAM (w)   : ORIGIN = 0x20000000, LENGTH = 32K
+   IO (w)    : ORIGIN = 0xf0000000, LENGTH = 16K
 }
 
 /* Stack pointer global symbol. Stack size for

@@ -87,7 +87,7 @@ package processor_common is
                          alu_sh1add, alu_sh2add, alu_sh3add,       -- Zba
                          alu_bclr, alu_bclri, alu_bext, alu_bexti, -- Zbs
                          alu_binv, alu_binvi, alu_bset, alu_bseti, -- Zbs
-                         alu_czeroeqz, alu_czeronez                 -- Zicond
+                         alu_czeroeqz, alu_czeronez                -- Zicond
                         );
                         
     -- Control and State register operations

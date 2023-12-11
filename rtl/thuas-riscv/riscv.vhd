@@ -191,7 +191,7 @@ component core is
           I_memready : in std_logic;
           -- Interrupt signals from I/O
           I_intrio : data_type;
-          -- [m]time from the memory mapped I/O
+          -- time from the memory mapped I/O
           I_mtime : in data_type;
           I_mtimeh : in data_type;
           -- Load/store misaligned errors
@@ -233,6 +233,7 @@ component address_decode is
           I_bootdatain : in data_type;
           I_ramdatain : in data_type;
           I_iodatain : in data_type;
+          -- Load/store access error of unimplemented memeory
           O_load_access_error : out std_logic;
           O_store_access_error : out std_logic
          );
@@ -244,9 +245,11 @@ component instruction_router is
           BOOT_HIGH_NIBBLE : memory_high_nibble
          );
     port (I_pc : in data_type;
+          -- Instructions from ROM and boot ROM
           I_instr_rom : in data_type;
           I_instr_boot : in data_type;
           O_instr_out : out data_type;
+          -- Unimplemented instrcution memory
           O_instr_access_error : out std_logic
          );
 end component instruction_router;
@@ -481,6 +484,7 @@ begin
               I_store_access_error => store_access_error_int,
               I_instr_access_error => instr_access_error_int
              );
+    -- Merge all misaligned errors
     load_misaligned_error_int <= rom_load_misaligned_error_int or boot_load_misaligned_error_int or ram_load_misaligned_error_int or io_load_misaligned_error_int;
     store_misaligned_error_int <= rom_store_misaligned_error_int or ram_store_misaligned_error_int or io_store_misaligned_error_int;
     
@@ -510,6 +514,7 @@ begin
               O_load_access_error => load_access_error_int,
               O_store_access_error => store_access_error_int
     );
+    -- Merge all memory ready signals
     memready_int <= rommemready_int or rammemready_int or bootmemready_int or iomemready_int;
 
     instr_route0: instruction_router
@@ -584,17 +589,17 @@ begin
 
     io0: io
     generic map (
-          SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
-          CLOCK_FREQUENCY => CLOCK_FREQUENCY,
-          HAVE_FAST_STORE => HAVE_FAST_STORE,
-          HAVE_UART1 => HAVE_UART1,
-          HAVE_SPI1 => HAVE_SPI1,
-          HAVE_SPI2 => HAVE_SPI2,
-          HAVE_I2C1 => HAVE_I2C1,
-          HAVE_I2C2 => HAVE_I2C2,
-          HAVE_TIMER1 => HAVE_TIMER1,
-          HAVE_TIMER2 => HAVE_TIMER2
-         )
+              SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
+              CLOCK_FREQUENCY => CLOCK_FREQUENCY,
+              HAVE_FAST_STORE => HAVE_FAST_STORE,
+              HAVE_UART1 => HAVE_UART1,
+              HAVE_SPI1 => HAVE_SPI1,
+              HAVE_SPI2 => HAVE_SPI2,
+              HAVE_I2C1 => HAVE_I2C1,
+              HAVE_I2C2 => HAVE_I2C2,
+              HAVE_TIMER1 => HAVE_TIMER1,
+              HAVE_TIMER2 => HAVE_TIMER2
+             )
     port map (I_clk => clk_int,
               I_areset => areset_int,
               I_memaddress => memaddress_int,
@@ -632,7 +637,7 @@ begin
               IO_timer2icoca => IO_timer2icoca,
               IO_timer2icocb => IO_timer2icocb,
               IO_timer2icocc => IO_timer2icocc,
-              -- MTIME/MTIMEH
+              -- TIME/TIMEH
               O_mtime => mtime_int,
               O_mtimeh => mtimeh_int,
               -- Interrupt requests

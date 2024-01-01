@@ -25,7 +25,6 @@
  * 1 tab == 4 spaces!
  */
 
-#ifdef RUN_FREERTOS_DEMO
 
 /******************************************************************************
  * NOTE 1:  This project provides two demo applications.  A simple blinky
@@ -233,4 +232,3 @@ extern void vSendString( const char * const pcString );
 }
 /*-----------------------------------------------------------*/
 
-#endif

@@ -15,7 +15,7 @@ ASM_INC ?= -I .
 EFFORT ?= -Os
 
 # Set to 0 to run the comprehensive demo, set to 1 to run the simply blinky demo
-WHICH_DEMO ?= mainCREATE_SIMPLE_BLINKY_DEMO_ONLY=0
+WHICH_DEMO ?= mainCREATE_SIMPLE_BLINKY_DEMO_ONLY=1
 # *****************************************************************************
 
 

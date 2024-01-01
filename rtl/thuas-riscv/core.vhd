@@ -484,9 +484,9 @@ begin
         if I_areset = '1' then
             pc <= (others => '0');
             if HAVE_BOOTLOADER_ROM then
-                pc(31 downto 28) <= BOOT_HIGH_NIBBLE;
+                pc(pc'left downto pc'left-3) <= BOOT_HIGH_NIBBLE;
             else
-                pc(31 downto 28) <= ROM_HIGH_NIBBLE;
+                pc(pc'left downto pc'left-3) <= ROM_HIGH_NIBBLE;
             end if;
         elsif rising_edge(I_clk) then
             -- Should we stall the pipeline
@@ -1165,9 +1165,8 @@ begin
     -- ALU
     process (id_ex, control, ex_wb, md, csr_access, I_memdatain) is
     variable a_v, b_v, r_v, imm_v : data_type;
-    variable al_v, bl_v : std_logic_vector(32 downto 0);
+    variable al_v, bl_v : std_logic_vector(data_type'left+1 downto 0);
     variable signs_v : data_type;
-    --constant zeros_v : data_type := (others => '0');
     variable cmpeq_v, cmplt_v : std_logic;
     variable bitsft_v : data_type;
     begin
@@ -1194,8 +1193,8 @@ begin
         -- operation (SLTU, SLTIU, BLTU and BGEU), the operands are
         -- zero extended and will compare as unsigned operands even
         -- though the compare is signed.
-        al_v := (a_v(31) and (not id_ex.isunsigned)) & a_v;
-        bl_v := (b_v(31) and (not id_ex.isunsigned)) & b_v;
+        al_v := (a_v(a_v'left) and (not id_ex.isunsigned)) & a_v;
+        bl_v := (b_v(b_v'left) and (not id_ex.isunsigned)) & b_v;
         
         -- Compare equal
         if a_v = b_v then
@@ -1227,11 +1226,11 @@ begin
             when alu_add | alu_addi | alu_sh1add | alu_sh2add | alu_sh3add =>
                 if HAVE_ZBA then
                     if id_ex.alu_op = alu_sh1add then
-                        a_v := a_v(30 downto 0) & '0';
+                        a_v := a_v(a_v'left-1 downto 0) & '0';
                     elsif id_ex.alu_op = alu_sh2add then
-                        a_v := a_v(29 downto 0) & "00";
+                        a_v := a_v(a_v'left-2 downto 0) & "00";
                     elsif id_ex.alu_op = alu_sh3add then
-                        a_v := a_v(28 downto 0) & "000";
+                        a_v := a_v(a_v'left-3 downto 0) & "000";
                     end if;
                 end if;
                 r_v := std_logic_vector(unsigned(a_v) + unsigned(b_v));
@@ -1296,19 +1295,19 @@ begin
             -- Shifts et al
             when alu_sll | alu_slli =>
                 if b_v(4) = '1' then
-                    a_v := a_v(15 downto 0) & all_zeros_c(15 downto 0);
+                    a_v := a_v(a_v'left-16 downto 0) & all_zeros_c(15 downto 0);
                 end if;
                 if b_v(3) = '1' then
-                    a_v := a_v(23 downto 0) & all_zeros_c(7 downto 0);
+                    a_v := a_v(a_v'left-8 downto 0) & all_zeros_c(7 downto 0);
                 end if;
                 if b_v(2) = '1' then
-                    a_v := a_v(27 downto 0) & all_zeros_c(3 downto 0);
+                    a_v := a_v(a_v'left-4 downto 0) & all_zeros_c(3 downto 0);
                 end if;
                 if b_v(1) = '1' then
-                    a_v := a_v(29 downto 0) & all_zeros_c(1 downto 0);
+                    a_v := a_v(a_v'left-2 downto 0) & all_zeros_c(1 downto 0);
                 end if;
                 if b_v(0) = '1' then
-                    a_v := a_v(30 downto 0) & all_zeros_c(0 downto 0);
+                    a_v := a_v(a_v'left-1 downto 0) & all_zeros_c(0 downto 0);
                 end if;
                 r_v := a_v;
 
@@ -1316,24 +1315,24 @@ begin
                 if id_ex.alu_op = alu_srl or id_ex.alu_op = alu_srli then
                     signs_v := all_zeros_c;
                 else
-                    signs_v := (others => a_v(31));
+                    signs_v := (others => a_v(a_v'left));
                 end if;
 
                 
                 if b_v(4) = '1' then
-                    a_v := signs_v(15 downto 0) & a_v(31 downto 16);
+                    a_v := signs_v(15 downto 0) & a_v(a_v'left downto 16);
                 end if;
                 if b_v(3) = '1' then
-                    a_v := signs_v(7 downto 0) & a_v(31 downto 8);
+                    a_v := signs_v(7 downto 0) & a_v(a_v'left downto 8);
                 end if;
                 if b_v(2) = '1' then
-                    a_v := signs_v(3 downto 0) & a_v(31 downto 4);
+                    a_v := signs_v(3 downto 0) & a_v(a_v'left downto 4);
                 end if;
                 if b_v(1) = '1' then
-                    a_v := signs_v(1 downto 0) & a_v(31 downto 2);
+                    a_v := signs_v(1 downto 0) & a_v(a_v'left downto 2);
                 end if;
                 if b_v(0) = '1' then
-                    a_v := signs_v(0 downto 0) & a_v(31 downto 1);
+                    a_v := signs_v(0 downto 0) & a_v(a_v'left downto 1);
                 end if;
 
                 r_v := a_v;
@@ -1960,7 +1959,7 @@ begin
                     when csr_rc =>
                         csr_content_v := csr_content_v and not csr_access.dataout;
                     when csr_rwi =>
-                        csr_content_v(31 downto 5) := (others => '0');
+                        csr_content_v(csr_content_v'left downto 5) := (others => '0');
                         csr_content_v(4 downto 0) := csr_access.immrs1;
                     when csr_rsi =>
                         csr_content_v(4 downto 0) := csr_content_v(4 downto 0) or csr_access.immrs1(4 downto 0);
@@ -1992,19 +1991,19 @@ begin
             end if;
             
             -- Set all bits hard to 0 except MTIE (7), MSIE (3)
-            csr_reg.mie(31 downto 8) <= (others => '0');
+            csr_reg.mie(csr_reg.mie'left downto 8) <= (others => '0');
             csr_reg.mie(6 downto 4) <= (others => '0');
             --csr_reg.mie(3) <= '0';
             csr_reg.mie(2 downto 0) <= (others => '0');
 
             -- Set most bits of mstatus to 0
-            csr_reg.mstatus(31 downto 13) <= (others => '0');
+            csr_reg.mstatus(csr_reg.mstatus'left downto 13) <= (others => '0');
             csr_reg.mstatus(10 downto 8) <= (others => '0');
             csr_reg.mstatus(4 downto 4) <= (others => '0');
             csr_reg.mstatus(2 downto 0) <= (others => '0');
             
             -- Set most bits of mcountinhibit to 0
-            csr_reg.mcountinhibit(31 downto 3) <= (others => '0');
+            csr_reg.mcountinhibit(csr_reg.mcountinhibit'left downto 3) <= (others => '0');
             -- TI bit always 0
             csr_reg.mcountinhibit(1) <= '0';
             
@@ -2064,9 +2063,9 @@ begin
 
         -- Calculate the MTVEC to be loaded in the PC on trap
         if VECTORED_MTVEC and csr_reg.mtvec(0) = '1' and csr_reg.mcause(31) = '1' then
-            csr_transfer.mtvec_to_pc <= std_logic_vector(unsigned(csr_reg.mtvec(31 downto 2)) + unsigned(csr_reg.mcause(5 downto 0))) & "00";
+            csr_transfer.mtvec_to_pc <= std_logic_vector(unsigned(csr_reg.mtvec(csr_reg.mtvec'left downto 2)) + unsigned(csr_reg.mcause(5 downto 0))) & "00";
         else
-            csr_transfer.mtvec_to_pc <= csr_reg.mtvec(31 downto 2) & "00";
+            csr_transfer.mtvec_to_pc <= csr_reg.mtvec(csr_reg.mtvec'left downto 2) & "00";
         end if;
 
 end process;
@@ -2111,7 +2110,7 @@ end process;
     csr_reg.mxhw(21) <= '1' when HAVE_FAST_STORE else '0';
     csr_reg.mxhw(22) <= '1' when HAVE_ZICOND else '0';
     csr_reg.mxhw(23) <= '1' when HAVE_ZBS else '0';
-    csr_reg.mxhw(31 downto 24) <= (others => '0');
+    csr_reg.mxhw(csr_reg.mxhw'left downto 24) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));

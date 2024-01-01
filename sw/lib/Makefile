@@ -23,14 +23,14 @@ OBJ = $(patsubst %.c, %.o, $(SRC))
 all: $(LIBTHUASRV32)
 
 $(LIBTHUASRV32): $(OBJ)
-	make -C syscalls all
-	make -C uart all
-	make -C util all
-	make -C csr all
-	make -C spi all
-	make -C i2c all
-	make -C timer all
-	make -C gpio all
+#	make -C syscalls all
+#	make -C uart all
+#	make -C util all
+#	make -C csr all
+#	make -C spi all
+#	make -C i2c all
+#	make -C timer all
+#	make -C gpio all
 	$(AR) rsv $(LIBTHUASRV32) $(OBJ)
 
 

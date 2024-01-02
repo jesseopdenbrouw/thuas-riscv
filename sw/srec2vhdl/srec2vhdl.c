@@ -360,12 +360,17 @@ int main(int argc, char *argv[]) {
 		address = LEN_CODE;
 	}
 
-	for (i = 0; i < address; i = i + size) {
+	/* Align to next address */
+	address = ((address + size - 1) & ~(size - 1));
+
+	/* Output the data */
+	for (i = 0; i <= address; i = i + size) {
 		if (indent) {
 			for (int i = 0; i < indentarg; i++) {
 				fprintf(fout, " ");
 			}
 		}
+		//fprintf(fout,">> %5d:  ", i);
 		if (size == BYTE) {
 			fprintf(fout, "%4d => x\"%02x\"", i/size, code[i]);
 		} else if (size == HALFWORD) {
@@ -377,7 +382,7 @@ int main(int argc, char *argv[]) {
 		} else {
 			fprintf(stderr, "BUG:: size unknown\n");
 		}
-		if ((i != address-size) || writeunused) {
+		if ((i < address) || writeunused) {
 			fprintf(fout, ",");
 		}
 		fprintf(fout, "\n");

@@ -20,11 +20,11 @@
 
 #include <thuasrv32.h>
 
-#define VERSION "v0.5"
+#define VERSION "v0.5.1"
 #define BUFLEN (41)
 #define BOOTWAIT (10)
 
-int main(void) {
+int main(int argc, char *argv[], char *envp[]) {
 
 	/* Start address of application */
 	void (*app_start)(void) = (void *) 0x00000000;
@@ -180,9 +180,7 @@ int main(void) {
 
 		/* Send prompt and read input */
 		uart1_puts("> ");
-		uart1_gets(buffer, BUFLEN);
-
-		int len = strlen(buffer);
+		int len = uart1_gets(buffer, BUFLEN);
 
 		if (strcmp(buffer, "h") == 0) {
 			/* Print help */

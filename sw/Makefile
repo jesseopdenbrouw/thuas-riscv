@@ -26,6 +26,7 @@ SUBDIRS = add64 \
           flash \
           float \
           FreeRTOSdemo \
+		  gamma \
           global \
           hex_display \
           i2c1findslaves \

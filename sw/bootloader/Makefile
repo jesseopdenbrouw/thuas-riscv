@@ -1,6 +1,8 @@
 #
 # Makefile to build target
 #
+# note: LTO enabled
+#
 
 
 # The target

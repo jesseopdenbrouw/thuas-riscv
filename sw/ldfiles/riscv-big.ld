@@ -106,8 +106,8 @@ SECTIONS
     _sdata = .;
     *(.data)
     *(.data*)
-    *(sdata)
-    *(sdata.*)
+    *(.sdata)
+    *(.sdata.*)
     . = ALIGN(4);
   } >RAM AT>ROM
     . = ALIGN(4);

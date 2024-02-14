@@ -36,7 +36,7 @@ compiler.
 
 The design is equipped with a bootloader program and registers in onboard RAM.
 The bootloader can be removed from synthesis. The registers can be placed in
-logic cells. The design runs at a speed of approximately 80 MHz.
+logic cells. The design runs at a speed of approximately 85 MHz DE0-CV board).
  
 ## Memory
 

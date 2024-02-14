@@ -308,7 +308,7 @@ begin
     -- Control block:
     -- This block holds the current processing state of the
     -- processor and supplies the control signals to the
-    -- other block.
+    -- other blocks.
     --
     
     -- Processor state control

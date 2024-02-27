@@ -1,7 +1,7 @@
 /*
  * handlers_direct.h -- prototypes for handlers
  *
- * (c) 2023  Jesse E.J. op den Brouw
+ * (c) 2024  Jesse E.J. op den Brouw
  *
  */
 
@@ -26,6 +26,8 @@ void spi1_handler(void);
 void i2c1_handler(void);
 /* I2C2 transmit complete interrupt handler */
 void i2c2_handler(void);
+/* External software interrupt handler */
+void external_msi_handler(void);
 /* External input interrupt */
 void external_input_handler(void);
 /* Default (test) interrupt */

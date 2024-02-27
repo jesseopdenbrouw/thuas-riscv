@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2023, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2024, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -398,8 +398,15 @@ type timer2_type is record
 end record;
 signal timer2 : timer2_type;
 
--- Registers 48 - 59 not used - reserved
+-- Registers 48 - 58 not used - reserved
 
+constant msitrig_addr : integer := 59; -- 0xec.b
+
+-- RISC-V Machine Software Interrupt (MSI)
+type msi_type is record
+    trig : data_type;
+end record;
+signal msi : msi_type;
 
 -- RISC-V system timer TIME and TIMECMP
 constant mtime_addr : integer := 60;      -- 0xf0.b
@@ -476,6 +483,7 @@ begin
                     when timer2cmpa_addr => O_dataout <= timer2.cmpa;
                     when timer2cmpb_addr => O_dataout <= timer2.cmpb;
                     when timer2cmpc_addr => O_dataout <= timer2.cmpc;
+                    when msitrig_addr    => O_dataout <= msi.trig;
                     when mtime_addr      => O_dataout <= mtime.mtime;
                     when mtimeh_addr     => O_dataout <= mtime.mtimeh;
                     when mtimecmp_addr   => O_dataout <= mtime.mtimecmp;
@@ -2221,8 +2229,28 @@ begin
         IO_timer2icoca <= 'Z';
         IO_timer2icocb <= 'Z';
         IO_timer2icocc <= 'Z';
-   end generate;
+    end generate;
 
+    
+    --
+    -- RISC-V Machine Software Interrupt (MSI)
+    --
+    process (I_clk, I_areset) is
+    begin
+        if I_areset = '1' then
+            msi.trig(0) <= '0';
+        elsif rising_edge(I_clk) then
+            if write_access_granted = '1' then
+                -- Set trigger bit
+                if reg_int = msitrig_addr then
+                    msi.trig(0) <= I_datain(0);
+                end if;
+            end if;
+        end if;
+    end process;
+    msi.trig(31 downto 1) <= (others => '0');
+    
+    
     --
     -- RISC-V system timer TIME and TIMECMP
     -- These registers are memory mapped
@@ -2269,9 +2297,9 @@ begin
         mtime.mtimecmph <= std_logic_vector(mtimecmp_v(63 downto 32));
         -- If compare register >= time register, assert interrupt
         if mtime_v >= mtimecmp_v then
-            O_intrio(7) <= '1';
+            O_intrio(INTR_PRIO_MTIME) <= '1';
         else
-            O_intrio(7) <= '0';
+            O_intrio(INTR_PRIO_MTIME) <= '0';
         end if;
         O_mtime <= mtime.mtime;
         O_mtimeh <= mtime.mtimeh;
@@ -2281,7 +2309,7 @@ begin
     -- Interrupt generation
     --
 
-    process (spi1, i2c1, i2c2, timer2, timer1, uart1, gpioa) is
+    process (spi1, i2c1, i2c2, timer2, timer1, uart1, gpioa, msi) is
     begin
        -- Default all interrupts to 0.
         O_intrio(31 downto 8) <= (others => '0');
@@ -2321,7 +2349,10 @@ begin
         if gpioa.exts(0) = '1' then
             O_intrio(INTR_PRIO_EXTI) <= '1';
         end if;
-        
+        --
+        if msi.trig(0) = '1' then
+            O_intrio(INTR_PRIO_MSI) <= '1';
+        end if;
     end process;
 
 
@@ -2407,7 +2438,8 @@ begin
         45 => timer2.cmpa,
         46 => timer2.cmpb,
         47 => timer2.cmpc,
-        -- 48 - 59 not used
+        -- 48 - 58 not used
+        59 => msi.trig,
         60 => mtime.mtime,
         61 => mtime.mtimeh,
         62 => mtime.mtimecmp,

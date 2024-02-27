@@ -5,7 +5,7 @@
 # ********************************************************************************************* #
 # BSD 3-Clause License                                                                          #
 #                                                                                               #
-# Copyright (c) 2023, Jesse op den Brouw. All rights reserved.                                  #
+# Copyright (c) 2024, Jesse op den Brouw. All rights reserved.                                  #
 #                                                                                               #
 # Redistribution and use in source and binary forms, with or without modification, are          #
 # permitted provided that the following conditions are met:                                     #
@@ -179,6 +179,7 @@ add wave             -label SPI1 dut/io0/spi1
 add wave             -label SPI2 dut/io0/spi2
 add wave             -label TIMER1 dut/io0/timer1
 add wave             -label TIMER2 dut/io0/timer2
+add wave             -label MSI dut/io0/msi
 add wave             -label MTIME dut/io0/mtime
 add wave -radix hex -label IO_sim dut/io0/io_alt
 

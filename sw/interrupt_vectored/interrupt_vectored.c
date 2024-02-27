@@ -1,3 +1,9 @@
+/*
+ * interrupt_vectored.c -- handle interrupts in vectored mode
+ *
+ */
+
+
 #include <stdint.h>
 #include <malloc.h>
 #include <sys/time.h>
@@ -7,12 +13,12 @@
 
 #include <thuasrv32.h>
 
-/* Set to 1 to use printf(), uses system calls
- * Set to 0 to use sprintf()/uart1_puts(),
- * use system call for sbrk */
+/* Set to 1 to use printf(), uses system calls.
+ * Set to 0 to use sprintf()/uart1_puts(), uses
+ * at most sbrk system call */
 #define USE_PRINTF (0)
 
-/* This should be provided by the Makefile */
+/* Should be loaded by the Makefile */
 #ifndef F_CPU
 #define F_CPU (50000000UL)
 #endif
@@ -35,7 +41,7 @@ int main(int argc, char *argv[], char *envp[])
 	speed = csr_read(0xfc1);
 	speed = (speed == 0) ? F_CPU : speed;
 
-	/* Set the trap handler vectors + mode */
+	/* Set the trap handler vector */
 	set_mtvec(trap_handler_jump_table, TRAP_VECTORED_MODE);
 
 	/* Initialize the USART*/
@@ -63,12 +69,14 @@ int main(int argc, char *argv[], char *envp[])
 	/* Fast mode, 400 kHz */
 	I2C2->CTRL = I2C_PRESCALER_FM(speed) | I2C_TCIE | I2C_FAST_MODE;
 
-	/* External pin input interrupt, rising edge */
+	/* External input pin interrupt, pin 15, rising edge */	
 	GPIOA->EXTC = (15 << 3) | (1 << 1);
 
-	/* Enable RISC-V system timer interrupt */
-	/* The system timer runs at 1 kHz */
+	/* Enable RISC-V system timer IRQ */
 	enable_external_timer_irq();
+
+	/* Enable RISC-V Machine Software IRQ */
+	enable_external_software_irq();
 
 	/* Enable interrupts */
 	enable_irq();
@@ -78,14 +86,14 @@ int main(int argc, char *argv[], char *envp[])
 	while(argc-- > 0) {
 		printf("%s\r\n", *argv++);
 	}
-	printf("\r\n\r\nDisplaying the time passed since reset\r\n\r\n");
+	printf("\r\n\nDisplaying the time passed since reset\r\n\n");
 #else
 	uart1_puts("\r\n");
 	while(argc-- > 0) {
 		uart1_puts(*argv++);
 		uart1_puts("\r\n");
 	}
-	uart1_puts("\r\n\r\nDisplaying the time passed since reset\r\n\r\n");
+	uart1_puts("\r\n\nDisplaying the time passed since reset\r\n\n");
 #endif
 
 	while (1) {
@@ -108,12 +116,12 @@ int main(int argc, char *argv[], char *envp[])
 #endif
 		}
 
-		/* Once in every +/- 10 seconds with 9600 bps, produce an EBREAK call */
+		/* Once in every +/- 10 seconds, produce an EBREAK call */
 		ebreak_counter++;
 		if (ebreak_counter == BAUD_RATE/24UL) {
 			ebreak_counter = 0;
 			__asm__ volatile ("ebreak;" :::);
-			/* Trigger SPI1 */
+			/* Start SPI1 transmission */
 			SPI1->DATA = 0xff;
 			/* Start I2C1 transmission, send START and STOP */
 			/* Send address 0x48 (TMP102 device) */
@@ -123,7 +131,8 @@ int main(int argc, char *argv[], char *envp[])
 			/* Send address 0x48 (TMP102 device) */
 			I2C2->CTRL |= I2C_START | I2C_STOP;
 			I2C2->DATA = (0x48 << 1);
-
+			/* Trigger Machine Software IRQ (MSI) */
+			MSI->TRIG = 0x01;
 		}
 	}
 

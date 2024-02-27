@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2023, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2024, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -2053,11 +2053,11 @@ begin
                 -- Keep M mode
                 csr_reg.mstatus(12 downto 11) <= "11";
                 -- mcause reset
-                csr_reg.mcause <= (others => '0');
+                --csr_reg.mcause <= (others => '0');
                 -- mepc reset
-                csr_reg.mepc <= (others => '0');
+                --csr_reg.mepc <= (others => '0');
                 -- mtval reset
-                csr_reg.mtval <= (others => '0');
+                --csr_reg.mtval <= (others => '0');
             end if;
         end if;
 
@@ -2220,7 +2220,12 @@ end process;
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(16, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- External timer interrupt
+        -- RISC-V machine software interrupt
+        elsif I_intrio(3) = '1' and csr_reg.mstatus(3) = '1' and csr_reg.mie(3) = '1' and control.may_interrupt ='1' then
+            control.trap_request <= '1';
+            control.trap_mcause <= std_logic_vector(to_unsigned(3, control.trap_mcause'length));
+            control.trap_mcause(31) <= '1';
+        -- RISC-V external timer interrupt
         elsif I_intrio(7) = '1' and csr_reg.mstatus(3) = '1' and csr_reg.mie(7) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(7, control.trap_mcause'length));

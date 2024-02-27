@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2023, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2024, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -145,7 +145,9 @@ package processor_common is
     constant INTR_PRIO_TIMER1 : integer := 20;
     constant INTR_PRIO_EXTI : integer := 18;
     -- System Timer fixed to 7, do not change
-    constant INTR_PRIO_SYSTIME : integer := 7;
+    constant INTR_PRIO_MTIME : integer := 7;
+    -- System Machine Software Interrupt fixed at 3, do not change
+    constant INTR_PRIO_MSI : integer := 3;
     
     -- The four most significant bits of the memeory regions
     -- select the type of memeory (ROM, boot ROM, RAM and I/O).

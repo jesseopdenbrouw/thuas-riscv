@@ -81,7 +81,7 @@ void trap_handler_jump_table(void)
 	__asm__ volatile ("j trap_handler_vectored;");
 	__asm__ volatile ("j default_handler;");
 	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
+	__asm__ volatile ("j external_msi_handler;");
 	__asm__ volatile ("j default_handler;");
 	__asm__ volatile ("j default_handler;");
 	__asm__ volatile ("j default_handler;");

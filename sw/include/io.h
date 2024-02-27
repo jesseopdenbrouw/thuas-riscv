@@ -143,6 +143,16 @@ typedef struct {
 #define TIMER2_CMPB (*(volatile uint32_t*)(TIMER2_BASE+0x00000018UL))
 #define TIMER2_CMPC (*(volatile uint32_t*)(TIMER2_BASE+0x0000001cUL))
 
+/*
+ * RISC-V Machine Software Interrupt (MSI)
+ */
+typedef struct {
+	volatile uint32_t TRIG;
+} MSI_struct_t;
+
+#define MSI_BASE (IO_BASE+0x000000ecUL)
+#define MSI ((MSI_struct_t *) MSI_BASE)
+#define MSI_TRIG (*(volatile uint32_t*)(MSI_BASE+0x00000000UL))
 
 /*
  * RISC-V system timer (in I/O)

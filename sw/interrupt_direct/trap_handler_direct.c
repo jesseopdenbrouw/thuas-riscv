@@ -1,42 +1,7 @@
-
-// #################################################################################################
-// # This file is part of the THUAS RV32 processor                                                 #
-// # ********************************************************************************************* #
-// # BSD 3-Clause License                                                                          #
-// #                                                                                               #
-// # Copyright (c) 2023, Jesse op den Brouw. All rights reserved.                                  #
-// #                                                                                               #
-// # Redistribution and use in source and binary forms, with or without modification, are          #
-// # permitted provided that the following conditions are met:                                     #
-// #                                                                                               #
-// # 1. Redistributions of source code must retain the above copyright notice, this list of        #
-// #    conditions and the following disclaimer.                                                   #
-// #                                                                                               #
-// # 2. Redistributions in binary form must reproduce the above copyright notice, this list of     #
-// #    conditions and the following disclaimer in the documentation and/or other materials        #
-// #    provided with the distribution.                                                            #
-// #                                                                                               #
-// # 3. Neither the name of the copyright holder nor the names of its contributors may be used to  #
-// #    endorse or promote products derived from this software without specific prior written      #
-// #    permission.                                                                                #
-// #                                                                                               #
-// # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS   #
-// # OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF               #
-// # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE    #
-// # COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,     #
-// # EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE #
-// # GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED    #
-// # AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING     #
-// # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED  #
-// # OF THE POSSIBILITY OF SUCH DAMAGE.                                                            #
-// # ********************************************************************************************* #
-// # Trap handler (direct)                                                                         #
-// #################################################################################################
-
 /*
  * RISC-V RV32IM generic trap handler (direct)
  *
- * (c) 2023, Jesse E.J. op den Brouw
+ * (c) 2024, Jesse E.J. op den Brouw
  *
  */
 
@@ -99,8 +64,10 @@ char **environ = __env;
 #define TIMER2_IN_MCAUSE ((1<<31)+21)
 #define TIMER1_IN_MCAUSE ((1<<31)+20)
 #define EXTI_IN_MCAUSE ((1<<31)+18)
-/* Keep system timer at 7! */
-#define SYSTEM_TIMER_IN_MCAUSE ((1<<31)+7)
+/* Keep Machine Time timer (MTIME) at 7! */
+#define MTIME_IN_MCAUSE ((1<<31)+7)
+/* Keep Machine Software Interrupt (MSI) at 3! */
+#define MSI_IN_MCAUSE ((1<<31)+3)
 
 /* User callable functions for writing and reading
  * to files. Normally these functions are used to
@@ -183,9 +150,14 @@ void trap_handler_direct(void)
 	                  : "=r" (__mcause) :
 	                  : "memory");
 
+	/* Priority is defined by hardware */
 	/* External System Timer compare match interrupt */
-	if (__mcause == SYSTEM_TIMER_IN_MCAUSE) {
+	if (__mcause == MTIME_IN_MCAUSE) {
                 external_timer_handler();
+                __asm__ volatile ("lw      x10,10*4(sp);" :::);
+	/* External Machine Software Interrupt (MSI) */
+	} else if (__mcause == MSI_IN_MCAUSE) {
+                external_msi_handler();
                 __asm__ volatile ("lw      x10,10*4(sp);" :::);
 	/* SPI1 transmission complete interrupt */
 	} else if (__mcause  == SPI1_IN_MCAUSE) {

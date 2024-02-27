@@ -37,7 +37,7 @@ int main(int argc, char *argv[], char *envp[])
 	char buffer[40] = {0};
 #endif
 
-	/* Set processor frequency */
+	/* Get system frequency */
 	speed = csr_read(0xfc1);
 	speed = (speed == 0) ? F_CPU : speed;
 
@@ -52,9 +52,9 @@ int main(int argc, char *argv[], char *envp[])
 	/* Bit 0 = enable, bit 4 is interrupt enable */
 	TIMER1->CTRL = (1<<4)|(1<<0);
 
-	/* Activate TIMER2 compare match T with a cycle of 0.5 Hz */
-	TIMER2->PRSC = speed/10000-1;
-	TIMER2->CMPT = 9999;
+	/* Activate TIMER2 compare T interrupt with a cycle of 0.5 Hz */
+	TIMER2->PRSC = speed/10000UL-1;
+	TIMER2->CMPT = 9999UL;
 	TIMER2->CTRL = (1<<4)|(1<<0);
 
 	/* Activate SPI1 transmission complete interrupt */
@@ -74,6 +74,9 @@ int main(int argc, char *argv[], char *envp[])
 
 	/* Enable RISC-V system timer IRQ */
 	enable_external_timer_irq();
+
+	/* Enable RISC-V Machine Software IRQ */
+	enable_external_software_irq();
 
 	/* Enable interrupts */
 	enable_irq();
@@ -128,6 +131,8 @@ int main(int argc, char *argv[], char *envp[])
 			/* Send address 0x48 (TMP102 device) */
 			I2C2->CTRL |= I2C_START | I2C_STOP;
 			I2C2->DATA = (0x48 << 1);
+			/* Trigger Machine Software IRQ (MSI) */
+			MSI->TRIG = 0x01;
 		}
 	}
 

@@ -65,7 +65,8 @@ typedef struct {
 #define enable_external_timer_irq() \
     __asm__ volatile (".option push;" \
                       ".option norelax;" \
-                      "li    t0, (1<<7);" \
+                      "csrr  t0, mie;" \
+                      "ori   t0, t0, (1<<7);" \
                       "csrw  mie,t0;" \
                       ".option pop" \
                       ::: "t0");
@@ -73,9 +74,27 @@ typedef struct {
 #define disable_external_timer_irq() \
     __asm__ volatile (".option push;" \
                       ".option norelax;" \
-                      "li    t0, (0<<7);" \
+                      "csrr  t0, mie;" \
+                      "andi  t0, t0, ~(1<<7);" \
                       "csrw  mie,t0;" \
                       ".option pop" \
                       ::: "t0");
 
+#define enable_external_software_irq() \
+    __asm__ volatile (".option push;" \
+                      ".option norelax;" \
+                      "csrr  t0, mie;" \
+                      "ori   t0, t0, (1<<3);" \
+                      "csrw  mie,t0;" \
+                      ".option pop" \
+                      ::: "t0");
+
+#define disable_external_software_irq() \
+    __asm__ volatile (".option push;" \
+                      ".option norelax;" \
+                      "csrr  t0, mie;" \
+                      "andi  t0, t0, ~(1<<3);" \
+                      "csrw  mie,t0;" \
+                      ".option pop" \
+                      ::: "t0");
 #endif

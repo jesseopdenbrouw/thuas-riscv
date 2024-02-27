@@ -4,7 +4,7 @@
  * Note: these handlers are called by the universal handler
  *       since we are using direct traps, hence they are callable
  *
- * (c) 2023, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c) 2024, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  */
 
@@ -12,9 +12,14 @@
 
 #include <thuasrv32.h>
 
+#ifndef CLOCK_FREQUENCY
 #define CLOCK_FREQUENCY (1000000ULL)
+#endif
+#ifndef INTERRUPT_FREQUENCY
 #define INTERRUPT_FREQUENCY (10ULL)
+#endif
 
+/* Set TIMECMP delta to some reasonable value */
 static uint64_t external_timer_delta = (CLOCK_FREQUENCY/INTERRUPT_FREQUENCY);
 
 /* Debugger stub, currenly prints the contents of
@@ -104,11 +109,11 @@ void uart1_handler(void)
 	/* Test to see if character is received or transmitted.
 	 * Test to see if there are any errors. */
 
-	if (UART1->STAT & UART_STAT_TC) {
-		/* Flip output bit 3 (led) */
+	if (UART1->STAT & UART_STAT_RC) {
+		/* Flip output bit 3 */
 		GPIOA->POUT ^= 0x8;
 		/* Clear all receive flags, discard data */
-		UART1->DATA;
+		(void) UART1->DATA;
 	}
 
 	/* Don't use UART1->STAT = 0x00 otherwise the
@@ -149,15 +154,26 @@ void i2c2_handler(void)
 {
 	/* Remove TC interrupt flags */
 	I2C2->STAT &= ~I2C_TC;
-	/* Flip output bit 5 (led) */
+	/* Flip output bit 7 */
 	GPIOA->POUT ^= 0x80;
 }
 
-/* External input interrupt handler */
+/* External pin input interrupt handler */
+
 void external_input_handler(void)
 {
 	/* Remove pending interrupt bit */
 	GPIOA->EXTS = 0x00;
 	/* Toggle output bit 6 (led) */
 	GPIOA->POUT ^= 0x40;
+}
+
+/* External Machine Software Interrupt (MSI) */
+
+void external_msi_handler(void)
+{
+	/* Remove pending interrupt bit */
+	MSI->TRIG = 0x00;
+	/* Toggle output bit 8 (led) */
+	GPIOA->POUT ^= 0x100;
 }

@@ -1,7 +1,7 @@
 /*
  * handlers_vectored.h -- prototypes for handlers
  *
- * (c) 2022  Jesse E.J. op den Brouw
+ * (c) 2024  Jesse E.J. op den Brouw
  *
  */
 
@@ -22,12 +22,17 @@ void uart1_handler(void);
 void timer2_handler(void);
 /* SPI1 transmission complete interrupt */
 void spi1_handler(void);
-/* I2C1 transmit complete interrupt */
+/* I2C1 transmit complete interrupt handler */
 void i2c1_handler(void);
-/* I2C2 transmit complete interrupt */
+/* I2C2 transmit complete interrupt handler */
 void i2c2_handler(void);
-/* External input handler */
+/* External software interrupt handler */
+void external_msi_handler(void);
+/* External input interrupt */
 void external_input_handler(void);
-/* Default handler */
+/* Default (test) interrupt */
 void default_handler(void);
+
+
+
 #endif

@@ -5,7 +5,7 @@
  * called via the jump table since we are using vectored
  * interrupts.
  *
- * (c) 2023, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c) 2024, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  */
 
@@ -63,7 +63,7 @@ void timer1_handler(void)
 	/* Remove CMPT interrupt flag */
 	TIMER1->STAT &= ~(1<<4);
 	/* Flip output bit 0 (led) */
-	GPIOA->POUT ^= (1<<0);
+	GPIOA->POUT ^= 0x1;
 }
 
 /* The default handler, which holds the processor */
@@ -92,7 +92,9 @@ void external_timer_handler(void)
 		time  = MTIME;
 	} while (timeh != MTIMEH);
 
+	/* Fetch current time */
 	register uint64_t cur_time = ((uint64_t)timeh << 32) | (uint64_t)time;
+
 	/* Add delta */
 	cur_time += external_timer_delta;
 	/* Set TIMECMP to maximum */
@@ -102,7 +104,7 @@ void external_timer_handler(void)
 	MTIMECMP = (uint32_t)(cur_time & 0xffffffff);
 	MTIMECMPH = (uint32_t)(cur_time>>32);
 	/* Flip output bit 1 (led) */
-	GPIOA->POUT ^= (1<<1);
+	GPIOA->POUT ^= 0x2;
 }
 
 /* UART1 receive and/or transmit handler */
@@ -135,13 +137,13 @@ void timer2_handler(void)
 	GPIOA->POUT ^= 0x4;
 }
 
-/* SPI1 transmission complete interrupt */
+/* SPI1 transmission complete interrupt handler */
 __attribute__ ((interrupt))
 void spi1_handler(void)
 {
 	/* Remove TC interrupt flag */
 	SPI1->STAT &= ~SPI_TC;
-	/* Flip output bit 4*/
+	/* Flip output bit 4 (led) */
 	GPIOA->POUT ^= 0x10;
 }
 
@@ -151,7 +153,7 @@ void i2c1_handler(void)
 {
 	/* Remove TC interrupt flags */
 	I2C1->STAT &= ~I2C_TC;
-	/* Flip output bit 5 */
+	/* Flip output bit 5 (led) */
 	GPIOA->POUT ^= 0x20;
 }
 
@@ -169,8 +171,18 @@ void i2c2_handler(void)
 __attribute__ ((interrupt))
 void external_input_handler(void)
 {
-	/* Reset pending bit */
+	/* Remove pending interrupt bit */
 	GPIOA->EXTS = 0x00;
-	/* Toggle output  bit 6 */
+	/* Toggle output bit 6 (led) */
 	GPIOA->POUT ^= 0x40;
+}
+
+/* External Machine Software Interrupt (MSI) */
+__attribute__ ((interrupt))
+void external_msi_handler(void)
+{
+	/* Remove pending interrupt bit */
+	MSI->TRIG = 0x00;
+	/* Toggle output bit 8 (led) */
+	GPIOA->POUT ^= 0x100;
 }

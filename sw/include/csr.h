@@ -99,6 +99,7 @@ uint64_t csr_get_instret(void);
 #define CSR_MXHW_FASTSTORE (1 << 21)
 #define CSR_MXHW_ZICOND    (1 << 22)
 #define CSR_MXHW_ZBS       (1 << 23)
+#define CSR_MXHW_BREAK     (1 << 24)
 
 
 #ifdef __cplusplus

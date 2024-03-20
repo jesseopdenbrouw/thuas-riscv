@@ -3,7 +3,7 @@
 %
 % Documentation for the THUAS RISC-V three-stage pipelined processor
 %
-% (c)2023, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+% (c)2024, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
 %
 
 \documentclass[12pt]{article}
@@ -491,7 +491,7 @@ The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger 
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Currently the TIMEH and TIME registers cannot be written. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since \lstinline|clock()| and \lstinline|gettimeofday()| depend on this value. As such, the system clock frequency must be a integer multiple of 1\,MHz. Note that TIMEH:TIME is writable by software.
 
 \subsection{Reset}
-The asynchronous reset is active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed.
+The asynchronous reset is active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition (see Sectio~\ref{sec:customize}).
 
 \subsection{Implemented instructions}
 For the processor, all RV32IM Unprivileged instructions are implemented but the FENCE instruction act as a no-operation (NOP). ECALL and EBREAK are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented. From the Privileged instruction, MRET is used to return from an exception or an interrupt. WFI is not implemented and acts as a no-operation (NOP). FENCE and FENCE.I are not implemented and act as a NOP.
@@ -684,7 +684,7 @@ Using VHDL generics, the design can be customized. See Table~\ref{tab:custom}.
 \caption{Customization options for the design.}
 \label{tab:custom}
 \centering
-\begin{tabular}{llll}
+\begin{tabular}{lllp{5.5cm}}
 \toprule
 Generic & Type & Default & Comment \\
 \midrule
@@ -713,6 +713,7 @@ Generic & Type & Default & Comment \\
 \lstinline|HAVE_I2C2| & boolean & TRUE & Use I2C2 \\
 \lstinline|HAVE_TIMER1| & boolean & TRUE & Use TIMER1\\
 \lstinline|HAVE_TIMER2| & boolean & TRUE & Use TIMER2\\
+\lstinline|UART1_BREAK_RESETS| & boolean & false & UART1 BREAK reception triggers system reset\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -725,7 +726,7 @@ Setting \lstinline|HAVE_FAST_STORE| makes a store \emph{effectively} one clock c
 Now we have to clone the RISC-V project. It incorporates the full Quartus Prime Lite project with the processor written in VHDL. It also incorporates many C program examples and a taylor-made program to convert a RISC-V executable to a VHDL table suitable for the ROM. Create a working directory (and change to that directory) and issue the command:
 
 \begin{lstlisting}[language=]
-git clone https:/github.com/jesseopdenbrouw/riscv-rv32
+git clone https:/github.com/jesseopdenbrouw/thuas-riscv
 \end{lstlisting}
 
 In the created directory, you will see the following directories:
@@ -1175,10 +1176,10 @@ After loading the design in the FPGA, or after resetting the FPGA, the bootloade
 A Motorola S-record file can be uploaded with the \lstinline|upload| program found in the \lstinline|sw| directory. It is tested on Linux, Windows is currently not supported. S-record files for all RISC-V programs are generated as part of the \lstinline|make| process by the RISC-V \lstinline|objcopy| program. The \lstinline|upload| program is invoked with:
 
 \begin{lstlisting}[language=]
-upload -d <device> -b <baud> -t <timeout> -s <sleep> -vjn file
+upload -d <device> -b <baud> -t <timeout> -s <sleep> -vrnB file
 \end{lstlisting}
 
-The default device is \lstinline|/dev/ttyUSB0| which is the first plugged-in USB-to-U(S)ART converter. The baudrate may be 9600 bps or 115200 bps (default). Timeout is the time the \lstinline|uplead| program waits for expected data from the bootloader. The time is set in deciseconds (0.1 seconds) intervals. The default value is 10 (1.0 seconds). Sleep is the time the \lstinline|upload| program waits after transmitting a character to the bootloader in microseconds intervals. The default value is 0. The option \lstinline|-v| turns on verbose mode. The option \lstinline[]|-j| instructs \lstinline|upload| to send a ``start application'' command to the bootloader after the S-record file is uploaded. The option \lstinline|-n| disables handshake with the bootloader. File must be a valid S-record file.
+The default device is \lstinline|/dev/ttyUSB0| which is the first plugged-in USB-to-U(S)ART converter. The baudrate may be 9600 bps or 115200 bps (default). Timeout is the time the \lstinline|uplead| program waits for expected data from the bootloader. The time is set in deciseconds (0.1 seconds) intervals. The default value is 10 (1.0 seconds). Sleep is the time the \lstinline|upload| program waits after transmitting a character to the bootloader in milliseconds intervals. The default value is 0. The option \lstinline|-v| turns on verbose mode. The option \lstinline[]|-r| instructs \lstinline|upload| to send a ``start application'' command to the bootloader after the S-record file is uploaded. The option \lstinline|-n| disables handshake with the bootloader. The option \lstinline|-B| sends an UART break condition (see Section~\ref{sec:customize}). File must be a valid S-record file.
 
 To upload an S-record file, reset the FPGA or program the FPGA design in the FPGA. Then, within the 5 seconds interval, start the \lstinline|upload| program with options and file name supplied. If the \lstinline|upload| programs manages the contact the bootloader, the S-record file will be uploaded. Depending on the size, uploading may take as short as a few seconds to minutes for a large file. As a rule of thumb, about 2400 file characters per seconds are send (at 115200 bps). Make sure that \emph{no} terminal program (e.g.\@ PuTTY) is active. If the \lstinline|upload| program cannot contact the bootloader, it exits with an error message. If during sending the records, a response from the bootloader is not read, the \lstinline|upload| exits with an error message. This is mostly due to an open terminal connection. To start the application after the upload, supply the \lstinline|-j| option to the \lstinline|upload| program, otherwise the monitor is started. Before starting the application, UART1 is turned off and the output port is set to 0x00000000 (i.e.\@ all port bits are set to 0).
 
@@ -1647,7 +1648,8 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 
 \begin{register}{H}{UART1 status register UART1\_STAT}{0x24}
 \label{uart1stat}
-\regfield{Reserved}{27}{5}{{0}}%
+\regfield{Reserved}{26}{6}{{0}}%
+\regfield{BR}{1}{5}{{0}}%
 \regfield{TC}{1}{4}{{0}}%
 \regfield{PE}{1}{3}{{0}}%
 \regfield{RC}{1}{2}{{0}}%
@@ -1657,6 +1659,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
 \itemsep-1.5ex
+\item[BR] BREAK condition detected. A BREAK is a stream of null bits for the duration of 1 start bit + number of data bits + 1 stop bit.
 \item[TC] Transmit completed. Set directly to 1 when a character was transmitted. Automatically cleared when writing new character to the data register or when writing 0 in the TC bit in \mbox{UART1\_STAT}.
 \item[PE] Parity error. Set to 1 if parity is enabled and there is a parity error while receiving. Automatically cleared when data register is read or when writing 0 in the PE bit in UART1\_STAT.
 \item[RC] Receive completed. Set to 1 when a character was received. Automatically cleared when data register is read or when writing 0 in the RC bit in UART1\_STAT.

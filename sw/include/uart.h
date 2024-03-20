@@ -23,7 +23,7 @@ int uart1_getc(void);
 int uart1_available(void);
 /* Get maximum size-1 characters in string buffer from UART1 */
 int uart1_gets(char buffer[], int size);
-/* Print formatted to the uart */
+/* Print formatted to UART1 */
 int uart1_printf(const char *format, ...);
 /* Print a signed long long int */
 void uart1_printlonglong(int64_t v);
@@ -46,6 +46,7 @@ void uart1_printulonglong(uint64_t uv);
 #define UART_STAT_RC (1 << 2)
 #define UART_STAT_PE (1 << 3)
 #define UART_STAT_TC (1 << 4)
+#define UART_STAT_BR (1 << 5)
 
 #define UART_CTRL_NONE (0)
 

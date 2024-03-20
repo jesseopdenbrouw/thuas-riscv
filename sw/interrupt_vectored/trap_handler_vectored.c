@@ -1,7 +1,7 @@
 /*
  * RISC-V RV32IM generic trap handler (vectored)
  *
- * (c) 2022, Jesse E.J. op den Brouw
+ * (c) 2024, Jesse E.J. op den Brouw
  *
  */
 

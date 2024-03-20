@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2023, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2024, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -97,7 +97,9 @@ entity riscv is
           -- Do we have TIMER1?
           HAVE_TIMER1 : boolean := TRUE;
           -- Do we have TIMER2?
-          HAVE_TIMER2 : boolean := TRUE
+          HAVE_TIMER2 : boolean := TRUE;
+          -- UART1 BREAK triggers system reset
+          UART1_BREAK_RESETS : boolean := false
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -136,7 +138,7 @@ component core is
           -- The frequency of the system
           SYSTEM_FREQUENCY : integer;
           -- Hardware version in BCD
-          HW_VERSION : integer := 16#00_09_09_02#;
+          HW_VERSION : integer := 16#00_09_09_03#;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -174,7 +176,9 @@ component core is
           -- Do we have TIMER1?
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
-          HAVE_TIMER2 : boolean
+          HAVE_TIMER2 : boolean;
+          -- UART1 BREAK triggers system reset
+          UART1_BREAK_RESETS : boolean
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -261,6 +265,7 @@ component rom is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          -- from core
           I_pc : in data_type;
           I_memaddress : in data_type;
           I_memsize : in memsize_type;
@@ -271,7 +276,7 @@ component rom is
           I_datain : in data_type;
           O_dataout : out data_type;
           O_memready : out std_logic;
-          --
+          -- to core
           O_load_misaligned_error : out std_logic;
           O_store_misaligned_error : out std_logic
          );
@@ -283,14 +288,16 @@ component ram is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          -- From core
           I_memaddress : in data_type;
           I_memsize : in memsize_type;
           I_csram : in std_logic;
           I_wren : in std_logic;
           I_datain : in data_type;
+          -- To core
           O_dataout : out data_type;
           O_memready : out std_logic;
-          --
+          -- To core
           O_load_misaligned_error : out std_logic;
           O_store_misaligned_error : out std_logic
          );
@@ -301,15 +308,17 @@ component bootloader is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          -- From core
           I_pc : in data_type;
           I_memaddress : in data_type;
           I_memsize : in memsize_type;
           I_csboot : in std_logic;
           I_stall : in std_logic;
+          -- To core
           O_instr : out data_type;
           O_dataout : out data_type;
           O_memready : out std_logic;
-          --
+          -- To core
           O_load_misaligned_error : out std_logic
          );
 end component bootloader;
@@ -334,15 +343,19 @@ component io is
           -- Do we have TIMER1?
           HAVE_TIMER1 : boolean ;
           -- Do we have TIMER2?
-          HAVE_TIMER2 : boolean
+          HAVE_TIMER2 : boolean;
+          -- UART1 BREAK triggers system reset
+          UART1_BREAK_RESETS : boolean
          );             
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          -- From core
           I_memaddress : in data_type;
           I_memsize : memsize_type;
           I_csio : in std_logic;
           I_wren : in std_logic;
           I_datain : in data_type;
+          -- To core
           O_dataout : out data_type;
           O_memready : out std_logic;
           -- Misaligned access
@@ -379,18 +392,31 @@ component io is
           O_mtime : out data_type;
           O_mtimeh : out data_type;
           -- Hardware interrupt request
-          O_intrio : out data_type
+          O_intrio : out data_type;
+          -- Break on UART1 received
+          O_break_received : out std_logic
          );
 end component io;
 
+-- The clock and the external reset
 signal clk_int : std_logic;
 signal areset_int : std_logic;
+
+-- The PC to ROM and boot ROM
+signal pc_int : data_type;
+-- The instruction from ROM and boot ROm
+signal rominstr_int : data_type;
+signal bootinstr_int : data_type;
+-- Stall instruction access if core stalles
+signal stall_int : std_logic;
+-- The fetched instruction
+signal instr_int : data_type;
+
+-- Data in and out of the core
 signal dataout_int : data_type;
 signal datain_int : data_type;
-signal pc_int : data_type;
-signal rominstr_int : data_type;
-signal instr_int : data_type;
-signal stall_int : std_logic;
+
+-- Memory access signals
 signal memaccess_int : memaccess_type;
 signal memsize_int : memsize_type;
 signal memaddress_int : data_type;
@@ -399,25 +425,28 @@ signal wrrom_int : std_logic;
 signal wrram_int : std_logic;
 signal wrio_int : std_logic;
 signal csrom_int : std_logic;
+signal csboot_int : std_logic;
 signal csram_int : std_logic;
 signal csio_int : std_logic;
+-- Data from memory
 signal romdatain_int : data_type;
+signal bootdatain_int : data_type;
 signal ramdatain_int : data_type;
 signal iodatain_int : data_type;
+-- Memory ready signals
+signal rommemready_int : std_logic;
+signal bootmemready_int : std_logic;
+signal rammemready_int : std_logic;
+signal iomemready_int : std_logic;
 
+-- MTIME from I/O (memory mapped)
 signal mtime_int : data_type;
 signal mtimeh_int : data_type;
 
+-- interrupts from I/O to core
 signal intrio_int : data_type;
 
-signal csboot_int : std_logic;
-signal bootinstr_int : data_type;
-signal bootdatain_int : data_type;
-signal rammemready_int : std_logic;
-signal rommemready_int : std_logic;
-signal bootmemready_int : std_logic;
-signal iomemready_int : std_logic;
-
+-- Load/store misaligned access
 signal load_misaligned_error_int : std_logic;
 signal store_misaligned_error_int : std_logic;
 signal rom_load_misaligned_error_int : std_logic;
@@ -428,16 +457,41 @@ signal ram_load_misaligned_error_int : std_logic;
 signal ram_store_misaligned_error_int : std_logic;
 signal io_load_misaligned_error_int : std_logic;
 signal io_store_misaligned_error_int : std_logic;
-
+-- Load/store access error (now: unimplemented memory)
 signal load_access_error_int : std_logic;
 signal store_access_error_int : std_logic;
-
+-- Instruction access error (now:unimplemented memory)
 signal instr_access_error_int : std_logic;
+
+-- Signals for reset
+signal areset_sys_sync_int : std_logic_vector(3 downto 0);
+signal areset_sys_int : std_logic;
+signal break_from_uart1_int : std_logic;
 
 begin
 
+    -- Just pass on the clock
     clk_int <= I_clk;
-    areset_int <= I_areset;
+    -- Reset from reset synchronizer
+    areset_int <= areset_sys_int;
+    
+    -- Synchronize the asynchronous reset.
+    -- Also: reset the system if a UART1 BREAK is detected
+    process (I_clk, I_areset) is
+    begin
+        if I_areset = '1' then
+            areset_sys_sync_int <= (others => '0');
+            areset_sys_int      <= '1';
+        elsif rising_edge(I_clk) then
+            -- If a UART1 BREAK is detected, reset the system
+            if break_from_uart1_int = '1' then
+                areset_sys_sync_int <= (others => '0');
+            else
+                areset_sys_sync_int <= areset_sys_sync_int(areset_sys_sync_int'left-1 downto 0) & '1';
+            end if;
+            areset_sys_int <= not and_reduce(areset_sys_sync_int);
+        end if;
+    end process;
     
     core0: core
     generic map (
@@ -460,7 +514,8 @@ begin
               HAVE_I2C1 => HAVE_I2C1,
               HAVE_I2C2 => HAVE_I2C2,
               HAVE_TIMER1 => HAVE_TIMER1,
-              HAVE_TIMER2 => HAVE_TIMER2
+              HAVE_TIMER2 => HAVE_TIMER2,
+              UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
@@ -598,7 +653,8 @@ begin
               HAVE_I2C1 => HAVE_I2C1,
               HAVE_I2C2 => HAVE_I2C2,
               HAVE_TIMER1 => HAVE_TIMER1,
-              HAVE_TIMER2 => HAVE_TIMER2
+              HAVE_TIMER2 => HAVE_TIMER2,
+              UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
@@ -641,7 +697,9 @@ begin
               O_mtime => mtime_int,
               O_mtimeh => mtimeh_int,
               -- Interrupt requests
-              O_intrio => intrio_int
+              O_intrio => intrio_int,
+              -- BREAK received on UART1
+              O_break_received => break_from_uart1_int
              );
 
 end architecture rtl;

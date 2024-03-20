@@ -11,7 +11,7 @@ supports exceptions and interrupts. `ECALL`, `EBREAK`
 and `MRET` are supported. `WFI`, `FENCE` and `FENCE.I`
 act as no-operation
 (`NOP`). Currently only machine mode is supported. We
-successfully tested a complex program with interrupts
+successfully tested complex programs with interrupts
 and exceptions and implemented a basic syscall library,
 both with the `ECALL` instruction and C functions overriding
 the C library functions. `sbrk`, `read`, `write`, `times` and
@@ -36,7 +36,7 @@ compiler.
 
 The design is equipped with a bootloader program and registers in onboard RAM.
 The bootloader can be removed from synthesis. The registers can be placed in
-logic cells. The design runs at a speed of approximately 85 MHz DE0-CV board).
+logic cells. The design runs at a speed of approximately 85 MHz (DE0-CV board).
  
 ## Memory
 
@@ -55,7 +55,7 @@ general purpose SPI device with hardware NSS. Two I2C devices are
 available. A simple timer
 with interrupt is provided. A more elaborate timer is included and can
 generate waveforms (Output Compare and PWM) or count edges (Input Capture).
-The External (system) Timer is located in the I/O so it's memory mapped.
+The external system timer MTIME is located in the I/O so it's memory mapped.
 
 ROM starts at 0x00000000, BOOT (if available) starts at 0x10000000,
 RAM starts at 0x20000000, I/O starts at 0xF0000000. May be changed
@@ -91,7 +91,7 @@ A number of C programs have been tested, created by the GNU C/C++ Compiler for
 RISC-V. We tested the use of (software) floating point operations (both
 float and double) and tested the mathematical library (sin, cos, et al.).
 Traps (interrupts and exceptions) are tested and work.
-Assembler programs can be compiled by the C/C++ compiler. We provide a CRT
+Assembler programs can be compiled by the GNU assembler. We provide a CRT
 (C startup) and linker file. C++ is supported but many language concepts
 (e.g. cout with iostream) create a binary that is too big to fit in the
 ROM.
@@ -103,7 +103,7 @@ is needed.
 
 ## Bootloader
 By default, the design is equipped with a bootloader. When resetting the
-FPGA, the bootloader waits about 5 seconds before the program in the ROM
+FPGA, the bootloader waits about 5 seconds @50 MHz before the program in the ROM
 is started. Using the bootloader, a program can written to the ROM (see
 the documentation). The bootloader can also be used to inspect the
 memory contents.

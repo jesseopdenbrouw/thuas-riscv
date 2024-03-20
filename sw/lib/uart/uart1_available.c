@@ -23,5 +23,5 @@
  */
 int uart1_available(void)
 {
-	return (UART1->STAT & 0x04);
+	return (UART1->STAT & UART_STAT_RC);
 }

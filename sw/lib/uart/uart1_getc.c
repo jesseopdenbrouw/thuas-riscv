@@ -19,7 +19,7 @@
 int uart1_getc(void)
 {
 	/* Wait for received character */
-	while ((UART1->STAT & 0x04) == 0);
+	while ((UART1->STAT & UART_STAT_RC) == 0);
 
 	/* Return 8-bit data */
 	return UART1->DATA & 0x000000ff;

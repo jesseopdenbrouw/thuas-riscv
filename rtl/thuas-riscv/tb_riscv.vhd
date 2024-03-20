@@ -198,6 +198,12 @@ begin
         uart1rxd <= '1';
         wait for bittime;
         
+        for i iN 1 to 12 loop
+            uart1rxd <= '0';
+            wait for bittime;
+        end loop;
+        uart1rxd <= '1';
+        
         wait;
         
     end process;

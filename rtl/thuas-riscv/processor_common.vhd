@@ -209,7 +209,9 @@ package processor_common is
           -- Do we have TIMER1?
           HAVE_TIMER1 : boolean := TRUE;
           -- Do we have TIMER2?
-          HAVE_TIMER2 : boolean := TRUE
+          HAVE_TIMER2 : boolean := TRUE;
+          -- UART1 BREAK triggers system reset
+          UART1_BREAK_RESETS : boolean := false
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -256,6 +258,12 @@ package processor_common is
     -- Function to reverse bits in std_logic_vector
     function bit_reverse(input : std_logic_vector) return std_logic_vector;
 
+    -- Function to reduce and OR of std_logic_vector bits
+    function or_reduce(input : std_logic_vector) return std_logic;
+
+    -- Function to reduce and AND of std_logic_vector bits
+    function and_reduce(input : std_logic_vector) return std_logic;
+    
 end package processor_common;
 
 package body processor_common is
@@ -305,5 +313,25 @@ package body processor_common is
         end loop;
         return output;
     end function bit_reverse;
+
+    -- Function to reduce and OR of std_logic_vector bits
+    function or_reduce(input : std_logic_vector) return std_logic is
+    variable or_v : std_logic := '0';
+    begin
+        for i in input'range loop
+            or_v := or_v or input(i);
+        end loop;
+        return or_v;
+    end function or_reduce;
+
+    -- Function to reduce and AND of std_logic_vector bits
+    function and_reduce(input : std_logic_vector) return std_logic is
+    variable and_v : std_logic := '1';
+    begin
+        for i in input'range loop
+            and_v := and_v and input(i);
+        end loop;
+        return and_v;
+    end function and_reduce;
     
 end package body processor_common;

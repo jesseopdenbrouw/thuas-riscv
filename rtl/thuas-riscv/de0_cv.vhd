@@ -134,7 +134,9 @@ begin
               -- Use Timer 1?
               HAVE_TIMER1 => TRUE,
               -- Use Timer 2?
-              HAVE_TIMER2 => TRUE
+              HAVE_TIMER2 => TRUE,
+              -- UART1 BREAK triggers system reset
+              UART1_BREAK_RESETS => false
              )
     port map (I_clk => I_clk,
               I_areset => areset_int,

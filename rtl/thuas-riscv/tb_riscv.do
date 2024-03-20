@@ -131,6 +131,10 @@ add wave            -label timer2icoca timer2icoca
 add wave            -label timer2icocb timer2icocb
 add wave            -label timer2icocc timer2icocc
 --add wave -radix hex -label O_pc_to_mepc dut/pc_to_mepc_int
+add wave -divider "tOP - Resets"
+add wave            -label areset_sys_sync_int dut/areset_sys_sync_int
+add wave            -label areset_sys_int dut/areset_sys_int
+add wave            -label break_from_uart1_int dut/break_from_uart1_int
 add wave -divider "Core - Inputs & Outputs"
 add wave            -label I_instr_access_error dut/core0/I_instr_access_error
 add wave -divider "Core Internals - Control"
@@ -194,7 +198,7 @@ view signals
 set NumericStdNoWarnings 1
 
 # Run simulation for xx us
-run 4 us
+run 1000 us
 
 # Fill up the waveform in the window
 wave zoom full

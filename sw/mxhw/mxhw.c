@@ -37,6 +37,7 @@ int main(void)
 	uart1_printf("has fast store: %s\r\n", (hw & CSR_MXHW_FASTSTORE) ? "yes" : "no");
 	uart1_printf("has Zicond: %s\r\n", (hw & CSR_MXHW_ZICOND) ? "yes" : "no");
 	uart1_printf("has Zbs extension: %s\r\n", (hw & CSR_MXHW_ZBS) ? "yes" : "no");
+	uart1_printf("UART1 break resets processor: %s\r\n", (hw & CSR_MXHW_BREAK) ? "yes" : "no");
 	uart1_printf("Done.\r\n");
 
 }

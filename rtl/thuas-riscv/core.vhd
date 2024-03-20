@@ -89,7 +89,10 @@ entity core is
           -- Do we have TIMER1?
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
-          HAVE_TIMER2 : boolean
+          HAVE_TIMER2 : boolean;
+          -- UART1 BREAK triggers system reset
+          UART1_BREAK_RESETS : boolean
+          
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -971,6 +974,7 @@ begin
                                 when others =>
                                     control.illegal_instruction_decode <= '1';
                             end case;
+                            
                         -- L{W|H|B|HU|BU}
                         -- Data from memory is routed through the ALU
                         when "0000011" =>
@@ -1664,7 +1668,7 @@ begin
                                 div_running_v := '0';
                             end if; 
                     end case; 
-                end if; 
+                end if;
             end if;
 -- synthesis translate_off
             -- Only to view in simulator
@@ -1777,7 +1781,8 @@ begin
             end if;
         end if;
     end process;
-    -- Address of the memory operation
+    -- Address of the memory operation, this is a simple copy
+    -- outside the rising edge to make 1 register instead of 2
     O_memaddress <= csr_transfer.address_to_mtval;
     
         --
@@ -2110,7 +2115,8 @@ end process;
     csr_reg.mxhw(21) <= '1' when HAVE_FAST_STORE else '0';
     csr_reg.mxhw(22) <= '1' when HAVE_ZICOND else '0';
     csr_reg.mxhw(23) <= '1' when HAVE_ZBS else '0';
-    csr_reg.mxhw(csr_reg.mxhw'left downto 24) <= (others => '0');
+    csr_reg.mxhw(24) <= '1' when UART1_BREAK_RESETS else '0';
+    csr_reg.mxhw(csr_reg.mxhw'left downto 25) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));

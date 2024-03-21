@@ -1,7 +1,7 @@
 /* 
  * srec2vhdl - Motorola S-record to VHDL table generator
  *
- * (c)2023, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c)2024, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  * This program converts a file with Motorola S-records to
  * a series of VHDL table statements.
@@ -27,16 +27,35 @@
  * The address of the first record is used as an offset
  * so that the first records starts at vector element 0.
  *
- * */
+ */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <unistd.h>
 #include <time.h>
 
-#define VERSION "v0.3"
+/* Test for Visual Studio */
+#if defined(_MSC_VER)
+
+#pragma warning(disable : 4996)
+#include <windows.h>
+#include "getopt.h"
+
+/* Test for GCC for Windows*/
+#elif defined(WIN32) || defined(WIN64) || defined (WINNT)
+#include <getopt.h>
+#include <unistd.h>
+
+/* Probably Linux */
+#else
+
+#include <getopt.h>
+#include <unistd.h>
+
+#endif
+
+#define VERSION "v0.4"
 
 /* 1000 should be enough */
 #define LEN_BUFFER (1000)
@@ -135,7 +154,7 @@ int main(int argc, char *argv[]) {
 	/* Check for 0 extra arguments */
 	if (argc == 1) {
 		printf("srec2vhdl " VERSION " -- an S-record to VHDL table converter\n");
-		printf("Usage: srec2vhdl [-vqfbhw0 -i <arg>] inputfile [outputfile]\n");
+		printf("Usage: srec2vhdl [-fvqbhwd0xB] [-i <arg>] inputfile [outputfile]\n");
 		printf("   -f        Full table output\n");
 		printf("   -i <arg>  Indent by <arg> spaces\n");
 		printf("   -v        Verbose\n");
@@ -148,9 +167,9 @@ int main(int argc, char *argv[]) {
 		printf("   -x        Output unused data as don't care\n");
 		printf("   -B        Output as bootloader ROM\n");
 		printf("If outputfile is omitted, stdout is used\n");
-		printf("Program size must be less then 1 MB\n\n");
+		printf("Program size must be less then 10 MB\n\n");
 		printf("The address of the first record is used as an offset\n"
-                       "so that the first record starts at vector element 0.\n");
+               "so that the first record starts at vector element 0.\n");
 		exit(EXIT_SUCCESS);
 	}
 

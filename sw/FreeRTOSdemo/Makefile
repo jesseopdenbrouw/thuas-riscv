@@ -23,7 +23,8 @@ WHICH_DEMO ?= mainCREATE_SIMPLE_BLINKY_DEMO_ONLY=0
 # FreeRTOS
 # -----------------------------------------------------------------------------
 # FreeRTOS home folder (adapt this!)
-FREERTOS_HOME ?= /mnt/d/PROJECTS/RISCVDEV/FreeRTOS
+#FREERTOS_HOME ?= /mnt/d/PROJECTS/RISCVDEV/FreeRTOS
+FREERTOS_HOME ?= ../../../FreeRTOS
 
 # FreeRTOS RISC-V specific
 APP_SRC += $(wildcard $(FREERTOS_HOME)/FreeRTOS/Source/portable/GCC/RISC-V/*.c)

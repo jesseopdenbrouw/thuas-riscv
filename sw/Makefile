@@ -9,6 +9,9 @@
 # NOTE: the path to the RISC-V GNU C/C++ compiler
 # must be in in the PATH environment variable
 #
+# NOTE: set your RISC-V compiler executable
+# names in file commom.make
+#
 
 SUBDIRS = add64 \
           assembler \
@@ -26,7 +29,7 @@ SUBDIRS = add64 \
           flash \
           float \
           FreeRTOSdemo \
-		  gamma \
+          gamma \
           global \
           hex_display \
           i2c1findslaves \
@@ -65,16 +68,27 @@ SUBDIRS = add64 \
           uart1_sprintf \
           uart1_test
 
+ifeq ($(OS),Windows_NT)
+$(info Windows detected)
+EXESUFFIX=.exe
+MKDIRCMD=if not exist bin (mkdir bin)
+FORCLEAN=FOR /D %%G IN ($(SUBDIRS)) DO make -C %%G clean
+else
+EXESUFFIX=
+MKDIRCMD=if [ ! -d bin ]; then mkdir bin; fi
+FORCLEAN=for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
+endif
+
 .PHONY: all bin $(SUBDIRS) clean
 
 all: bin $(SUBDIRS)
 
 bin:
-	if [ ! -d bin ]; then mkdir bin; fi
+	$(MKDIRCMD)
 	$(MAKE) -C srec2vhdl all
-	cp srec2vhdl/srec2vhdl bin
+	cp srec2vhdl/srec2vhdl$(EXESUFFIX) bin
 	$(MAKE) -C upload all
-	cp upload/upload bin
+	cp upload/upload$(EXESUFFIX) bin
 	$(MAKE) -C lib all
 
 $(SUBDIRS): bin
@@ -85,6 +99,4 @@ clean:
 	$(MAKE) -C upload clean
 	rm -rf bin
 	$(MAKE) -C lib clean
-	for dir in $(SUBDIRS); do \
-		$(MAKE) -C $$dir clean; \
-	done
+	$(FORCLEAN)

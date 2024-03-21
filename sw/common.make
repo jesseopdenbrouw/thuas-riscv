@@ -1,11 +1,14 @@
 #  Common settings for the programs
 
+PREFIX = riscv32-unknown-elf
+# PREFIX = riscv-none-elf
+
 # Compiler defaults
-CC = riscv32-unknown-elf-gcc
-CXX = riscv32-unknown-elf-g++
-OBJCOPY = riscv32-unknown-elf-objcopy
-AR = riscv32-unknown-elf-ar
-SIZE = riscv32-unknown-elf-size
+CC = $(PREFIX)-gcc
+CXX = $(PREFIX)-g++
+OBJCOPY = $(PREFIX)-objcopy
+AR = $(PREFIX)-ar
+SIZE = $(PREFIX)-size
 SREC2VHDL = ../bin/srec2vhdl
 UPLOAD = ../bin/upload
 
@@ -51,4 +54,5 @@ MARCHABISTRING = -march=rv32im_zicsr -mabi=ilp32
 SPECSSTRING = --specs=../lib/thuas.specs --specs=../lib/nano.specs
 
 # Options for the UPLOAD program
-UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0
+# UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0
+UPLOAD_OPTIONS= -nv -d COM3

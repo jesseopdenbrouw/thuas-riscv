@@ -84,7 +84,6 @@ int main(void)
 	sprintf(buffer, "tan(%.20f) = %.20f\r\n", y, m);
 	uart1_puts(buffer);
 
-
 	sprintf(buffer, "Time: %lu\r\n", start);
 	uart1_puts(buffer);
 

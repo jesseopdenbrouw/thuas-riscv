@@ -130,7 +130,7 @@ begin
               -- Use watchdog?
               HAVE_WDT => TRUE,
               -- UART1 BREAK triggers system reset
-              UART1_BREAK_RESETS => TRUE
+              UART1_BREAK_RESETS => false
              )
     port map (I_clk => clk,
               I_areset => areset,

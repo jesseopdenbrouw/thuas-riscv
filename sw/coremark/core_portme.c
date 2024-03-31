@@ -155,18 +155,16 @@ void
 portable_init(core_portable *p, int *argc, char *argv[])
 {
 	/* THUASRV32-specific */
-	char buffer[80];
+	//char buffer[80];
 	speed = csr_read(0xfc1);
 
 	disable_irq();
 	uart1_init(BAUD_RATE, UART_CTRL_NONE);
 
-	uart1_puts("\r\n\r\nTHUASRV32: starting CoreMark\r\n");
+	ee_printf("\r\n\r\nTHUASRV32: starting CoreMark\r\n");
 
-	snprintf(buffer, sizeof buffer, "THUASRV32: Processor running at %lu Hz\r\n", (uint32_t)speed);
-	uart1_puts(buffer);
-	snprintf(buffer, sizeof buffer, "THUASRV32: Executing coremark (%lu iterations). This may take some time...\r\n\r\n", (uint32_t)ITERATIONS);
-	uart1_puts(buffer);
+	ee_printf("THUASRV32: Processor running at %lu Hz\r\n", (uint32_t)speed);
+	ee_printf("THUASRV32: Executing coremark (%lu iterations). This may take some time...\r\n\r\n", (uint32_t)ITERATIONS);
 
 	if (sizeof(ee_ptr_int) != sizeof(ee_u8 *))
 	{
@@ -198,13 +196,11 @@ portable_fini(core_portable *p)
 	uint64_t exe_inst = csr_get_instret() - start_instret;
 	uint64_t exe_time = get_time();
 
-	uart1_puts("THUASRV32: Executed instructions: ");
+	ee_printf("THUASRV32: Executed instructions: ");
 	uart1_printulonglong(exe_inst);
-	uart1_puts("\r\nTHUASRV32: CoreMark core clock cycles: ");
+	ee_printf("\r\nTHUASRV32: CoreMark core clock cycles: ");
 	uart1_printulonglong(exe_time);
-	snprintf(buffer, sizeof buffer, "\r\nTHUASRV32: Avg CPI: %f clock/instr\r\n", (double)exe_time/(double)exe_inst);
-	uart1_puts(buffer);
-	snprintf(buffer, sizeof buffer, "THUASRV32: Avg IPC: %f instr/clock\r\n", (double)exe_inst/(double)exe_time);
-	uart1_puts(buffer);
+	ee_printf("\r\nTHUASRV32: Avg CPI: %f clock/instr\r\n", (double)exe_time/(double)exe_inst);
+	ee_printf("THUASRV32: Avg IPC: %f instr/clock\r\n", (double)exe_inst/(double)exe_time);
 
 }

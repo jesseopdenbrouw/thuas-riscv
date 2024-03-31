@@ -44,4 +44,5 @@ clean:
 	make -C i2c clean
 	make -C timer clean
 	make -C gpio clean
+	make -C wdt clean
 	rm -f $(LIBTHUASRV32)

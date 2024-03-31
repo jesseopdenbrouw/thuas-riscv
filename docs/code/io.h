@@ -145,6 +145,32 @@ typedef struct {
 
 
 /*
+ * Watchdog (WDT)
+ */
+typedef struct {
+	volatile uint32_t CTRL;
+	volatile uint32_t TRIG;
+} WDT_struct_t;
+
+#define WDT_BASE (IO_BASE+0x000000e0UL)
+#define WDT ((WDT_struct_t *) WDT_BASE)
+
+#define WDT_CTRL (*(volatile uint32_t*)(WDT_BASE+0x00000000UL))
+#define WDT_STAT (*(volatile uint32_t*)(WDT_BASE+0x00000004UL))
+
+
+/*
+ * RISC-V Machine Software Interrupt (MSI)
+ */
+typedef struct {
+	volatile uint32_t TRIG;
+} MSI_struct_t;
+
+#define MSI_BASE (IO_BASE+0x000000ecUL)
+#define MSI ((MSI_struct_t *) MSI_BASE)
+#define MSI_TRIG (*(volatile uint32_t*)(MSI_BASE+0x00000000UL))
+
+/*
  * RISC-V system timer (in I/O)
  */
 #define MTIME (*(volatile uint32_t*)(IO_BASE+0x000000f0UL))

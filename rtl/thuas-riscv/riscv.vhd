@@ -48,7 +48,7 @@ use work.processor_common.all;
 -- The microcontroller
 entity riscv is
     generic (
-          -- The frequency of the system
+         -- The frequency of the system
           SYSTEM_FREQUENCY : integer := 50000000;
           -- Frequecy of the hardware clock
           CLOCK_FREQUENCY : integer := 1000000;
@@ -98,8 +98,10 @@ entity riscv is
           HAVE_TIMER1 : boolean := TRUE;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean := TRUE;
+          -- use watchdog?
+          HAVE_WDT : boolean := TRUE;
           -- UART1 BREAK triggers system reset
-          UART1_BREAK_RESETS : boolean := false
+          UART1_BREAK_RESETS : boolean := TRUE
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -138,7 +140,7 @@ component core is
           -- The frequency of the system
           SYSTEM_FREQUENCY : integer;
           -- Hardware version in BCD
-          HW_VERSION : integer := 16#00_09_09_03#;
+          HW_VERSION : integer := 16#00_09_09_04#;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -177,6 +179,8 @@ component core is
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
+          -- Use watchdog?
+          HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -344,6 +348,8 @@ component io is
           HAVE_TIMER1 : boolean ;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
+          -- use watchdog?
+          HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );             
@@ -394,7 +400,9 @@ component io is
           -- Hardware interrupt request
           O_intrio : out data_type;
           -- Break on UART1 received
-          O_break_received : out std_logic
+          O_break_received : out std_logic;
+          -- Reset from WDT
+          O_reset_from_wdt : out std_logic
          );
 end component io;
 
@@ -467,6 +475,7 @@ signal instr_access_error_int : std_logic;
 signal areset_sys_sync_int : std_logic_vector(3 downto 0);
 signal areset_sys_int : std_logic;
 signal break_from_uart1_int : std_logic;
+signal reset_from_wdt_int : std_logic;
 
 begin
 
@@ -484,7 +493,7 @@ begin
             areset_sys_int      <= '1';
         elsif rising_edge(I_clk) then
             -- If a UART1 BREAK is detected, reset the system
-            if break_from_uart1_int = '1' then
+            if break_from_uart1_int = '1' or reset_from_wdt_int = '1' then
                 areset_sys_sync_int <= (others => '0');
             else
                 areset_sys_sync_int <= areset_sys_sync_int(areset_sys_sync_int'left-1 downto 0) & '1';
@@ -515,6 +524,7 @@ begin
               HAVE_I2C2 => HAVE_I2C2,
               HAVE_TIMER1 => HAVE_TIMER1,
               HAVE_TIMER2 => HAVE_TIMER2,
+              HAVE_WDT => HAVE_WDT,
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
@@ -654,6 +664,7 @@ begin
               HAVE_I2C2 => HAVE_I2C2,
               HAVE_TIMER1 => HAVE_TIMER1,
               HAVE_TIMER2 => HAVE_TIMER2,
+              HAVE_WDT => HAVE_WDT,
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
@@ -699,7 +710,9 @@ begin
               -- Interrupt requests
               O_intrio => intrio_int,
               -- BREAK received on UART1
-              O_break_received => break_from_uart1_int
+              O_break_received => break_from_uart1_int,
+              -- Reset from WDT
+              O_reset_from_wdt => reset_from_wdt_int
              );
 
 end architecture rtl;

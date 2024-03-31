@@ -90,6 +90,8 @@ entity core is
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
+          -- use watchdog?
+          HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
           
@@ -1998,7 +2000,6 @@ begin
             -- Set all bits hard to 0 except MTIE (7), MSIE (3)
             csr_reg.mie(csr_reg.mie'left downto 8) <= (others => '0');
             csr_reg.mie(6 downto 4) <= (others => '0');
-            --csr_reg.mie(3) <= '0';
             csr_reg.mie(2 downto 0) <= (others => '0');
 
             -- Set most bits of mstatus to 0
@@ -2116,7 +2117,8 @@ end process;
     csr_reg.mxhw(22) <= '1' when HAVE_ZICOND else '0';
     csr_reg.mxhw(23) <= '1' when HAVE_ZBS else '0';
     csr_reg.mxhw(24) <= '1' when UART1_BREAK_RESETS else '0';
-    csr_reg.mxhw(csr_reg.mxhw'left downto 25) <= (others => '0');
+    csr_reg.mxhw(25) <= '1' when HAVE_WDT else '0';
+    csr_reg.mxhw(csr_reg.mxhw'left downto 26) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));
@@ -2211,7 +2213,7 @@ end process;
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(19, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- USART interrupt
+        -- UART1 interrupt
         elsif I_intrio(18) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(18, control.trap_mcause'length));

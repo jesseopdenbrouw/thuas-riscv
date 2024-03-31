@@ -58,6 +58,8 @@ entity riscv is
           HAVE_TIMER1 : boolean := TRUE;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean := TRUE;
+          -- use watchdog?
+          HAVE_WDT : boolean := TRUE;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean := false
          );

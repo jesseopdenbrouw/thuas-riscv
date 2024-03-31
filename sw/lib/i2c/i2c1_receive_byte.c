@@ -1,3 +1,8 @@
+/*
+ * i2c1-receivebyte -- receive a byte via I2C1
+ *
+ */
+
 #include <thuasrv32.h>
 
 uint8_t i2c1_receive_byte(void)

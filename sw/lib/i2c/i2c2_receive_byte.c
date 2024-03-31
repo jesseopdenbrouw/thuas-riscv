@@ -1,3 +1,8 @@
+/*
+ * i2c2_receive_byte -- receives a single byte via I2C2
+ *
+ */
+
 #include <thuasrv32.h>
 
 uint8_t i2c2_receive_byte(void)

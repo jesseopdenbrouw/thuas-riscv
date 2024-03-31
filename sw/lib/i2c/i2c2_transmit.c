@@ -1,3 +1,8 @@
+/*
+ * i2c2_transmit.c -- transmits a stream of bytes via I2C2, including START and STOP bits.
+ *
+ */
+
 #include <thuasrv32.h>
 
 uint32_t i2c2_transmit(uint8_t address, uint8_t *buf, uint32_t len)

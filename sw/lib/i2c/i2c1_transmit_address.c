@@ -1,3 +1,8 @@
+/*
+ * i2c1_transmit_address -- transmits an address via I2C1, including START bit
+ *
+ */
+
 #include <thuasrv32.h>
 
 uint32_t i2c1_transmit_address(uint8_t address)

@@ -1,3 +1,8 @@
+/*
+ * i2c1_transmit_address_only.c -- transmits an address including START and STOP bits
+ *
+ */
+
 #include <thuasrv32.h>
 
 uint32_t i2c1_transmit_address_only(uint8_t address)

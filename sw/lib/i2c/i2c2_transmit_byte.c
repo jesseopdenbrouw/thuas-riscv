@@ -1,3 +1,8 @@
+/*
+ * i2c2_transmit_byte.c -- transmits a byte via I2C2
+ *
+ */
+
 #include <thuasrv32.h>
 
 uint32_t i2c2_transmit_byte(uint8_t data)

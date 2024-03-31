@@ -1,3 +1,8 @@
+/*
+ * i2c2_receive.c -- receives a stream ob bytes via I2C2, sends START and STOP bits
+ *
+ */
+
 #include <thuasrv32.h>
 
 uint32_t i2c2_receive(uint8_t address, uint8_t *buf, uint32_t len)

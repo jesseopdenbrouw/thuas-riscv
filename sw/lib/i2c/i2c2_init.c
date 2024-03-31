@@ -1,4 +1,7 @@
-
+/*
+ * i2c1_init -- initialize I2C2 hardware
+ *
+ */
 
 #include <thuasrv32.h>
 

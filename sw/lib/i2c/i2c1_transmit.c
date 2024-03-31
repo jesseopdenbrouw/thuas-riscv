@@ -1,3 +1,8 @@
+/*
+ * i2c1_transmit.c -- transmit a stream of bytes via I2C1, including a START en STOP bit
+ *
+ */
+
 #include <thuasrv32.h>
 
 uint32_t i2c1_transmit(uint8_t address, uint8_t *buf, uint32_t len)

@@ -6,17 +6,19 @@ For use with the onboard bootloader. After reset, the bootloader
 waits for about 5 seconds @ 50 MHz for `upload` to contact. Start
 the `upload` program within these 5 seconds and the S-record file
 will be transferred. Currently, the transmission speed is one of
-9600 bps or 115200 bps.
+9600 bps, 115200 bps or 230400 bps.
 
 It currently build on Linux, GCC MinGW for Windows and Visual Studio 2022.
 
 Usage:
 
-    upload -vnrB -d <device> -b <baud> -t <timeout> -s <sleep> srec-file
+    upload -vnqrB -d <device> -b <baud> -t <timeout> -s <sleep> srec-file
 
 -v: verbose
 
 -r: run application after upload
+
+-q: quiet mode
 
 -n: don't use handshake
 

@@ -157,6 +157,9 @@ package processor_common is
     -- 32-bit memory
     type memory_type is array (natural range <>) of data_type;
     
+    -- Constants
+    constant all_zero_c : data_type := (others => '0');
+    
     -- Component description of the RISC-V SoC
     component riscv is
     generic (
@@ -210,6 +213,8 @@ package processor_common is
           HAVE_TIMER1 : boolean := TRUE;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean := TRUE;
+          -- use watchdog?
+          HAVE_WDT : boolean := TRUE;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean := false
          );

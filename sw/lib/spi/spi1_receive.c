@@ -1,3 +1,8 @@
+/*
+ * spi1_receive.c -- receive a number of bytes from I2C1
+ *
+ */
+
 #include <stdint.h>
 
 #include <thuasrv32.h>

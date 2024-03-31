@@ -1,3 +1,8 @@
+/*
+ * spi1_transmit_receive.c -- send and receive buffers via I2C1
+ *
+ */
+
 #include <stdint.h>
 
 #include <thuasrv32.h>

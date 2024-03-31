@@ -1,3 +1,8 @@
+/*
+ * spi1_transfer.c -- transfer (send and receive) a byte via SPI1
+ *
+ */
+
 #include <stdint.h>
 
 #include <thuasrv32.h>

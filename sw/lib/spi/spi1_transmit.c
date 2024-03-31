@@ -1,3 +1,8 @@
+/*
+ * spi1_transmit.c -- send a buffer via I2C1
+ *
+ */
+
 #include <stdint.h>
 
 #include <thuasrv32.h>

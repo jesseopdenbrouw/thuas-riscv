@@ -1,3 +1,7 @@
+/*
+ * spi1_csenable.c -- CS enable SPI1 (weak)
+ *
+ */
 
 #include <thuasrv32.h>
 

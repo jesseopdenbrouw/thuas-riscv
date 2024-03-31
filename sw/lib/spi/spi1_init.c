@@ -1,3 +1,8 @@
+/*
+ * spi1_init.c -- initialize SPI1
+ *
+ */
+
 #include <stdint.h>
 
 #include <thuasrv32.h>

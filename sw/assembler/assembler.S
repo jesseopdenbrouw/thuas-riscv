@@ -35,14 +35,33 @@ _start:
 	nop
 	nop
 
-	la	t0, 0xf00000ec
-	li  t1, 0x01
-	sw  t1, 0(t0)
+	la   t0, 0x20000000
+	li   t1, 0x89abcdef
+	sw   t1, 0(t0)
+	addi t1, t1, 1
+	sw   t1, 4(t0)
+	addi t1, t1, 1
+	sw   t1, 8(t0)
+	addi t1, t1, 1
+	sw   t1, 12(t0)
+	addi t1, t1, 1
+	sw   t1, 16(t0)
+
+	li  t1, 0
 
 	nop
 	nop
 	nop
 
+	lw  t1, 0(t0)
+	lw  t1, 4(t0)
+	lw  t1, 8(t0)
+	lw  t1, 12(t0)
+	lw  t1, 16(t0)
+
+	nop
+	nop
+	nop
 
 
 einde:	j einde

@@ -143,6 +143,22 @@ typedef struct {
 #define TIMER2_CMPB (*(volatile uint32_t*)(TIMER2_BASE+0x00000018UL))
 #define TIMER2_CMPC (*(volatile uint32_t*)(TIMER2_BASE+0x0000001cUL))
 
+
+/*
+ * Watchdog (WDT)
+ */
+typedef struct {
+	volatile uint32_t CTRL;
+	volatile uint32_t TRIG;
+} WDT_struct_t;
+
+#define WDT_BASE (IO_BASE+0x000000e0UL)
+#define WDT ((WDT_struct_t *) WDT_BASE)
+
+#define WDT_CTRL (*(volatile uint32_t*)(WDT_BASE+0x00000000UL))
+#define WDT_STAT (*(volatile uint32_t*)(WDT_BASE+0x00000004UL))
+
+
 /*
  * RISC-V Machine Software Interrupt (MSI)
  */

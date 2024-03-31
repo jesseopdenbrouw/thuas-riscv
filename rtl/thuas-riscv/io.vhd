@@ -92,6 +92,8 @@ entity io is
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
+          -- use watchdog?
+          HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );             
@@ -140,7 +142,9 @@ entity io is
           -- Hardware interrupt request
           O_intrio : out data_type;
           -- Break on UART1 received
-          O_break_received : out std_logic
+          O_break_received : out std_logic;
+          -- Reset from WDT
+          O_reset_from_wdt : out std_logic
          );
 end entity io;
     
@@ -405,7 +409,31 @@ type timer2_type is record
 end record;
 signal timer2 : timer2_type;
 
--- Registers 48 - 58 not used - reserved
+
+-- Registers 48 - 55 not used - reserved
+
+    
+constant wdtctrl_addr : integer := 56; -- 0xe0.b
+constant wdttrig_addr : integer := 57; -- 0xe4.b
+
+type wdt_type is record
+    ctrl : data_type;
+    trig : data_type;
+    counter : data_type;
+    mustreset : std_logic;
+    mustrestart : std_logic;
+end record;
+signal wdt : wdt_type;
+
+alias wdt_en : std_logic is wdt.ctrl(0);
+alias wdt_nmi : std_logic is wdt.ctrl(1);
+alias wdt_lock : std_logic is wdt.ctrl(7);
+alias wdt_prescaler : std_logic_vector(23 downto 0) is wdt.ctrl(31 downto 8);
+
+constant wdt_password : data_type := x"5c93a0f1";
+
+
+-- Registers 58 not used - reserved
 
 
 -- RISC-V Machine Software Interrupt (MSI)
@@ -492,6 +520,8 @@ begin
                     when timer2cmpa_addr => O_dataout <= timer2.cmpa;
                     when timer2cmpb_addr => O_dataout <= timer2.cmpb;
                     when timer2cmpc_addr => O_dataout <= timer2.cmpc;
+                    when wdtctrl_addr    => O_dataout <= wdt.ctrl;
+                    when wdttrig_addr    => O_dataout <= wdt.trig;
                     when msitrig_addr    => O_dataout <= msi.trig;
                     when mtime_addr      => O_dataout <= mtime.mtime;
                     when mtimeh_addr     => O_dataout <= mtime.mtimeh;
@@ -2263,6 +2293,67 @@ begin
 
     
     --
+    -- Watchdog timer (WDT)
+    --
+    watchdoggen : if HAVE_WDT generate
+        process (I_clk, I_areset) is
+        begin
+            if I_areset = '1' then
+                wdt.ctrl <= (others => '0');
+                wdt.counter <= (others =>'0');
+                wdt.mustreset <= '0';
+                wdt.mustrestart <= '0';
+            elsif rising_edge(I_clk) then
+                wdt.mustreset <= '0';
+                wdt.mustrestart <= '0';
+                if write_access_granted = '1' then
+                    if reg_int = wdtctrl_addr then
+                        -- Test if locked
+                        if wdt_lock = '0' then
+                            wdt.ctrl <= I_datain;
+                            wdt.counter <= (others => '1');
+                            wdt.counter(31 downto 8) <= I_datain(31 downto 8);
+                        -- Locked!
+                        else
+                            wdt.mustreset <= '1';
+                        end if;
+                    elsif reg_int = wdttrig_addr then
+                        -- test for correct password
+                        if I_datain = wdt_password then
+                            wdt.mustrestart <= '1';
+                        else
+                            wdt.mustreset <= '1';
+                        end if;
+                    end if;
+                end if;
+                wdt.ctrl(6 downto 2) <= (others => '0');
+
+                -- If enabled ...
+                if wdt_en = '1' then
+                    -- If we must clear ...
+                    if wdt.mustrestart = '1' then
+                        wdt.counter <= (others => '1');
+                        wdt.counter(31 downto 8) <= wdt_prescaler;
+                    elsif wdt.counter = all_zero_c then
+                        wdt.mustreset <= '1';
+                    else
+                        wdt.counter <= std_logic_vector(unsigned(wdt.counter) - 1);
+                    end if;
+                end if;
+            end if;
+        end process;
+        wdt.trig <= (others => '0');
+        O_reset_from_wdt <= wdt.mustreset and not wdt_nmi;
+    end generate watchdoggen;
+    
+    watchdoggen_not : if not HAVE_WDT generate
+        wdt.trig <= (others => '0');
+        wdt.ctrl <= (others => '0');
+        O_reset_from_wdt <= '0';
+    end generate watchdoggen_not;
+    
+    
+    --
     -- RISC-V Machine Software Interrupt (MSI)
     --
     process (I_clk, I_areset) is
@@ -2335,17 +2426,21 @@ begin
         O_mtimeh <= mtime.mtimeh;
     end process;
     
+    
     --
     -- Interrupt generation
     --
 
-    process (spi1, i2c1, i2c2, timer2, timer1, uart1, gpioa, msi) is
+    process (spi1, i2c1, i2c2, timer2, timer1, uart1, gpioa, msi, wdt) is
     begin
        -- Default all interrupts to 0.
         O_intrio(31 downto 8) <= (others => '0');
        -- System Timer is handled by timer hardware
         O_intrio(6 downto 0) <= (others => '0');
 
+        -- NMI from WDT
+        O_intrio(31) <= wdt.mustreset and wdt_nmi;
+        
         -- SPI1 transmit complete interrupt
         if spi1.ctrl(3) = '1' and spi1.stat(3) = '1' then
             O_intrio(INTR_PRIO_SPI1) <= '1';
@@ -2468,7 +2563,10 @@ begin
         45 => timer2.cmpa,
         46 => timer2.cmpb,
         47 => timer2.cmpc,
-        -- 48 - 58 not used
+        -- 48 - 55 not used
+        56 => wdt.ctrl,
+        57 => wdt.trig,
+        -- 58 not used
         59 => msi.trig,
         60 => mtime.mtime,
         61 => mtime.mtimeh,

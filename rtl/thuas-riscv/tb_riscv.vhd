@@ -126,7 +126,11 @@ begin
               -- Use Timer 1?
               HAVE_TIMER1 => TRUE,
               -- Use Timer 2?
-              HAVE_TIMER2 => TRUE
+              HAVE_TIMER2 => TRUE,
+              -- Use watchdog?
+              HAVE_WDT => TRUE,
+              -- UART1 BREAK triggers system reset
+              UART1_BREAK_RESETS => TRUE
              )
     port map (I_clk => clk,
               I_areset => areset,
@@ -198,10 +202,11 @@ begin
         uart1rxd <= '1';
         wait for bittime;
         
-        for i iN 1 to 12 loop
-            uart1rxd <= '0';
-            wait for bittime;
-        end loop;
+        -- Send a BREAK condition to UART1
+--        for i iN 1 to 12 loop
+--            uart1rxd <= '0';
+--            wait for bittime;
+--        end loop;
         uart1rxd <= '1';
         
         wait;

@@ -66,7 +66,8 @@ SUBDIRS = add64 \
           uart1_printf \
           uart1_printlonglong \
           uart1_sprintf \
-          uart1_test
+          uart1_test \
+          watchdog
 
 ifeq ($(OS),Windows_NT)
 $(info Windows detected)

@@ -90,7 +90,7 @@ This document describes the buildup of a simple, one core, RISC-V processor, com
 
 The processor requires three clock cycles to complete an instruction, but the next instructions are fetched and decoded while the current instruction is executed. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. A preliminary test with CoreMark showed an average CPI of 1.78 with a throughput of 1.98 coremark/MHz.
+The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. A preliminary test with CoreMark showed an average CPI of 1.78 with a throughput of 1.94 coremark/MHz (16000 runs).
 
 \section{The processor}
 The RISC-V processor consists of one \textit{core} and some building blocks:

@@ -1,6 +1,16 @@
-#include <stdint.h>
+/*
+ * mxhw.c -- print available hardware
+ *
+ */
 
 #include <thuasrv32.h>
+
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (9600UL)
+#endif
 
 int main(void)
 {
@@ -38,6 +48,7 @@ int main(void)
 	uart1_printf("has Zicond: %s\r\n", (hw & CSR_MXHW_ZICOND) ? "yes" : "no");
 	uart1_printf("has Zbs extension: %s\r\n", (hw & CSR_MXHW_ZBS) ? "yes" : "no");
 	uart1_printf("UART1 break resets processor: %s\r\n", (hw & CSR_MXHW_BREAK) ? "yes" : "no");
+	uart1_printf("has watchdog (WDT): %s\r\n", (hw & CSR_MXHW_WDT) ? "yes" : "no");
 	uart1_printf("Done.\r\n");
 
 }

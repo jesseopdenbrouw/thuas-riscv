@@ -21,7 +21,7 @@
 #include <stdio.h>
 
 /* Version */
-#define VERSION "0.3"
+#define VERSION "0.3.1"
 
 /* Test for Visual Studio */
 #if defined(_MSC_VER)
@@ -375,7 +375,7 @@ int main(int argc, char *argv[]) {
             nowait = 1;
             break;
         default: /* '?' */
-            fprintf(stderr, "Unknown option '%c'\n", opt);
+            //fprintf(stderr, "Unknown option '%c'\n", opt);
             exit(1);
         }
     }

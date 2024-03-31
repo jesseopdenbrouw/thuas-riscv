@@ -1,7 +1,7 @@
 #  Common settings for the programs
 
 PREFIX = riscv32-unknown-elf
-# PREFIX = riscv-none-elf
+#PREFIX = riscv-none-elf
 
 # Compiler defaults
 CC = $(PREFIX)-gcc
@@ -54,5 +54,5 @@ MARCHABISTRING = -march=rv32im_zicsr -mabi=ilp32
 SPECSSTRING = --specs=../lib/thuas.specs --specs=../lib/nano.specs
 
 # Options for the UPLOAD program
-# UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0
-UPLOAD_OPTIONS= -nv -d COM3
+UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0
+#UPLOAD_OPTIONS= -nv -d COM3

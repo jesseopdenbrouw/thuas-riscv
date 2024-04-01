@@ -140,7 +140,7 @@ component core is
           -- The frequency of the system
           SYSTEM_FREQUENCY : integer;
           -- Hardware version in BCD
-          HW_VERSION : integer := 16#00_09_09_04#;
+          HW_VERSION : integer := 16#00_09_09_05#;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -486,6 +486,7 @@ begin
     
     -- Synchronize the asynchronous reset.
     -- Also: reset the system if a UART1 BREAK is detected
+    -- or when the watchdog timer expires.
     process (I_clk, I_areset) is
     begin
         if I_areset = '1' then

@@ -1,6 +1,14 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+/*
+ * uart1_available.c -- check if a character is received
+ *
+ */
+
+/**
+ * @file uart1_available.c
+ * @brief Checks if a character is available on UART1
+ *
+ */
+int uart1_available(void)
 
 /* THUASRV32 */
 #include <thuasrv32.h>
@@ -15,7 +23,7 @@
 #endif
 
 /**
- * @file uart1_available.c
+ * @fn uart1_available.c
  * @brief Checks if a character is available on UART1
  *
  * @param[in] -

@@ -1,6 +1,13 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+/*
+ * uart1_getc.c -- gets a character from UART1 (blocking mode)
+ *
+ */
+
+/**
+ * \file uart1_getc.c
+ * \brief gets a character from UART1 (blocking mode)
+ *
+ */
 
 /* THUASRV32 */
 #include <thuasrv32.h>
@@ -14,8 +21,13 @@
 #define BAUD_RATE (9600UL)
 #endif
 
-/* Get one character from the UART1 in
- * blocking mode */
+/**
+ * \fn uart1_getc.c
+ * \brief gets a character from UART1 (blocking mode)
+ *
+ *
+ * \param[in] -
+ */
 int uart1_getc(void)
 {
 	/* Wait for received character */

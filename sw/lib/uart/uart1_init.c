@@ -1,6 +1,8 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+/**
+ * \file uartt_init.c
+ * \brief initialize UART1
+ *
+ */
 
 /* THUASRV32 */
 #include <thuasrv32.h>
@@ -14,8 +16,14 @@
 #define BAUD_RATE (9600UL)
 #endif
 
-/* Initialize the Baud Rate Generator and Control Register */
-/* Is baudrate is 0, the BRR is set 0 */
+/**
+ * \fn uart1_init
+ * \brief initialize UART1
+ *
+ * param[in] uint32_t baudrate
+ * param[in] uint32_t ctrl
+ * param[out] -
+ */
 void uart1_init(uint32_t baudrate, uint32_t ctrl)
 {
 	/* Set baud rate generator */

@@ -1,3 +1,8 @@
+/*
+ * structio.c -- read and write with structs
+ *
+ */
+
 #include <thuasrv32.h>
 
 int main(void)

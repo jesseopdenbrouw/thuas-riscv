@@ -35,7 +35,9 @@ Original Author: Shay Gal-on
 #ifndef ITERATIONS
 #define ITERATIONS (4000)
 #endif
+#ifndef FLAGS_STR
 #define FLAGS_STR  "-O3" // compiler optimization
+#endif
 
 /************************/
 /* Data types and settings */
@@ -120,7 +122,8 @@ typedef size_t        ee_size_t;
         Define type of return from the timing functions.
  */
 #define CORETIMETYPE ee_u64
-typedef ee_u64 CORE_TICKS;
+/* typedef ee_u64 CORE_TICKS; */
+typedef double CORE_TICKS;
 
 /* Configuration : SEED_METHOD
         Defines method to get seed values that cannot be computed at compile

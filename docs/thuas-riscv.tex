@@ -90,7 +90,7 @@ This document describes the buildup of a simple, one core, RISC-V processor, com
 
 The processor requires three clock cycles to complete an instruction, but the next instructions are fetched and decoded while the current instruction is executed. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. A preliminary test with CoreMark showed an average CPI of 1.78 with a throughput of 1.94 coremark/MHz (16000 runs).
+The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. A preliminary test with CoreMark showed an average CPI of 1.78 with a throughput of 1.93 coremark/MHz (16000 runs).
 
 \section{The processor}
 The RISC-V processor consists of one \textit{core} and some building blocks:
@@ -472,7 +472,7 @@ Currently, the I/O consists of one 32-bit data input and one 32-bit data output,
 
 GPIOA has separate inputs and output, both 32 bits. This is because some FPGAs/synthesizers don't allow buried tri-state signals, i.e.\@ the tri-state action must be done in the top level entity. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons. Note that KEY4 a.k.a.\@ FPGA\_RESET is connected to the reset of the processor. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt is a rising and/or falling edge is detected.
 
-UART1 can transmit and receive data at 7, 8 or 9 bits, no/even/odd parity and 1 or 2 stop bits. Tested speeds are 9600 bps, 115200 bps and 230400 bps. Several status flags are implemented to guide transmission. Receive and transmitted character (local) interrupts are provided (one vector). These interrupt requests must be negated by software. UART1 does not provide hardware flow control.
+UART1 can transmit and receive data at 7, 8 or 9 bits, no/even/odd parity and 1 or 2 stop bits. Tested speeds are 9600 bps, 115200 bps and 230400 bps. Several status flags are implemented to guide transmission. Receive, transmitted and BREAK character (local) interrupts are provided (one vector). These interrupt requests must be negated by software. A BREAK condition is found if UART1 samples 1 start bit + number of data bits + 1 stop bit to be low. UART1 does not provide hardware flow control.
 
 TIMER1 has a 32-bit count register and increments on every clock cycle. It does not have a prescaler. It counts up to compare match T register, after which is will be loaded with 0 again. A compare match (local) interrupt is provided (one vector). Whenever the timer count register is greater than or equal to the compare match T register, an interrupt request is asserted in the next clock cycle. The interrupt request has to be negated by software. A value of 0 in the compare match T register is valid: the counter does not count, but the compare match (local) interrupt is asserted.
 
@@ -688,7 +688,7 @@ Using VHDL generics, the design can be customized. See Table~\ref{tab:custom}.
 \centering
 \begin{tabular}{lllp{5.5cm}}
 \toprule
-Generic & Type & Default & Comment \\
+Generic & Type & Typical & Comment \\
 \midrule
 \lstinline|SYSTEM_FREQUENCY| & integer & 50000000 & The system frequency in Hz \\
 \lstinline|CLOCK_FREQUENCY| & integer & 1000000 & The clock frequency in Hz \\
@@ -1619,22 +1619,25 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 
 \begin{register}{H}{UART1 control register UART1\_CTRL}{0x20}
 \label{uart1ctrl}
-\regfield{Reserved}{24}{8}{{0}}%
-\regfield{TCIE}{1}{7}{{1}}%
-\regfield{RCIE}{1}{6}{{1}}%
-\regfield{Parity}{2}{4}{{0}}%
-\regfield{Size}{2}{2}{{0}}%
-\regfield{Reserved}{1}{1}{{0}}%
-\regfield{SP2}{1}{0}{{0}}
+\regfield{Reserved}{23}{9}{{0}}%
+\regfield{Parity}{2}{7}{{0}}%
+\regfield{SP2}{1}{6}{{0}}%
+\regfield{BRIE}{1}{5}{{1}}%
+\regfield{RCIE}{1}{4}{{1}}%
+\regfield{TCIE}{1}{3}{{1}}%
+\regfield{Size}{2}{1}{{0}}%
+\regfield{EN}{1}{0}{{0}}%
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.7\textwidth]\begin{reglist}[00000]
 \itemsep-1.5ex
+\item[Parity] 00: none, 10: even, 11: odd.
+\item[SP2] 0: one stop bit, 1: two stop bits.
+\item[BRIE] BREAK received interrupt enable.
 \item[TCIE] Transmit character interrupt enable.
 \item[RCIE] Receive character interrupt enable.
-\item[Parity] 00: none, 10: even, 11: odd.
 \item[Size] 00: 8 bits, 10: 9 bits, 11: 7 bits, excluding the parity.
-\item[SP2] 0: one stop bit, 1: two stop bits.
+\item[EN] Enable UART1 (both receiver and transmitter)
 %\item[Stop Bits] Meaning
 %\item[0] 1 Stop bit
 %\item[1] 2 Stop bits
@@ -1655,8 +1658,8 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \regfield{Reserved}{26}{6}{{0}}%
 \regfield{BR}{1}{5}{{0}}%
 \regfield{TC}{1}{4}{{0}}%
-\regfield{PE}{1}{3}{{0}}%
-\regfield{RC}{1}{2}{{0}}%
+\regfield{RC}{1}{3}{{0}}%
+\regfield{PE}{1}{2}{{0}}%
 \regfield{RF}{1}{1}{{0}}%
 \regfield{FE}{1}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -1665,8 +1668,8 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \itemsep-1.5ex
 \item[BR] BREAK condition detected. A BREAK is a stream of null bits for the duration of 1 start bit + number of data bits + 1 stop bit.
 \item[TC] Transmit completed. Set directly to 1 when a character was transmitted. Automatically cleared when writing new character to the data register or when writing 0 in the TC bit in \mbox{UART1\_STAT}.
-\item[PE] Parity error. Set to 1 if parity is enabled and there is a parity error while receiving. Automatically cleared when data register is read or when writing 0 in the PE bit in UART1\_STAT.
 \item[RC] Receive completed. Set to 1 when a character was received. Automatically cleared when data register is read or when writing 0 in the RC bit in UART1\_STAT.
+\item[PE] Parity error. Set to 1 if parity is enabled and there is a parity error while receiving. Automatically cleared when data register is read or when writing 0 in the PE bit in UART1\_STAT.
 \item[RF] Receive failed. Set to 1 when failed receiving (invalid start bit). Automatically cleared when data register is read or when writing 0 in the RF bit in UART1\_STAT.
 \item [FE] Frame error. Set to 1 when a low is detected at the position of the (first) stop bit. Automatically cleared when data register is read or writing a 0 in the FE bit in UART1\_STAT.
 \end{reglist}\end{regdesc}

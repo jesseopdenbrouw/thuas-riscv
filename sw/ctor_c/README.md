@@ -14,7 +14,7 @@ Global constructors in C (not C++) must be functions with the attribute
 ```
 __attribute__ ((constructor)) void foo(void)
 {
-    uart1_init(BAUD_RATE, UART_CTRL_NONE);
+    uart1_init(BAUD_RATE, UART_CTRL_EN);
     uart1_puts("foo\r\n");
 }
 ```

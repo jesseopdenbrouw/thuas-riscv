@@ -1,7 +1,7 @@
 #
 # Makefile to build target
 #
-# note: LTO enabled
+# note: LTO enabled, argc and argv set to 0
 #
 
 

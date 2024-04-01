@@ -230,14 +230,19 @@ type uart1_type is record
 end record;
 signal uart1 : uart1_type;
 
-alias uart1size : std_logic_vector(1 downto 0) is uart1.ctrl(3 downto 2);
-alias uart1paron : std_logic is uart1.ctrl(5);
-alias uart1parnevenodd : std_logic is uart1.ctrl(4);
-alias uart1stop2 : std_logic is uart1.ctrl(0);
+alias uart1paron : std_logic is uart1.ctrl(8);
+alias uart1parnevenodd : std_logic is uart1.ctrl(7);
+alias uart1stop2 : std_logic is uart1.ctrl(6);
+alias uart1brie : std_logic is uart1.ctrl(5);
+alias uart1tcie : std_logic is uart1.ctrl(4);
+alias uart1rcie : std_logic is uart1.ctrl(3);
+alias uart1size : std_logic_vector(1 downto 0) is uart1.ctrl(2 downto 1);
+alias uart1en : std_logic is uart1.ctrl(0);
+
 alias uart1br : std_logic is uart1.stat(5);
 alias uart1tc : std_logic is uart1.stat(4);
-alias uart1pe : std_logic is uart1.stat(3);
-alias uart1rc : std_logic is uart1.stat(2);
+alias uart1rc : std_logic is uart1.stat(3);
+alias uart1pe : std_logic is uart1.stat(2);
 alias uart1rf : std_logic is uart1.stat(1);
 alias uart1fe : std_logic is uart1.stat(0);
 
@@ -677,7 +682,7 @@ begin
                     when tx_idle =>
                         O_uart1txd <= '1';
                         -- If start triggered...
-                        if uart1.txstart = '1' then
+                        if uart1.txstart = '1' and uart1en = '1' then
                             -- Load the prescaler, set the number of bits (including start bit)
                             uart1.txbittimer <= to_integer(unsigned(uart1.baud));
                             if uart1size = "10" then
@@ -732,7 +737,7 @@ begin
                     -- Rx idle, wait for start bit
                     when rx_idle =>
                         -- If detected a start bit ...
-                        if uart1.rxd_sync = '0' then
+                        if uart1.rxd_sync = '0'  and uart1en = '1' then
                             -- Set half bit time ...
                             uart1.rxbittimer <= to_integer(unsigned(uart1.baud))/2;
                             uart1.rxstate <= rx_wait;
@@ -865,7 +870,8 @@ begin
                 end case;
                 
                 -- If a BREAK is received by UART1, send this BREAK
-                -- upstream to the processor top.
+                -- upstream to the processor top. BREAK will only
+                -- be receuved when UART1 is enabled.
                 O_break_received <= uart1br and boolean_to_std_logic(UART1_BREAK_RESETS);
                 
                 uart1.baud(31 downto 16) <= (others => '0');
@@ -2460,10 +2466,11 @@ begin
            (timer2.ctrl(7) = '1' and timer2.stat(7) = '1') then
             O_intrio(INTR_PRIO_TIMER2) <= '1';
         end if;
-        -- UART1 receive or transmit interrupt. Software must determine if it was
-        -- receive or transmit or both
-        if (uart1.stat(4) = '1' and uart1.ctrl(7) = '1') or
-           (uart1.stat(2) = '1' and uart1.ctrl(6) = '1') then
+        -- UART1 break, receive or transmit interrupt. Software must determine if it was
+        -- break, receive or transmit or a combination of bits
+        if (uart1br = '1' and uart1brie = '1') or
+           (uart1tc = '1' and uart1tcie = '1') or
+           (uart1rc = '1' and uart1rcie = '1') then
             O_intrio(INTR_PRIO_UART1) <= '1';
         end if;
         -- TIMER1 compare match interrupt

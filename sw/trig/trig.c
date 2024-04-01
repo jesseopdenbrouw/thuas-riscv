@@ -42,7 +42,7 @@ int main(void)
 
 	j.x = y;
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("float and double calculations\r\n");
 

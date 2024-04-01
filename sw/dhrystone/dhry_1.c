@@ -98,7 +98,7 @@ main ()
   REG   int             Number_Of_Runs;
 
   /* THUAS specific */
-  uart1_init(BAUD_RATE, UART_CTRL_NONE);
+  uart1_init(BAUD_RATE, UART_CTRL_EN);
 
   /* Initializations */
 

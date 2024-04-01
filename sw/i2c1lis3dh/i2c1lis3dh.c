@@ -42,7 +42,7 @@ int main(void)
 	char buffer[128];
 
 	/* Initialize UART1 */
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	/* Initialize I2C1 */
 	i2c1_init(TRAN_SPEED | FAST_MODE_BIT);

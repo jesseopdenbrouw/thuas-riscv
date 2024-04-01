@@ -15,7 +15,7 @@
 int main(void)
 {
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uint32_t hw = csr_read(0xfc0); // CSR address = 0xfc0
 	uint32_t speed = csr_read(0xfc1); // CSR address = 0xfc1

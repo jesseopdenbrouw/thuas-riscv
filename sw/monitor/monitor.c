@@ -79,7 +79,7 @@ int main(void)
 	int len;
 	int little = 1;
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("\r\nTHUAS RISC-V FPGA 32-bit processor\r\n");
 	uart1_puts("Monitor v0.1\r\n");

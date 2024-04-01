@@ -50,7 +50,7 @@ int main(void)
 	char buffer[40];
 	uint8_t buf[4];
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("I2C1 with TMP102\r\n");
 

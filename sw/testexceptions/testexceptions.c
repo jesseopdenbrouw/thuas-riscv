@@ -24,7 +24,7 @@ void ret(void) {
 int main(void) {
 
 	/* Initialize the UART1 */
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	/* Set the entry point of the trap handler */
 	set_mtvec(trap_handler, TRAP_DIRECT_MODE);

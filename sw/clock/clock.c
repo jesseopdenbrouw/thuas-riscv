@@ -22,7 +22,7 @@ int main(void)
 
 	char buffer[100] = {0};
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("\r\n\r\nTime since last reset:\r\n");
 

@@ -48,7 +48,7 @@ int main(void)
 	/* CS setup, CS hold, /16, 8 bits, mode 0 */
 	SPI1->CTRL = (0 << 20) | (0 << 12) | (3<<8) | (0<<4) | (0<<1);
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("\r\nWriting EEPROM 25AA010\r\n");
 

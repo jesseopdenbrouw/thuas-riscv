@@ -19,7 +19,7 @@ int main(void) {
 	long long int m = 0x7fffffffffffffff;
 	uint64_t um = 0xffffffffffffffff;
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("\r\n");
 	uart1_printlonglong(m);

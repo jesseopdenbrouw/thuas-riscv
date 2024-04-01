@@ -42,7 +42,7 @@ int main(void)
               SPI_SIZE24     |
               SPI_MODE0);
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 	uart1_puts("\r\n");
 
 	while (1) {

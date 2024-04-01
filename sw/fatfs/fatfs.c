@@ -22,7 +22,7 @@ int main(void)
 	TCHAR label[40] = { 0 };
 	DWORD serial = 0;
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("\r\nFATFS test program\r\n");
 

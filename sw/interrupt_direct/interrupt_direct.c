@@ -45,7 +45,7 @@ int main(int argc, char *argv[], char *envp[])
 	set_mtvec(trap_handler_direct, TRAP_DIRECT_MODE);
 
 	/* Initialize the USART*/
-	uart1_init(BAUD_RATE, UART_CTRL_RCIE);
+	uart1_init(BAUD_RATE, UART_CTRL_RCIE | UART_CTRL_EN);
 
 	/* Activate TIMER1 with a cycle of 1 Hz */
 	TIMER1->CMPT = speed/2-1;

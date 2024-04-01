@@ -12,7 +12,7 @@
 
 int main(void)
 {
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 	uart1_puts("TIMER2 Input Capture\r\n");
 
 	/* Set TIMER2 for maximum measument */

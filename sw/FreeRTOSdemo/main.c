@@ -156,7 +156,7 @@ static void prvSetupHardware( void )
     GPIOA->POUT = 0;
 
     /* setup UART at default baud rate, no interrupts (yet) */
-    uart1_init( BAUD_RATE, UART_CTRL_NONE );
+    uart1_init( BAUD_RATE, UART_CTRL_EN );
 
     /* check clock tick configuration */
     if( ( uint32_t ) configCPU_CLOCK_HZ != 1000000UL ) {

@@ -24,7 +24,7 @@ int main(void)
 {
 	char buffer[20];
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("\r\nI2C1 find slaves\r\n");
 

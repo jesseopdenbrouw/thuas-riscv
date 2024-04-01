@@ -37,7 +37,7 @@ int main(void)
 	volatile double x = 0.5;
 	volatile double y;
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("Calculation of the " FUNCTION_NAME " function\r\n");
 

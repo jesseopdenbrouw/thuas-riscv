@@ -38,7 +38,7 @@ int main()
     volatile int arr[] = { 0x50, 0x30, 0x20, 0x10, 0x60, 0xa0, 0x40, 0xb0 };
 	char buffer[10];
 
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	/* Print the unsorted array */
 	for (int i = 0; i < sizeof arr / sizeof arr[0]; i++) {

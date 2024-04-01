@@ -11,8 +11,8 @@ about 5 seconds (@ 50 MHz) before it jumps to the
 application at address 0x00000000. If a character is
 received via the USART within these 5 seconds, a
 prompt is shown and the user can enter commands. The
-command "r" (without the quotes) starts the main
-application.
+command "h" (without the quotes) displays a list of
+supported commands.
 
 An S-record file can be uploaded using the `upload`
 program. If the bootloader is contacted within the
@@ -26,4 +26,5 @@ the bootloader starts at address 0x10000000.
 
 ## Status
 
-Works on the board. The bootloader must be installed in the hardware.
+Works on the board. The bootloader must be installed
+in the hardware.

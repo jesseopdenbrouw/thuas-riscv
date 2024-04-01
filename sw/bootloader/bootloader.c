@@ -2,7 +2,7 @@
  *
  * bootloader.c -- a simple bootloader for THUAS RISC-V
  *
- * (c)2023, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl
+ * (c)2024, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl
  *
  */
 
@@ -20,10 +20,15 @@
 
 #include <thuasrv32.h>
 
-#define VERSION "v0.5.1"
+#define VERSION "v0.6"
 #define BUFLEN (41)
 #define BOOTWAIT (10)
 
+/* Prototype of the trap handler */
+__attribute__ ((interrupt,used))
+void trap_handler(void);
+
+/* The bootloader */
 int main(int argc, char *argv[], char *envp[]) {
 
 	/* Start address of application */
@@ -42,7 +47,7 @@ int main(int argc, char *argv[], char *envp[]) {
 	int noresponse = 0;
 
 	/* Initialize UART1 at 115200 bps */
-	uart1_init(BAUD_RATE, UART_CTRL_NONE);
+	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	/* Send greeting */
 	uart1_puts("\r\nTHUAS RISC-V Bootloader " VERSION "\r\n");
@@ -173,6 +178,9 @@ int main(int argc, char *argv[], char *envp[]) {
 		GPIOA->POUT = 0xaa;
 	}
 
+	/* Set up trap handler */
+	set_mtvec(trap_handler, TRAP_DIRECT_MODE);
+
 	/* Start the simple monitor */
 	uart1_puts("\r\n");
 
@@ -196,6 +204,7 @@ int main(int argc, char *argv[], char *envp[]) {
 			/* Start the application */
 			uart1_init(0, 0);
 			GPIOA->POUT = 0;
+			set_mtvec(0, TRAP_DIRECT_MODE);
 			(*app_start)();
 		} else if (strncmp(buffer, "rw ", 3) == 0) {
 			/* Read word */
@@ -265,4 +274,22 @@ int main(int argc, char *argv[], char *envp[]) {
 	}
 
 	while(1);
+}
+
+/* The trap handler handles incoming traps,
+ * for now only eceptions. The offending
+ * is bypassed by setting the return address
+ * one instruction further */
+__attribute__ ((interrupt,used))
+void trap_handler(void)
+{
+	uint32_t mepc = csr_read(mepc);
+	uint32_t mcause = csr_read(mcause);
+
+	uart1_puts("Trap: mcause = 0x");
+	printhex(mcause, 8);
+	uart1_puts("\r\n");
+
+	mepc += 4;
+	csr_write(mepc, mepc);
 }

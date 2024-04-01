@@ -21,5 +21,5 @@ void uart1_putc(int ch)
 	UART1->DATA = (uint8_t) ch;
 
 	/* Wait for transmission end */
-	while ((UART1->STAT & 0x10) == 0);
+	while ((UART1->STAT & UART_STAT_TC) == 0);
 }

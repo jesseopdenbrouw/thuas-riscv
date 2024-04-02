@@ -1,11 +1,13 @@
 
 /*
- * thuasev32.h - include all header files
+ * thuasrv32.h - include all header files
  *
  */
 
 #ifndef _THUASRV32_H
 #define _THUASRV32_H
+
+#include <stdint.h>
 
 #include <io.h>
 #include <gpio.h>

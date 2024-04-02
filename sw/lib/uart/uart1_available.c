@@ -8,7 +8,6 @@
  * @brief Checks if a character is available on UART1
  *
  */
-int uart1_available(void)
 
 /* THUASRV32 */
 #include <thuasrv32.h>

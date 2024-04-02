@@ -71,13 +71,13 @@ SUBDIRS = add64 \
 
 ifeq ($(OS),Windows_NT)
 $(info Windows detected)
-EXESUFFIX=.exe
-MKDIRCMD=if not exist bin (mkdir bin)
-FORCLEAN=FOR /D %%G IN ($(SUBDIRS)) DO make -C %%G clean
+EXESUFFIX = .exe
+MKDIRCMD  = if not exist bin (mkdir bin)
+FORCLEAN  = FOR /D %%G IN ($(SUBDIRS)) DO make -C %%G clean
 else
-EXESUFFIX=
-MKDIRCMD=if [ ! -d bin ]; then mkdir bin; fi
-FORCLEAN=for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
+EXESUFFIX =
+MKDIRCMD  = if [ ! -d bin ]; then mkdir bin; fi
+FORCLEAN  = for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
 endif
 
 .PHONY: all bin $(SUBDIRS) clean

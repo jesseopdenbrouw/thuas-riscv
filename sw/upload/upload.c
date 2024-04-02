@@ -6,6 +6,7 @@
  * (c) 2024, Jesse E. J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  * Usage: upload -vnqrB -d <device> -b <baud> -t <timeout> -s <sleep> filename
+ *        upload -l
  *        -v           -- verbose
  *        -B           -- send BREAK before transmitting
  *        -n           -- don't wait for response
@@ -15,13 +16,17 @@
  *        -b <baud>    -- set baudrate
  *        -t <timeout> -- timeout in deci seconds
  *        -s <sleep>   -- sleep milli seconds after each character
+ *        filename     -- a valid S-record file
+ * 
+ *        -l           -- list available ports
+ *        -v           -- verbose
  */
 
 /* We need stdio.h anyway */
 #include <stdio.h>
 
 /* Version */
-#define VERSION "0.3.1"
+#define VERSION "0.4"
 
 /* Test for Visual Studio */
 #if defined(_MSC_VER)
@@ -35,6 +40,9 @@
 typedef DWORD speed_t;
 typedef HANDLE DEVICE_HANDLE;
 #define DEFAULT_SERIAL_DEVICE "COM1"
+#define GENERIC_SERIAL_DEVICE "COM"
+#define MIN_DEVICE_NUMBER 1
+#define MAX_DEVICE_NUMBER 20
 
 /* Test for GCC for Windows*/
 #elif defined(WIN32) || defined(WIN64) || defined (WINNT)
@@ -47,6 +55,9 @@ typedef HANDLE DEVICE_HANDLE;
 typedef DWORD speed_t;
 typedef HANDLE DEVICE_HANDLE;
 #define DEFAULT_SERIAL_DEVICE "COM1"
+#define GENERIC_SERIAL_DEVICE "COM"
+#define MIN_DEVICE_NUMBER 1
+#define MAX_DEVICE_NUMBER 20
 
 /* Probably Linux */
 #else
@@ -64,6 +75,9 @@ typedef _Bool BOOL;
 typedef int DWORD;
 #define INVALID_HANDLE_VALUE (-1)
 #define DEFAULT_SERIAL_DEVICE "/dev/ttyUSB0"
+#define GENERIC_SERIAL_DEVICE "/dev/tty"
+#define MIN_DEVICE_NUMBER 0
+#define MAX_DEVICE_NUMBER 31
 
 #endif
 
@@ -72,85 +86,111 @@ typedef int DWORD;
 
 DEVICE_HANDLE open_device(char *portname) {
 
-    char comPortName[100];
+	char comPortName[200];
 
-    snprintf(comPortName, sizeof comPortName, "\\\\.\\%s", portname);
-    return CreateFileA(comPortName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	snprintf(comPortName, sizeof comPortName, "\\\\.\\%s", portname);
+	return CreateFileA(comPortName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 }
 
 BOOL set_com_params(DEVICE_HANDLE device, DWORD speed, DWORD timeout) {
 
-    DCB dcb;
-    BOOL ret;
-    COMMTIMEOUTS timeouts = { 0 };
+	DCB dcb;
+	BOOL ret;
+	COMMTIMEOUTS timeouts = { 0 };
 
-    ret = GetCommState(device, &dcb);
+	ret = GetCommState(device, &dcb);
 
-    if (!ret) {
-        return FALSE;
-    }
+	if (!ret) {
+		return FALSE;
+	}
 
-    dcb.fParity = FALSE;
-    dcb.BaudRate = speed;
-    dcb.ByteSize = 8;
-    dcb.Parity = NOPARITY;
-    dcb.StopBits = ONESTOPBIT;
-    dcb.fOutxCtsFlow = FALSE;
-    dcb.fOutxDsrFlow = FALSE;
-    dcb.fDtrControl = DTR_CONTROL_DISABLE;
-    dcb.fDsrSensitivity = FALSE;
-    dcb.fOutX = FALSE;
-    dcb.fInX = FALSE;
-    dcb.fRtsControl = RTS_CONTROL_DISABLE;
+	dcb.fParity = FALSE;
+	dcb.BaudRate = speed;
+	dcb.ByteSize = 8;
+	dcb.Parity = NOPARITY;
+	dcb.StopBits = ONESTOPBIT;
+	dcb.fOutxCtsFlow = FALSE;
+	dcb.fOutxDsrFlow = FALSE;
+	dcb.fDtrControl = DTR_CONTROL_DISABLE;
+	dcb.fDsrSensitivity = FALSE;
+	dcb.fOutX = FALSE;
+	dcb.fInX = FALSE;
+	dcb.fRtsControl = RTS_CONTROL_DISABLE;
 
-    ret = SetCommState(device, &dcb);
+	ret = SetCommState(device, &dcb);
 
-    if (!ret) {
-        return FALSE;
-    }
+	if (!ret) {
+		return FALSE;
+	}
 
-    timeouts.ReadIntervalTimeout = 0;
-    timeouts.ReadTotalTimeoutConstant = timeout * 100;
-    timeouts.ReadTotalTimeoutMultiplier = 0;
-    timeouts.WriteTotalTimeoutConstant = timeout * 100;
-    timeouts.WriteTotalTimeoutMultiplier = 0;
+	timeouts.ReadIntervalTimeout = 0;
+	timeouts.ReadTotalTimeoutConstant = timeout * 100;
+	timeouts.ReadTotalTimeoutMultiplier = 0;
+	timeouts.WriteTotalTimeoutConstant = timeout * 100;
+	timeouts.WriteTotalTimeoutMultiplier = 0;
 
-    if (!SetCommTimeouts(device, &timeouts)) {
-        return FALSE;
-    }
+	if (!SetCommTimeouts(device, &timeouts)) {
+		return FALSE;
+	}
 
-    return TRUE;
+	return TRUE;
 }
 
 int read_device(DEVICE_HANDLE device, char *str, DWORD len) {
 
-    DWORD nBytesRead;
+	DWORD nBytesRead;
 
-    ReadFile(device, str, len, &nBytesRead, NULL);
+	(void) ReadFile(device, str, len, &nBytesRead, NULL);
 
-    return nBytesRead;
+	return nBytesRead;
 }
 
 int write_device(DEVICE_HANDLE device, char *str, DWORD len) {
 
-    DWORD nBytesWritten;
+	DWORD nBytesWritten;
 
-    WriteFile(device, str, len, &nBytesWritten, NULL);
+	WriteFile(device, str, len, &nBytesWritten, NULL);
 
-    return nBytesWritten;
+	return nBytesWritten;
 }
 
 void close_device(DEVICE_HANDLE device) {
 
-    CloseHandle(device);
+	CloseHandle(device);
 }
 
 int send_break_to_device(DEVICE_HANDLE device) {
-    SetCommBreak(device);
-    Sleep(270);
-    ClearCommBreak(device);
+	SetCommBreak(device);
+	Sleep(270);
+	ClearCommBreak(device);
 
-    return 1;
+	return 1;
+}
+
+/* Show serial devices */
+void show_devices(int verbose) {
+	char device[100];
+	DEVICE_HANDLE handle;
+	int count = 0;
+
+	printf("Searching for serial devices...\n");
+
+	for (int i = MIN_DEVICE_NUMBER; i <= MAX_DEVICE_NUMBER; i++) {
+		snprintf(device, sizeof device, "%s%d", GENERIC_SERIAL_DEVICE, i);
+
+		if (verbose) {
+			printf("Testing device %s\n", device);
+		}
+		handle = open_device(device);
+
+		if (handle == INVALID_HANDLE_VALUE) {
+		} else {
+			close_device(handle);
+			printf("Found device: %s\n", device);
+			count++;
+		}
+	}
+	printf("Found %d device%s\n", count, count == 1 ? "" : "s");
 }
 
 /* Probably Linux */
@@ -158,112 +198,141 @@ int send_break_to_device(DEVICE_HANDLE device) {
 
 DEVICE_HANDLE open_device(char *portname) {
 
-    int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
+	int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
 
-    if (fd < 0) {
-        return INVALID_HANDLE_VALUE;
-    }
-    return fd;
+	if (fd < 0) {
+		return INVALID_HANDLE_VALUE;
+	}
+	return fd;
 }
 
 /* Com port settings on Linux */
 int set_blocking(int fd, int should_block, int timeout)
 {
-    struct termios tty;
+	struct termios tty;
 
-    memset(&tty, 0, sizeof tty);
+	memset(&tty, 0, sizeof tty);
 
-    if (tcgetattr(fd, &tty) != 0) {
-        printf("error %d from tcgetattr\n", errno);
-        return 1;
-    }
+	if (tcgetattr(fd, &tty) != 0) {
+		printf("error %d from tcgetattr\n", errno);
+		return 1;
+	}
 
-    tty.c_cc[VMIN]  = should_block ? 1 : 0;
-    tty.c_cc[VTIME] = timeout;
+	tty.c_cc[VMIN]  = should_block ? 1 : 0;
+	tty.c_cc[VTIME] = timeout;
 
-    if (tcsetattr(fd, TCSANOW, &tty) != 0) {
-        printf("error %d setting term attributes\n", errno);
-        return 1;
-    }
+	if (tcsetattr(fd, TCSANOW, &tty) != 0) {
+		printf("error %d setting term attributes\n", errno);
+		return 1;
+	}
 
-    return 0;
+	return 0;
 }
 
 int set_interface_attribs(int fd, int speed, int parity)
 {
-    struct termios tty;
+	struct termios tty;
 
-    memset (&tty, 0, sizeof tty);
+	memset (&tty, 0, sizeof tty);
 
-    if (tcgetattr(fd, &tty) != 0) {
-        printf("error %d from tcgetattr\n", errno);
-        return 1;
-    }
+	if (tcgetattr(fd, &tty) != 0) {
+		printf("error %d from tcgetattr\n", errno);
+		return 1;
+	}
 
-    cfsetospeed(&tty, speed);
-    cfsetispeed(&tty, speed);
+	cfsetospeed(&tty, speed);
+	cfsetispeed(&tty, speed);
 
-    tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
-    // disable IGNBRK for mismatched speed tests; otherwise receive break
-    // as \000 chars
-    tty.c_iflag &= ~IGNBRK;         // disable break processing
-    tty.c_lflag = 0;                // no signaling chars, no echo,
-                                        // no canonical processing
-    tty.c_oflag = 0;                // no remapping, no delays
-    tty.c_cc[VMIN]  = 0;            // read doesn't block
-    tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+	tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
+	// disable IGNBRK for mismatched speed tests; otherwise receive break
+	// as \000 chars
+	tty.c_iflag &= ~IGNBRK;         // disable break processing
+	tty.c_lflag = 0;                // no signaling chars, no echo,
+										// no canonical processing
+	tty.c_oflag = 0;                // no remapping, no delays
+	tty.c_cc[VMIN]  = 0;            // read doesn't block
+	tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
 
-    tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+	tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
 
-    tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
-                                        // enable reading
-    tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
-    tty.c_cflag |= parity;
-    tty.c_cflag &= ~CSTOPB;
-    tty.c_cflag &= ~CRTSCTS;
+	tty.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
+										// enable reading
+	tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
+	tty.c_cflag |= parity;
+	tty.c_cflag &= ~CSTOPB;
+	tty.c_cflag &= ~CRTSCTS;
 
-    if (tcsetattr(fd, TCSANOW, &tty) != 0) {
-        printf("error %d from tcsetattr\n", errno);
-        return 1;
-    }
+	if (tcsetattr(fd, TCSANOW, &tty) != 0) {
+		printf("error %d from tcsetattr\n", errno);
+		return 1;
+	}
 
-    return 0;
+	return 0;
 }
-
 
 BOOL set_com_params(DEVICE_HANDLE device, DWORD speed, DWORD timeout) {
 
-    set_interface_attribs(device, speed, 0);
-    set_blocking(device, 0, timeout);
-    return true;
+	set_interface_attribs(device, speed, 0);
+	set_blocking(device, 0, timeout);
+	return true;
 }
 
 int read_device(DEVICE_HANDLE device, char *str, DWORD len) {
 
-    return read(device, str, len);
+	return read(device, str, len);
 }
 
 int write_device(DEVICE_HANDLE device, char *str, DWORD len) {
 
-    return write(device, str, len);
+	return write(device, str, len);
 }
 
 void close_device(DEVICE_HANDLE device) {
 
-    close(device);
+	close(device);
 }
 
 int send_break_to_device(DEVICE_HANDLE device) {
 
-    return tcsendbreak(device, 0) < 0 ? 0 : 1;
+	return tcsendbreak(device, 0) < 0 ? 0 : 1;
 }
 
 void Sleep(int tim) {
 
-    usleep(tim * 1000);
+	usleep(tim * 1000);
+}
+
+/* Show serial devices */
+void show_devices(int verbose) {
+	char device[100];
+	char *subdevice[] = { "", "USB", "ACM" };
+	DEVICE_HANDLE handle;
+	int count = 0;
+
+	printf("Searching for serial devices...\n");
+
+    for (int j = MIN_DEVICE_NUMBER; j < sizeof subdevice / sizeof subdevice[0]; j++) {
+        for (int i = 0; i <= MAX_DEVICE_NUMBER; i++) {
+            snprintf(device, sizeof device, "%s%s%d", GENERIC_SERIAL_DEVICE, subdevice[j], i);
+
+            if (verbose) {
+                printf("Testing device %s\n", device);
+            }
+            handle = open_device(device);
+
+            if (handle == INVALID_HANDLE_VALUE) {
+            } else {
+                close_device(handle);
+                printf("Found device: %s\n", device);
+                count++;
+            }
+        }
+    }
+    printf("Found %d device%s\n", count, count == 1 ? "" : "s");
 }
 
 #endif
+
 
 /* The main program */
 int main(int argc, char *argv[]) {
@@ -292,10 +361,12 @@ int main(int argc, char *argv[]) {
     int quiet = 0;
     int nowait = 0;
     int sendbreak = 0;
+    int list = 0;
 
     /* Check for 0 extra arguments */
     if (argc == 1) {
         printf("upload -vnqrB -d <device> -b <baud> -t <timeout> -s <sleep> filename\n");
+		printf("upload -lv\n");
         printf("Upload S-record file to THUAS RISC-V processor v" VERSION "\n");
         printf("-v           -- verbose\n");
         printf("-B           -- send BREAK before transmitting\n");
@@ -307,7 +378,9 @@ int main(int argc, char *argv[]) {
         printf("-b <baud>    -- set baudrate (9600, 115200 or 230400)\n");
         printf("-t <timeout> -- timeout in deci seconds\n");
         printf("-s <sleep>   -- sleep milli seconds after each character\n");
-        printf("filename is a S-record file\n");
+        printf("filename is a S-record file\n\n");
+		printf("-l           -- list available serial devices\n");
+        printf("-v           -- verbose\n\n");
         printf("Default device is %s\n", portname);
         printf("Default baudrate is ");
         if (baudrate == B9600) {
@@ -328,7 +401,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* Parse options */
-    while ((opt = getopt(argc, argv, "vd:t:rjs:qb:inB")) != -1) {
+    while ((opt = getopt(argc, argv, "vd:t:rjs:qb:inBl")) != -1) {
         switch (opt) {
         case 'd':
             portname = optarg;
@@ -374,10 +447,19 @@ int main(int argc, char *argv[]) {
         case 'n':
             nowait = 1;
             break;
+        case 'l':
+            list = 1;
+            break;
         default: /* '?' */
             //fprintf(stderr, "Unknown option '%c'\n", opt);
             exit(1);
         }
+    }
+    
+    /* List all available serial devices */
+    if (list) {
+        show_devices(verbose);
+        exit(EXIT_SUCCESS);
     }
 
     /* No S-record input filename */
@@ -430,7 +512,7 @@ int main(int argc, char *argv[]) {
             fclose(fin);
             exit(6);
         }
-       Sleep(500);
+        Sleep(500);
     }
 
     /* Write the ! or $ to start uploading */
@@ -597,4 +679,6 @@ int main(int argc, char *argv[]) {
     close_device(device);
     fclose(fin);
 
+    /* Exit the program */
+    exit(EXIT_SUCCESS);
 }

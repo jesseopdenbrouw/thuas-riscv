@@ -91,6 +91,10 @@ Universal_Handler:
 	li  t1, 0x00
 	sw  t1, 0(t0)
 
+	csrr t0, mepc
+	addi t0, t0, 4
+	csrw mepc, t0
+
 	mret
 
 hold:

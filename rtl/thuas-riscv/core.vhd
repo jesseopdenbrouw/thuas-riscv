@@ -480,7 +480,7 @@ begin
     -- Instruction fetch block
     -- This block controls the instruction fetch from the ROM.
     -- It also instructs the PC to load a new address, either
-    -- the next sequencial address or a jump target address.
+    -- the next sequential address or a jump target address.
     --
     
     -- The PC
@@ -2074,7 +2074,7 @@ begin
             csr_transfer.mtvec_to_pc <= csr_reg.mtvec(csr_reg.mtvec'left downto 2) & "00";
         end if;
 
-end process;
+    end process;
 
     -- Transfer of MEPC to the PC
     csr_transfer.mepc_to_pc <= csr_reg.mepc;

@@ -43,6 +43,7 @@ SUBDIRS = add64 \
           linked_list \
           malloc \
           mcountinhibit \
+          mhpmcounter \
           monitor \
           mult \
           mxhw \

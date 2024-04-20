@@ -102,6 +102,7 @@ begin
               HAVE_ZBA => false,
               HAVE_ZBS => false,
               HAVE_ZICOND => false,
+              HAVE_ZIHPM => false,
               VECTORED_MTVEC => TRUE,
               HAVE_REGISTERS_IN_RAM => TRUE,
               HAVE_BOOTLOADER_ROM => TRUE,

@@ -93,6 +93,8 @@ begin
               HAVE_ZBA => false,
               -- Do we have Zicond (czero.{eqz|nez})?
               HAVE_ZICOND => false,
+              -- Do we have HPM counters?
+              HAVE_ZIHPM => false,
               -- Do we have vectored MTVEC (for interrupts)?
               VECTORED_MTVEC => TRUE,
               -- Do we have registers in onboard RAM?

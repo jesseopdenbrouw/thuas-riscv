@@ -40,8 +40,6 @@ LD_SCRIPT = ../ldfiles/riscv.ld
 # Include dir
 INCPATH = ../include
 
-# THUAS RISCV library and set search path
-#LIBTHUASRV32STRING = -lthuasrv32 -L../lib
 # The library libthuasrv32.a is loaded with thuas.specs file
 LIBTHUASRV32STRING = -L../lib
 

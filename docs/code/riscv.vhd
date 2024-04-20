@@ -1,67 +1,62 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-
-library work;
-use work.processor_common.all;
-
 -- The microcontroller
 entity riscv is
     generic (
-          -- The frequency of the system
-          SYSTEM_FREQUENCY : integer := 50000000;
+         -- The frequency of the system
+          SYSTEM_FREQUENCY : integer;
           -- Frequecy of the hardware clock
-          CLOCK_FREQUENCY : integer := 1000000;
+          CLOCK_FREQUENCY : integer;
           -- RISCV E (embedded) of RISCV I (full)
-          HAVE_RISCV_E : boolean := false;
+          HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
-          HAVE_MULDIV : boolean := TRUE;
+          HAVE_MULDIV : boolean;
           -- Fast divide (needs more area)?
-          FAST_DIVIDE : boolean := TRUE;
+          FAST_DIVIDE : boolean;
           -- Do we have Zba (sh?add)
-          HAVE_ZBA : boolean := false;
+          HAVE_ZBA : boolean;
           -- Do we have Zbs (bit instructions)?
-          HAVE_ZBS : boolean := false;
+          HAVE_ZBS : boolean;
           -- Do we have Zicond (czero.{eqz|nez})?
-          HAVE_ZICOND : boolean := false;
+          HAVE_ZICOND : boolean;
+          -- Do we have HPM counters?
+          HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
-          VECTORED_MTVEC : boolean := TRUE;
+          VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
-          HAVE_REGISTERS_IN_RAM : boolean := TRUE;
+          HAVE_REGISTERS_IN_RAM : boolean;
           -- Do we have a bootloader ROM?
-          HAVE_BOOTLOADER_ROM : boolean := TRUE;
+          HAVE_BOOTLOADER_ROM : boolean;
           -- Address width in bits, size is 2**bits
-          ROM_ADDRESS_BITS : integer := 16;
+          ROM_ADDRESS_BITS : integer;
           -- Address width in bits, size is 2**bits
-          RAM_ADDRESS_BITS : integer := 15;
+          RAM_ADDRESS_BITS : integer;
           -- 4 high bits of ROM address
-          ROM_HIGH_NIBBLE : memory_high_nibble := x"0";
+          ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
-          BOOT_HIGH_NIBBLE : memory_high_nibble := x"1";
+          BOOT_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of RAM address
-          RAM_HIGH_NIBBLE : memory_high_nibble := x"2";
+          RAM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of I/O address
-          IO_HIGH_NIBBLE : memory_high_nibble := x"F";
+          IO_HIGH_NIBBLE : memory_high_nibble;
           -- Do we use fast store?
-          HAVE_FAST_STORE : boolean := false;
+          HAVE_FAST_STORE : boolean;
           -- Do we have UART1?
-          HAVE_UART1 : boolean := TRUE;
+          HAVE_UART1 : boolean;
           -- Do we have SPI1?
-          HAVE_SPI1 : boolean := TRUE;
+          HAVE_SPI1 : boolean;
           -- Do we have SPI2?
-          HAVE_SPI2 : boolean := TRUE;
+          HAVE_SPI2 : boolean;
           -- Do we have I2C1?
-          HAVE_I2C1 : boolean := TRUE;
+          HAVE_I2C1 : boolean;
           -- Do we have I2C2?
-          HAVE_I2C2 : boolean := TRUE;
+          HAVE_I2C2 : boolean;
           -- Do we have TIMER1?
-          HAVE_TIMER1 : boolean := TRUE;
+          HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
-          HAVE_TIMER2 : boolean := TRUE;
+          HAVE_TIMER2 : boolean;
           -- use watchdog?
-          HAVE_WDT : boolean := TRUE;
+          HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
-          UART1_BREAK_RESETS : boolean := false
+          UART1_BREAK_RESETS : boolean
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;

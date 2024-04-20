@@ -21,9 +21,9 @@ _start:
 	//ori  t0, t0, (1<<7)
 	//csrw mie, t0
 
-	csrr t0, mie
-	ori  t0, t0, (1<<3)
-	csrw mie, t0
+	//csrr t0, mie
+	//ori  t0, t0, (1<<3)
+	//csrw mie, t0
 
 	la t0, Universal_Handler
 	csrw mtvec,t0
@@ -31,10 +31,24 @@ _start:
 	csrw mstatus,t0
 
 
-	nop
-	nop
-	nop
+	li t0, (1 << 0)
+	csrw mhpmevent3, t0
+	slli t0, t0, 1
+	csrw mhpmevent4, t0
+	slli t0, t0, 1
+	csrw mhpmevent5, t0
+	slli t0, t0, 1
+	csrw mhpmevent6, t0
+	slli t0, t0, 1
+	csrw mhpmevent7, t0
+	slli t0, t0, 1
+	csrw mhpmevent8, t0
+	slli t0, t0, 1
+	csrw mhpmevent9, t0
 
+	nop
+	nop
+	nop
 	la   t0, 0x20000000
 	li   t1, 0x89abcdef
 	sw   t1, 0(t0)
@@ -53,11 +67,15 @@ _start:
 	nop
 	nop
 
+	ecall
+
 	lw  t1, 0(t0)
 	lw  t1, 4(t0)
 	lw  t1, 8(t0)
 	lw  t1, 12(t0)
 	lw  t1, 16(t0)
+
+	mul	x2,x3,x4
 
 	nop
 	nop

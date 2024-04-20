@@ -175,16 +175,17 @@ add wave            -label csio dut/csio_int
 #add wave            -label read_access_granted dut/io0/read_access_granted
 #add wave            -label read_access_granted_ff dut/io0/read_access_granted_ff
 #add wave            -label read_access_granted_second_cycle dut/io0/read_access_granted_second_cycle
-add wave             -label GPIOA dut/io0/gpioa
-add wave             -label UART1 dut/io0/uart1
-add wave             -label I2C1 dut/io0/i2c1
-add wave             -label I2C2 dut/io0/i2c2
-add wave             -label SPI1 dut/io0/spi1
-add wave             -label SPI2 dut/io0/spi2
-add wave             -label TIMER1 dut/io0/timer1
-add wave             -label TIMER2 dut/io0/timer2
-add wave             -label MSI dut/io0/msi
-add wave             -label MTIME dut/io0/mtime
+add wave            -label GPIOA dut/io0/gpioa
+add wave            -label UART1 dut/io0/uart1
+add wave            -label I2C1 dut/io0/i2c1
+add wave            -label I2C2 dut/io0/i2c2
+add wave            -label SPI1 dut/io0/spi1
+add wave            -label SPI2 dut/io0/spi2
+add wave            -label TIMER1 dut/io0/timer1
+add wave            -label TIMER2 dut/io0/timer2
+add wave            -label WDT dut/io0/wdt
+add wave            -label MSI dut/io0/msi
+add wave            -label MTIME dut/io0/mtime
 add wave -radix hex -label IO_sim dut/io0/io_alt
 
 # Open Structure, Signals (waveform) and List window

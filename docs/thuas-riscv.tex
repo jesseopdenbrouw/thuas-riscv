@@ -383,12 +383,12 @@ The Instruction Router routes instructions from the ROM and the boot ROM. If the
 The RISC-V specification describes a set of 4096 control and status register in a separate address space. CSR operations require one clock cycle. Basic event counters are implemented:
 
 \begin{itemize}
-\item \lstinline|mcycle| and \lstinline|mcycleh| -- these 32-bit registers form a 64-bit value that contains the counted clock cycles since the last reset.
-\item \lstinline|mtime| and \lstinline|mtimeh| -- these registers shadow the contents of the \lstinline|MTIME| and \lstinline|MTIMEH| registers from the I/O.
-\item \lstinline|minstret| and \lstinline|minstreth| -- these 32-bit registers form a 64-bit value that contains the counted retired instructions since the last reset.
+\item \lstinline|[m]cycle| and \lstinline|[m]cycleh| -- these 32-bit registers form a 64-bit value that contains the counted clock cycles since the last reset.
+\item \lstinline|time| and \lstinline|timeh| -- these registers shadow the contents of the \lstinline|MTIME| and \lstinline|MTIMEH| registers from the I/O.
+\item \lstinline|[m]instret| and \lstinline|[m]instreth| -- these 32-bit registers form a 64-bit value that contains the counted retired instructions since the last reset.
 \end{itemize}
 
-Note that these registers are read-only. Writes are ignored. 
+Note that \lstinline|time| and \lstinline|timeh| are read-only. Writes are ignored. 
 
 Generic registers:
 
@@ -414,8 +414,33 @@ For trap handling, the following registers are implemented:
 \item \lstinline|mtval| -- contains the address on the address bus when a trap occurs, or all-zero bits if not relevant.
 \item \lstinline|mip| -- contains the pending interrupts. For the lower 16 bits, only \lstinline|MTIP| is implemented. The upper 16 bits are used for local interrupts. This register is read-only.
 %\item \lstinline|mconfigptr| -- this register is hardwired to all zero bits.
-\item \lstinline|mcountinhibit| -- this register has bit 2 (\lstinline|minstret|) and bit 0 (\lstinline|mcycle|) implemented.
 \end{itemize}
+
+For counting purposes, the following registers are implemented:
+
+\begin{itemize}
+\item \lstinline|mcountinhibit| -- this register has bits 9 to 2 (\lstinline|minstret|) and bit 0 (\lstinline|mcycle|) implemented.
+\item \lstinline|mhpmcounter3| to \lstinline|mhpmcounter9| -- low order event counter registers.
+\item \lstinline|mhpmcounter3h| to \lstinline|mhpmcounter9h| -- high order event counter registers.
+\item \lstinline|mhpmevent3| to \lstinline|mhpmevent9| -- counter event select registers.
+\end{itemize}
+
+The event counter registers are currently 40 bits wide. Currently, there are 6 events that can be counted:
+
+\begin{table}[!ht]
+\centering
+\begin{tabular}{ll}
+\toprule
+bit & event \\ \midrule
+0 & jumps/branches taken\\
+1 & stall cycles \\
+2 & stores \\
+3 & loads \\
+4 & ECALLs \\
+5 & EBREAKs\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 Custom CSR:
 
@@ -517,21 +542,38 @@ To find the best compilation result for speed and/or area, we have to tweak the 
 
 Table~\ref{tab:util} gives some estimates on the design. In all cases, the seed is set to 1 and the optimization is set to balanced. The total amount of ALMs is 18480. The total amount of RAM bits is 3153920.
 
+%\begin{table}[!ht]
+%\caption{FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model).}
+%\label{tab:util}
+%\centering
+%\begin{tabular}{lllll}
+%\toprule
+%     & \begin{tabular}[c]{@{}l@{}}no boot\\ no reg in ram\end{tabular} & \begin{tabular}[c]{@{}l@{}}no boot\\ reg in ram\end{tabular} & \begin{tabular}[c]{@{}l@{}}boot\\ no reg in ram\end{tabular} & \begin{tabular}[c]{@{}l@{}}boot\\ reg in ram\end{tabular} \\ \midrule
+%Freq & 89.99   & 82.07   & 86.66     & 91.10     \\
+%ALM  & 3531    & 2893    & 3528      & 2911      \\
+%FF   & 3471    & 2393    & 3515      & 2390      \\
+%RAM  & 786,432 & 788,480 & 1,376,256 & 1,378,304 \\ \bottomrule
+%\end{tabular}
+%\end{table}
+
 \begin{table}[!ht]
 \caption{FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model).}
 \label{tab:util}
 \centering
-\begin{tabular}{lllll}
+\begin{tabular}{p{6cm}cccc}
 \toprule
-     & \begin{tabular}[c]{@{}l@{}}no boot\\ no reg in ram\end{tabular} & \begin{tabular}[c]{@{}l@{}}no boot\\ reg in ram\end{tabular} & \begin{tabular}[c]{@{}l@{}}boot\\ no reg in ram\end{tabular} & \begin{tabular}[c]{@{}l@{}}boot\\ reg in ram\end{tabular} \\ \midrule
-Freq & 89.99   & 82.07   & 86.66     & 91.10     \\
-ALM  & 3531    & 2893    & 3528      & 2911      \\
-FF   & 3471    & 2393    & 3515      & 2390      \\
-RAM  & 786,432 & 788,480 & 1,376,256 & 1,378,304 \\ \bottomrule
+Setup & $f_{max}$ & ALMs & FFs & RAM \\
+\midrule
+Default {all I/O, MD, no extensions} & 90.11 & 2910 & 2450 & 1,345,536 \\
+Default, no bootloader               & 92.12 & 2866 & 2470 & 788,480 \\
+Default, only UART1 + bootloader     & 90.16 & 2132 & 1467 & 1,345,536 \\
+Full (default + extensions)          & 86.33 & 3424 & 2869 & 1,345,536 \\
+Small (UART1, no boot, no MD)        & 88.23 & 1699 & 1254 & 788,480 \\ 
+\bottomrule
 \end{tabular}
 \end{table}
 
-As you can see, there's a big difference is maximum frequency. Please select different seed values in the options of the synthesizer. Also disabling the Zba, Zbs and Zicond extension and unused peripherals may increase the maximum frequency and lowers the ALM and register count.
+
 
 \section{Processor hardware}
 \label{sec:hardware}
@@ -698,6 +740,7 @@ Generic & Type & Typical & Comment \\
 \lstinline|HAVE_ZBA| & boolean & false & Use Zba extension \\
 \lstinline|HAVE_ZBS| & boolean & false & Use Zbs extension \\
 \lstinline|HAVE_ZICOND| & boolean & false & Use Zicond extension \\
+\lstinline|HAVE_ZIHPM| & boolean & false & Use Zihpm extension \\
 \lstinline|VECTORED_MTVEC| & boolean & TRUE & Use vectored interrupts\\
 \lstinline|HAVE_REGISTERS_IN_RAM| & boolean & TRUE & Use registers is onboard RAM\\
 \lstinline|HAVE_BOOTLOADER_ROM| & boolean & TRUE & Use the bootloader\\
@@ -1063,6 +1106,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 \item \lstinline|linked_list| -- example on how to use linked lists. This program soups up all available dynamic RAM but does not penetrate the reserved stack space. Uses UART1. Works on the board.
 \item \lstinline|malloc| -- example to test \lstinline|malloc| and friends. Works. Used in simulations.
 \item \lstinline|mcountinhibit| -- program to test the \lstinline|mcountinhibit| CSR. Uses UART1. Works on the board.
+\item \lstinline|mhpmcounter| -- program to test the HPM counters. The Zihpm extension must be enabled for proper usage. Works on the board.
 \item \lstinline|monitor| -- simple monitor program. Works on the board. Uses strings, UART1, RAM, ROM, I/O and \lstinline|sprintf| (and therefore \lstinline|malloc| et al.).
 \item \lstinline|mult| -- integer multiplication with the C library. Set to the E extension with no hardware multiply/divide support. For simulations.
 \item \lstinline|mxhw| -- Program to read out the \lstinline|mxhw| and \lstinline|mxspeed| custom CSRs and print the hardware configuration and clock speed of the synthesized processor to the terminal.

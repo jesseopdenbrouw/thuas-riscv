@@ -19,6 +19,20 @@ uint64_t csr_get_cycle(void);
 uint64_t csr_get_time(void);
 /* Get the number of retired instructions */
 uint64_t csr_get_instret(void);
+/* Get mhpmcounter3 */
+uint64_t csr_get_mhpmcounter3(void);
+/* Get mhpmcounter4 */
+uint64_t csr_get_mhpmcounter4(void);
+/* Get mhpmcounter5 */
+uint64_t csr_get_mhpmcounter5(void);
+/* Get mhpmcounter6 */
+uint64_t csr_get_mhpmcounter6(void);
+/* Get mhpmcounter7 */
+uint64_t csr_get_mhpmcounter7(void);
+/* Get mhpmcounter8 */
+uint64_t csr_get_mhpmcounter8(void);
+/* Get mhpmcounter9 */
+uint64_t csr_get_mhpmcounter9(void);
 
 /* Some macros to read/write CSRs, based on */
 /* https://github.com/torvalds/linux/blob/master/arch/riscv/include/asm/csr.h */
@@ -101,7 +115,15 @@ uint64_t csr_get_instret(void);
 #define CSR_MXHW_ZBS       (1 << 23)
 #define CSR_MXHW_BREAK     (1 << 24)
 #define CSR_MXHW_WDT       (1 << 25)
+#define CSR_MXHW_ZIHMP     (1 << 26)
 
+#define CSR_HPM_JUMP       (1 << 0)
+#define CSR_HPM_BRANCH     (1 << 0)
+#define CSR_HPM_STALLS     (1 << 1)
+#define CRR_HPM_STORES     (1 << 2)
+#define CSR_HPM_LOADS      (1 << 3)
+#define CSR_HPM_ECALLS     (1 << 4)
+#define CSR_HPM_EBREAKS    (1 << 5)
 
 #ifdef __cplusplus
 }

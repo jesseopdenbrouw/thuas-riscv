@@ -59,6 +59,8 @@
 -- and has interrupt capabilities.
 -- A second simple SPI master is included without hardware slave
 -- select and no interrupt capabilities.
+-- A simple watchdog timer is implemented, triggering a system wide
+-- reset of an NMI.
 -- A Machine Software Interrupt (MSI) trigger register is implemented.
 -- The TIME and TIMECMP registers are provided and are memory
 -- mapped and available as output.
@@ -2355,6 +2357,8 @@ begin
     watchdoggen_not : if not HAVE_WDT generate
         wdt.trig <= (others => '0');
         wdt.ctrl <= (others => '0');
+        wdt.mustreset <= '0';
+        wdt.mustrestart <= '0';
         O_reset_from_wdt <= '0';
     end generate watchdoggen_not;
     
@@ -2481,7 +2485,7 @@ begin
         if gpioa.exts(0) = '1' then
             O_intrio(INTR_PRIO_EXTI) <= '1';
         end if;
-        --
+        -- Machine Software Interrupt
         if msi.trig(0) = '1' then
             O_intrio(INTR_PRIO_MSI) <= '1';
         end if;

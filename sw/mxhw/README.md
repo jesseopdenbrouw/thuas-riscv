@@ -38,6 +38,8 @@ custom CS register `mxhw`. The register is located at address
 
 It also prints the synthesized clock frequency and the hardware version.
 
+This program also prints implemented HPM counters, if enabled.
+
 ## Status
 
 Works on the DE0-CV board.

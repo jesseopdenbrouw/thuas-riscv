@@ -19,6 +19,8 @@ int main(void)
 
 	uint32_t hw = csr_read(0xfc0); // CSR address = 0xfc0
 	uint32_t speed = csr_read(0xfc1); // CSR address = 0xfc1
+	uint32_t readback;
+	int count = 0;
 
 	if (hw == 0) {
 		uart1_puts("\r\nHardware signals all zero, CSR probably not enabled\r\n");
@@ -49,6 +51,37 @@ int main(void)
 	uart1_printf("has Zbs extension: %s\r\n", (hw & CSR_MXHW_ZBS) ? "yes" : "no");
 	uart1_printf("UART1 break resets processor: %s\r\n", (hw & CSR_MXHW_BREAK) ? "yes" : "no");
 	uart1_printf("has watchdog (WDT): %s\r\n", (hw & CSR_MXHW_WDT) ? "yes" : "no");
+	uart1_printf("has Zihmp counters: %s\r\n", (hw & CSR_MXHW_ZIHMP) ? "yes" : "no");
+
+	/* Are HPM counters enabled... */
+	if (hw & CSR_MXHW_ZIHMP) {
+		/* Disable all counters, this will disable only the implemented counters */
+		csr_write(mcountinhibit, -1);
+		/* Read back the implemented counters */
+		readback = csr_read(mcountinhibit);
+		/* Enable counters */
+		csr_write(mcountinhibit, 0);	
+		uart1_printf("Hardware performance counters enabled: %08x\r\n", readback);
+		/* Test each counter for availability */
+		for (int i = 3; i < 32; i++) {
+			if (readback & (1 << i)) {
+				uart1_printf("%d ", i);
+				count++;
+			}
+		}
+		uart1_printf("\r\nTotal number of counters: %d\r\n", count);
+		csr_write(mhpmevent3, -1);
+		readback = csr_read(mhpmevent3);
+		csr_write(mhpmevent3, 0);
+		count = 0;
+		for (int i = 0; i < 32; i++) {
+			if (readback & (1 << i)) {
+				uart1_printf("%d ", i);
+				count++;
+			}
+		}
+		uart1_printf("\r\nTotal number of events: %d\r\n", count);
+	}
 	uart1_printf("Done.\r\n");
 
 }

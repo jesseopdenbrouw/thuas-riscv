@@ -64,6 +64,8 @@ entity core is
           HAVE_ZBS : boolean;
           -- Do we have Zicond (czero.{eqz|nez})?
           HAVE_ZICOND : boolean;
+          -- Do we have HPM counters?
+          HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
@@ -286,12 +288,33 @@ type csr_reg_type is record
     mtval : data_type;
     mip : data_type;
     mcycle : data_type;
-    minstret : data_type;
+    mcycleh : data_type;
     mtime : data_type;
     mtimeh : data_type;
-    mcycleh : data_type;
+    minstret : data_type;
     minstreth : data_type;
     mconfigptr : data_type;
+    mhpmcounter3 : data_type;
+    mhpmcounter3h : data_type;
+    mhpmevent3 : data_type;
+    mhpmcounter4 : data_type;
+    mhpmcounter4h : data_type;
+    mhpmevent4 : data_type;
+    mhpmcounter5 : data_type;
+    mhpmcounter5h : data_type;
+    mhpmevent5 : data_type;
+    mhpmcounter6 : data_type;
+    mhpmcounter6h : data_type;
+    mhpmevent6 : data_type;
+    mhpmcounter7 : data_type;
+    mhpmcounter7h : data_type;
+    mhpmevent7 : data_type;
+    mhpmcounter8 : data_type;
+    mhpmcounter8h : data_type;
+    mhpmevent8 : data_type;
+    mhpmcounter9 : data_type;
+    mhpmcounter9h : data_type;
+    mhpmevent9 : data_type;
     mxhw : data_type;
     mxspeed : data_type;
 end record csr_reg_type;
@@ -1813,10 +1836,67 @@ begin
     -- CSR - Control and Status Registers
     --
     
-    process (I_clk, I_areset, csr_access, csr_reg) is
+    process (I_clk, I_areset, csr_access, csr_reg,
+             control, id_ex, I_memready) is
     variable csr_addr_v : integer range 0 to csr_size-1;
+    variable event3_v, event4_v, event5_v, event6_v, event7_v, event8_v, event9_v : boolean;
     variable csr_content_v : data_type;
     begin
+    
+        -- Event generators
+        if HAVE_ZIHPM then
+        event3_v := (csr_reg.mhpmevent3(0) = '1' and control.penalty = '1') or
+                    (csr_reg.mhpmevent3(1) = '1' and control.stall = '1') or
+                    (csr_reg.mhpmevent3(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
+                    (csr_reg.mhpmevent3(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent3(4) = '1' and control.ecall_request = '1') or
+                    (csr_reg.mhpmevent3(5) = '1' and control.ebreak_request = '1');
+        event4_v := (csr_reg.mhpmevent4(0) = '1' and control.penalty = '1') or
+                    (csr_reg.mhpmevent4(1) = '1' and control.stall = '1') or
+                    (csr_reg.mhpmevent4(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
+                    (csr_reg.mhpmevent4(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent4(4) = '1' and control.ecall_request = '1') or
+                    (csr_reg.mhpmevent4(5) = '1' and control.ebreak_request = '1');
+        event5_v := (csr_reg.mhpmevent5(0) = '1' and control.penalty = '1') or
+                    (csr_reg.mhpmevent5(1) = '1' and control.stall = '1') or
+                    (csr_reg.mhpmevent5(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
+                    (csr_reg.mhpmevent5(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent5(4) = '1' and control.ecall_request = '1') or
+                    (csr_reg.mhpmevent5(5) = '1' and control.ebreak_request = '1');
+        event6_v := (csr_reg.mhpmevent6(0) = '1' and control.penalty = '1') or
+                    (csr_reg.mhpmevent6(1) = '1' and control.stall = '1') or
+                    (csr_reg.mhpmevent6(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
+                    (csr_reg.mhpmevent6(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent6(4) = '1' and control.ecall_request = '1') or
+                    (csr_reg.mhpmevent6(5) = '1' and control.ebreak_request = '1');
+        event7_v := (csr_reg.mhpmevent7(0) = '1' and control.penalty = '1') or
+                    (csr_reg.mhpmevent7(1) = '1' and control.stall = '1') or
+                    (csr_reg.mhpmevent7(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
+                    (csr_reg.mhpmevent7(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent7(4) = '1' and control.ecall_request = '1') or
+                    (csr_reg.mhpmevent7(5) = '1' and control.ebreak_request = '1');
+        event8_v := (csr_reg.mhpmevent8(0) = '1' and control.penalty = '1') or
+                    (csr_reg.mhpmevent8(1) = '1' and control.stall = '1') or
+                    (csr_reg.mhpmevent8(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
+                    (csr_reg.mhpmevent8(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent8(4) = '1' and control.ecall_request = '1') or
+                    (csr_reg.mhpmevent8(5) = '1' and control.ebreak_request = '1');
+        event9_v := (csr_reg.mhpmevent9(0) = '1' and control.penalty = '1') or
+                    (csr_reg.mhpmevent9(1) = '1' and control.stall = '1') or
+                    (csr_reg.mhpmevent9(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
+                    (csr_reg.mhpmevent9(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent9(4) = '1' and control.ecall_request = '1') or
+                    (csr_reg.mhpmevent9(5) = '1' and control.ebreak_request = '1');
+        else
+            event3_v := false;
+            event4_v := false;
+            event5_v := false;
+            event6_v := false;
+            event7_v := false;
+            event8_v := false;
+            event9_v := false;
+        end if;
+                    
         -- Fetch CSR address
         csr_addr_v := to_integer(unsigned(csr_access.address));
 
@@ -1852,6 +1932,93 @@ begin
               csr_addr_v = minstret_addr or
               csr_addr_v = mcycleh_addr or
               csr_addr_v = minstreth_addr or
+             (csr_addr_v = mhpmcounter3_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter3h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent3_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter4_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter4h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent4_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter5_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter5h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent5_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter6_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter6h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent6_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter7_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter7h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent7_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter8_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter8h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent8_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter9_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter9h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent9_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter10_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter10h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent10_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter11_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter11h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent11_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter12_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter12h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent12_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter13_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter13h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent13_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter14_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter14h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent14_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter15_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter15h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent15_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter16_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter16h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent16_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter17_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter17h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent17_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter18_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter18h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent18_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter19_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter19h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent19_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter20_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter20h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent20_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter21_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter21h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent21_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter22_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter22h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent22_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter23_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter23h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent23_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter24_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter24h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent24_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter25_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter25h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent25_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter26_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter26h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent26_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter27_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter27h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent27_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter28_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter28h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent28_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter29_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter29h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent29_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter30_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter30h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent30_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter31_addr and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmcounter31h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = mhpmevent31_addr and HAVE_ZIHPM) or
               csr_addr_v = mxhw_addr or
               csr_addr_v = mxspeed_addr then
             control.illegal_instruction_csr <= '0';
@@ -1891,6 +2058,27 @@ begin
             when mconfigptr_addr    => csr_access.datain <= csr_reg.mconfigptr;
             when mxhw_addr          => csr_access.datain <= csr_reg.mxhw;
             when mxspeed_addr       => csr_access.datain <= csr_reg.mxspeed;
+            when mhpmcounter3_addr  => csr_access.datain <= csr_reg.mhpmcounter3;
+            when mhpmcounter3h_addr => csr_access.datain <= csr_reg.mhpmcounter3h;
+            when mhpmevent3_addr    => csr_access.datain <= csr_reg.mhpmevent3;
+            when mhpmcounter4_addr  => csr_access.datain <= csr_reg.mhpmcounter4;
+            when mhpmcounter4h_addr => csr_access.datain <= csr_reg.mhpmcounter4h;
+            when mhpmevent4_addr    => csr_access.datain <= csr_reg.mhpmevent4;
+            when mhpmcounter5_addr  => csr_access.datain <= csr_reg.mhpmcounter5;
+            when mhpmcounter5h_addr => csr_access.datain <= csr_reg.mhpmcounter5h;
+            when mhpmevent5_addr    => csr_access.datain <= csr_reg.mhpmevent5;
+            when mhpmcounter6_addr  => csr_access.datain <= csr_reg.mhpmcounter6;
+            when mhpmcounter6h_addr => csr_access.datain <= csr_reg.mhpmcounter6h;
+            when mhpmevent6_addr    => csr_access.datain <= csr_reg.mhpmevent6;
+            when mhpmcounter7_addr  => csr_access.datain <= csr_reg.mhpmcounter7;
+            when mhpmcounter7h_addr => csr_access.datain <= csr_reg.mhpmcounter7h;
+            when mhpmevent7_addr    => csr_access.datain <= csr_reg.mhpmevent7;
+            when mhpmcounter8_addr  => csr_access.datain <= csr_reg.mhpmcounter8;
+            when mhpmcounter8h_addr => csr_access.datain <= csr_reg.mhpmcounter8h;
+            when mhpmevent8_addr    => csr_access.datain <= csr_reg.mhpmevent8;
+            when mhpmcounter9_addr  => csr_access.datain <= csr_reg.mhpmcounter9;
+            when mhpmcounter9h_addr => csr_access.datain <= csr_reg.mhpmcounter9h;
+            when mhpmevent9_addr    => csr_access.datain <= csr_reg.mhpmevent9;
             when others             => csr_access.datain <= (others => '0');
         end case;
     
@@ -1899,7 +2087,6 @@ begin
         if I_areset = '1' then
             -- Reset the lot
             csr_reg.mstatus <= (others => '0');
-            -- misa is hard wired
             csr_reg.mie <= (others => '0');
             csr_reg.mtvec <= (others => '0');
             csr_reg.mcountinhibit <= (others => '0');
@@ -1907,13 +2094,32 @@ begin
             csr_reg.mepc <= (others => '0');
             csr_reg.mcause <= (others => '0');
             csr_reg.mtval <= (others => '0');
-            -- mip is hardcoded, read only
-            --csr_reg.mip <= (others => '0');
             csr_reg.mtval <= (others => '0');
             csr_reg.mcycle <= (others => '0');
             csr_reg.mcycleh <= (others => '0');
             csr_reg.minstret <= (others => '0');
             csr_reg.minstreth <= (others => '0');
+            csr_reg.mhpmcounter3 <= (others => '0');
+            csr_reg.mhpmcounter3h <= (others => '0');
+            csr_reg.mhpmevent3 <= (others => '0');
+            csr_reg.mhpmcounter4 <= (others => '0');
+            csr_reg.mhpmcounter4h <= (others => '0');
+            csr_reg.mhpmevent4 <= (others => '0');
+            csr_reg.mhpmcounter5 <= (others => '0');
+            csr_reg.mhpmcounter5h <= (others => '0');
+            csr_reg.mhpmevent5 <= (others => '0');
+            csr_reg.mhpmcounter6 <= (others => '0');
+            csr_reg.mhpmcounter6h <= (others => '0');
+            csr_reg.mhpmevent6 <= (others => '0');
+            csr_reg.mhpmcounter7 <= (others => '0');
+            csr_reg.mhpmcounter7h <= (others => '0');
+            csr_reg.mhpmevent7 <= (others => '0');
+            csr_reg.mhpmcounter8 <= (others => '0');
+            csr_reg.mhpmcounter8h <= (others => '0');
+            csr_reg.mhpmevent8 <= (others => '0');
+            csr_reg.mhpmcounter9 <= (others => '0');
+            csr_reg.mhpmcounter9h <= (others => '0');
+            csr_reg.mhpmevent9 <= (others => '0');
         elsif rising_edge(I_clk) then
             --  Do we count cycles?
             if csr_reg.mcountinhibit(0) = '0' then
@@ -1932,6 +2138,73 @@ begin
                     end if;
                 end if;
             end if;
+            -- Do we have performance counters?
+            if HAVE_ZIHPM then
+                if event3_v then
+                    -- Do we count?
+                    if csr_reg.mcountinhibit(3) = '0' then
+                        csr_reg.mhpmcounter3 <= std_logic_vector(unsigned(csr_reg.mhpmcounter3) + 1);
+                        if csr_reg.mhpmcounter3 = all_ones_c then
+                            csr_reg.mhpmcounter3h <= std_logic_vector(unsigned(csr_reg.mhpmcounter3h) + 1);
+                        end if;
+                    end if;
+                end if;
+                if event4_v then
+                    -- Do we count?
+                    if csr_reg.mcountinhibit(4) = '0' then
+                        csr_reg.mhpmcounter4 <= std_logic_vector(unsigned(csr_reg.mhpmcounter4) + 1);
+                        if csr_reg.mhpmcounter4 = all_ones_c then
+                            csr_reg.mhpmcounter4h <= std_logic_vector(unsigned(csr_reg.mhpmcounter4h) + 1);
+                        end if;
+                    end if;
+                end if;
+                if event5_v then
+                    -- Do we count?
+                    if csr_reg.mcountinhibit(5) = '0' then
+                        csr_reg.mhpmcounter5 <= std_logic_vector(unsigned(csr_reg.mhpmcounter5) + 1);
+                        if csr_reg.mhpmcounter5 = all_ones_c then
+                            csr_reg.mhpmcounter5h <= std_logic_vector(unsigned(csr_reg.mhpmcounter5h) + 1);
+                        end if;
+                    end if;
+                end if;
+                if event6_v then
+                    -- Do we count?
+                    if csr_reg.mcountinhibit(6) = '0' then
+                        csr_reg.mhpmcounter6 <= std_logic_vector(unsigned(csr_reg.mhpmcounter6) + 1);
+                        if csr_reg.mhpmcounter6 = all_ones_c then
+                            csr_reg.mhpmcounter6h <= std_logic_vector(unsigned(csr_reg.mhpmcounter6h) + 1);
+                        end if;
+                    end if;
+                end if;
+                if event7_v then
+                    -- Do we count?
+                    if csr_reg.mcountinhibit(7) = '0' then
+                        csr_reg.mhpmcounter7 <= std_logic_vector(unsigned(csr_reg.mhpmcounter7) + 1);
+                        if csr_reg.mhpmcounter7 = all_ones_c then
+                            csr_reg.mhpmcounter7h <= std_logic_vector(unsigned(csr_reg.mhpmcounter7h) + 1);
+                        end if;
+                    end if;
+                end if;
+                if event8_v then
+                    -- Do we count?
+                    if csr_reg.mcountinhibit(8) = '0' then
+                        csr_reg.mhpmcounter8 <= std_logic_vector(unsigned(csr_reg.mhpmcounter8) + 1);
+                        if csr_reg.mhpmcounter8 = all_ones_c then
+                            csr_reg.mhpmcounter8h <= std_logic_vector(unsigned(csr_reg.mhpmcounter8h) + 1);
+                        end if;
+                    end if;
+                end if;
+                if event9_v then
+                    -- Do we count?
+                    if csr_reg.mcountinhibit(9) = '0' then
+                        csr_reg.mhpmcounter9 <= std_logic_vector(unsigned(csr_reg.mhpmcounter9) + 1);
+                        if csr_reg.mhpmcounter9 = all_ones_c then
+                            csr_reg.mhpmcounter9h <= std_logic_vector(unsigned(csr_reg.mhpmcounter9h) + 1);
+                        end if;
+                    end if;
+                end if;
+            end if;   -- /HAVE_ZIHPM
+            
             -- If no trap is pending, then update the selected csr_reg.
             -- Needed because the instruction is restarted after MRET
             if csr_access.op /= csr_nop and control.trap_request = '0' then
@@ -1941,9 +2214,13 @@ begin
                     when mcycleh_addr => csr_content_v := csr_reg.mcycleh;
                     when minstret_addr => csr_content_v := csr_reg.minstret;
                     when minstreth_addr => csr_content_v := csr_reg.minstreth;
+                    when mhpmevent3_addr => csr_content_v := csr_reg.mhpmevent3;
+                    when mhpmevent5_addr => csr_content_v := csr_reg.mhpmevent5;
+                    when mhpmevent6_addr => csr_content_v := csr_reg.mhpmevent6;
+                    when mhpmevent7_addr => csr_content_v := csr_reg.mhpmevent7;
+                    when mhpmevent8_addr => csr_content_v := csr_reg.mhpmevent8;
+                    when mhpmevent9_addr => csr_content_v := csr_reg.mhpmevent9;
                     when mstatus_addr => csr_content_v := csr_reg.mstatus;
-                    -- misa is hardwired
-                    --when misa_addr => csr_content_v := csr_reg.misa;
                     when mie_addr => csr_content_v := csr_reg.mie;
                     when mtvec_addr => csr_content_v := csr_reg.mtvec;
                     when mcountinhibit_addr => csr_content_v := csr_reg.mcountinhibit;
@@ -1951,8 +2228,6 @@ begin
                     when mepc_addr => csr_content_v := csr_reg.mepc;
                     when mcause_addr => csr_content_v := csr_reg.mcause;
                     when mtval_addr => csr_content_v := csr_reg.mtval;
-                    -- mip is hardcoded, read only
-                    --when mip_addr => csr_content_v := csr_reg.mip;
                     when others => csr_content_v := (others => '-');
                 end case;
                 -- Do the operation
@@ -1981,9 +2256,14 @@ begin
                     when mcycleh_addr => csr_reg.mcycleh <= csr_content_v;
                     when minstret_addr => csr_reg.minstret <= csr_content_v;
                     when minstreth_addr => csr_reg.minstreth <= csr_content_v;
+                    when mhpmevent3_addr => csr_reg.mhpmevent3 <= csr_content_v;
+                    when mhpmevent4_addr => csr_reg.mhpmevent4 <= csr_content_v;
+                    when mhpmevent5_addr => csr_reg.mhpmevent5 <= csr_content_v;
+                    when mhpmevent6_addr => csr_reg.mhpmevent6 <= csr_content_v;
+                    when mhpmevent7_addr => csr_reg.mhpmevent7 <= csr_content_v;
+                    when mhpmevent8_addr => csr_reg.mhpmevent8 <= csr_content_v;
+                    when mhpmevent9_addr => csr_reg.mhpmevent9 <= csr_content_v;
                     when mstatus_addr => csr_reg.mstatus <= csr_content_v;
-                    -- misa is hardwired
-                    --when misa_addr => csr_reg.misa <= csr_content_v;
                     when mie_addr => csr_reg.mie <= csr_content_v;
                     when mtvec_addr => csr_reg.mtvec <= csr_content_v;
                     when mcountinhibit_addr => csr_reg.mcountinhibit <= csr_content_v;
@@ -1991,8 +2271,6 @@ begin
                     when mepc_addr => csr_reg.mepc <= csr_content_v;
                     when mcause_addr => csr_reg.mcause <= csr_content_v;
                     when mtval_addr => csr_reg.mtval <= csr_content_v;
-                    -- mip is hardcoded, read only
-                    --when mip_addr => csr_reg.mip <= csr_content_v;
                     when others => null;
                 end case;
             end if;
@@ -2009,7 +2287,12 @@ begin
             csr_reg.mstatus(2 downto 0) <= (others => '0');
             
             -- Set most bits of mcountinhibit to 0
-            csr_reg.mcountinhibit(csr_reg.mcountinhibit'left downto 3) <= (others => '0');
+            if HAVE_ZIHPM then
+                csr_reg.mcountinhibit(csr_reg.mcountinhibit'left downto 10) <= (others => '0');
+            else
+                csr_reg.mcountinhibit(csr_reg.mcountinhibit'left downto 3) <= (others => '0');
+            end if;
+            
             -- TI bit always 0
             csr_reg.mcountinhibit(1) <= '0';
             
@@ -2019,6 +2302,48 @@ begin
             -- MCAUSE doesn't use that many bits...
             -- Only Interrupt Bit and 5 LSB are needed
             csr_reg.mcause(30 downto 5) <= (others => '0');
+
+            -- Not al bits are used
+            -- Only 40 bits are used in the counters
+            -- There are only 6 events that can be counted
+            if HAVE_ZIHPM then
+                csr_reg.mhpmcounter3h(csr_reg.mhpmcounter3h'left downto 8) <= (others => '0');
+                csr_reg.mhpmevent3(csr_reg.mhpmevent3'left downto 6) <= (others => '0');
+                csr_reg.mhpmcounter4h(csr_reg.mhpmcounter3h'left downto 8) <= (others => '0');
+                csr_reg.mhpmevent4(csr_reg.mhpmevent4'left downto 6) <= (others => '0');
+                csr_reg.mhpmcounter5h(csr_reg.mhpmcounter5h'left downto 8) <= (others => '0');
+                csr_reg.mhpmevent5(csr_reg.mhpmevent5'left downto 6) <= (others => '0');
+                csr_reg.mhpmcounter6h(csr_reg.mhpmcounter6h'left downto 8) <= (others => '0');
+                csr_reg.mhpmevent6(csr_reg.mhpmevent6'left downto 6) <= (others => '0');
+                csr_reg.mhpmcounter7h(csr_reg.mhpmcounter7h'left downto 8) <= (others => '0');
+                csr_reg.mhpmevent7(csr_reg.mhpmevent7'left downto 6) <= (others => '0');
+                csr_reg.mhpmcounter8h(csr_reg.mhpmcounter8h'left downto 8) <= (others => '0');
+                csr_reg.mhpmevent8(csr_reg.mhpmevent8'left downto 6) <= (others => '0');
+                csr_reg.mhpmcounter9h(csr_reg.mhpmcounter9h'left downto 8) <= (others => '0');
+                csr_reg.mhpmevent9(csr_reg.mhpmevent9'left downto 6) <= (others => '0');
+            else
+                csr_reg.mhpmcounter3 <= (others => '0');
+                csr_reg.mhpmcounter3h <= (others => '0');
+                csr_reg.mhpmevent3 <= (others => '0');
+                csr_reg.mhpmcounter4 <= (others => '0');
+                csr_reg.mhpmcounter4h <= (others => '0');
+                csr_reg.mhpmevent4 <= (others => '0');
+                csr_reg.mhpmcounter5 <= (others => '0');
+                csr_reg.mhpmcounter5h <= (others => '0');
+                csr_reg.mhpmevent5 <= (others => '0');
+                csr_reg.mhpmcounter6 <= (others => '0');
+                csr_reg.mhpmcounter6h <= (others => '0');
+                csr_reg.mhpmevent6 <= (others => '0');
+                csr_reg.mhpmcounter7 <= (others => '0');
+                csr_reg.mhpmcounter7h <= (others => '0');
+                csr_reg.mhpmevent7 <= (others => '0');
+                csr_reg.mhpmcounter8 <= (others => '0');
+                csr_reg.mhpmcounter8h <= (others => '0');
+                csr_reg.mhpmevent8 <= (others => '0');
+                csr_reg.mhpmcounter9 <= (others => '0');
+                csr_reg.mhpmcounter9h <= (others => '0');
+                csr_reg.mhpmevent9 <= (others => '0');
+            end if;
             
             -- Interrupt handling takes priority over possible user
             -- update of the CSRs.
@@ -2118,7 +2443,8 @@ begin
     csr_reg.mxhw(23) <= '1' when HAVE_ZBS else '0';
     csr_reg.mxhw(24) <= '1' when UART1_BREAK_RESETS else '0';
     csr_reg.mxhw(25) <= '1' when HAVE_WDT else '0';
-    csr_reg.mxhw(csr_reg.mxhw'left downto 26) <= (others => '0');
+    csr_reg.mxhw(26) <= '1' when HAVE_ZIHPM else '0';
+    csr_reg.mxhw(csr_reg.mxhw'left downto 27) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));
@@ -2168,12 +2494,12 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(28, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- SPI1
         elsif I_intrio(27) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(27, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- I2C1
         elsif I_intrio(26) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(26, control.trap_mcause'length));
@@ -2183,12 +2509,12 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(25, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- I2C2
         elsif I_intrio(24) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(24, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- UART1
         elsif I_intrio(23) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(23, control.trap_mcause'length));
@@ -2198,32 +2524,32 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(22, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- SPI1 transmission complete interrupt
+        -- TIMER2
         elsif I_intrio(21) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(21, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- I2C1 transmit/receive complete interrupt
+        -- TIMER1
         elsif I_intrio(20) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(20, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- TIMER2 compare T/A/B/C interrupt
+        -- Currently unassigned
         elsif I_intrio(19) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(19, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- UART1 interrupt
+        -- EXTI
         elsif I_intrio(18) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(18, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- TIMER1 compare T interrupt
+        -- Currently unassigned
         elsif I_intrio(17) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(17, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- For testing only, will be removed/changed
+        -- Currently unassigned
         elsif I_intrio(16) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(16, control.trap_mcause'length));

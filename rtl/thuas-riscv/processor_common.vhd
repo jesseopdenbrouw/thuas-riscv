@@ -68,6 +68,14 @@ package processor_common is
     -- Memory access type
     type memaccess_type is (memaccess_nop, memaccess_write, memaccess_read);
 
+    -- The four most significant bits of the memeory regions
+    -- select the type of memeory (ROM, boot ROM, RAM and I/O).
+    -- This will create 16 regions of 256 MB each
+    subtype memory_high_nibble is std_logic_vector(3 downto 0);
+    
+    -- 32-bit memory
+    type memory_type is array (natural range <>) of data_type;
+    
     -- ALU operations
     type alu_op_type is (alu_unknown, alu_nop,
                          alu_add, alu_sub, alu_and, alu_or, alu_xor,
@@ -93,6 +101,9 @@ package processor_common is
     -- Control and State register operations
     type csr_op_type is (csr_nop, csr_rw, csr_rs, csr_rc, csr_rwi, csr_rsi, csr_rci);
 
+    -- Constants
+    constant all_zero_c : data_type := (others => '0');
+
     -- Constants for CSR addresses
     -- Common CSR registers
     constant cycle_addr : integer := 16#c00#;
@@ -111,7 +122,6 @@ package processor_common is
 
     -- Registers for interrupts/exceptions
     constant mstatus_addr : integer := 16#300#; -- 768
-    -- misa should be read/write, but here it is read only
     constant misa_addr : integer := 16#301#;
     constant mie_addr : integer := 16#304#;
     constant mtvec_addr : integer := 16#305#; -- 773
@@ -125,15 +135,104 @@ package processor_common is
 
     -- M mode counters
     constant mcycle_addr : integer := 16#b00#; --
+    -- mtime does not exist
     constant minstret_addr : integer := 16#b02#; --
+    constant mhpmcounter3_addr : integer := 16#b03#; --
+    constant mhpmcounter4_addr : integer := 16#b04#; --
+    constant mhpmcounter5_addr : integer := 16#b05#; --
+    constant mhpmcounter6_addr : integer := 16#b06#; --
+    constant mhpmcounter7_addr : integer := 16#b07#; --
+    constant mhpmcounter8_addr : integer := 16#b08#; --
+    constant mhpmcounter9_addr : integer := 16#b09#; --
+    constant mhpmcounter10_addr : integer := 16#b0a#; --
+    constant mhpmcounter11_addr : integer := 16#b0b#; --
+    constant mhpmcounter12_addr : integer := 16#b0c#; --
+    constant mhpmcounter13_addr : integer := 16#b0d#; --
+    constant mhpmcounter14_addr : integer := 16#b0e#; --
+    constant mhpmcounter15_addr : integer := 16#b0f#; --
+    constant mhpmcounter16_addr : integer := 16#b10#; --
+    constant mhpmcounter17_addr : integer := 16#b11#; --
+    constant mhpmcounter18_addr : integer := 16#b12#; --
+    constant mhpmcounter19_addr : integer := 16#b13#; --
+    constant mhpmcounter20_addr : integer := 16#b14#; --
+    constant mhpmcounter21_addr : integer := 16#b15#; --
+    constant mhpmcounter22_addr : integer := 16#b16#; --
+    constant mhpmcounter23_addr : integer := 16#b17#; --
+    constant mhpmcounter24_addr : integer := 16#b18#; --
+    constant mhpmcounter25_addr : integer := 16#b19#; --
+    constant mhpmcounter26_addr : integer := 16#b1a#; --
+    constant mhpmcounter27_addr : integer := 16#b1b#; --
+    constant mhpmcounter28_addr : integer := 16#b1c#; --
+    constant mhpmcounter29_addr : integer := 16#b1d#; --
+    constant mhpmcounter30_addr : integer := 16#b1e#; --
+    constant mhpmcounter31_addr : integer := 16#b1f#; --
+
     constant mcycleh_addr : integer := 16#b80#; --
     constant minstreth_addr : integer := 16#b82#; --
-    constant mcountinhibit_addr : integer := 16#320#;
+    constant mhpmcounter3h_addr : integer := 16#b83#; --
+    constant mhpmcounter4h_addr : integer := 16#b84#; --
+    constant mhpmcounter5h_addr : integer := 16#b85#; --
+    constant mhpmcounter6h_addr : integer := 16#b86#; --
+    constant mhpmcounter7h_addr : integer := 16#b87#; --
+    constant mhpmcounter8h_addr : integer := 16#b88#; --
+    constant mhpmcounter9h_addr : integer := 16#b89#; --
+    constant mhpmcounter10h_addr : integer := 16#b8a#; --
+    constant mhpmcounter11h_addr : integer := 16#b8b#; --
+    constant mhpmcounter12h_addr : integer := 16#b8c#; --
+    constant mhpmcounter13h_addr : integer := 16#b8d#; --
+    constant mhpmcounter14h_addr : integer := 16#b8e#; --
+    constant mhpmcounter15h_addr : integer := 16#b8f#; --
+    constant mhpmcounter16h_addr : integer := 16#b90#; --
+    constant mhpmcounter17h_addr : integer := 16#b91#; --
+    constant mhpmcounter18h_addr : integer := 16#b92#; --
+    constant mhpmcounter19h_addr : integer := 16#b93#; --
+    constant mhpmcounter20h_addr : integer := 16#b94#; --
+    constant mhpmcounter21h_addr : integer := 16#b95#; --
+    constant mhpmcounter22h_addr : integer := 16#b96#; --
+    constant mhpmcounter23h_addr : integer := 16#b97#; --
+    constant mhpmcounter24h_addr : integer := 16#b98#; --
+    constant mhpmcounter25h_addr : integer := 16#b99#; --
+    constant mhpmcounter26h_addr : integer := 16#b9a#; --
+    constant mhpmcounter27h_addr : integer := 16#b9b#; --
+    constant mhpmcounter28h_addr : integer := 16#b9c#; --
+    constant mhpmcounter29h_addr : integer := 16#b9d#; --
+    constant mhpmcounter30h_addr : integer := 16#b9e#; --
+    constant mhpmcounter31h_addr : integer := 16#b9f#; --
+
+    constant mcountinhibit_addr : integer := 16#320#; --
+    constant mhpmevent3_addr : integer := 16#323#; --
+    constant mhpmevent4_addr : integer := 16#324#; --
+    constant mhpmevent5_addr : integer := 16#325#; --
+    constant mhpmevent6_addr : integer := 16#326#; --
+    constant mhpmevent7_addr : integer := 16#327#; --
+    constant mhpmevent8_addr : integer := 16#328#; --
+    constant mhpmevent9_addr : integer := 16#329#; --
+    constant mhpmevent10_addr : integer := 16#32a#; --
+    constant mhpmevent11_addr : integer := 16#32b#; --
+    constant mhpmevent12_addr : integer := 16#32c#; --
+    constant mhpmevent13_addr : integer := 16#32d#; --
+    constant mhpmevent14_addr : integer := 16#32e#; --
+    constant mhpmevent15_addr : integer := 16#32f#; --
+    constant mhpmevent16_addr : integer := 16#330#; --
+    constant mhpmevent17_addr : integer := 16#331#; --
+    constant mhpmevent18_addr : integer := 16#332#; --
+    constant mhpmevent19_addr : integer := 16#333#; --
+    constant mhpmevent20_addr : integer := 16#334#; --
+    constant mhpmevent21_addr : integer := 16#335#; --
+    constant mhpmevent22_addr : integer := 16#336#; --
+    constant mhpmevent23_addr : integer := 16#337#; --
+    constant mhpmevent24_addr : integer := 16#338#; --
+    constant mhpmevent25_addr : integer := 16#339#; --
+    constant mhpmevent26_addr : integer := 16#33a#; --
+    constant mhpmevent27_addr : integer := 16#33b#; --
+    constant mhpmevent28_addr : integer := 16#33c#; --
+    constant mhpmevent29_addr : integer := 16#33d#; --
+    constant mhpmevent30_addr : integer := 16#33e#; --
+    constant mhpmevent31_addr : integer := 16#33f#; --
 
     -- M mode custom read-only
     constant mxhw_addr : integer := 16#fc0#;
     constant mxspeed_addr : integer := 16#fc1#;
-    
     
     -- Constants for interrupt priority
     -- Changes here must be reflected in the interrupt handler in software
@@ -149,16 +248,6 @@ package processor_common is
     -- System Machine Software Interrupt fixed at 3, do not change
     constant INTR_PRIO_MSI : integer := 3;
     
-    -- The four most significant bits of the memeory regions
-    -- select the type of memeory (ROM, boot ROM, RAM and I/O).
-    -- This will create 16 regions of 256 MB each
-    subtype memory_high_nibble is std_logic_vector(3 downto 0);
-    
-    -- 32-bit memory
-    type memory_type is array (natural range <>) of data_type;
-    
-    -- Constants
-    constant all_zero_c : data_type := (others => '0');
     
     -- Component description of the RISC-V SoC
     component riscv is
@@ -179,6 +268,8 @@ package processor_common is
           HAVE_ZBS : boolean := TRUE;
           -- Do we have Zicond (czero.{eqz|nez})?
           HAVE_ZICOND : boolean := TRUE;
+          -- Do we have HPM counters?
+          HAVE_ZIHPM : boolean := false;
           -- Do we enable vectored mode for mtvec?
           VECTORED_MTVEC : boolean := TRUE;
           -- Do we have registers is RAM?

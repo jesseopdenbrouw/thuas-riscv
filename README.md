@@ -6,10 +6,10 @@ for an FPGA.
 ## Description
 
 This RISC-V microcontroller uses the RV32IM instruction set
-and the Zicsr, Zicntr, Zicond, Zba and Zbs extensions. The microcontroller
-supports exceptions and interrupts. `ECALL`, `EBREAK`
-and `MRET` are supported. `WFI`, `FENCE` and `FENCE.I`
-act as no-operation
+and the Zicsr, Zicntr, Zicond, Zihpm, Zba and Zbs extensions.
+The microcontroller supports exceptions and interrupts.
+`ECALL`, `EBREAK` and `MRET` are supported. `WFI`, `FENCE`
+and `FENCE.I` act as no-operation
 (`NOP`). Currently only machine mode is supported. We
 successfully tested complex programs with interrupts
 and exceptions and implemented a basic syscall library,
@@ -41,7 +41,7 @@ logic cells. The design runs at a speed of approximately 85 MHz (DE0-CV board).
 ## Memory
 
 The microcontroller uses FPGA onboard RAM blocks to emulate RAM
-and program ROM. There is no support for external RAM. Programs
+and program ROM. There is no support for cache or external RAM. Programs
 are compiled with the GNU C compiler for RISC-V and the resulting
 executable is transformed to a VHDL synthesizable ROM table.
 
@@ -50,25 +50,26 @@ executable is transformed to a VHDL synthesizable ROM table.
 * RAM: a RAM of 32 kB using onboard RAM block available (may be extended).
 * I/O: a simple 32-bit input and 32-bit output is available, as
 is a simple 7/8/9-bit UART with interrupt capabilities. Two SPI devices are
-available, with one device used for SD card socket (no interrupt) and a
+available, with one device used for SD card socket (DE0-CV board, no interrupt) and a
 general purpose SPI device with hardware NSS. Two I2C devices are
-available. A simple timer
-with interrupt is provided. A more elaborate timer is included and can
-generate waveforms (Output Compare and PWM) or count edges (Input Capture).
+available. A simple timer with interrupt is provided. A more elaborate
+timer is included and can generate waveforms (Output Compare and PWM)
+or count edges (Input Capture). A watchdog timer is available, it can
+generate a system wide reset or an NMI. A machine mode software interrupt
+is provided.
 The external system timer MTIME is located in the I/O so it's memory mapped.
 
 ROM starts at 0x00000000, BOOT (if available) starts at 0x10000000,
 RAM starts at 0x20000000, I/O starts at 0xF0000000. May be changed
 on 256 MB (top 4 bits) sections.
 
-The microcontroller does not support caches and external memory.
-
 ## CSR
 
 A number CSR registers are implemented: `time`, `timeh`, `[m]cycle`, `[m]cycleh`,
 `[m]instret`, `[m]instreth`, `mvendorid`, `marchid`, `mimpid`, `mhartid`, `mstatus`,
 `mstatush`, `misa`, `mie`, `mtvec`, `mscratch`, `mepc`, `mcause`, `mip`,
-`mcountinhibit`. Some of these CSRs are hardwired. Others will be implemented
+`mcountinhibit` as are the HPM counters and event selectors. Some of these CSRs
+are hardwired. Others will be implemented
 when needed. The `time` and `timeh` CSRs produces the time since reset in
 microseconds, shadowed from the External Timer memory mapped registers. Also
 two custom CSRs are implemented: `mxhw` which holds information of included
@@ -114,10 +115,8 @@ memory contents.
 * Implement clock stretching and arbitration in the I2C1/I2C2 peripherals.
 * Adding input synchronization for SPI1/SPI2 peripherals.
 * Implement an I/O input/output multiplexer for GPIOA PIN and POUT. This will enable I/O functions to be multiplexed with normal port I/O.
-* Smaller (in cells) divide unit.
 * Test more functions of the standard and mathematical libraries.
 * It is not possible to print `long long` (i.e. 64-bit) using `printf` et al. When using the format specifier `%lld`, `printf` just prints `ld`. This due to lack of support in the `nano` library.
-* Further optimize the ALU for size and speed.
 * Adding Zbb extension.
 * To start the pre-programmed bootloader, make sure the UART1 RxD pin is connected to a serial device OR make sure this pin is pulled high (DE0-CV board).
 

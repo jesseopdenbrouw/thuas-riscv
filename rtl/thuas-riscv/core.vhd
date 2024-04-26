@@ -2474,7 +2474,7 @@ begin
         -- Priority as of Table 3.7 of "Volume II: RISC-V Privileged Architectures V20211203"
         -- Local hardware interrupts take priority over exceptions, the RISC-V system timer
         -- has the lowest hardware interrupt priority. Not all exceptions are implemented.
-        -- Reserved for NMI, if ever implemented. NMI cannot be blocked.
+        -- NMI triggered by watchdog timeout, cannot be blocked.
         if I_intrio(31) = '1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(31, control.trap_mcause'length));

@@ -1,7 +1,7 @@
 /*
  * Startup file for THUAS RISC-V bare metal processor
  *
- * (c) 2023, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c) 2024, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  * */
 
@@ -30,14 +30,14 @@ extern uint8_t _srodata, _erodata;
 /* Declare the `main' function */
 int main(int argc, char *argv[], char *envp[]);
 
-/* Declare the construcor and destructor function */
+/* Declare the constructor and destructor function */
 /* Declare the pre-init universal handler */
 void __libc_init_array(void);
 void __libc_fini_array(void);
 void pre_init_universal_handler(void);
 
 /* argv array for main */
-char *argv[] = {
+static char *argv[] = {
 #ifndef NO_ARGC_ARGV
 		PROG_NAME,
 		"THUAS RISC-V RV32IM bare metal processor",
@@ -62,7 +62,7 @@ void _start(void)
 	 * and the Stack Pointer and set the mtvec to the start
 	 * address of the pre-init interrupt handler. This will
 	 * catch pre-init traps. Mostly because of a bug. */
-     __asm__ volatile (".option push;"
+	__asm__ volatile (".option push;"
 	                   ".option norelax;"
 	                   "la    t0, pre_init_universal_handler;"
 	                   "csrw  mtvec,t0;"

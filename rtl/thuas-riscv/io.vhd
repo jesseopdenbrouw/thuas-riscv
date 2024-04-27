@@ -307,6 +307,9 @@ alias i2c2ackfail : std_logic is i2c2.stat(5);
 alias i2c2busy : std_logic is i2c2.stat(6);
 
 
+-- Register 23 not used, reserved
+
+
 -- SPI1 - full SPI master with hardware NSS
 constant spi1ctrl_addr : integer := 24; -- 0x60.b
 constant spi1stat_addr : integer := 25; -- 0x64.b
@@ -329,6 +332,8 @@ type spi1_type is record
     sck : std_logic;
 end record;
 signal spi1 : spi1_type;
+
+
 -- Register 27 not used - reserved
 
 
@@ -356,6 +361,7 @@ type spi2_type is record
 end record;
 signal spi2 : spi2_type;
 
+
 -- Register 31 not used - reserved
 
 
@@ -372,6 +378,7 @@ type timer1_type is record
     cmpt : data_type;
 end record;
 signal timer1 : timer1_type;
+
 
 -- registers 36 - 39 not used -- reserved
 
@@ -581,7 +588,7 @@ begin
             end if;
         end if;
     end process;
-     -- Data to outside world
+    -- Data to outside world
     O_gpioapout <= gpioa.pout;
     
     
@@ -639,24 +646,27 @@ begin
                             uart1.txbuffer(9 downto 0) <= I_datain(8 downto 0) & '0';
                             -- Have parity
                             if uart1paron = '1' then
-                                uart1.txbuffer(10) <= I_datain(8) xor I_datain(7) xor I_datain(6) xor I_datain(5) xor I_datain(4)
-                                                  xor I_datain(3) xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
+--                                uart1.txbuffer(10) <= I_datain(8) xor I_datain(7) xor I_datain(6) xor I_datain(5) xor I_datain(4)
+--                                                  xor I_datain(3) xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
+                                uart1.rxbuffer(10) <= xor_reduce(I_datain(8 downto 0) & uart1parnevenodd);
                             end if;
                         elsif uart1size = "11" then
                             -- 7 bits data
                             uart1.txbuffer(7 downto 0) <= I_datain(6 downto 0) & '0';
                             -- Have parity
                             if uart1paron = '1' then
-                                uart1.txbuffer(8) <= I_datain(6) xor I_datain(5) xor I_datain(4) xor I_datain(3)
-                                                 xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
+--                                uart1.txbuffer(8) <= I_datain(6) xor I_datain(5) xor I_datain(4) xor I_datain(3)
+--                                                 xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
+                                uart1.txbuffer(8) <= xor_reduce(I_datain(6 downto 0) & uart1parnevenodd);
                             end if;
                         else
                             -- 8 bits data
                             uart1.txbuffer(8 downto 0) <= I_datain(7 downto 0) & '0';
                             -- Have parity
                             if uart1paron = '1' then
-                                uart1.txbuffer(9) <= I_datain(7) xor I_datain(6) xor I_datain(5) xor I_datain(4) xor I_datain(3)
-                                                 xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
+--                                uart1.txbuffer(9) <= I_datain(7) xor I_datain(6) xor I_datain(5) xor I_datain(4) xor I_datain(3)
+--                                                 xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
+                                uart1.txbuffer(9) <= xor_reduce(I_datain(7 downto 0) & uart1parnevenodd);
                             end if;
                         end if;
                         -- Signal that we are sending
@@ -804,17 +814,20 @@ begin
                     -- Check parity, we already there...
                     when rx_parity =>
                         if uart1size = "10" then
-                            uart1pe <= uart1.rxbuffer(8) xor uart1.rxbuffer(7) xor uart1.rxbuffer(6) xor uart1.rxbuffer(5)
-                                                xor uart1.rxbuffer(4) xor uart1.rxbuffer(3) xor uart1.rxbuffer(2)
-                                                xor uart1.rxbuffer(1) xor uart1.rxbuffer(0) xor uart1.rxd_sync xor uart1parnevenodd;
+--                            uart1pe <= uart1.rxbuffer(8) xor uart1.rxbuffer(7) xor uart1.rxbuffer(6) xor uart1.rxbuffer(5)
+--                                                xor uart1.rxbuffer(4) xor uart1.rxbuffer(3) xor uart1.rxbuffer(2)
+--                                                xor uart1.rxbuffer(1) xor uart1.rxbuffer(0) xor uart1.rxd_sync xor uart1parnevenodd;
+                            uart1pe <= xor_reduce(uart1.rxbuffer(8 downto 0) & uart1parnevenodd);
                         elsif uart1size = "11" then
-                            uart1pe <= uart1.rxbuffer(6) xor uart1.rxbuffer(5)
-                                                xor uart1.rxbuffer(4) xor uart1.rxbuffer(3) xor uart1.rxbuffer(2)
-                                                xor uart1.rxbuffer(1) xor uart1.rxbuffer(0) xor uart1.rxd_sync xor uart1parnevenodd;
+--                            uart1pe <= uart1.rxbuffer(6) xor uart1.rxbuffer(5)
+--                                                xor uart1.rxbuffer(4) xor uart1.rxbuffer(3) xor uart1.rxbuffer(2)
+--                                                xor uart1.rxbuffer(1) xor uart1.rxbuffer(0) xor uart1.rxd_sync xor uart1parnevenodd;
+                            uart1pe <= xor_reduce(uart1.rxbuffer(6 downto 0) & uart1parnevenodd);
                         else
-                            uart1pe <= uart1.rxbuffer(7) xor uart1.rxbuffer(6) xor uart1.rxbuffer(5)
-                                                xor uart1.rxbuffer(4) xor uart1.rxbuffer(3) xor uart1.rxbuffer(2)
-                                                xor uart1.rxbuffer(1) xor uart1.rxbuffer(0) xor uart1.rxd_sync xor uart1parnevenodd;
+--                            uart1pe <= uart1.rxbuffer(7) xor uart1.rxbuffer(6) xor uart1.rxbuffer(5)
+--                                                xor uart1.rxbuffer(4) xor uart1.rxbuffer(3) xor uart1.rxbuffer(2)
+--                                                xor uart1.rxbuffer(1) xor uart1.rxbuffer(0) xor uart1.rxd_sync xor uart1parnevenodd;
+                            uart1pe <= xor_reduce(uart1.rxbuffer(7 downto 0) & uart1parnevenodd);
                         end if;
                         uart1.rxbittimer <= to_integer(unsigned(uart1.baud));
                         uart1.rxstate <= rx_parity2;
@@ -2342,7 +2355,7 @@ begin
                     if wdt.mustrestart = '1' then
                         wdt.counter <= (others => '1');
                         wdt.counter(31 downto 8) <= wdt_prescaler;
-                    elsif wdt.counter = all_zero_c then
+                    elsif wdt.counter = all_zeros_c then
                         wdt.mustreset <= '1';
                     else
                         wdt.counter <= std_logic_vector(unsigned(wdt.counter) - 1);

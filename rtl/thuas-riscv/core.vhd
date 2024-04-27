@@ -279,7 +279,6 @@ type csr_reg_type is record
     misa : data_type;
     mie : data_type;
     mtvec : data_type;
-    --mcounteren : data_type;
     mstatush : data_type;
     mcountinhibit : data_type;
     mscratch : data_type;
@@ -320,6 +319,7 @@ type csr_reg_type is record
 end record csr_reg_type;
 signal csr_reg : csr_reg_type;
 
+-- For transfering data between CSR and the PC
 type csr_transfer_type is record
     mtvec_to_pc : data_type;
     mepc_to_pc : data_type;
@@ -327,8 +327,6 @@ type csr_transfer_type is record
 end record csr_transfer_type;
 signal csr_transfer : csr_transfer_type;
 
-constant all_zeros_c : data_type := (others => '0');
-constant all_ones_c : data_type := (others => '1');
 
 begin
 
@@ -585,13 +583,12 @@ begin
             end if;
         end if;
     end process;
+
     
     --
     -- Instruction decode block
-    -- This block decodes the instruction
     --
-    
-    -- Decode the instruction
+   
     process (I_clk, I_areset, I_instr, control) is
     variable opcode_v : std_logic_vector(6 downto 0);
     variable func3_v : std_logic_vector(2 downto 0);
@@ -708,13 +705,14 @@ begin
                     id_ex.rd_en <= '1';
                 end if;
             else
+                -- Set all registers to default
                 id_ex.instr <= I_instr;
                 id_ex.pc <= if_id.pc;
                 id_ex.rd <= rd_v;
                 id_ex.rs1 <= rs1_v;
                 id_ex.rs2 <= rs2_v;
                 id_ex.rd_en <= '0';
-                id_ex.imm <= imm_i_v; --(others => '0');
+                id_ex.imm <= imm_i_v;
                 id_ex.isimm <= '0';
                 id_ex.isunsigned <= '0';
                 id_ex.ismem <= '0';
@@ -1312,15 +1310,10 @@ begin
                     end if;
                  end if;
                  
-                 
             -- Test register & immediate signed/unsigned
-            when alu_slt | alu_slti =>
-                r_v := (others => '0');
+            when alu_slt | alu_slti |alu_sltu | alu_sltiu =>
                 r_v(0) := cmplt_v;
-            when alu_sltu | alu_sltiu =>
-                r_v := (others => '0');
-                r_v(0) := cmplt_v;
-                
+
             -- Shifts et al
             when alu_sll | alu_slli =>
                 if b_v(4) = '1' then
@@ -1346,8 +1339,6 @@ begin
                 else
                     signs_v := (others => a_v(a_v'left));
                 end if;
-
-                
                 if b_v(4) = '1' then
                     a_v := signs_v(15 downto 0) & a_v(a_v'left downto 16);
                 end if;
@@ -1363,7 +1354,6 @@ begin
                 if b_v(0) = '1' then
                     a_v := signs_v(0 downto 0) & a_v(a_v'left downto 1);
                 end if;
-
                 r_v := a_v;
                 
             -- Loads etc
@@ -1837,7 +1827,7 @@ begin
     --
     
     process (I_clk, I_areset, csr_access, csr_reg,
-             control, id_ex, I_memready) is
+             control, id_ex, I_memready, md) is
     variable csr_addr_v : integer range 0 to csr_size-1;
     variable event3_v, event4_v, event5_v, event6_v, event7_v, event8_v, event9_v : boolean;
     variable csr_content_v : data_type;
@@ -1850,43 +1840,50 @@ begin
                     (csr_reg.mhpmevent3(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
                     (csr_reg.mhpmevent3(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
                     (csr_reg.mhpmevent3(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent3(5) = '1' and control.ebreak_request = '1');
+                    (csr_reg.mhpmevent3(5) = '1' and control.ebreak_request = '1') or
+                    (csr_reg.mhpmevent3(6) = '1' and md.ready = '1');
         event4_v := (csr_reg.mhpmevent4(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent4(1) = '1' and control.stall = '1') or
                     (csr_reg.mhpmevent4(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
                     (csr_reg.mhpmevent4(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
                     (csr_reg.mhpmevent4(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent4(5) = '1' and control.ebreak_request = '1');
+                    (csr_reg.mhpmevent4(5) = '1' and control.ebreak_request = '1') or
+                    (csr_reg.mhpmevent4(6) = '1' and md.ready = '1');
         event5_v := (csr_reg.mhpmevent5(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent5(1) = '1' and control.stall = '1') or
                     (csr_reg.mhpmevent5(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
                     (csr_reg.mhpmevent5(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
                     (csr_reg.mhpmevent5(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent5(5) = '1' and control.ebreak_request = '1');
+                    (csr_reg.mhpmevent5(5) = '1' and control.ebreak_request = '1') or
+                    (csr_reg.mhpmevent5(6) = '1' and md.ready = '1');
         event6_v := (csr_reg.mhpmevent6(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent6(1) = '1' and control.stall = '1') or
                     (csr_reg.mhpmevent6(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
                     (csr_reg.mhpmevent6(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
                     (csr_reg.mhpmevent6(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent6(5) = '1' and control.ebreak_request = '1');
+                    (csr_reg.mhpmevent6(5) = '1' and control.ebreak_request = '1') or
+                    (csr_reg.mhpmevent6(6) = '1' and md.ready = '1');
         event7_v := (csr_reg.mhpmevent7(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent7(1) = '1' and control.stall = '1') or
                     (csr_reg.mhpmevent7(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
                     (csr_reg.mhpmevent7(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
                     (csr_reg.mhpmevent7(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent7(5) = '1' and control.ebreak_request = '1');
+                    (csr_reg.mhpmevent7(5) = '1' and control.ebreak_request = '1') or
+                    (csr_reg.mhpmevent7(6) = '1' and md.ready = '1');
         event8_v := (csr_reg.mhpmevent8(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent8(1) = '1' and control.stall = '1') or
                     (csr_reg.mhpmevent8(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
                     (csr_reg.mhpmevent8(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
                     (csr_reg.mhpmevent8(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent8(5) = '1' and control.ebreak_request = '1');
+                    (csr_reg.mhpmevent8(5) = '1' and control.ebreak_request = '1') or
+                    (csr_reg.mhpmevent8(6) = '1' and md.ready = '1');
         event9_v := (csr_reg.mhpmevent9(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent9(1) = '1' and control.stall = '1') or
                     (csr_reg.mhpmevent9(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
                     (csr_reg.mhpmevent9(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
                     (csr_reg.mhpmevent9(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent9(5) = '1' and control.ebreak_request = '1');
+                    (csr_reg.mhpmevent9(5) = '1' and control.ebreak_request = '1') or
+                    (csr_reg.mhpmevent9(6) = '1' and md.ready = '1');
         else
             event3_v := false;
             event4_v := false;
@@ -2308,19 +2305,19 @@ begin
             -- There are only 6 events that can be counted
             if HAVE_ZIHPM then
                 csr_reg.mhpmcounter3h(csr_reg.mhpmcounter3h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent3(csr_reg.mhpmevent3'left downto 6) <= (others => '0');
+                csr_reg.mhpmevent3(csr_reg.mhpmevent3'left downto 7) <= (others => '0');
                 csr_reg.mhpmcounter4h(csr_reg.mhpmcounter3h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent4(csr_reg.mhpmevent4'left downto 6) <= (others => '0');
+                csr_reg.mhpmevent4(csr_reg.mhpmevent4'left downto 7) <= (others => '0');
                 csr_reg.mhpmcounter5h(csr_reg.mhpmcounter5h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent5(csr_reg.mhpmevent5'left downto 6) <= (others => '0');
+                csr_reg.mhpmevent5(csr_reg.mhpmevent5'left downto 7) <= (others => '0');
                 csr_reg.mhpmcounter6h(csr_reg.mhpmcounter6h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent6(csr_reg.mhpmevent6'left downto 6) <= (others => '0');
+                csr_reg.mhpmevent6(csr_reg.mhpmevent6'left downto 7) <= (others => '0');
                 csr_reg.mhpmcounter7h(csr_reg.mhpmcounter7h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent7(csr_reg.mhpmevent7'left downto 6) <= (others => '0');
+                csr_reg.mhpmevent7(csr_reg.mhpmevent7'left downto 7) <= (others => '0');
                 csr_reg.mhpmcounter8h(csr_reg.mhpmcounter8h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent8(csr_reg.mhpmevent8'left downto 6) <= (others => '0');
+                csr_reg.mhpmevent8(csr_reg.mhpmevent8'left downto 7) <= (others => '0');
                 csr_reg.mhpmcounter9h(csr_reg.mhpmcounter9h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent9(csr_reg.mhpmevent9'left downto 6) <= (others => '0');
+                csr_reg.mhpmevent9(csr_reg.mhpmevent9'left downto 7) <= (others => '0');
             else
                 csr_reg.mhpmcounter3 <= (others => '0');
                 csr_reg.mhpmcounter3h <= (others => '0');

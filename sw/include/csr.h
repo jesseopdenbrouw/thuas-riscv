@@ -124,6 +124,7 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_HPM_LOADS      (1 << 3)
 #define CSR_HPM_ECALLS     (1 << 4)
 #define CSR_HPM_EBREAKS    (1 << 5)
+#define CSR_HPM_MULDIV     (1 << 6)
 
 #ifdef __cplusplus
 }

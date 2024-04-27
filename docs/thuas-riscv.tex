@@ -425,7 +425,7 @@ For counting purposes, the following registers are implemented:
 \item \lstinline|mhpmevent3| to \lstinline|mhpmevent9| -- counter event select registers.
 \end{itemize}
 
-The event counter registers are currently 40 bits wide. Currently, there are 6 events that can be counted:
+The event counter registers are currently 40 bits wide. Currently, there are 7 events that can be counted:
 
 \begin{table}[!ht]
 \centering
@@ -438,6 +438,7 @@ bit & event \\ \midrule
 3 & loads \\
 4 & ECALLs \\
 5 & EBREAKs\\
+6 & multiply/divides\\
 \bottomrule
 \end{tabular}
 \end{table}

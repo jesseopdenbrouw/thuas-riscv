@@ -12,6 +12,10 @@ SIZE = $(PREFIX)-size
 SREC2VHDL = ../bin/srec2vhdl
 UPLOAD = ../bin/upload
 
+# Common settings of flags
+CFLAGS = -g -O2 -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) $(MARCHABISTRING)
+LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) $(SPECSSTRING) $(EXTRA_LINKER_FLAGS)
+
 # The clock frequency of the system
 ifndef F_CPU
 F_CPU = "(50000000UL)"

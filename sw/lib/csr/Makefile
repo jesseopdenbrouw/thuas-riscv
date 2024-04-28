@@ -1,7 +1,7 @@
 #
 # Makefile for creating the CSR library
 # for the THUAS RISC-V RV32 project.
-# See: https://github.com/jesseopdenbrouw/riscv-rv32
+# See: https://github.com/jesseopdenbrouw/thuas-riscv
 #
 
 # Include common defines
@@ -13,7 +13,7 @@ include $(COMMON_FILE)
 else
 endif
 
-CFLAGS = -I../../include -Wall -O2 -g $(MARCHABISTRING)
+CFLAGS += -I../../include
 
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c, %.o, $(SRC))

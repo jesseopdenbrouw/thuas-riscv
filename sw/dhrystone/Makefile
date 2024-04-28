@@ -12,10 +12,6 @@ TARGET = dhrystone
 # Put your optimization here
 EFFORT ?= -O2
 
-# Compiler flags
-CFLAGS = -g -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) $(MARCHABISTRING) $(USER_FLAGS) $(EFFORT)
-# Linker flags
-LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) $(SPECSSTRING) $(EXTRA_LINKER_FLAGS) $(EFFORT) # -u _printf_float
 
 
 #-----
@@ -33,6 +29,9 @@ ifneq ("$(wildcard $(COMMON_FILE))","")
 include $(COMMON_FILE)
 else
 endif
+
+# Compiler flags
+CFLAGS += $(EFFORT)
 
 # All header files
 HFILES = $(wildcard *.h)

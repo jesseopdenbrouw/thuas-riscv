@@ -12,11 +12,6 @@ SIZE = riscv32-unknown-elf-size
 SREC2VHDL = ../bin/srec2vhdl
 UPLOAD = ../bin/upload
 
-# Compiler flags
-CFLAGS = -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) -Wall -O0 -g $(MARCHABISTRING)
-# Linker flags
-LDFLAGS = -g -lm -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) -nostartfiles $(SPECSSTRING) $(EXTRA_LINKER_FLAGS)
-
 # The target
 TARGET = assembler
 
@@ -49,7 +44,7 @@ all: $(TARGET).elf
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TARGET).elf: $(OBJS) $(HFILES) $(COMMON_FILE)
-	$(CC) -O2 -g -o $(TARGET).elf $(OBJS) $(LDFLAGS)
+	$(CC) -o $(TARGET).elf $(OBJS) $(LDFLAGS)
 	$(OBJCOPY) -O srec $(TARGET).elf $(TARGET).srec
 	$(SREC2VHDL) -wf $(TARGET).srec $(TARGET).vhd
 	$(SIZE) $(TARGET).elf

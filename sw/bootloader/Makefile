@@ -8,15 +8,12 @@
 # The target
 TARGET = bootloader
 
-# Compiler flags
-CFLAGS = -flto -g -Os -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) $(MARCHABISTRING) -DNO_ARGC_ARGV
-# Linker flags
-LDFLAGS = -flto -g -lm -Wall -nostartfiles -T bl_riscv.ld $(LIBTHUASRV32STRING) $(MARCHABISTRING) -specs=../lib/thuas.specs -specs=../lib/nano.specs $(EXTRA_LINKER_FLAGS)
 
 
 #-----
 #----- do not edit below this point
 #-----
+
 
 # Program name
 PROG_NAME = \"$(TARGET)\"
@@ -29,6 +26,11 @@ ifneq ("$(wildcard $(COMMON_FILE))","")
 include $(COMMON_FILE)
 else
 endif
+
+# Compiler flags
+CFLAGS += -flto -Os -DNO_ARGC_ARGV
+# Linker script is different
+LD_SCRIPT = bl_riscv.ld
 
 # All header files
 HFILES = $(wildcard *.h)
@@ -53,7 +55,7 @@ $(CRT):
 
 # Build the target
 $(TARGET).elf: $(OBJS) $(HFILES) $(COMMON_FILE)
-	$(CC) -O2 -g -o $(TARGET).elf $(OBJS) $(LDFLAGS)
+	$(CC) -o $(TARGET).elf $(OBJS) $(LDFLAGS)
 	$(OBJCOPY) -O srec $(TARGET).elf $(TARGET).srec
 	$(SREC2VHDL) -wBf -i 8 $(TARGET).srec $(TARGET).vhd
 	$(SIZE) $(TARGET).elf

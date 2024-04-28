@@ -1,7 +1,7 @@
 #
 # Makefile for creating the THUASRV32 library
 # for the THUAS RISC-V RV32 project.
-# See: https://github.com/jesseopdenbrouw/riscv-rv32
+# See: https://github.com/jesseopdenbrouw/thuas-riscv
 #
 
 # Include common defines
@@ -12,8 +12,6 @@ ifneq ("$(wildcard $(COMMON_FILE))","")
 include $(COMMON_FILE)
 else
 endif
-
-CFLAGS = -I../include -Wall -O2 -g $(MARCHABISTRING)
 
 LIBTHUASRV32 = libthuasrv32.a
 SRC = $(wildcard */*.c)

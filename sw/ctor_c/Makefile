@@ -6,10 +6,6 @@
 # The target
 TARGET = ctor_c
 
-# Compiler flags
-CFLAGS = -g -O2 -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) $(MARCHABISTRING) -DWITH_DESTRUCTORS
-# Linker flags
-LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) $(SPECSSTRING) $(EXTRA_LINKER_FLAGS)
 
 
 #-----
@@ -27,6 +23,9 @@ ifneq ("$(wildcard $(COMMON_FILE))","")
 include $(COMMON_FILE)
 else
 endif
+
+# Compiler flags
+CFLAGS += -DWITH_DESTRUCTORS
 
 # All header files
 HFILES = $(wildcard *.h)
@@ -51,7 +50,7 @@ $(CRT):
 
 # Build the target
 $(TARGET).elf: $(OBJS) $(HFILES) $(COMMON_FILE)
-	$(CC) -O2 -g -o $(TARGET).elf $(OBJS) $(LDFLAGS)
+	$(CC) -o $(TARGET).elf $(OBJS) $(LDFLAGS)
 	$(OBJCOPY) -O srec $(TARGET).elf $(TARGET).srec
 	$(SREC2VHDL) -wf $(TARGET).srec $(TARGET).vhd
 	$(SIZE) $(TARGET).elf

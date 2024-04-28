@@ -10,10 +10,6 @@
 # The target
 TARGET = gamma
 
-# Compiler flags
-CFLAGS = -g -O2 -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) $(MARCHABISTRING)
-# Linker flags
-LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) $(SPECSSTRING) $(EXTRA_LINKER_FLAGS) -u _printf_float
 
 
 #-----
@@ -31,6 +27,9 @@ ifneq ("$(wildcard $(COMMON_FILE))","")
 include $(COMMON_FILE)
 else
 endif
+
+# Linker flags
+LDFLAGS += -u _printf_float
 
 # All header files
 HFILES = $(wildcard *.h)
@@ -55,7 +54,7 @@ $(CRT):
 
 # Build the target
 $(TARGET).elf: $(OBJS) $(HFILES) $(COMMON_FILE)
-	$(CC) -O2 -g -o $(TARGET).elf $(OBJS) $(LDFLAGS)
+	$(CC) -o $(TARGET).elf $(OBJS) $(LDFLAGS)
 	$(OBJCOPY) -O srec $(TARGET).elf $(TARGET).srec
 	$(SREC2VHDL) $(SREC2VHDL_OPTIONS) $(TARGET).srec $(TARGET).vhd
 	$(SIZE) $(TARGET).elf

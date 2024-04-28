@@ -49,6 +49,7 @@ Uart1::Uart1()
 	uint32_t speed = csr_read(0xfc1);
 	speed = (speed == 0) ? F_CPU : speed;
 	UART1->BAUD = speed/BAUD_RATE - 1;
+	UART1->CTRL = UART_CTRL_EN;
 }
 
 /* Prints a character to the UART1 */
@@ -58,7 +59,7 @@ void Uart1::putchar(char c) const
         UART1->DATA = (uint8_t) c;
                 
         /* Wait for transmission end */
-        while ((UART1->STAT & 0x10) == 0);
+        while ((UART1->STAT & UART_STAT_TC) == 0);
 }
 
 /* Prints a string */

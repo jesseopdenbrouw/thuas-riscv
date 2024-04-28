@@ -17,20 +17,20 @@ int main(void)
 	speed = (speed == 0) ? F_CPU : speed;
 	UART1->BAUD = speed/BAUD_RATE-1;
 
-	/* Set one stop bit, no parity */
-	UART1->CTRL = 0x00;
+	/* Enable UART1, set one stop bit, no parity */
+	UART1->CTRL = UART_CTRL_EN;
 
 	/* Read 8 switches from input */
 	UART1->DATA = GPIOA->PIN & 0x000000ff;
 
 	/* Wait for transmission end */
-	while ((UART1->STAT & 0x10) == 0);
+	while ((UART1->STAT & UART_STAT_TC) == 0);
 
 	/* Wait for received character */
-	while ((UART1->STAT & 0x04) == 0);
+	while ((UART1->STAT & UART_STAT_RC) == 0);
 
 	/* Put data on leds */
-	GPIOA->POUT = UART1_DATA;
+	GPIOA->POUT = UART1->DATA;
 
 	return 0;
 }

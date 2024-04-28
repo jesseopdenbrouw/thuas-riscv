@@ -121,8 +121,7 @@ void _start(void)
 }
 
 /* pre-init trap handler. Here to catch initialization errors */
-__attribute__(( used ))
-__attribute__ ((interrupt))
+__attribute__((interrupt, used))
 void pre_init_universal_handler(void)
 {
 	while (1);

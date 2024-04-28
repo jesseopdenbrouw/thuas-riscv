@@ -33,7 +33,7 @@
  * calls, hence naked. This means that we have to save
  * and restore registers ourselves and supply the MRET
  * instruction. */
-void __attribute__ ((naked)) trap_handler_vectored(void);
+void __attribute__ ((naked, used)) trap_handler_vectored(void);
 
 /* End of the data, start of the free RAM */
 extern char *_end;

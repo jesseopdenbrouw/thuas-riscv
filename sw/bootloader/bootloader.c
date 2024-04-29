@@ -20,7 +20,7 @@
 
 #include <thuasrv32.h>
 
-#define VERSION "v0.6"
+#define VERSION "v0.6.1"
 #define BUFLEN (41)
 #define BOOTWAIT (10)
 

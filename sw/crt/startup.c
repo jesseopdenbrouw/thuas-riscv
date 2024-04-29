@@ -88,7 +88,7 @@ void _start(void)
 	pEnd = &_ebss;
 	while (pStart < pEnd) {
 		*pStart = 0x00;
-		*pStart++;
+		pStart++;
 	}
 
 	/* Copy the ROM-placed RAM init data to the RAM */

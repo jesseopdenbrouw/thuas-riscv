@@ -379,7 +379,7 @@ int main(int argc, char *argv[]) {
         printf("-t <timeout> -- timeout in deci seconds\n");
         printf("-s <sleep>   -- sleep milli seconds after each character\n");
         printf("filename is a S-record file\n\n");
-		printf("-l           -- list available serial devices\n");
+        printf("-l           -- list available serial devices\n");
         printf("-v           -- verbose\n\n");
         printf("Default device is %s\n", portname);
         printf("Default baudrate is ");
@@ -454,6 +454,10 @@ int main(int argc, char *argv[]) {
             //fprintf(stderr, "Unknown option '%c'\n", opt);
             exit(1);
         }
+    }
+
+    if (verbose) {
+        printf("upload v" VERSION "\n"); 
     }
     
     /* List all available serial devices */

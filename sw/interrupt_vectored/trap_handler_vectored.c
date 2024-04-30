@@ -117,7 +117,7 @@ void trap_handler_jump_table(void)
 /* This is the universal handler. We use a lot of register
  * qualifiers in the hope that the compiler will catch
  * the hint ;-) */
-__attribute__ ((naked))
+__attribute__ ((naked, used))
 void trap_handler_vectored(void)
 {
 	/* Save registers. We need to save all the registers

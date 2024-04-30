@@ -32,5 +32,9 @@ For building the RISC-V programs, a RISC-V GNU GCC compiler
 is needed.
 
 Best is to use a precompiled compiler for Windows and
-build tools (make, rm, mkdir etc.)
+build tools (make, rm, mkdir etc.). Please have a look
+at [xPack RISC-V Toolchain](https://xpack.github.io/dev-tools/riscv-none-elf-gcc/)
+and [Windows build tools](https://xpack.github.io/dev-tools/windows-build-tools/).
+For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look
+at [The xPack GNU Compiler Collection (GCC)](https://xpack.github.io/dev-tools/gcc/).
 

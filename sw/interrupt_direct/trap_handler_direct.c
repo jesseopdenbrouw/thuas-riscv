@@ -85,6 +85,7 @@ __attribute__((weak)) int __io_getchar(void) {
 /* This is the trap handler. We use a lot of register
  * qualifiers in the hope that the compiler will catch
  * the hint ;-) */
+__attribute__ ((naked, used))
 void trap_handler_direct(void)
 {
 	/* Save registers. We need to save all the registers

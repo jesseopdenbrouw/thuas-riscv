@@ -109,6 +109,20 @@ is started. Using the bootloader, a program can written to the ROM (see
 the documentation). The bootloader can also be used to inspect the
 memory contents.
 
+## Preliminary support for Windows
+
+There is preliminary support for Windows. `srec2vhdl` and
+`upload` can be build with GCC MinGW and Visual Studio.
+For building the RISC-V programs, a RISC-V GNU GCC compiler
+is needed.
+
+Best is to use a precompiled compiler for Windows and
+build tools (make, rm, mkdir etc.). Please have a look
+at [xPack RISC-V Toolchain](https://xpack.github.io/dev-tools/riscv-none-elf-gcc/)
+and [Windows build tools](https://xpack.github.io/dev-tools/windows-build-tools/).
+For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look
+at [The xPack GNU Compiler Collection (GCC)](https://xpack.github.io/dev-tools/gcc/).
+
 ## Plans (or not) and issues
 
 * We are *not* planning the C standard.

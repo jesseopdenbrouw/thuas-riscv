@@ -26,7 +26,7 @@ Jumps/calls/branches taken require 3 clock cycles, the
 processor does not implement branch prediction. All other
 instructions require 1 clock cycle. Interrupts
 are direct or vectored. Current Coremark testbench shows
-a CPI of 1.78 and a score of 1.95 coremark/MHz.
+a CPI of 1.78 and a score of 1.93 coremark/MHz.
 
 Software is written in C, (C++ is supported but there are
 some limitations) and compiled using the RISC-V GNU C/C++

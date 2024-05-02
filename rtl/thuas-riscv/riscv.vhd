@@ -142,7 +142,7 @@ component core is
           -- The frequency of the system
           SYSTEM_FREQUENCY : integer;
           -- Hardware version in BCD
-          HW_VERSION : integer := 16#00_09_09_07#;
+          HW_VERSION : integer := 16#00_09_09_08#;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?

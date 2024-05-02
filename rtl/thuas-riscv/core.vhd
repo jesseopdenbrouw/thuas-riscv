@@ -1908,6 +1908,66 @@ begin
               csr_addr_v = cycleh_addr or
               csr_addr_v = timeh_addr or
               csr_addr_v = instreth_addr or
+
+             (csr_addr_v = hpmcounter3_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter3h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter4_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter4h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter5_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter5h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter6_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter6h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter7_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter7h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter8_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter8h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter9_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter9h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter10_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter10h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter11_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter11h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter12_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter12h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter13_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter13h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter14_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter14h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter15_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter15h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter16_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter16h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter17_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter17h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter18_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter18h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter19_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter19h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter20_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter20h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter21_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter21h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter22_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter22h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter23_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter23h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter24_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter24h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter25_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter25h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter26_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter26h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter27_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter27h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter28_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter28h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter29_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter29h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter30_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter30h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter31_addr and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter31h_addr  and HAVE_ZIHPM) or
+              
               csr_addr_v = mvendorid_addr or
               csr_addr_v = marchid_addr or
               csr_addr_v = mimpid_addr or
@@ -2033,6 +2093,20 @@ begin
             -- to be in sync with 'mtime'
             when timeh_addr         => csr_access.datain <= csr_reg.mtimeh;
             when instreth_addr      => csr_access.datain <= csr_reg.minstreth;
+            when hpmcounter3_addr   => csr_access.datain <= csr_reg.mhpmcounter3;
+            when hpmcounter3h_addr  => csr_access.datain <= csr_reg.mhpmcounter3h;
+            when hpmcounter4_addr   => csr_access.datain <= csr_reg.mhpmcounter4;
+            when hpmcounter4h_addr  => csr_access.datain <= csr_reg.mhpmcounter4h;
+            when hpmcounter5_addr   => csr_access.datain <= csr_reg.mhpmcounter5;
+            when hpmcounter5h_addr  => csr_access.datain <= csr_reg.mhpmcounter5h;
+            when hpmcounter6_addr   => csr_access.datain <= csr_reg.mhpmcounter6;
+            when hpmcounter6h_addr  => csr_access.datain <= csr_reg.mhpmcounter6h;
+            when hpmcounter7_addr   => csr_access.datain <= csr_reg.mhpmcounter7;
+            when hpmcounter7h_addr  => csr_access.datain <= csr_reg.mhpmcounter7h;
+            when hpmcounter8_addr   => csr_access.datain <= csr_reg.mhpmcounter8;
+            when hpmcounter8h_addr  => csr_access.datain <= csr_reg.mhpmcounter8h;
+            when hpmcounter9_addr   => csr_access.datain <= csr_reg.mhpmcounter9;
+            when hpmcounter9h_addr  => csr_access.datain <= csr_reg.mhpmcounter9h;
             when mvendorid_addr     => csr_access.datain <= csr_reg.mvendorid;
             when marchid_addr       => csr_access.datain <= csr_reg.marchid;
             when mimpid_addr        => csr_access.datain <= csr_reg.mimpid;

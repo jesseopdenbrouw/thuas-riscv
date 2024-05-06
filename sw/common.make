@@ -1,6 +1,8 @@
 #  Common settings for the programs
 
+# For Linux
 PREFIX = riscv32-unknown-elf
+# For xPack RISC-V compiler
 #PREFIX = riscv-none-elf
 
 # Compiler defaults
@@ -14,7 +16,7 @@ UPLOAD = ../bin/upload
 
 # Common settings of flags
 CFLAGS = -g -O2 -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) $(MARCHABISTRING)
-LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) $(SPECSSTRING) $(EXTRA_LINKER_FLAGS) -Wl,--gc-sections
+LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) $(SPECSSTRING) $(MORE_LINKER_FLAGS) -Wl,--gc-sections
 
 # The clock frequency of the system
 ifndef F_CPU
@@ -36,7 +38,7 @@ CRT_PATH = ../crt
 CRT = startup.c
 
 # Needed for binutils >= 2.39, set to empty otherwise
-EXTRA_LINKER_FLAGS=-Wl,--no-warn-rwx-segments
+MORE_LINKER_FLAGS=-Wl,--no-warn-rwx-segments
 
 # Linker script
 LD_SCRIPT = ../ldfiles/riscv.ld

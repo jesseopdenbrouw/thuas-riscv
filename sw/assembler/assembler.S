@@ -30,7 +30,7 @@ _start:
 	li t0, 0x8 | (0x3<<11)
 	csrw mstatus,t0
 
-
+/*
 	li t0, (1 << 0)
 	csrw mhpmevent3, t0
 	slli t0, t0, 1
@@ -76,13 +76,21 @@ _start:
 	lw  t1, 16(t0)
 
 	mul	x2,x3,x4
+*/
+	la  t0, 0xf0000018
+	li  t1, 0x2
+
+	sw  t1, 0(t0);
 
 	nop
 	nop
 	nop
 
 
-einde:	j einde
+einde:	nop
+	wfi
+	nop
+	j einde
 
 	nop
 	nop
@@ -105,13 +113,17 @@ Universal_Handler:
 	nop
 	nop
 
-	la	t0, 0xf00000ec
+/*	la	t0, 0xf00000ec
 	li  t1, 0x00
 	sw  t1, 0(t0)
 
 	csrr t0, mepc
 	addi t0, t0, 4
 	csrw mepc, t0
+*/
+	la	t0, 0xf000001c
+	li	t1, 0x00
+	sw	t1, 0(t0)
 
 	mret
 

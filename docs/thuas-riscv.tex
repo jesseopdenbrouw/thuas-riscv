@@ -522,7 +522,7 @@ The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Wh
 The asynchronous reset is active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition (see Section~\ref{sec:customize}). It is also possible to reset the processor when the watchdog (WDT) times out.
 
 \subsection{Implemented instructions}
-For the processor, all RV32IM Unprivileged instructions are implemented but the FENCE instruction act as a no-operation (NOP). ECALL and EBREAK are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented. From the Privileged instruction, MRET is used to return from an exception or an interrupt. WFI is not implemented and acts as a no-operation (NOP). FENCE.I is not implemented and acts as a NOP.
+For the processor, all RV32IM Unprivileged instructions are implemented but the FENCE instruction act as a no-operation (NOP). ECALL and EBREAK are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, WFI is implemented and halts the processor at (PC + 4). MRET is used to return from an exception or an interrupt. FENCE.I is not implemented and acts as a NOP.
 
 \section{The FPGA}
 For this project, we use the Cyclone V FPGA from Intel (formerly Altera). See \url{https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html}.
@@ -1637,7 +1637,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 
 \begin{register}{H}{External input interrupt control register GPIOA\_EXTC}{0x18}%
 \label{extc}%
-\regfield{Reserved}{24}{8}{{0}}%
+\regfield{Reserved}{24}{7}{{0}}%
 \regfield{PIN}{5}{2}{{0}}%
 \regfield{EDGE}{3}{1}{{0}}%
 \regfield{Reserved}{1}{0}{{0}}
@@ -1646,7 +1646,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
 \item[PIN] Port pin number as input source.
-\item[EDGE] Edge selection: 00 = off, 01 = rising, 10 = falling, 11 = both. Must be cleared to reset the pending interrupt.
+\item[EDGE] Edge selection: 00 = off, 01 = rising, 10 = falling, 11 = both. 
 \end{reglist}\end{regdesc}
 
 \begin{register}{H}{External input interrupt status register GPIOA\_EXTS}{0x1c}%
@@ -1657,7 +1657,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \end{register}
 \begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
-\item[DETECT] Edge detected.
+\item[DETECT] Edge detected. Must be cleared to reset the pending interrupt.
 \end{reglist}\end{regdesc}
 
 \subsection{UART1 -- Universal Asynchronous Receiver/Transmitter}

@@ -10,6 +10,10 @@
 # The target
 TARGET = trig
 
+# Compiler flags
+EXTRA_CFLAGS += -DNO_ARGC_ARGV
+# Linker flags
+EXTRA_LDFLAGS += -u _printf_float
 
 
 #-----
@@ -28,10 +32,8 @@ include $(COMMON_FILE)
 else
 endif
 
-# Compiler flags
-CFLAGS += -DNO_ARGC_ARGV
-# Linker flags
-LDFLAGS += -u _printf_float
+CFLAGS += $(EXTRA_CFLAGS)
+LDFLAGS += $(EXTRA_LDFLAGS)
 
 # All header files
 HFILES = $(wildcard *.h)

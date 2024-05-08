@@ -144,11 +144,11 @@ void trap_handler(void)
 	/* If the exception was due to an instruction access fault,
      * return to the spot marked `here` */
 	if (mcause == 1) {
-		mepc = here;
+		mepc = (uint32_t) here;
 	/* If the exception was due to an instruction misaligned fault,
      * return to the spot marked `here2` */
 	} else if (mcause == 0) {
-		mepc = here2;
+		mepc = (uint32_t) here2;
 	} else {
 		mepc += 4;
 	}

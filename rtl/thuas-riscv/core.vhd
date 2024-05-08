@@ -192,7 +192,8 @@ attribute ramstyle of regs : signal is "no_rw_check";
 -- Control signals
 type state_type is (state_boot0, state_boot1, state_exec, state_mem,
                     state_flush, state_flush2, state_md, state_md2,
-                    state_trap, state_trap2, state_mret, state_mret2);
+                    state_trap, state_trap2, state_mret, state_mret2,
+                    state_wfi);
 type control_type is record
     -- Stall, flush, jump/branch, instructions retired
     stall : std_logic;
@@ -216,6 +217,7 @@ type control_type is record
     ecall_request : std_logic;
     ebreak_request : std_logic;
     mret_request : std_logic;
+    wfi_request : std_logic;
     mret_request_delay : std_logic;
     -- Trap hardware
     trap_request : std_logic;
@@ -356,6 +358,8 @@ begin
                     -- or an exception.
                     if control.trap_request = '1' then
                         control.state <= state_trap;
+                    elsif control.wfi_request = '1' then
+                        control.state <= state_wfi;
                     -- If we have an mret request (MRET)
                     elsif control.mret_request = '1' then
                         control.state <= state_mret;
@@ -405,6 +409,10 @@ begin
                 -- Second state of MRET, flushes the pipeline
                 when state_mret2 =>
                     control.state <= state_exec;
+                when state_wfi =>
+                    if control.trap_request = '1' then
+                        control.state <= state_trap;
+                    end if;
                 when others =>
                     control.state <= state_exec;
             end case;
@@ -415,6 +423,7 @@ begin
     -- We need to stall if we are waiting for data from memory OR we stall the PC and md unit is not ready
     control.stall <= '1' when (control.state = state_exec and id_ex.ismem = '1' and I_memready = '0') or
                               (control.state = state_md) or
+                              (control.state = state_wfi) or
                               (control.state = state_mem and I_memready = '0') or
                               (control.state = state_exec and id_ex.md_start = '1')
                          else '0';
@@ -443,7 +452,7 @@ begin
     control.mret_request_delay <= '1' when control.state = state_mret2 else '0';
     
     -- May the core be interrupted (only for interrupts, not exceptions)?
-    control.may_interrupt <= '1' when control.state = state_exec else '0';
+    control.may_interrupt <= '1' when control.state = state_exec or control.state = state_wfi else '0';
     
     -- Check if the currently executing instruction address is aligned to word
     -- We need to make a one-shot, because the PC is incremented by 4 each clock
@@ -671,6 +680,7 @@ begin
             control.ecall_request <= '0';
             control.ebreak_request <= '0';
             control.mret_request <= '0';
+            control.wfi_request <= '0';
             control.illegal_instruction_decode <= '0';
             control.reg0_write_once <= '0';
         elsif rising_edge(I_clk) then
@@ -691,6 +701,7 @@ begin
                 control.ecall_request <= '0';
                 -- EBREAK request reset
                 control.ebreak_request <= '0';
+                control.wfi_request <= '0';
                 -- Illegal instruction reset
                 control.illegal_instruction_decode <= '0';
             -- We need to stall the operation
@@ -704,6 +715,7 @@ begin
                     id_ex.pc_op <= pc_incr;
                     id_ex.rd_en <= '1';
                 end if;
+                control.wfi_request <= '0';
             else
                 -- Set all registers to default
                 id_ex.instr <= I_instr;
@@ -730,6 +742,7 @@ begin
                 control.ecall_request <= '0';
                 control.ebreak_request <= '0';
                 control.mret_request <= '0';
+                control.wfi_request <= '0';
                 control.illegal_instruction_decode <= '0';
                 control.reg0_write_once <= '1';
 
@@ -1068,6 +1081,7 @@ begin
                                         id_ex.pc_op <= pc_load_mepc;
                                     elsif I_instr(31 downto 20) = "000100000101" then
                                         -- WFI, skip for now
+                                        control.wfi_request <= '1';
                                         null;
                                     else
                                         control.illegal_instruction_decode <= '1';

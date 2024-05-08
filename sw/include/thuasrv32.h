@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include <io.h>
+#include <asm.h>
 #include <gpio.h>
 #include <uart.h>
 #include <syscalls.h>

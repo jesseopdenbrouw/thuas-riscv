@@ -34,7 +34,7 @@ int main(int argc, char *argv[], char *envp[]);
 /* Declare the pre-init universal handler */
 void __libc_init_array(void);
 void __libc_fini_array(void);
-void pre_init_universal_handler(void);
+void pre_init_trap_handler(void);
 
 /* argv array for main */
 static char *argv[] = {
@@ -64,7 +64,7 @@ void _start(void)
 	 * catch pre-init traps. Mostly because of a bug. */
 	__asm__ volatile (".option push;"
 	                   ".option norelax;"
-	                   "la    t0, pre_init_universal_handler;"
+	                   "la    t0, pre_init_trap_handler;"
 	                   "csrw  mtvec,t0;"
 	                   "la    gp, __global_pointer$;"
 	                   "la    sp, __stack_pointer$;"
@@ -122,7 +122,7 @@ void _start(void)
 
 /* pre-init trap handler. Here to catch initialization errors */
 __attribute__((interrupt, used))
-void pre_init_universal_handler(void)
+void pre_init_trap_handler(void)
 {
 	while (1);
 }

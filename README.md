@@ -8,7 +8,7 @@ for an FPGA.
 This RISC-V microcontroller uses the RV32IM instruction set
 and the Zicsr, Zicntr, Zicond, Zihpm, Zba and Zbs extensions.
 The microcontroller supports exceptions and interrupts.
-`ECALL`, `EBREAK` and `MRET` are supported. `WFI`, `FENCE`
+`ECALL`, `EBREAK`, `WFI` and `MRET` are supported. `FENCE`
 and `FENCE.I` act as no-operation
 (`NOP`). Currently only machine mode is supported. We
 successfully tested complex programs with interrupts

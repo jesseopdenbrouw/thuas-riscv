@@ -97,10 +97,10 @@ SECTIONS
   _start_of_rom_to_copy = .;
   PROVIDE(_start_of_rom_to_copy = .);
 
-  _sidata = LOADADDR(.sdata);
+  _sidata = LOADADDR(.data);
 
   /* Initialization data in RAM */
-  .sdata : {
+  .data : {
     __global_pointer$ = . + 0x800;
     _sdata = .;
     *(.data)

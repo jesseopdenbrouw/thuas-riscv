@@ -409,6 +409,7 @@ begin
                 -- Second state of MRET, flushes the pipeline
                 when state_mret2 =>
                     control.state <= state_exec;
+                -- Stalling on WFI, waiting for an interrupt
                 when state_wfi =>
                     if control.trap_request = '1' then
                         control.state <= state_trap;

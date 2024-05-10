@@ -1,12 +1,12 @@
 # wfitest
 
-Test the WFI instruction
+Test the `WFI` instruction
 
 ## Description
 
 This program tests the use of the `WFI` instruction.
 The `WFI` instruction halts the processor until an
-interrupts needs to be serviced. The External Input
+interrupt needs to be serviced. The External Input
 Interrupt (EXTI) is assigned for that task.
 
 The EXTI waits for a falling edge in pin PA15 of

@@ -86,10 +86,10 @@ SECTIONS
   } >ROM :ROM
 
   . = ALIGN(4);
-  _sidata = LOADADDR(.sdata);
+  _sidata = LOADADDR(.data);
 
 
-  .sdata : {
+  .data : {
     __global_pointer$ = . + 0x800;
     _sdata = .;
     *(.data)

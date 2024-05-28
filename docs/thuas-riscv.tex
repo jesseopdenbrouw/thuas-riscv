@@ -235,7 +235,7 @@ The Program Counter contains the address of the currently fetched instruction. T
 The instruction decoder decodes the instruction supplied by the ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides all control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit. %Some signals are directly wired to the memory.
 
 \subsection{Control Unit}
-The processor uses a twelve-state FSM, see Figure~\ref{fsmpipe}. Upon reset, the processor starts in state \lstinline|boot0|. In this state, the processor is executing a hardware no-operation, i.e.\@ no computations are performed, but register \lstinline|x0| (alias \lstinline|zero|) is written with all-zero bits. This is because onboard RAM-blocks (where the registers are placed), cannot have a reset signal. In state \lstinline|boot1| the processor performs a hardware no-operation (but the first instruction is being decoded). In the \lstinline|exec| state, the processor is executing decoded instructions. If a trap request is being asserted, the processor executes the trap initiate sequence (saving the PC, fetching the handler start address, pipeline is flushed). If a memory access is requested, the processor initiates the memory access sequence (state \lstinline|mem|). The processor waits in this state until the memory access is acknowledged. A jump (JAL, JALR) or a branch taken causes the processor to flush the pipeline and start fetching instruction from the target address (states \lstinline|flush| and \lstinline|flush2|). When the processor executes an integer multiply/divide instruction, the processor starts the MD sequence (states \lstinline|md| and \lstinline|md2|), and stalls until the operation is completed. When the processor executes an \lstinline|mret| instruction, the processor executes the return sequence (fetching the saved PC, flushing the pipeline).
+The processor uses a thirteen-state FSM, see Figure~\ref{fsmpipe}. Upon reset, the processor starts in state \lstinline|boot0|. In this state, the processor is executing a hardware no-operation, i.e.\@ no computations are performed, but register \lstinline|x0| (alias \lstinline|zero|) is written with all-zero bits. This is because onboard RAM-blocks (where the registers are placed), cannot have a reset signal. In state \lstinline|boot1| the processor performs a hardware no-operation (but the first instruction is being decoded). In the \lstinline|exec| state, the processor is executing decoded instructions. If a trap request is being asserted, the processor executes the trap initiate sequence (saving the PC, fetching the handler start address, pipeline is flushed). If a memory access is requested, the processor initiates the memory access sequence (state \lstinline|mem|). The processor waits in this state until the memory access is acknowledged. A jump (JAL, JALR) or a branch taken causes the processor to flush the pipeline and start fetching instruction from the target address (states \lstinline|flush| and \lstinline|flush2|). When the processor executes an integer multiply/divide instruction, the processor starts the MD sequence (states \lstinline|md| and \lstinline|md2|), and stalls until the operation is completed. When the processor executes an \lstinline|mret| instruction, the processor executes the return sequence (fetching the saved PC, flushing the pipeline).
 
 Note that a trap (interrupts and exceptions) can be initiated in the \lstinline|exec| state and has priority over the others signals. Note that a trap (exceptions only) can be initiated in the \lstinline|mem| state. In all other states, a trap can never be initiated.
 
@@ -254,24 +254,29 @@ Note that a trap (interrupts and exceptions) can be initiated in the \lstinline|
 \node[state,below of=trap] (trap2) {trap2};
 \node[state,below left of=exec] (mret) {mret};
 \node[state,below of=mret] (mret2) {mret2};
+\node[state,below of=exec] (wfi) {wfi};
 
 \path[-latex] (boot0) edge node[above] {--} (boot1)
               (boot1) edge node[above] {--} (exec)
               (exec) edge [bend right] node[above] {mem} (mem)
               (mem) edge [bend right] node[above,xshift=1cm] {memready} (exec)
-              (mem) edge node[right] {trap} (trap)
               (exec) edge node[left] {mdstart} (md)
               (md) edge node[left] {mdready} (md2)
               (md2) edge node[right] {--} (exec)
               (exec) edge node[above left,xshift=0.3cm] {penalty} (flush)
               (flush) edge node[right] {--} (flush2)
               (flush2) edge node[left] {--} (exec)
-              (exec) edge node[right,] {trap} (trap)
               (trap) edge node[right] {--} (trap2)
               (trap2) edge node[left] {--} (exec)
               (exec) edge node[left] {mret} (mret)
               (mret) edge node[left] {--} (mret2)
               (mret2) edge node[right] {--} (exec)
+              (exec) edge node[left] {wfi} (wfi)
+;
+\path[-latex,dashed,red]
+              (exec) edge node[right] {trap} (trap)
+              (wfi) edge node[above] {trap} (trap)
+              (mem) edge node[right] {trap} (trap)
 ;
 %\node at (0,-4) {\small * trap initiated by hardware or software.};
 \end{tikzpicture}
@@ -1128,11 +1133,13 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 \item \lstinline|trig| -- some float trigonometry functions for float and double. Prints results to UART1. This is a big binary. Works on the board.
 \item \lstinline|upload| -- a Linux/PC program to upload an S-record file using the bootloader.
 \item \lstinline|uart_cpp| -- Simple C++ UART program. Makes use of a singleton design pattern. Works on the board.
+\item \lstinline|uart_interrupt| -- Example program on how to use the UART1 interrupt for transmiiting and receiving data. Works on the board.
 \item \lstinline|uart_printf| -- simple program that prints an integer, a pointer, a float and a double to the terminal using \lstinline|printf|, this is a big binary. Works on the board.
 \item \lstinline|uart1_printlonglong| -- program that prints a long long and unsigned long long to the UART. Works on the board.
 \item \lstinline|uart_sprintf| -- simple program that prints an integer, a pointer, a float and a double to the terminal, this is a big binary. Works on the board.
 \item \lstinline|uart_test| -- simple UART1 program. Works on the board.
-\item \lstinline|watchdog| -- simple watchdoh test program, Works on the board.
+\item \lstinline|watchdog| -- simple watchdog test program, NMI not yet tested. Works on the board.
+\item \lstinline|wfitest| -- simple program to test the \texttt{wfi} instruction. Works on the board.
 \end{itemize} 
 
 Note: we use a lot of the \lstinline|volatile| keyword to emit the variables to RAM for easy inspection in the simulator. You will see compiler warnings from C library functions.

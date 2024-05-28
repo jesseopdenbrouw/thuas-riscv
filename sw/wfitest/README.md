@@ -11,7 +11,7 @@ Interrupt (EXTI) is assigned for that task.
 
 The EXTI waits for a falling edge in pin PA15 of
 GPIOA. On the DE0-CV board, this is push button
-`KEY3`.
+`KEY3`, which is active low.
 
 
 ## Stats

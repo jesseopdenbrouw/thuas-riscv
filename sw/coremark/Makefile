@@ -32,6 +32,7 @@ endif
 # Compiler flags
 CFLAGS += $(EFFORT)
 
+
 # All header files
 HFILES = $(wildcard *.h)
 

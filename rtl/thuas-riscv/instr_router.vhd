@@ -50,30 +50,38 @@ entity instruction_router is
           ROM_HIGH_NIBBLE : memory_high_nibble;
           BOOT_HIGH_NIBBLE : memory_high_nibble
          );
-    port (I_pc : in data_type;
-          I_instr_rom : in data_type;
-          I_instr_boot : in data_type;
-          O_instr_out : out data_type;
-          O_instr_access_error : out std_logic
+    port (         
+          -- Instruction request from core
+          I_instr_request : in instr_request_type;
+          O_instr_response : out instr_response_type;
+          -- To/from ROM
+          O_instr_request_rom : out instr_request_type;
+          I_instr_response_rom : in instr_response2_type;
+          -- To/from boot ROM
+          O_instr_request_boot : out instr_request_type;
+          I_instr_response_boot : in instr_response2_type
          );
 end entity instruction_router;
 
 architecture rtl of instruction_router is
 begin
 
-    process (I_pc, I_instr_rom, I_instr_boot) is
+    O_instr_request_rom <= I_instr_request;
+    O_instr_request_boot <= I_instr_request;
+    
+    process (I_instr_request, I_instr_response_rom, I_instr_response_boot) is
     begin
-        O_instr_access_error <= '0';
+        O_instr_response.instr_access_error <= '0';
         
         -- If the ROM is addressed, return instruction from ROM
-        if I_pc(31 downto 28) = ROM_HIGH_NIBBLE then
-            O_instr_out <= I_instr_rom;
+        if I_instr_request.pc(31 downto 28) = ROM_HIGH_NIBBLE then
+            O_instr_response.instr <= I_instr_response_rom.instr;
         -- If the boot ROM is addressed, return instruction from boot ROM
-        elsif I_pc(31 downto 28) = BOOT_HIGH_NIBBLE and HAVE_BOOTLOADER_ROM then
-            O_instr_out <= I_instr_boot;
+        elsif I_instr_request.pc(31 downto 28) = BOOT_HIGH_NIBBLE and HAVE_BOOTLOADER_ROM then
+            O_instr_response.instr <= I_instr_response_boot.instr;
         else
-            O_instr_out <= (others => '-');
-            O_instr_access_error <= '1';
+            O_instr_response.instr <= (others => '-');
+            O_instr_response.instr_access_error <= '1';
         end if;
     end process;
     

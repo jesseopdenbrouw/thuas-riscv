@@ -101,16 +101,10 @@ entity io is
          );             
     port (I_clk : in std_logic;
           I_areset : in std_logic;
-          I_memaddress : in data_type;
-          I_memsize : memsize_type;
-          I_csio : in std_logic;
-          I_wren : in std_logic;
-          I_datain : in data_type;
-          O_dataout : out data_type;
-          O_memready : out std_logic;
-          -- Misaligned access
-          O_load_misaligned_error : out std_logic;
-          O_store_misaligned_error : out std_logic;
+          -- From address decoder
+          I_mem_request : in mem_request_type;
+          -- To address decoder
+          O_mem_response : out mem_response_type;
           -- Connection with outside world
           -- GPIOA
           I_gpioapin : in data_type;
@@ -477,18 +471,18 @@ begin
 
     -- Fetch internal register of io_size_bits bits minus 2
     -- because we will use word size only
-    reg_int <= to_integer(unsigned(I_memaddress(io_size_bits-1 downto 2)));
+    reg_int <= to_integer(unsigned(I_mem_request.addr(io_size_bits-1 downto 2)));
     
     -- Check if an access is on a 4-byte boundary AND is word size
-    isword <= TRUE when I_memsize = memsize_word and I_memaddress(1 downto 0) = "00" else FALSE;
+    isword <= TRUE when I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" else FALSE;
 
     -- Misaligned error, when (not on a 4-byte boundary OR not word size) AND chip select
-    O_load_misaligned_error <= '1' when not isword and I_csio = '1' and I_wren = '0' else '0';
-    O_store_misaligned_error <= '1' when not isword and I_csio = '1' and I_wren = '1' else '0';
+    O_mem_response.load_misaligned_error <= '1' when not isword and I_mem_request.cs = '1' and I_mem_request.wren = '0' else '0';
+    O_mem_response.store_misaligned_error <= '1' when not isword and I_mem_request.cs = '1' and I_mem_request.wren = '1' else '0';
     
     -- Read or write access
-    read_access_granted <= '1' when isword and I_csio = '1' and I_wren = '0' else '0';
-    write_access_granted <= '1' when isword and I_csio = '1' and I_wren = '1' else '0';
+    read_access_granted <= '1' when isword and I_mem_request.cs = '1' and I_mem_request.wren = '0' else '0';
+    write_access_granted <= '1' when isword and I_mem_request.cs = '1' and I_mem_request.wren = '1' else '0';
     
 
     --
@@ -498,50 +492,50 @@ begin
     begin
         -- Reading a register here doesn't have side effects such as clearing bits.
         if I_areset = '1' then
-            O_dataout <= (others => '0');
+            O_mem_response.data <= (others => '0');
         elsif rising_edge(I_clk) then
             if read_access_granted = '1' then
                 case reg_int is
-                    when gpioapin_addr   => O_dataout <= gpioa.pin;
-                    when gpioapout_addr  => O_dataout <= gpioa.pout;
-                    when gpioaextc_addr  => O_dataout <= gpioa.extc;
-                    when gpioaexts_addr  => O_dataout <= gpioa.exts;
-                    when uart1ctrl_addr  => O_dataout <= uart1.ctrl;
-                    when uart1stat_addr  => O_dataout <= uart1.stat;
-                    when uart1data_addr  => O_dataout <= uart1.data;
-                    when uart1baud_addr  => O_dataout <= uart1.baud;
-                    when i2c1ctrl_addr   => O_dataout <= i2c1.ctrl;
-                    when i2c1stat_addr   => O_dataout <= i2c1.stat;
-                    when i2c1data_addr   => O_dataout <= i2c1.data;
-                    when i2c2ctrl_addr   => O_dataout <= i2c2.ctrl;
-                    when i2c2stat_addr   => O_dataout <= i2c2.stat;
-                    when i2c2data_addr   => O_dataout <= i2c2.data;
-                    when spi1ctrl_addr   => O_dataout <= spi1.ctrl;
-                    when spi1stat_addr   => O_dataout <= spi1.stat;
-                    when spi1data_addr   => O_dataout <= spi1.data;
-                    when spi2ctrl_addr   => O_dataout <= spi2.ctrl;
-                    when spi2stat_addr   => O_dataout <= spi2.stat;
-                    when spi2data_addr   => O_dataout <= spi2.data;
-                    when timer1ctrl_addr => O_dataout <= timer1.ctrl;
-                    when timer1stat_addr => O_dataout <= timer1.stat;
-                    when timer1cntr_addr => O_dataout <= timer1.cntr;
-                    when timer1cmpt_addr => O_dataout <= timer1.cmpt;
-                    when timer2ctrl_addr => O_dataout <= timer2.ctrl;
-                    when timer2stat_addr => O_dataout <= timer2.stat;
-                    when timer2cntr_addr => O_dataout <= timer2.cntr;
-                    when timer2cmpt_addr => O_dataout <= timer2.cmpt;
-                    when timer2prsc_addr => O_dataout <= timer2.prsc;
-                    when timer2cmpa_addr => O_dataout <= timer2.cmpa;
-                    when timer2cmpb_addr => O_dataout <= timer2.cmpb;
-                    when timer2cmpc_addr => O_dataout <= timer2.cmpc;
-                    when wdtctrl_addr    => O_dataout <= wdt.ctrl;
-                    when wdttrig_addr    => O_dataout <= wdt.trig;
-                    when msitrig_addr    => O_dataout <= msi.trig;
-                    when mtime_addr      => O_dataout <= mtime.mtime;
-                    when mtimeh_addr     => O_dataout <= mtime.mtimeh;
-                    when mtimecmp_addr   => O_dataout <= mtime.mtimecmp;
-                    when mtimecmph_addr  => O_dataout <= mtime.mtimecmph;
-                    when others => O_dataout <= (others => '-');
+                    when gpioapin_addr   => O_mem_response.data <= gpioa.pin;
+                    when gpioapout_addr  => O_mem_response.data <= gpioa.pout;
+                    when gpioaextc_addr  => O_mem_response.data <= gpioa.extc;
+                    when gpioaexts_addr  => O_mem_response.data <= gpioa.exts;
+                    when uart1ctrl_addr  => O_mem_response.data <= uart1.ctrl;
+                    when uart1stat_addr  => O_mem_response.data <= uart1.stat;
+                    when uart1data_addr  => O_mem_response.data <= uart1.data;
+                    when uart1baud_addr  => O_mem_response.data <= uart1.baud;
+                    when i2c1ctrl_addr   => O_mem_response.data <= i2c1.ctrl;
+                    when i2c1stat_addr   => O_mem_response.data <= i2c1.stat;
+                    when i2c1data_addr   => O_mem_response.data <= i2c1.data;
+                    when i2c2ctrl_addr   => O_mem_response.data <= i2c2.ctrl;
+                    when i2c2stat_addr   => O_mem_response.data <= i2c2.stat;
+                    when i2c2data_addr   => O_mem_response.data <= i2c2.data;
+                    when spi1ctrl_addr   => O_mem_response.data <= spi1.ctrl;
+                    when spi1stat_addr   => O_mem_response.data <= spi1.stat;
+                    when spi1data_addr   => O_mem_response.data <= spi1.data;
+                    when spi2ctrl_addr   => O_mem_response.data <= spi2.ctrl;
+                    when spi2stat_addr   => O_mem_response.data <= spi2.stat;
+                    when spi2data_addr   => O_mem_response.data <= spi2.data;
+                    when timer1ctrl_addr => O_mem_response.data <= timer1.ctrl;
+                    when timer1stat_addr => O_mem_response.data <= timer1.stat;
+                    when timer1cntr_addr => O_mem_response.data <= timer1.cntr;
+                    when timer1cmpt_addr => O_mem_response.data <= timer1.cmpt;
+                    when timer2ctrl_addr => O_mem_response.data <= timer2.ctrl;
+                    when timer2stat_addr => O_mem_response.data <= timer2.stat;
+                    when timer2cntr_addr => O_mem_response.data <= timer2.cntr;
+                    when timer2cmpt_addr => O_mem_response.data <= timer2.cmpt;
+                    when timer2prsc_addr => O_mem_response.data <= timer2.prsc;
+                    when timer2cmpa_addr => O_mem_response.data <= timer2.cmpa;
+                    when timer2cmpb_addr => O_mem_response.data <= timer2.cmpb;
+                    when timer2cmpc_addr => O_mem_response.data <= timer2.cmpc;
+                    when wdtctrl_addr    => O_mem_response.data <= wdt.ctrl;
+                    when wdttrig_addr    => O_mem_response.data <= wdt.trig;
+                    when msitrig_addr    => O_mem_response.data <= msi.trig;
+                    when mtime_addr      => O_mem_response.data <= mtime.mtime;
+                    when mtimeh_addr     => O_mem_response.data <= mtime.mtimeh;
+                    when mtimecmp_addr   => O_mem_response.data <= mtime.mtimecmp;
+                    when mtimecmph_addr  => O_mem_response.data <= mtime.mtimecmph;
+                    when others => O_mem_response.data <= (others => '-');
                 end case;
             end if;
         end if;
@@ -574,11 +568,11 @@ begin
             -- Only write when Chip Select (cs)
             if write_access_granted = '1' then
                 if reg_int = gpioapout_addr then
-                    gpioa.pout <= I_datain;
+                    gpioa.pout <= I_mem_request.data;
                 elsif reg_int = gpioaextc_addr then
-                    gpioa.extc <= I_datain;
+                    gpioa.extc <= I_mem_request.data;
                 elsif reg_int = gpioaexts_addr then
-                    gpioa.exts <= I_datain;
+                    gpioa.exts <= I_mem_request.data;
                 end if;
             end if;
             -- Detect rising edge or falling edge or both
@@ -624,14 +618,14 @@ begin
                 if write_access_granted = '1' then
                     if reg_int = uart1ctrl_addr then
                         -- A write to the control register
-                        uart1.ctrl <= I_datain;
+                        uart1.ctrl <= I_mem_request.data;
                     elsif reg_int = uart1stat_addr then
                         -- A write to the status register
-                        uart1.stat <= I_datain;
+                        uart1.stat <= I_mem_request.data;
                     elsif reg_int = uart1baud_addr then
                         -- A write to the baud rate register
                         -- Use only 16 bits for baud rate
-                        uart1.baud <= I_datain;
+                        uart1.baud <= I_mem_request.data;
                     elsif reg_int = uart1data_addr then
                         -- A write to the data register triggers a transmission
                         -- Signal start
@@ -643,30 +637,30 @@ begin
                         uart1.txbuffer <= (others => '1');
                         if uart1size = "10" then
                             -- 9 bits data
-                            uart1.txbuffer(9 downto 0) <= I_datain(8 downto 0) & '0';
+                            uart1.txbuffer(9 downto 0) <= I_mem_request.data(8 downto 0) & '0';
                             -- Have parity
                             if uart1paron = '1' then
---                                uart1.txbuffer(10) <= I_datain(8) xor I_datain(7) xor I_datain(6) xor I_datain(5) xor I_datain(4)
---                                                  xor I_datain(3) xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
-                                uart1.rxbuffer(10) <= xor_reduce(I_datain(8 downto 0) & uart1parnevenodd);
+--                                uart1.txbuffer(10) <= I_mem_request.data(8) xor I_mem_request.data(7) xor I_mem_request.data(6) xor I_mem_request.data(5) xor I_mem_request.data(4)
+--                                                  xor I_mem_request.data(3) xor I_mem_request.data(2) xor I_mem_request.data(1) xor I_mem_request.data(0) xor uart1parnevenodd;
+                                uart1.rxbuffer(10) <= xor_reduce(I_mem_request.data(8 downto 0) & uart1parnevenodd);
                             end if;
                         elsif uart1size = "11" then
                             -- 7 bits data
-                            uart1.txbuffer(7 downto 0) <= I_datain(6 downto 0) & '0';
+                            uart1.txbuffer(7 downto 0) <= I_mem_request.data(6 downto 0) & '0';
                             -- Have parity
                             if uart1paron = '1' then
---                                uart1.txbuffer(8) <= I_datain(6) xor I_datain(5) xor I_datain(4) xor I_datain(3)
---                                                 xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
-                                uart1.txbuffer(8) <= xor_reduce(I_datain(6 downto 0) & uart1parnevenodd);
+--                                uart1.txbuffer(8) <= I_mem_request.data(6) xor I_mem_request.data(5) xor I_mem_request.data(4) xor I_mem_request.data(3)
+--                                                 xor I_mem_request.data(2) xor I_mem_request.data(1) xor I_mem_request.data(0) xor uart1parnevenodd;
+                                uart1.txbuffer(8) <= xor_reduce(I_mem_request.data(6 downto 0) & uart1parnevenodd);
                             end if;
                         else
                             -- 8 bits data
-                            uart1.txbuffer(8 downto 0) <= I_datain(7 downto 0) & '0';
+                            uart1.txbuffer(8 downto 0) <= I_mem_request.data(7 downto 0) & '0';
                             -- Have parity
                             if uart1paron = '1' then
---                                uart1.txbuffer(9) <= I_datain(7) xor I_datain(6) xor I_datain(5) xor I_datain(4) xor I_datain(3)
---                                                 xor I_datain(2) xor I_datain(1) xor I_datain(0) xor uart1parnevenodd;
-                                uart1.txbuffer(9) <= xor_reduce(I_datain(7 downto 0) & uart1parnevenodd);
+--                                uart1.txbuffer(9) <= I_mem_request.data(7) xor I_mem_request.data(6) xor I_mem_request.data(5) xor I_mem_request.data(4) xor I_mem_request.data(3)
+--                                                 xor I_mem_request.data(2) xor I_mem_request.data(1) xor I_mem_request.data(0) xor uart1parnevenodd;
+                                uart1.txbuffer(9) <= xor_reduce(I_mem_request.data(7 downto 0) & uart1parnevenodd);
                             end if;
                         end if;
                         -- Signal that we are sending
@@ -930,12 +924,12 @@ begin
                 -- Common register writes
                 if write_access_granted = '1' then
                     if reg_int = i2c1ctrl_addr then
-                        i2c1.ctrl <= I_datain;
+                        i2c1.ctrl <= I_mem_request.data;
                     elsif reg_int = i2c1stat_addr then
-                        i2c1.stat <= I_datain;
+                        i2c1.stat <= I_mem_request.data;
                     elsif reg_int = i2c1data_addr then
                         -- Latch data, if startbit set, end with master Nack
-                        i2c1.txbuffer <= I_datain(7 downto 0) & (i2c1startbit or i2c1stopbit or not i2c1mack);
+                        i2c1.txbuffer <= I_mem_request.data(7 downto 0) & (i2c1startbit or i2c1stopbit or not i2c1mack);
                         -- Signal that we are sending data
                         i2c1.startstransmission <= '1';
                         -- Reset both Transmission Complete and Ack Failed
@@ -1173,12 +1167,12 @@ begin
                 -- Common register writes
                 if write_access_granted = '1' then
                     if reg_int = i2c2ctrl_addr then
-                        i2c2.ctrl <= I_datain;
+                        i2c2.ctrl <= I_mem_request.data;
                     elsif reg_int = i2c2stat_addr then
-                        i2c2.stat <= I_datain;
+                        i2c2.stat <= I_mem_request.data;
                     elsif reg_int = i2c2data_addr then
                         -- Latch data, if startbit set, end with master Nack
-                        i2c2.txbuffer <= I_datain(7 downto 0) & (i2c2startbit or i2c2stopbit or not i2c2mack);
+                        i2c2.txbuffer <= I_mem_request.data(7 downto 0) & (i2c2startbit or i2c2stopbit or not i2c2mack);
                         -- Signal that we are sending data
                         i2c2.startstransmission <= '1';
                         -- Reset both Transmission Complete and Ack Failed
@@ -1421,12 +1415,12 @@ begin
                 if write_access_granted = '1' then
                     if reg_int = spi1ctrl_addr then
                         -- A write to the control register
-                        spi1.ctrl <= I_datain;
+                        spi1.ctrl <= I_mem_request.data;
                         -- Set clock polarity
-                        spi1.sck <= I_datain(2);
+                        spi1.sck <= I_mem_request.data(2);
                     elsif reg_int = spi1stat_addr then
                         -- A write to the status register
-                        spi1.stat <= I_datain;
+                        spi1.stat <= I_mem_request.data;
                     elsif reg_int = spi1data_addr then
                         -- A write to the data register triggers a transmission
                         -- Signal start
@@ -1436,13 +1430,13 @@ begin
                         spi1.data <= (others => '0');
                         -- Load the desired bits to transfer
                         case spi1.ctrl(5 downto 4) is
-                            when "00" =>   spi1.txbuffer(31 downto 24) <= I_datain(7 downto 0);
+                            when "00" =>   spi1.txbuffer(31 downto 24) <= I_mem_request.data(7 downto 0);
                                            spi1.shiftcounter <= 7;
-                            when "01" =>   spi1.txbuffer(31 downto 16) <= I_datain(15 downto 0);
+                            when "01" =>   spi1.txbuffer(31 downto 16) <= I_mem_request.data(15 downto 0);
                                            spi1.shiftcounter <= 15;
-                            when "10" =>   spi1.txbuffer(31 downto 8) <= I_datain(23 downto 0);
+                            when "10" =>   spi1.txbuffer(31 downto 8) <= I_mem_request.data(23 downto 0);
                                            spi1.shiftcounter <= 23;
-                            when "11" =>   spi1.txbuffer <= I_datain;
+                            when "11" =>   spi1.txbuffer <= I_mem_request.data;
                                            spi1.shiftcounter <= 31;
                             when others => spi1.txbuffer <= (others => '-');
                                            spi1.shiftcounter <= 0;
@@ -1630,12 +1624,12 @@ begin
                 if write_access_granted = '1' then
                     if reg_int = spi2ctrl_addr then
                         -- A write to the control register
-                        spi2.ctrl <= I_datain;
+                        spi2.ctrl <= I_mem_request.data;
                         -- Set clock polarity
-                        spi2.sck <= I_datain(2);
+                        spi2.sck <= I_mem_request.data(2);
                     elsif reg_int = spi2stat_addr then
                         -- A write to the status register
-                        spi2.stat <= I_datain;
+                        spi2.stat <= I_mem_request.data;
                     elsif reg_int = spi2data_addr then
                         -- A write to the data register triggers a transmission
                         -- Signal start
@@ -1645,13 +1639,13 @@ begin
                         spi2.data <= (others => '0');
                         -- Load the desired bits to transfer
                         case spi2.ctrl(5 downto 4) is
-                            when "00" =>   spi2.txbuffer(31 downto 24) <= I_datain(7 downto 0);
+                            when "00" =>   spi2.txbuffer(31 downto 24) <= I_mem_request.data(7 downto 0);
                                            spi2.shiftcounter <= 7;
-                            when "01" =>   spi2.txbuffer(31 downto 16) <= I_datain(15 downto 0);
+                            when "01" =>   spi2.txbuffer(31 downto 16) <= I_mem_request.data(15 downto 0);
                                            spi2.shiftcounter <= 15;
-                            when "10" =>   spi2.txbuffer(31 downto 8) <= I_datain(23 downto 0);
+                            when "10" =>   spi2.txbuffer(31 downto 8) <= I_mem_request.data(23 downto 0);
                                            spi2.shiftcounter <= 23;
-                            when "11" =>   spi2.txbuffer <= I_datain;
+                            when "11" =>   spi2.txbuffer <= I_mem_request.data;
                                            spi2.shiftcounter <= 31;
                             when others => spi2.txbuffer <= (others => '-');
                                            spi2.shiftcounter <= 0;
@@ -1807,19 +1801,19 @@ begin
                 if write_access_granted = '1' then
                     -- Write Timer Control Register
                     if reg_int = timer1ctrl_addr then
-                        timer1.ctrl <= I_datain;
+                        timer1.ctrl <= I_mem_request.data;
                     end if;
                     -- Write Timer Status Register
                     if reg_int = timer1stat_addr then
-                        timer1.stat <= I_datain;
+                        timer1.stat <= I_mem_request.data;
                     end if;
                     -- Write Timer Counter Register
                     if reg_int = timer1cntr_addr then
-                        timer1.cntr <= I_datain;
+                        timer1.cntr <= I_mem_request.data;
                     end if;
                     -- Write Timer Compare Register
                     if reg_int = timer1cmpt_addr then
-                        timer1.cmpt <= I_datain;
+                        timer1.cmpt <= I_mem_request.data;
                     end if;
                 end if;
                 -- Set unused bits to 0
@@ -1889,10 +1883,10 @@ begin
                         -- Check if one or more FOC bits are set
                         -- If so, the data is NOT copied to the CTRL register
                         -- and the MODE bits indicate the FOC action
-                        if I_datain(31 downto 28) /= "0000" then
+                        if I_mem_request.data(31 downto 28) /= "0000" then
                             -- FOCT
-                            if I_datain(28) = '1' then
-                                case I_datain(14 downto 12) is
+                            if I_mem_request.data(28) = '1' then
+                                case I_mem_request.data(14 downto 12) is
                                     when "001" => timer2.oct <= not timer2.oct;
                                     when "010" => timer2.oct <= '1';
                                     when "011" => timer2.oct <= '0';
@@ -1900,8 +1894,8 @@ begin
                                 end case;
                             end if;
                             -- FOCA
-                            if I_datain(29) = '1' then
-                                case I_datain(18 downto 16) is
+                            if I_mem_request.data(29) = '1' then
+                                case I_mem_request.data(18 downto 16) is
                                     when "001" => timer2.oca <= not timer2.oca;
                                     when "010" => timer2.oca <= '1';
                                     when "011" => timer2.oca <= '0';
@@ -1909,8 +1903,8 @@ begin
                                 end case;
                             end if;
                             -- FOCB
-                            if I_datain(30) = '1' then
-                                case I_datain(22 downto 20) is
+                            if I_mem_request.data(30) = '1' then
+                                case I_mem_request.data(22 downto 20) is
                                     when "001" => timer2.ocb <= not timer2.ocb;
                                     when "010" => timer2.ocb <= '1';
                                     when "011" => timer2.ocb <= '0';
@@ -1918,8 +1912,8 @@ begin
                                 end case;
                             end if;
                             -- FOCC
-                            if I_datain(31) = '1' then
-                                case I_datain(26 downto 24) is
+                            if I_mem_request.data(31) = '1' then
+                                case I_mem_request.data(26 downto 24) is
                                     when "001" => timer2.occ <= not timer2.occ;
                                     when "010" => timer2.occ <= '1';
                                     when "011" => timer2.occ <= '0';
@@ -1929,95 +1923,95 @@ begin
                         else
                             -- No FOC bits set, so ...
                             -- Copy to CTRL register
-                            timer2.ctrl <= I_datain;
+                            timer2.ctrl <= I_mem_request.data;
                             -- Set the signal phase
-                            timer2.oct <= I_datain(15);
-                            timer2.oca <= I_datain(19);
-                            timer2.ocb <= I_datain(23);
-                            timer2.occ <= I_datain(27);
+                            timer2.oct <= I_mem_request.data(15);
+                            timer2.oca <= I_mem_request.data(19);
+                            timer2.ocb <= I_mem_request.data(23);
+                            timer2.occ <= I_mem_request.data(27);
                             -- If the CMPA register is all zero and we start, then
                             -- set the output compare immediate, but don't flag it
-                            if timer2.cmpa = x"00000000" and I_datain(0) = '1' then
-                                if I_datain(18 downto 16) = "001" then
-                                    timer2.oca <= not I_datain(19);
-                                elsif I_datain(18 downto 16) = "010" and I_datain(0) = '1' then
-                                    timer2.oca <= not I_datain(19);
-                                elsif I_datain(18 downto 16) = "011" and I_datain(0) = '1' then
-                                    timer2.oca <= I_datain(19);
+                            if timer2.cmpa = x"00000000" and I_mem_request.data(0) = '1' then
+                                if I_mem_request.data(18 downto 16) = "001" then
+                                    timer2.oca <= not I_mem_request.data(19);
+                                elsif I_mem_request.data(18 downto 16) = "010" and I_mem_request.data(0) = '1' then
+                                    timer2.oca <= not I_mem_request.data(19);
+                                elsif I_mem_request.data(18 downto 16) = "011" and I_mem_request.data(0) = '1' then
+                                    timer2.oca <= I_mem_request.data(19);
                                 end if;
                             end if;
                             -- If the CMPB register is all zero and we start, then
                             -- set the output compare immediate, but don't flag it
-                            if timer2.cmpb = x"00000000" and I_datain(0) = '1' then
-                                if I_datain(22 downto 20) = "001" then
-                                    timer2.ocb <= not I_datain(23);
-                                elsif I_datain(22 downto 20) = "010" and I_datain(0) = '1' then
-                                    timer2.ocb <= not I_datain(23);
-                                elsif I_datain(22 downto 20) = "011" and I_datain(0) = '1' then
-                                    timer2.ocb <= I_datain(23);
+                            if timer2.cmpb = x"00000000" and I_mem_request.data(0) = '1' then
+                                if I_mem_request.data(22 downto 20) = "001" then
+                                    timer2.ocb <= not I_mem_request.data(23);
+                                elsif I_mem_request.data(22 downto 20) = "010" and I_mem_request.data(0) = '1' then
+                                    timer2.ocb <= not I_mem_request.data(23);
+                                elsif I_mem_request.data(22 downto 20) = "011" and I_mem_request.data(0) = '1' then
+                                    timer2.ocb <= I_mem_request.data(23);
                                 end if;
                             end if;
                             -- If the CMPC register is all zero and we start, then
                             -- set the output compare immediate, but don't flag it
-                            if timer2.cmpc = x"00000000" and I_datain(0) = '1' then
-                                if I_datain(26 downto 24) = "001" then
-                                    timer2.occ <= not I_datain(27);
-                                elsif I_datain(26 downto 24) = "010" and I_datain(0) = '1' then
-                                    timer2.occ <= not I_datain(27);
-                                elsif I_datain(26 downto 24) = "011" and I_datain(0) = '1' then
-                                    timer2.occ <= I_datain(27);
+                            if timer2.cmpc = x"00000000" and I_mem_request.data(0) = '1' then
+                                if I_mem_request.data(26 downto 24) = "001" then
+                                    timer2.occ <= not I_mem_request.data(27);
+                                elsif I_mem_request.data(26 downto 24) = "010" and I_mem_request.data(0) = '1' then
+                                    timer2.occ <= not I_mem_request.data(27);
+                                elsif I_mem_request.data(26 downto 24) = "011" and I_mem_request.data(0) = '1' then
+                                    timer2.occ <= I_mem_request.data(27);
                                 end if;
                             end if;
                         end if;
                     end if;
                     -- Write Timer Status Register
                     if reg_int = timer2stat_addr then
-                        timer2.stat <= I_datain;
+                        timer2.stat <= I_mem_request.data;
                     end if;
                     -- Write Timer Counter Register
                     if reg_int = timer2cntr_addr then
-                        timer2.cntr <= I_datain;
+                        timer2.cntr <= I_mem_request.data;
                     end if;
                     -- Write Timer Compare T Register
                     if reg_int = timer2cmpt_addr then
-                        timer2.cmpt <= I_datain;
+                        timer2.cmpt <= I_mem_request.data;
                         -- If the timer is stopped or preload is off, directly write the shadow register
                         if timer2.ctrl(0) = '0' or timer2.ctrl(8) = '0' then
-                            timer2.cmptshadow <= I_datain;
+                            timer2.cmptshadow <= I_mem_request.data;
                         end if;
                     end if;
                     -- Write Prescaler Register
                     if reg_int = timer2prsc_addr then
-                        timer2.prsc <= I_datain;
+                        timer2.prsc <= I_mem_request.data;
                         -- If the timer is stopped, directly write the shadow register
                         if timer2.ctrl(0) = '0' then
-                            timer2.prscshadow <= I_datain;
+                            timer2.prscshadow <= I_mem_request.data;
                         end if;
                         -- Reset internal prescaler
                         timer2.prescaler <= (others => '0');
                     end if;
                     -- Write Timer Compare A Register
                     if reg_int = timer2cmpa_addr then
-                        timer2.cmpa <= I_datain;
+                        timer2.cmpa <= I_mem_request.data;
                         -- If the timer is stopped or preload is off, directly write the shadow register
                         if timer2.ctrl(0) = '0' or timer2.ctrl(9) = '0' then
-                            timer2.cmpashadow <= I_datain;
+                            timer2.cmpashadow <= I_mem_request.data;
                         end if;
                     end if;
                     -- Write Timer Compare B Register
                     if reg_int = timer2cmpb_addr then
-                        timer2.cmpb <= I_datain;
+                        timer2.cmpb <= I_mem_request.data;
                         -- If the timer is stopped or preload is off, directly write the shadow register
                         if timer2.ctrl(0) = '0' or timer2.ctrl(10) = '0' then
-                            timer2.cmpbshadow <= I_datain;
+                            timer2.cmpbshadow <= I_mem_request.data;
                         end if;
                     end if;
                     -- Write Timer Compare C Register
                     if reg_int = timer2cmpc_addr then
-                        timer2.cmpc <= I_datain;
+                        timer2.cmpc <= I_mem_request.data;
                         -- If the timer is stopped or preload is off, directly write the shadow register
                         if timer2.ctrl(0) = '0' or timer2.ctrl(11) = '0' then
-                            timer2.cmpcshadow <= I_datain;
+                            timer2.cmpcshadow <= I_mem_request.data;
                         end if;
                     end if;
                 end if;
@@ -2331,16 +2325,16 @@ begin
                     if reg_int = wdtctrl_addr then
                         -- Test if locked
                         if wdt_lock = '0' then
-                            wdt.ctrl <= I_datain;
+                            wdt.ctrl <= I_mem_request.data;
                             wdt.counter <= (others => '1');
-                            wdt.counter(31 downto 8) <= I_datain(31 downto 8);
+                            wdt.counter(31 downto 8) <= I_mem_request.data(31 downto 8);
                         -- Locked!
                         else
                             wdt.mustreset <= '1';
                         end if;
                     elsif reg_int = wdttrig_addr then
                         -- test for correct password
-                        if I_datain = wdt_password then
+                        if I_mem_request.data = wdt_password then
                             wdt.mustrestart <= '1';
                         else
                             wdt.mustreset <= '1';
@@ -2387,7 +2381,7 @@ begin
             if write_access_granted = '1' then
                 -- Set trigger bit
                 if reg_int = msitrig_addr then
-                    msi.trig(0) <= I_datain(0);
+                    msi.trig(0) <= I_mem_request.data(0);
                 end if;
             end if;
         end if;
@@ -2412,19 +2406,19 @@ begin
             if write_access_granted = '1' then
                 -- Load time (low 32 bits)
                 if reg_int = mtime_addr then
-                    mtime_v(31 downto 0) := unsigned(I_datain);
+                    mtime_v(31 downto 0) := unsigned(I_mem_request.data);
                 end if;
                 -- Load timeh (high 32 bits)
                 if reg_int = mtimeh_addr then
-                    mtime_v(63 downto 32) := unsigned(I_datain);
+                    mtime_v(63 downto 32) := unsigned(I_mem_request.data);
                 end if;
                 -- Load compare register (low 32 bits)
                 if reg_int = mtimecmp_addr then
-                    mtimecmp_v(31 downto 0) := unsigned(I_datain);
+                    mtimecmp_v(31 downto 0) := unsigned(I_mem_request.data);
                 end if;
                 -- Load compare register (high 32 bits)
                 if reg_int = mtimecmph_addr then
-                    mtimecmp_v(63 downto 32) := unsigned(I_datain);
+                    mtimecmp_v(63 downto 32) := unsigned(I_mem_request.data);
                 end if;
             end if;
             -- Update system timer
@@ -2526,14 +2520,14 @@ begin
         
     -- Generate I/O ready signal for reads and writes
     -- This is faster than using read_access_granted and write_access_granted
-    process (I_clk, I_areset, I_csio, I_wren) is
+    process (I_clk, I_areset, I_mem_request) is
     begin
         if I_areset = '1' then
             readready <= '0';
         elsif rising_edge(I_clk) then
             if readready = '1' then
                 readready <= '0';
-            elsif I_csio = '1' and I_wren = '0' then
+            elsif I_mem_request.cs = '1' and I_mem_request.wren = '0' then
                 readready <= '1';
             else
                 readready <= '0';
@@ -2543,7 +2537,7 @@ begin
     end process;
 
     -- Fuse read ready and write ready
-    O_memready <= readready  or (I_csio and I_wren and boolean_to_std_logic(not HAVE_FAST_STORE));
+    O_mem_response.ready <= readready  or (I_mem_request.cs and I_mem_request.wren and boolean_to_std_logic(not HAVE_FAST_STORE));
    
     -- Only for view in the simulator 
 -- synthesis translate_off

@@ -52,16 +52,12 @@ entity bootloader is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
-          I_pc : in data_type;
-          I_memaddress : in data_type;
-          I_memsize : in memsize_type;
-          I_csboot : in std_logic;
-          I_stall : in std_logic;
-          O_instr : out data_type;
-          O_dataout : out data_type;
-          O_memready : out std_logic;
-          --
-          O_load_misaligned_error : out std_logic
+          -- To fetch an instruction
+          I_instr_request : in instr_request_type;
+          O_instr_response : out instr_response2_type;
+          -- From address decoder
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type
          );
 end entity bootloader;
 
@@ -82,7 +78,7 @@ begin
     gen_bootrom: if HAVE_BOOTLOADER_ROM generate
 
         -- Boot ROM, for both instructions and read-only data
-        process (I_clk, I_areset, I_pc, I_memaddress, I_csboot, I_memsize, I_stall) is
+        process (I_clk, I_areset, I_instr_request, I_mem_request) is
         variable address_instr : integer range 0 to bootloader_size-1;
         variable address_data : integer range 0 to bootloader_size-1;
         variable instr_var : data_type;
@@ -91,52 +87,53 @@ begin
         constant x : data_type := (others => 'X');
         begin
             -- Calculate addresses
-            address_instr := to_integer(unsigned(I_pc(bootloader_size_bits-1 downto 2)));
-            address_data := to_integer(unsigned(I_memaddress(bootloader_size_bits-1 downto 2)));
+            address_instr := to_integer(unsigned(I_instr_request.pc(bootloader_size_bits-1 downto 2)));
+            address_data := to_integer(unsigned(I_mem_request.addr(bootloader_size_bits-1 downto 2)));
 
             -- Quartus will detect ROM table and uses onboard RAM
             -- Do not use reset, otherwise ROM will be created with ALMs
             if rising_edge(I_clk) then
-                if I_stall = '0' then
+                if I_instr_request.stall = '0' then
                     instr_var := bootrom(address_instr);
                 end if;
                 romdata_var := bootrom(address_data);
             end if;
             
             -- Recode instruction
-            O_instr <= instr_var(7 downto 0) & instr_var(15 downto 8) & instr_var(23 downto 16) & instr_var(31 downto 24);
+            O_instr_response.instr <= instr_var(7 downto 0) & instr_var(15 downto 8) & instr_var(23 downto 16) & instr_var(31 downto 24);
             
-            O_load_misaligned_error <= '0';
+            O_mem_response.load_misaligned_error <= '0';
+            O_mem_response.store_misaligned_error <= '0';
             
             -- By natural size, for data
-            if I_csboot = '1' then
-                if I_memsize = memsize_word and I_memaddress(1 downto 0) = "00" then
-                    O_dataout <= romdata_var(7 downto 0) & romdata_var(15 downto 8) & romdata_var(23 downto 16) & romdata_var(31 downto 24);
-                elsif I_memsize = memsize_halfword and I_memaddress(1 downto 0) = "00" then
-                    O_dataout <= x(31 downto 16) & romdata_var(23 downto 16) & romdata_var(31 downto 24);
-                elsif I_memsize = memsize_halfword and I_memaddress(1 downto 0) = "10" then
-                    O_dataout <= x(31 downto 16) & romdata_var(7 downto 0) & romdata_var(15 downto 8);
-                elsif I_memsize = memsize_byte then
-                    case I_memaddress(1 downto 0) is
-                        when "00" => O_dataout <= x(31 downto 8) & romdata_var(31 downto 24);
-                        when "01" => O_dataout <= x(31 downto 8) & romdata_var(23 downto 16);
-                        when "10" => O_dataout <= x(31 downto 8) & romdata_var(15 downto 8);
-                        when "11" => O_dataout <= x(31 downto 8) & romdata_var(7 downto 0);
-                        when others => O_dataout <= x; O_load_misaligned_error <= '1';
+            if I_mem_request.cs = '1' then
+                if I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" then
+                    O_mem_response.data <= romdata_var(7 downto 0) & romdata_var(15 downto 8) & romdata_var(23 downto 16) & romdata_var(31 downto 24);
+                elsif I_mem_request.size = memsize_halfword and I_mem_request.addr(1 downto 0) = "00" then
+                    O_mem_response.data <= x(31 downto 16) & romdata_var(23 downto 16) & romdata_var(31 downto 24);
+                elsif I_mem_request.size = memsize_halfword and I_mem_request.addr(1 downto 0) = "10" then
+                    O_mem_response.data <= x(31 downto 16) & romdata_var(7 downto 0) & romdata_var(15 downto 8);
+                elsif I_mem_request.size = memsize_byte then
+                    case I_mem_request.addr(1 downto 0) is
+                        when "00" => O_mem_response.data <= x(31 downto 8) & romdata_var(31 downto 24);
+                        when "01" => O_mem_response.data <= x(31 downto 8) & romdata_var(23 downto 16);
+                        when "10" => O_mem_response.data <= x(31 downto 8) & romdata_var(15 downto 8);
+                        when "11" => O_mem_response.data <= x(31 downto 8) & romdata_var(7 downto 0);
+                        when others => O_mem_response.data <= x; O_mem_response.load_misaligned_error <= '1';
                     end case;
                 else
                     -- Chip select, but not aligned
-                    O_dataout <= x;
-                    O_load_misaligned_error <= '1';
+                    O_mem_response.data <= x;
+                    O_mem_response.load_misaligned_error <= '1';
                 end if;
             else
                 -- No chip select, so no data
-                O_dataout <= x;
+                O_mem_response.data <= x;
             end if;
         end process;
         
         -- Generate boot ROM ready signal for reads and writes    
-        process (I_clk, I_areset, I_csboot) is
+        process (I_clk, I_areset, I_mem_request) is
         variable readready_v : std_logic;
         begin
             if I_areset = '1' then
@@ -144,22 +141,23 @@ begin
             elsif rising_edge(I_clk) then
                 if readready_v = '1' then
                     readready_v := '0';
-                elsif I_csboot = '1' then
+                elsif I_mem_request.cs = '1' then
                     readready_v := '1';
                 else
                     readready_v := '0';
                 end if;
             end if;
 
-            O_memready <= readready_v;
+            O_mem_response.ready <= readready_v;
         end process;
         
     end generate;
 
     gen_bootrom_not: if not HAVE_BOOTLOADER_ROM generate
-        O_load_misaligned_error <= '0';
-        O_dataout <= (others => 'X');
-        O_instr  <= (others => 'X');
-        O_memready <= '0';
+        O_instr_response.instr  <= (others => 'X');
+        O_mem_response.data <= (others => 'X');
+        O_mem_response.ready <= '0';
+        O_mem_response.load_misaligned_error <= '0';
+        O_mem_response.store_misaligned_error <= '0';
     end generate;
 end architecture rtl;

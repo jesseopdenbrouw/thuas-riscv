@@ -82,39 +82,6 @@ vsim -t 1ns -L rtl_work -L work -voptargs="+acc" tb_riscv
 # Log all signals in the design, good if the number
 # of signals is small.
 add log -r *
-#add log clk
-#add log areset
-#add log gpioapin
-#add log uart1rxd
-#add log gpioapout
-#add log uart1txd
-#add log timer2oct
-#add log timer2icoca
-#add log timer2icocb
-#add log timer2icocc
-#add log dut/core0/control
-#add log dut/core0/pc
-#add log dut/core0/if_id
-#add log dut/core0/id_ex
-#add log dut/core0/ex_wb
-#add log dut/core0/regs
-#add log dut/core0/md
-#add log dut/memaccess_int
-#add log dut/memsize_int
-#add log dut/memaddress_int
-#add log dut/memready_int
-#add log dut/core0/csr_access
-#add log dut/core0/csr_reg
-#add log dut/csram_int
-#add log dut/rammemready_int
-#add log dut/ram0/ram_alt
-#add log dut/csrom_int
-#add log dut/rommemready_int
-#add log dut/csboot_int
-#add log dut/bootmemready_int
-#add log dut/csio_int
-#add log dut/iomemready_int
-#add log dut/io0/io
 
 # Add all toplevel signals
 # Add a number of signals of the simulated design
@@ -130,13 +97,12 @@ add wave            -label timer2oct timer2oct
 add wave            -label timer2icoca timer2icoca
 add wave            -label timer2icocb timer2icocb
 add wave            -label timer2icocc timer2icocc
---add wave -radix hex -label O_pc_to_mepc dut/pc_to_mepc_int
 add wave -divider "tOP - Resets"
 add wave            -label areset_sys_sync_int dut/areset_sys_sync_int
 add wave            -label areset_sys_int dut/areset_sys_int
 add wave            -label break_from_uart1_int dut/break_from_uart1_int
-add wave -divider "Core - Inputs & Outputs"
-add wave            -label I_instr_access_error dut/core0/I_instr_access_error
+#add wave -divider "Core - Inputs & Outputs"
+#add wave            -label I_instr_access_error dut/core0/I_instr_access_error
 add wave -divider "Core Internals - Control"
 add wave            -label control dut/core0/control
 add wave -divider "Core Internals - Instruction Fetch"
@@ -151,30 +117,20 @@ add wave            -label regs dut/core0/regs
 add wave -divider "Core Internals - Execute MD"
 add wave            -label md dut/core0/md
 add wave -divider "Internals - Memory access"
-add wave            -label memaccess dut/memaccess_int
-add wave            -label memsize dut/memsize_int
-add wave            -label memaddress dut/memaddress_int
-add wave            -label memready dut/memready_int
+add wave            -label bus_req dut/bus_request_int
+add wave            -label bus_rsp dut/bus_response_int
 add wave -divider "Internals - CSR"
 add wave -radix hex -label CSR_access dut/core0/csr_access
 add wave -radix hex -label CSR_reg dut/core0/csr_reg
 add wave -divider "Internals - RAM"
-add wave            -label csram dut/csram_int
-add wave            -label ramready dut/rammemready_int
+add wave            -label RAM_mem_request dut/mem_request_ram_int
+add wave            -label RAM_mem_response dut/mem_response_ram_int
 add wave -radix hex -label RAM_sim dut/ram0/ram_alt
 add wave -divider "Internals - ROMs"
-add wave            -label csrom dut/csrom_int
-add wave            -label romready dut/rommemready_int
-add wave            -label csboot dut/csboot_int
-add wave            -label bootready dut/bootmemready_int
 #add wave -radix hex -label rom dut/rom
 add wave -divider "Internals - IO"
-add wave            -label csio dut/csio_int
-#add wave            -label iomemready_int dut/iomemready_int
-#add wave            -label write_access_granted dut/io0/write_access_granted
-#add wave            -label read_access_granted dut/io0/read_access_granted
-#add wave            -label read_access_granted_ff dut/io0/read_access_granted_ff
-#add wave            -label read_access_granted_second_cycle dut/io0/read_access_granted_second_cycle
+add wave            -label IO_mem_request dut/mem_request_io_int
+add wave            -label IO_mem_response dut/mem_response_io_int
 add wave            -label GPIOA dut/io0/gpioa
 add wave            -label UART1 dut/io0/uart1
 add wave            -label I2C1 dut/io0/i2c1

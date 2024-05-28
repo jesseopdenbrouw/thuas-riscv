@@ -43,6 +43,9 @@ use ieee.numeric_std.all;
 
 package processor_common is
 
+    -- Hardware version
+    constant HW_VERSION : integer := 16#00_09_10_00#;
+    
     -- Used data types
     -- The common data type is 32 bits wide
     subtype data_type is std_logic_vector(31 downto 0);
@@ -100,6 +103,54 @@ package processor_common is
                         
     -- Control and State register operations
     type csr_op_type is (csr_nop, csr_rw, csr_rs, csr_rc, csr_rwi, csr_rsi, csr_rci);
+    
+    -- Access from core to address decoder
+    type bus_request_type is record
+        acc : memaccess_type;
+        size : memsize_type;
+        addr : data_type;
+        data : data_type;
+    end record;
+    -- Response from address decoder to core
+    type bus_response_type is record
+        data : data_type;
+        ready : std_logic;
+        load_access_error : std_logic;
+        store_access_error : std_logic;
+        load_misaligned_error : std_logic;
+        store_misaligned_error : std_logic;
+    end record;
+    
+    -- Access from address decoder to memory
+    type mem_request_type is record
+        size : memsize_type;
+        addr : data_type;
+        data : data_type;
+        cs : std_logic;
+        wren : std_logic;
+    end record;
+    -- Response from memory to address decoder
+    type mem_response_type is record
+        data : data_type;
+        ready : std_logic;
+        load_misaligned_error : std_logic;
+        store_misaligned_error : std_logic;
+    end record;
+    
+    -- Request instruction from memory
+    type instr_request_type is record
+        pc : data_type;
+        stall : std_logic;
+    end record;
+    -- Response instruction to core
+    type instr_response_type is record
+        instr : data_type;
+        instr_access_error : std_logic;
+    end record;
+    -- Response instruction to instruction router
+    type instr_response2_type is record
+        instr : data_type;
+    end record;
 
     -- Constants
     constant all_zeros_c : data_type := (others => '0');

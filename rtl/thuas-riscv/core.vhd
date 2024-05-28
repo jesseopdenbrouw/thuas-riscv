@@ -100,30 +100,17 @@ entity core is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
-          -- Instructions from ROM
-          O_pc : out data_type;
-          I_instr : in data_type;
-          O_stall : out std_logic;
-          -- To memory
-          O_memaccess : out memaccess_type;
-          O_memsize : out memsize_type;
-          O_memaddress : out data_type;
-          O_memdataout : out data_type; 
-          I_memdatain : in data_type;
-          I_memready : in std_logic;
+          -- Instruction request from ROM
+          O_instr_request : out instr_request_type;
+          I_instr_response : in instr_response_type;
+          -- To and from memory
+          O_bus_request : out bus_request_type;
+          I_bus_response : in bus_response_type;
           -- Interrupt signals from I/O
           I_intrio : data_type;
           -- [m]time from the memory mapped I/O
           I_mtime : in data_type;
-          I_mtimeh : in data_type;
-          -- Load/store misaligned errors
-          I_load_misaligned_error : in std_logic;
-          I_store_misaligned_error : in std_logic;
-          -- Load/store access errors (unimplemented memory)
-          I_load_access_error : in std_logic;
-          I_store_access_error : in std_logic;
-          -- Instruction access error
-          I_instr_access_error : in std_logic
+          I_mtimeh : in data_type
          );
 end entity core;
 
@@ -367,7 +354,7 @@ begin
                     elsif control.penalty = '1' then
                         control.state <= state_flush;
                     -- If we have to wait for data, we need to wait extra cycles
-                    elsif id_ex.ismem = '1' and I_memready = '0' then
+                    elsif id_ex.ismem = '1' and I_bus_response.ready = '0' then
                         control.state <= state_mem;
                     -- If the MD unit is started....
                     elsif id_ex.md_start = '1' then
@@ -380,7 +367,7 @@ begin
                     -- while accessing memory
                     if control.trap_request = '1' then
                         control.state <= state_trap;
-                    elsif I_memready = '1' then
+                    elsif I_bus_response.ready = '1' then
                         control.state <= state_exec;
                     end if;
                 -- Flush
@@ -422,14 +409,14 @@ begin
     
     -- Determine stall
     -- We need to stall if we are waiting for data from memory OR we stall the PC and md unit is not ready
-    control.stall <= '1' when (control.state = state_exec and id_ex.ismem = '1' and I_memready = '0') or
+    control.stall <= '1' when (control.state = state_exec and id_ex.ismem = '1' and I_bus_response.ready = '0') or
                               (control.state = state_md) or
                               (control.state = state_wfi) or
-                              (control.state = state_mem and I_memready = '0') or
+                              (control.state = state_mem and I_bus_response.ready = '0') or
                               (control.state = state_exec and id_ex.md_start = '1')
                          else '0';
     -- Needed for the instruction fetch for the ROM or boot ROM
-    O_stall <= control.stall;
+    O_instr_request.stall <= control.stall;
 
     -- We need to flush if we are jumping/branching or servicing interrupts
     control.flush <= '1' when control.penalty = '1' or
@@ -444,7 +431,7 @@ begin
     control.instret <= '1' when (control.state = state_exec and control.trap_request = '0' and id_ex.ismem = '0'
                                                             and id_ex.md_start = '0' and control.penalty = '0'
                                                             and control.mret_request = '0') or
-                                 (control.state = state_mem and I_memready = '1') or
+                                 (control.state = state_mem and I_bus_response.ready = '1') or
                                   control.state = state_flush2 or
                                   control.state = state_mret2
                            else '0'; 
@@ -484,7 +471,7 @@ begin
             if control.state = state_trap then
                 control.instr_access_error <= (others => '0');
             else
-                control.instr_access_error <= control.instr_access_error(0) & I_instr_access_error;
+                control.instr_access_error <= control.instr_access_error(0) & I_instr_response.instr_access_error;
             end if;
         end if;
     end process;
@@ -571,7 +558,7 @@ begin
         end if;
     end process;
     -- For fetching instructions
-    O_pc <= pc;
+    O_instr_request.pc <= pc;
 
     
     -- The PC at the fetched instruction
@@ -599,7 +586,7 @@ begin
     -- Instruction decode block
     --
    
-    process (I_clk, I_areset, I_instr, control) is
+    process (I_clk, I_areset, I_instr_response, control) is
     variable opcode_v : std_logic_vector(6 downto 0);
     variable func3_v : std_logic_vector(2 downto 0);
     variable func7_v : std_logic_vector(6 downto 0);
@@ -620,35 +607,35 @@ begin
             rd_v := (others => '0');
         else
             -- Get the opcode
-            opcode_v := I_instr(6 downto 0);
-            rd_v := I_instr(11 downto 7);
+            opcode_v := I_instr_response.instr(6 downto 0);
+            rd_v := I_instr_response.instr(11 downto 7);
         end if;
 
         -- Registers to select
-        rs1_v := I_instr(19 downto 15);
-        rs2_v := I_instr(24 downto 20);
+        rs1_v := I_instr_response.instr(19 downto 15);
+        rs2_v := I_instr_response.instr(24 downto 20);
 
         -- Get function (extends the opcode)
-        func3_v := I_instr(14 downto 12);
-        func7_v := I_instr(31 downto 25);
+        func3_v := I_instr_response.instr(14 downto 12);
+        func7_v := I_instr_response.instr(31 downto 25);
 
         -- Create all immediate formats
-        imm_u_v(31 downto 12) := I_instr(31 downto 12);
+        imm_u_v(31 downto 12) := I_instr_response.instr(31 downto 12);
         imm_u_v(11 downto 0) := (others => '0');
         
-        imm_j_v(31 downto 21) := (others => I_instr(31));
-        imm_j_v(20 downto 1) := I_instr(31) & I_instr(19 downto 12) & I_instr(20) & I_instr(30 downto 21);
+        imm_j_v(31 downto 21) := (others => I_instr_response.instr(31));
+        imm_j_v(20 downto 1) := I_instr_response.instr(31) & I_instr_response.instr(19 downto 12) & I_instr_response.instr(20) & I_instr_response.instr(30 downto 21);
         imm_j_v(0) := '0';
 
-        imm_i_v(31 downto 12) := (others => I_instr(31));
-        imm_i_v(11 downto 0) := I_instr(31 downto 20);
+        imm_i_v(31 downto 12) := (others => I_instr_response.instr(31));
+        imm_i_v(11 downto 0) := I_instr_response.instr(31 downto 20);
         
-        imm_b_v(31 downto 13) := (others => I_instr(31));
-        imm_b_v(12 downto 1) := I_instr(31) & I_instr(7) & I_instr(30 downto 25) & I_instr(11 downto 8);
+        imm_b_v(31 downto 13) := (others => I_instr_response.instr(31));
+        imm_b_v(12 downto 1) := I_instr_response.instr(31) & I_instr_response.instr(7) & I_instr_response.instr(30 downto 25) & I_instr_response.instr(11 downto 8);
         imm_b_v(0) := '0';
 
-        imm_s_v(31 downto 12) := (others => I_instr(31));
-        imm_s_v(11 downto 0) := I_instr(31 downto 25) & I_instr(11 downto 7);
+        imm_s_v(31 downto 12) := (others => I_instr_response.instr(31));
+        imm_s_v(11 downto 0) := I_instr_response.instr(31 downto 25) & I_instr_response.instr(11 downto 7);
         
         imm_shamt_v(31 downto 5) := (others => '0');
         imm_shamt_v(4 downto 0) := rs2_v;
@@ -719,7 +706,7 @@ begin
                 control.wfi_request <= '0';
             else
                 -- Set all registers to default
-                id_ex.instr <= I_instr;
+                id_ex.instr <= I_instr_response.instr;
                 id_ex.pc <= if_id.pc;
                 id_ex.rd <= rd_v;
                 id_ex.rs1 <= rs1_v;
@@ -1065,22 +1052,22 @@ begin
                             case func3_v is
                                 when "000" =>
                                     -- ECALL/EBREAK/MRET/WFI
-                                    if I_instr(31 downto 20) = "000000000000" then
+                                    if I_instr_response.instr(31 downto 20) = "000000000000" then
                                         -- ECALL
                                         control.ecall_request <= '1';
                                         id_ex.alu_op <= alu_trap;
                                         id_ex.pc_op <= pc_hold;
-                                    elsif I_instr(31 downto 20) = "000000000001" then
+                                    elsif I_instr_response.instr(31 downto 20) = "000000000001" then
                                         -- EBREAK
                                         control.ebreak_request <= '1';
                                         id_ex.alu_op <= alu_trap;
                                         id_ex.pc_op <= pc_hold;
-                                    elsif I_instr(31 downto 20) = "001100000010" then
+                                    elsif I_instr_response.instr(31 downto 20) = "001100000010" then
                                         -- MRET
                                         id_ex.alu_op <= alu_mret;
                                         control.mret_request <= '1';
                                         id_ex.pc_op <= pc_load_mepc;
-                                    elsif I_instr(31 downto 20) = "000100000101" then
+                                    elsif I_instr_response.instr(31 downto 20) = "000100000101" then
                                         -- WFI, skip for now
                                         control.wfi_request <= '1';
                                         null;
@@ -1164,7 +1151,7 @@ begin
         -- Register: exec & retire
         -- Do NOT include a reset, otherwise registers will be in ALM flip-flops
         -- Do NOT set x0 to all zero bits
-        process (I_clk, I_areset, id_ex.rd, I_instr) is
+        process (I_clk, I_areset, id_ex.rd, I_instr_response.instr) is
         variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
         begin
             selrd_v := to_integer(unsigned(id_ex.rd));
@@ -1182,7 +1169,7 @@ begin
         -- Register: exec & retire
         -- Registers in ALM flip-flops, x0 (zero) hardwired to all 0.
         -- Registers are cleared on reset
-        process (I_clk, I_areset, id_ex.rd, I_instr) is
+        process (I_clk, I_areset, id_ex.rd, I_instr_response.instr) is
         variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
         begin
             selrd_v := to_integer(unsigned(id_ex.rd));
@@ -1205,7 +1192,7 @@ begin
     --
     
     -- ALU
-    process (id_ex, control, ex_wb, md, csr_access, I_memdatain) is
+    process (id_ex, control, ex_wb, md, csr_access, I_bus_response.data) is
     variable a_v, b_v, r_v, imm_v : data_type;
     variable al_v, bl_v : std_logic_vector(data_type'left+1 downto 0);
     variable signs_v : data_type;
@@ -1377,19 +1364,19 @@ begin
             when alu_auipc =>
                 r_v := std_logic_vector(unsigned(id_ex.pc) + unsigned(b_v)) ;
             when alu_lw =>
-                r_v := I_memdatain;
+                r_v := I_bus_response.data;
             when alu_lh =>
-                r_v := (others => I_memdatain(15));
-                r_v(15 downto 0) := I_memdatain(15 downto 0);
+                r_v := (others => I_bus_response.data(15));
+                r_v(15 downto 0) := I_bus_response.data(15 downto 0);
             when alu_lhu =>
                 r_v := (others => '0');
-                r_v(15 downto 0) := I_memdatain(15 downto 0);
+                r_v(15 downto 0) := I_bus_response.data(15 downto 0);
             when alu_lb =>
-                r_v := (others => I_memdatain(7));
-                r_v(7 downto 0) := I_memdatain(7 downto 0);
+                r_v := (others => I_bus_response.data(7));
+                r_v(7 downto 0) := I_bus_response.data(7 downto 0);
             when alu_lbu =>
                 r_v := (others => '0');
-                r_v(7 downto 0) := I_memdatain(7 downto 0);
+                r_v(7 downto 0) := I_bus_response.data(7 downto 0);
                 
             -- Jumps and calls
             when alu_jal_jalr =>
@@ -1764,7 +1751,7 @@ begin
 
     -- This is the interface between the core and the memory (ROM, RAM, I/O)
     -- Memory access type and size are computed in the instruction decoding unit
-    process (I_clk, I_areset, I_memready, control, id_ex, ex_wb) is
+    process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb) is
     variable address_v : unsigned(31 downto 0);
     begin
         
@@ -1777,26 +1764,26 @@ begin
         address_v := address_v + unsigned(id_ex.imm);
 
         if I_areset = '1' then
-            O_memsize <= memsize_unknown;
-            O_memaccess <= memaccess_nop;
-            O_memdataout <= (others => '0');
+            O_bus_request.size <= memsize_unknown;
+            O_bus_request.acc <= memaccess_nop;
+            O_bus_request.data <= (others => '0');
             csr_transfer.address_to_mtval <= (others => '0');
         elsif rising_edge(I_clk) then
             -- If current transaction is completed, reset the bus
-            if I_memready = '1' then
-                O_memsize <= memsize_unknown;
-                O_memaccess <= memaccess_nop;
-                O_memdataout <= (others => '0');
+            if I_bus_response.ready = '1' then
+                O_bus_request.size <= memsize_unknown;
+                O_bus_request.acc <= memaccess_nop;
+                O_bus_request.data <= (others => '0');
                 csr_transfer.address_to_mtval <= (others => '0');
             -- else clock in the credentials for memory access
             else
                 -- Disable the bus when flushing or trap
                 if control.flush = '1' or control.trap_request = '1' then
-                    O_memaccess <= memaccess_nop;
-                    O_memsize <= memsize_unknown;
+                    O_bus_request.acc <= memaccess_nop;
+                    O_bus_request.size <= memsize_unknown;
                 else
-                    O_memaccess <= id_ex.memaccess;
-                    O_memsize <= id_ex.memsize;
+                    O_bus_request.acc <= id_ex.memaccess;
+                    O_bus_request.size <= id_ex.memsize;
                 end if;
 
                 -- In case of a trap, record the memory address in MTVAL CSR
@@ -1804,16 +1791,16 @@ begin
                 
                 -- Data out to memory
                 if control.forwardb = '1' then
-                    O_memdataout <= ex_wb.rddata;
+                    O_bus_request.data <= ex_wb.rddata;
                 else
-                    O_memdataout <= id_ex.rs2data;
+                    O_bus_request.data <= id_ex.rs2data;
                 end iF;
             end if;
         end if;
     end process;
     -- Address of the memory operation, this is a simple copy
     -- outside the rising edge to make 1 register instead of 2
-    O_memaddress <= csr_transfer.address_to_mtval;
+    O_bus_request.addr <= csr_transfer.address_to_mtval;
     
         --
     -- Interface to the CSR
@@ -1842,7 +1829,7 @@ begin
     --
     
     process (I_clk, I_areset, csr_access, csr_reg,
-             control, id_ex, I_memready, md) is
+             control, id_ex, I_bus_response.ready, md) is
     variable csr_addr_v : integer range 0 to csr_size-1;
     variable event3_v, event4_v, event5_v, event6_v, event7_v, event8_v, event9_v : boolean;
     variable csr_content_v : data_type;
@@ -1852,50 +1839,50 @@ begin
         if HAVE_ZIHPM then
         event3_v := (csr_reg.mhpmevent3(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent3(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent3(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
-                    (csr_reg.mhpmevent3(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent3(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                    (csr_reg.mhpmevent3(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
                     (csr_reg.mhpmevent3(4) = '1' and control.ecall_request = '1') or
                     (csr_reg.mhpmevent3(5) = '1' and control.ebreak_request = '1') or
                     (csr_reg.mhpmevent3(6) = '1' and md.ready = '1');
         event4_v := (csr_reg.mhpmevent4(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent4(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent4(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
-                    (csr_reg.mhpmevent4(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent4(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                    (csr_reg.mhpmevent4(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
                     (csr_reg.mhpmevent4(4) = '1' and control.ecall_request = '1') or
                     (csr_reg.mhpmevent4(5) = '1' and control.ebreak_request = '1') or
                     (csr_reg.mhpmevent4(6) = '1' and md.ready = '1');
         event5_v := (csr_reg.mhpmevent5(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent5(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent5(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
-                    (csr_reg.mhpmevent5(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent5(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                    (csr_reg.mhpmevent5(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
                     (csr_reg.mhpmevent5(4) = '1' and control.ecall_request = '1') or
                     (csr_reg.mhpmevent5(5) = '1' and control.ebreak_request = '1') or
                     (csr_reg.mhpmevent5(6) = '1' and md.ready = '1');
         event6_v := (csr_reg.mhpmevent6(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent6(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent6(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
-                    (csr_reg.mhpmevent6(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent6(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                    (csr_reg.mhpmevent6(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
                     (csr_reg.mhpmevent6(4) = '1' and control.ecall_request = '1') or
                     (csr_reg.mhpmevent6(5) = '1' and control.ebreak_request = '1') or
                     (csr_reg.mhpmevent6(6) = '1' and md.ready = '1');
         event7_v := (csr_reg.mhpmevent7(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent7(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent7(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
-                    (csr_reg.mhpmevent7(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent7(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                    (csr_reg.mhpmevent7(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
                     (csr_reg.mhpmevent7(4) = '1' and control.ecall_request = '1') or
                     (csr_reg.mhpmevent7(5) = '1' and control.ebreak_request = '1') or
                     (csr_reg.mhpmevent7(6) = '1' and md.ready = '1');
         event8_v := (csr_reg.mhpmevent8(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent8(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent8(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
-                    (csr_reg.mhpmevent8(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent8(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                    (csr_reg.mhpmevent8(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
                     (csr_reg.mhpmevent8(4) = '1' and control.ecall_request = '1') or
                     (csr_reg.mhpmevent8(5) = '1' and control.ebreak_request = '1') or
                     (csr_reg.mhpmevent8(6) = '1' and md.ready = '1');
         event9_v := (csr_reg.mhpmevent9(0) = '1' and control.penalty = '1') or
                     (csr_reg.mhpmevent9(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent9(2) = '1' and id_ex.memaccess = memaccess_write and I_memready = '1') or
-                    (csr_reg.mhpmevent9(3) = '1' and id_ex.memaccess = memaccess_read and I_memready = '1') or
+                    (csr_reg.mhpmevent9(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                    (csr_reg.mhpmevent9(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
                     (csr_reg.mhpmevent9(4) = '1' and control.ecall_request = '1') or
                     (csr_reg.mhpmevent9(5) = '1' and control.ebreak_request = '1') or
                     (csr_reg.mhpmevent9(6) = '1' and md.ready = '1');
@@ -2576,10 +2563,8 @@ begin
     -- trap is to be served. Note that interrupts will only
     -- be served if the processor is in the exec state.
     -- Exceptions will be served in the exec en mem states,
-    process (I_clk, I_areset, I_intrio, I_load_misaligned_error,
-             I_store_misaligned_error, I_load_access_error,
-             I_instr_access_error,
-             I_store_access_error, control, csr_reg) is
+    process (I_clk, I_areset, I_intrio, I_bus_response,
+             I_instr_response.instr_access_error, control, csr_reg) is
     begin
         control.trap_request <= '0';
         control.trap_release <= '0';
@@ -2700,19 +2685,19 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(3, control.trap_mcause'length));
         -- Load access error (inimplemented memory)
-        elsif I_load_access_error = '1' then
+        elsif I_bus_response.load_access_error = '1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(5, control.trap_mcause'length));
         -- Store access error (inimplemented memory)
-        elsif I_store_access_error = '1' then
+        elsif I_bus_response.store_access_error = '1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(7, control.trap_mcause'length));
         -- Load misaligned
-        elsif I_load_misaligned_error = '1' then
+        elsif I_bus_response.load_misaligned_error = '1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(4, control.trap_mcause'length));
         -- Store misaligned
-        elsif I_store_misaligned_error = '1' then
+        elsif I_bus_response.store_misaligned_error = '1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(6, control.trap_mcause'length));
         end if;

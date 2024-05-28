@@ -142,7 +142,7 @@ component core is
           -- The frequency of the system
           SYSTEM_FREQUENCY : integer;
           -- Hardware version in BCD
-          HW_VERSION : integer := 16#00_09_09_09#;
+          HW_VERSION : integer;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -190,30 +190,18 @@ component core is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
-          -- Instructions from ROM/boot
-          O_pc : out data_type;
-          I_instr : in data_type;
-          O_stall : out std_logic;
+          -- Instruction request from ROM
+          O_instr_request : out instr_request_type;
+          I_instr_response : in instr_response_type;
           -- To memory
-          O_memaccess : out memaccess_type;
-          O_memsize : out memsize_type;
-          O_memaddress : out data_type;
-          O_memdataout : out data_type; 
-          I_memdatain : in data_type;
-          I_memready : in std_logic;
+          O_bus_request : out bus_request_type;
+          -- from memory
+          I_bus_response : in bus_response_type;
           -- Interrupt signals from I/O
           I_intrio : data_type;
           -- time from the memory mapped I/O
           I_mtime : in data_type;
-          I_mtimeh : in data_type;
-          -- Load/store misaligned errors
-          I_load_misaligned_error : in std_logic;
-          I_store_misaligned_error : in std_logic;
-          -- Load/store access errors (inimplemented memeory)
-          I_load_access_error : in std_logic;
-          I_store_access_error : in std_logic;
-          -- Instruction access error
-          I_instr_access_error : in std_logic
+          I_mtimeh : in data_type
          );
 end component core;
 component address_decode is
@@ -229,25 +217,18 @@ component address_decode is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
-          -- to core
-          I_memaccess : in memaccess_type;
-          I_memaddress : in data_type;
-          O_dataout : out data_type; 
-          -- to memory
-          O_wrrom : out std_logic;
-          O_wrram : out std_logic;
-          O_wrio : out std_logic;
-          O_csrom : out std_logic;
-          O_csboot : out std_logic;
-          O_csram : out std_logic;
-          O_csio : out std_logic;
-          I_romdatain : in data_type;
-          I_bootdatain : in data_type;
-          I_ramdatain : in data_type;
-          I_iodatain : in data_type;
-          -- Load/store access error of unimplemented memeory
-          O_load_access_error : out std_logic;
-          O_store_access_error : out std_logic
+          -- From and to core
+          I_bus_request : in bus_request_type;
+          O_bus_response : out bus_response_type; 
+          -- To and tp memory
+          O_mem_request_rom : out mem_request_type;
+          O_mem_request_boot : out mem_request_type;
+          O_mem_request_ram : out mem_request_type;
+          O_mem_request_io : out mem_request_type;
+          I_mem_response_rom : in mem_response_type;
+          I_mem_response_boot : in mem_response_type;
+          I_mem_response_ram : in mem_response_type;
+          I_mem_response_io : in mem_response_type
          );
 end component address_decode;
 component instruction_router is
@@ -256,13 +237,16 @@ component instruction_router is
           ROM_HIGH_NIBBLE : memory_high_nibble;
           BOOT_HIGH_NIBBLE : memory_high_nibble
          );
-    port (I_pc : in data_type;
-          -- Instructions from ROM and boot ROM
-          I_instr_rom : in data_type;
-          I_instr_boot : in data_type;
-          O_instr_out : out data_type;
-          -- Unimplemented instrcution memory
-          O_instr_access_error : out std_logic
+    port (
+          -- Instruction request from core
+          I_instr_request : in instr_request_type;
+          O_instr_response : out instr_response_type;
+          -- To/from ROM
+          O_instr_request_rom : out instr_request_type;
+          I_instr_response_rom : in instr_response2_type;
+          -- To/from boot ROM
+          O_instr_request_boot : out instr_request_type;
+          I_instr_response_boot : in instr_response2_type
          );
 end component instruction_router;
 component rom is
@@ -273,20 +257,12 @@ component rom is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
-          -- from core
-          I_pc : in data_type;
-          I_memaddress : in data_type;
-          I_memsize : in memsize_type;
-          I_csrom : in std_logic;
-          I_wren : in std_logic;
-          I_stall : in std_logic;
-          O_instr : out data_type;
-          I_datain : in data_type;
-          O_dataout : out data_type;
-          O_memready : out std_logic;
-          -- to core
-          O_load_misaligned_error : out std_logic;
-          O_store_misaligned_error : out std_logic
+          -- To fetch an instruction
+          I_instr_request : in instr_request_type;
+          O_instr_response : out instr_response2_type;
+          -- From address decoder
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type
          );
 end component rom;
 component ram is
@@ -296,18 +272,10 @@ component ram is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
-          -- From core
-          I_memaddress : in data_type;
-          I_memsize : in memsize_type;
-          I_csram : in std_logic;
-          I_wren : in std_logic;
-          I_datain : in data_type;
-          -- To core
-          O_dataout : out data_type;
-          O_memready : out std_logic;
-          -- To core
-          O_load_misaligned_error : out std_logic;
-          O_store_misaligned_error : out std_logic
+          -- From address decoder
+          I_mem_request : in mem_request_type;
+          -- To address decoder
+          O_mem_response : out mem_response_type
          );
 end component ram;
 component bootloader is
@@ -317,17 +285,12 @@ component bootloader is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- From core
-          I_pc : in data_type;
-          I_memaddress : in data_type;
-          I_memsize : in memsize_type;
-          I_csboot : in std_logic;
-          I_stall : in std_logic;
-          -- To core
-          O_instr : out data_type;
-          O_dataout : out data_type;
-          O_memready : out std_logic;
-          -- To core
-          O_load_misaligned_error : out std_logic
+          I_instr_request : in instr_request_type;
+          O_instr_response : out instr_response2_type;
+          -- From address decoder
+          I_mem_request : in mem_request_type;
+          -- To address decoder
+          O_mem_response : out mem_response_type
          );
 end component bootloader;
 component io is
@@ -359,18 +322,10 @@ component io is
          );             
     port (I_clk : in std_logic;
           I_areset : in std_logic;
-          -- From core
-          I_memaddress : in data_type;
-          I_memsize : memsize_type;
-          I_csio : in std_logic;
-          I_wren : in std_logic;
-          I_datain : in data_type;
-          -- To core
-          O_dataout : out data_type;
-          O_memready : out std_logic;
-          -- Misaligned access
-          O_load_misaligned_error : out std_logic;
-          O_store_misaligned_error : out std_logic;
+          -- From address decoder
+          I_mem_request : in mem_request_type;
+          -- To address decoder
+          O_mem_response : out mem_response_type;
           -- Connection with outside world
           -- GPIOA
           I_gpioapin : in data_type;
@@ -414,42 +369,31 @@ end component io;
 signal clk_int : std_logic;
 signal areset_int : std_logic;
 
--- The PC to ROM and boot ROM
-signal pc_int : data_type;
--- The instruction from ROM and boot ROm
-signal rominstr_int : data_type;
-signal bootinstr_int : data_type;
--- Stall instruction access if core stalles
-signal stall_int : std_logic;
--- The fetched instruction
-signal instr_int : data_type;
+signal instr_request_int : instr_request_type;
+signal instr_response_int : instr_response_type;
+
+signal instr_request_rom_int : instr_request_type;
+signal instr_response_rom_int : instr_response2_type;
+
+signal instr_request_boot_int : instr_request_type;
+signal instr_response_boot_int : instr_response2_type;
 
 -- Data in and out of the core
 signal dataout_int : data_type;
 signal datain_int : data_type;
 
--- Memory access signals
-signal memaccess_int : memaccess_type;
-signal memsize_int : memsize_type;
-signal memaddress_int : data_type;
-signal memready_int : std_logic;
-signal wrrom_int : std_logic;
-signal wrram_int : std_logic;
-signal wrio_int : std_logic;
-signal csrom_int : std_logic;
-signal csboot_int : std_logic;
-signal csram_int : std_logic;
-signal csio_int : std_logic;
--- Data from memory
-signal romdatain_int : data_type;
-signal bootdatain_int : data_type;
-signal ramdatain_int : data_type;
-signal iodatain_int : data_type;
--- Memory ready signals
-signal rommemready_int : std_logic;
-signal bootmemready_int : std_logic;
-signal rammemready_int : std_logic;
-signal iomemready_int : std_logic;
+-- Memory access signals from core to address decoder
+signal bus_request_int : bus_request_type;
+signal bus_response_int : bus_response_type;
+-- Memory access signals from address decoder to memories
+signal mem_request_rom_int : mem_request_type;
+signal mem_request_boot_int : mem_request_type;
+signal mem_request_ram_int : mem_request_type;
+signal mem_request_io_int : mem_request_type;
+signal mem_response_rom_int : mem_response_type;
+signal mem_response_boot_int : mem_response_type;
+signal mem_response_ram_int : mem_response_type;
+signal mem_response_io_int : mem_response_type;
 
 -- MTIME from I/O (memory mapped)
 signal mtime_int : data_type;
@@ -458,20 +402,6 @@ signal mtimeh_int : data_type;
 -- interrupts from I/O to core
 signal intrio_int : data_type;
 
--- Load/store misaligned access
-signal load_misaligned_error_int : std_logic;
-signal store_misaligned_error_int : std_logic;
-signal rom_load_misaligned_error_int : std_logic;
-signal rom_store_misaligned_error_int : std_logic;
-signal boot_load_misaligned_error_int : std_logic;
-signal boot_store_misaligned_error_int : std_logic;
-signal ram_load_misaligned_error_int : std_logic;
-signal ram_store_misaligned_error_int : std_logic;
-signal io_load_misaligned_error_int : std_logic;
-signal io_store_misaligned_error_int : std_logic;
--- Load/store access error (now: unimplemented memory)
-signal load_access_error_int : std_logic;
-signal store_access_error_int : std_logic;
 -- Instruction access error (now:unimplemented memory)
 signal instr_access_error_int : std_logic;
 
@@ -510,6 +440,7 @@ begin
     core0: core
     generic map (
               SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
+              HW_VERSION => HW_VERSION,
               HAVE_RISCV_E => HAVE_RISCV_E,
               HAVE_MULDIV => HAVE_MULDIV,
               FAST_DIVIDE => FAST_DIVIDE,
@@ -535,29 +466,18 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
-              O_pc => pc_int,
-              I_instr => instr_int,
-              O_stall => stall_int,
-              O_memaccess => memaccess_int,
-              O_memaddress => memaddress_int,
-              O_memsize => memsize_int,
-              O_memdataout => dataout_int,
-              I_memdatain => datain_int,
-              I_memready => memready_int,
+              -- Instruction fetch
+              O_instr_request => instr_request_int,
+              I_instr_response => instr_response_int,
+              -- Data fetch/store
+              O_bus_request => bus_request_int,
+              I_bus_response => bus_response_int,
+              -- Pending insterrupts
               I_intrio => intrio_int,
+              -- [m]time
               I_mtime => mtime_int,
-              I_mtimeh => mtimeh_int,
-              -- Load/store misaligned errors
-              I_load_misaligned_error => load_misaligned_error_int,
-              I_store_misaligned_error => store_misaligned_error_int,
-              -- Load/store access errors (inimplemented memeory)
-              I_load_access_error => load_access_error_int,
-              I_store_access_error => store_access_error_int,
-              I_instr_access_error => instr_access_error_int
+              I_mtimeh => mtimeh_int
              );
-    -- Merge all misaligned errors
-    load_misaligned_error_int <= rom_load_misaligned_error_int or boot_load_misaligned_error_int or ram_load_misaligned_error_int or io_load_misaligned_error_int;
-    store_misaligned_error_int <= rom_store_misaligned_error_int or ram_store_misaligned_error_int or io_store_misaligned_error_int;
     
     address_decode0: address_decode
     generic map (
@@ -568,37 +488,35 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
-              I_memaccess => memaccess_int,
-              I_memaddress => memaddress_int,
-              O_dataout => datain_int,
-              O_wrrom => wrrom_int,
-              O_wrram => wrram_int,
-              O_wrio => wrio_int,
-              O_csrom => csrom_int,
-              O_csboot => csboot_int,
-              O_csram => csram_int,
-              O_csio => csio_int,
-              I_romdatain => romdatain_int,
-              I_bootdatain => bootdatain_int,
-              I_ramdatain => ramdatain_int,
-              I_iodatain => iodatain_int,
-              O_load_access_error => load_access_error_int,
-              O_store_access_error => store_access_error_int
+              --
+              I_bus_request => bus_request_int,
+              O_bus_response => bus_response_int,
+              --
+              O_mem_request_rom => mem_request_rom_int,
+              O_mem_request_boot => mem_request_boot_int,
+              O_mem_request_ram => mem_request_ram_int,
+              O_mem_request_io => mem_request_io_int,
+              --
+              I_mem_response_rom => mem_response_rom_int,
+              I_mem_response_boot => mem_response_boot_int,
+              I_mem_response_ram => mem_response_ram_int,
+              I_mem_response_io => mem_response_io_int
     );
-    -- Merge all memory ready signals
-    memready_int <= rommemready_int or rammemready_int or bootmemready_int or iomemready_int;
-
+    
     instr_route0: instruction_router
     generic map (
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
               BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE
              )
-    port map (I_pc => pc_int,
-              I_instr_rom => rominstr_int,
-              I_instr_boot => bootinstr_int,
-              O_instr_out => instr_int,
-              O_instr_access_error => instr_access_error_int
+    port map (I_instr_request => instr_request_int,
+              O_instr_response => instr_response_int,
+              --
+              O_instr_request_rom => instr_request_rom_int,
+              I_instr_response_rom => instr_response_rom_int,
+              --
+              O_instr_request_boot => instr_request_boot_int,
+              I_instr_response_boot => instr_response_boot_int
              );
     
     rom0: rom
@@ -609,18 +527,11 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
-              I_pc => pc_int,
-              I_memaddress => memaddress_int,
-              I_memsize => memsize_int,
-              I_csrom => csrom_int,
-              I_wren => wrrom_int,
-              I_stall => stall_int,
-              O_instr => rominstr_int,
-              I_datain => dataout_int,
-              O_dataout => romdatain_int,
-              O_memready => rommemready_int,
-              O_load_misaligned_error => rom_load_misaligned_error_int,
-              O_store_misaligned_error => rom_store_misaligned_error_int
+              -- fetch instruction
+              I_instr_request => instr_request_rom_int,
+              O_instr_response => instr_response_rom_int,
+              I_mem_request => mem_request_rom_int,
+              O_mem_response => mem_response_rom_int
              );
 
     bootloader0: bootloader
@@ -629,15 +540,12 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
-              I_pc => pc_int,
-              I_memaddress => memaddress_int,
-              I_memsize => memsize_int,
-              I_csboot => csboot_int,
-              I_stall => stall_int,
-              O_instr => bootinstr_int,
-              O_dataout => bootdatain_int,
-              O_memready => bootmemready_int,
-              O_load_misaligned_error => boot_load_misaligned_error_int
+              --
+              I_instr_request => instr_request_boot_int,
+              O_instr_response => instr_response_boot_int,
+              --
+              I_mem_request => mem_request_boot_int,
+              O_mem_response => mem_response_boot_int
              );
         
     ram0: ram
@@ -647,15 +555,9 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
-              I_memaddress => memaddress_int,
-              I_memsize => memsize_int,
-              I_csram => csram_int,
-              I_wren => wrram_int,
-              I_datain => dataout_int,
-              O_dataout => ramdatain_int,
-              O_memready => rammemready_int,
-              O_load_misaligned_error => ram_load_misaligned_error_int,
-              O_store_misaligned_error => ram_store_misaligned_error_int
+              --
+              I_mem_request => mem_request_ram_int,
+              O_mem_response => mem_response_ram_int
              );
 
     io0: io
@@ -675,15 +577,9 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_int,
-              I_memaddress => memaddress_int,
-              I_memsize => memsize_int,
-              I_csio => csio_int,
-              I_wren => wrio_int,
-              I_datain => dataout_int,
-              O_dataout => iodatain_int,
-              O_memready => iomemready_int,
-              O_load_misaligned_error => io_load_misaligned_error_int,
-              O_store_misaligned_error => io_store_misaligned_error_int,
+              --
+              I_mem_request => mem_request_io_int,
+              O_mem_response => mem_response_io_int,
               -- GPIOA
               I_gpioapin => I_gpioapin,
               O_gpioapout => O_gpioapout,

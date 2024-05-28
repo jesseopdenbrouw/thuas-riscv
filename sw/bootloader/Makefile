@@ -10,7 +10,7 @@ TARGET = bootloader
 
 # Compiler flags
 EXTRA_CFLAGS = -flto -Os -DNO_ARGC_ARGV
-
+EXTRA_LDFLAGS = -flto
 
 #-----
 #----- do not edit below this point
@@ -31,6 +31,7 @@ endif
 
 # Compiler flags
 CFLAGS += $(EXTRA_CFLAGS)
+LDFLAGS += $(EXTRA_LDFLAGS)
 # Linker script is different
 LD_SCRIPT = bl_riscv.ld
 

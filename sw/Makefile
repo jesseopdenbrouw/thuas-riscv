@@ -64,6 +64,7 @@ SUBDIRS = add64 \
           timer2pwm \
           trig \
           uart1_cpp \
+		  uart1_interrupt \
           uart1_printf \
           uart1_printlonglong \
           uart1_sprintf \

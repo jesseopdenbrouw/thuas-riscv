@@ -20,9 +20,9 @@
  * \fn uart1_init
  * \brief initialize UART1
  *
- * param[in] uint32_t baudrate
- * param[in] uint32_t ctrl
- * param[out] -
+ * \param[in] uint32_t baudrate
+ * \param[in] uint32_t ctrl
+ * \param[out] -
  */
 void uart1_init(uint32_t baudrate, uint32_t ctrl)
 {
@@ -32,4 +32,6 @@ void uart1_init(uint32_t baudrate, uint32_t ctrl)
 	UART1->BAUD = (baudrate == 0) ? 0 : speed/baudrate-1;
 	/* Set control register */
 	UART1->CTRL = ctrl;
+	/* Reset status register */
+	UART1->STAT = 0x00;
 }

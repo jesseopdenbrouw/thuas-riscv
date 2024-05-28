@@ -155,10 +155,8 @@ void
 portable_init(core_portable *p, int *argc, char *argv[])
 {
 	/* THUASRV32-specific */
-	//char buffer[80];
 	speed = csr_read(0xfc1);
 
-	disable_irq();
 	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	ee_printf("\r\n\r\nTHUASRV32: starting CoreMark\r\n");

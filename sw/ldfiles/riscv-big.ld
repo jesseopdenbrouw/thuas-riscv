@@ -95,8 +95,6 @@ SECTIONS
   } >ROM :ROM
 
   . = ALIGN(4);
-  _start_of_rom_to_copy = .;
-  PROVIDE(_start_of_rom_to_copy = .);
 
   _sidata = LOADADDR(.data);
 

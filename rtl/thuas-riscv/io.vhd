@@ -885,7 +885,7 @@ begin
                 
                 uart1.baud(31 downto 16) <= (others => '0');
                 uart1.data(31 downto 9) <= (others => '0');
-                uart1.ctrl(31 downto 8) <= (others => '0');
+                uart1.ctrl(31 downto 9) <= (others => '0');
                 uart1.stat(31 downto 6) <= (others => '0');
             end if;
         end process;

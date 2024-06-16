@@ -432,6 +432,7 @@ begin
                                                             and id_ex.md_start = '0' and control.penalty = '0'
                                                             and control.mret_request = '0') or
                                  (control.state = state_mem and I_bus_response.ready = '1') or
+                                  control.state = state_md2 or
                                   control.state = state_flush2 or
                                   control.state = state_mret2
                            else '0'; 

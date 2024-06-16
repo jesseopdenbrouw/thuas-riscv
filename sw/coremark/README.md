@@ -28,7 +28,11 @@ The current design has a Coremark speed of 1.93 coremarks/MHz with an average CP
 Upload the generated executable `coremark.srec` with the `upload` program: `make upload`.
 
 ```
-THUAS RISC-V Bootloader v0.6
+___       _  __    _ \ /__ __ 
+ | |_|| ||_|(_ ---|_) V __) _)
+ | | ||_|| |__)   | \   __)/__
+
+THUAS RISC-V Bootloader v0.6.2
 Clock frequency: 50000000
 **********
 
@@ -52,8 +56,8 @@ seedcrc          : 0xe9f5
 [0]crcfinal      : 0x65c5
 Correct operation validated. See README.md for run and reporting rules.
 CoreMark 1.0 : 96.464211 / GCC13.2.0 -O3 / STATIC
-THUASRV32: Executed instructions: 1161885180
+THUASRV32: Executed instructions: 1199469277
 THUASRV32: CoreMark core clock cycles: 2073307778
-THUASRV32: Avg CPI: 1.784434 clock/instr
-THUASRV32: Avg IPC: 0.560402 instr/clock
+THUASRV32: Avg CPI: 1.728521 clock/instr
+THUASRV32: Avg IPC: 0.578529 instr/clock
 ```

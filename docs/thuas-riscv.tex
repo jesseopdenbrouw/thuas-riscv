@@ -90,7 +90,7 @@ This document describes the buildup of a simple, one core, RISC-V processor, com
 
 The processor requires three clock cycles to complete an instruction, but the next instructions are fetched and decoded while the current instruction is executed. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. A preliminary test with CoreMark showed an average CPI of 1.78 with a throughput of 1.93 coremark/MHz (16000 runs).
+The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. A preliminary test with CoreMark showed an average CPI of 1.73 with a throughput of 1.93 coremark/MHz (4000 runs).
 
 \section{The processor}
 The RISC-V processor consists of one \textit{core} and some building blocks:
@@ -1644,9 +1644,9 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 
 \begin{register}{H}{External input interrupt control register GPIOA\_EXTC}{0x18}%
 \label{extc}%
-\regfield{Reserved}{24}{7}{{0}}%
-\regfield{PIN}{5}{2}{{0}}%
-\regfield{EDGE}{3}{1}{{0}}%
+\regfield{Reserved}{24}{8}{{0}}%
+\regfield{PIN}{5}{3}{{0}}%
+\regfield{EDGE}{2}{1}{{0}}%
 \regfield{Reserved}{1}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
@@ -2247,9 +2247,9 @@ t = \dfrac{Prescaler \cdot 256}{f_{cpu}}
 \item [EN] If set to 1, the WDT starts counting.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{Watchdog trigger register WDT\_TRIG}{0xe0}
+\begin{register}{H}{Watchdog trigger register WDT\_TRIG}{0xe4}
 \label{wdttrig}
-\regfield{Reserved}{32}{0}{{0}}%
+\regfield{PASSWORD}{32}{0}{{0}}%
 \reglabel{Reset}\regnewline%
 \end{register}
 
@@ -2263,7 +2263,7 @@ Note: MSI has to be enabled by writing a 1 to \lstinline[breaklines=false]|mie.M
 \begin{register}{H}{MSI trigger register MSI\_TRIG}{0xec}
 \label{msitrig}
 \regfield{Reserved}{31}{1}{{0}}%
-\regfield{Trig}{1}{0}{{0}}%
+\regfield{TRIG}{1}{0}{{0}}%
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]

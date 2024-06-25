@@ -25,7 +25,7 @@ custom CS register `mxhw`. The register is located at address
 | 12   | Reserved                |
 | 13   | Reserved                |
 | 14   | Reserved                |
-| 15   | System Timer            |
+| 15   | System Timer enabled    |
 | 16   | Multiply/divide enabled |
 | 17   | Fast divide enabled     |
 | 18   | Bootloader enabled      |

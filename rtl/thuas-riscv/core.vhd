@@ -2306,8 +2306,8 @@ begin
                     when mhpmcounter5h_addr => csr_content_v := csr_reg.mhpmcounter5h;
                     when mhpmcounter6h_addr => csr_content_v := csr_reg.mhpmcounter6h;
                     when mhpmcounter7h_addr => csr_content_v := csr_reg.mhpmcounter7h;
-                    when mhpmcounter9h_addr => csr_content_v := csr_reg.mhpmcounter8h;
-                    when mhpmcounter8h_addr => csr_content_v := csr_reg.mhpmcounter9h;
+                    when mhpmcounter8h_addr => csr_content_v := csr_reg.mhpmcounter8h;
+                    when mhpmcounter9h_addr => csr_content_v := csr_reg.mhpmcounter9h;
                     when mstatus_addr => csr_content_v := csr_reg.mstatus;
                     when mie_addr => csr_content_v := csr_reg.mie;
                     when mtvec_addr => csr_content_v := csr_reg.mtvec;

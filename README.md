@@ -26,7 +26,7 @@ Jumps/calls/branches taken require 3 clock cycles, the
 processor does not implement branch prediction. All other
 instructions require 1 clock cycle. Interrupts
 are direct or vectored. Current Coremark testbench shows
-a CPI of 1.78 and a score of 1.93 coremark/MHz.
+a CPI of 1.73 and a score of 1.93 coremark/MHz.
 
 Software is written in C, (C++ is supported but there are
 some limitations) and compiled using the RISC-V GNU C/C++
@@ -65,7 +65,7 @@ on 256 MB (top 4 bits) sections.
 
 ## CSR
 
-A number CSR registers are implemented: `time`, `timeh`, `[m]cycle`, `[m]cycleh`,
+A number of CSR registers are implemented: `time`, `timeh`, `[m]cycle`, `[m]cycleh`,
 `[m]instret`, `[m]instreth`, `mvendorid`, `marchid`, `mimpid`, `mhartid`, `mstatus`,
 `mstatush`, `misa`, `mie`, `mtvec`, `mscratch`, `mepc`, `mcause`, `mip`,
 `mcountinhibit` as are the HPM counters and event selectors. Some of these CSRs

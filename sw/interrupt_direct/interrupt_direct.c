@@ -32,6 +32,7 @@ int main(int argc, char *argv[], char *envp[])
 	uint32_t hour, min, sec;
 	uint32_t ebreak_counter = 0;
 	uint32_t speed;
+	uint32_t has_ocd = csr_read(0xfc0) & CSR_MXHW_OCD;
 
 #if USEPRINTF != 1
 	char buffer[40] = {0};
@@ -95,6 +96,9 @@ int main(int argc, char *argv[], char *envp[])
 	}
 	uart1_puts("\r\n\nDisplaying the time passed since reset\r\n\n");
 #endif
+	if (has_ocd) {
+		uart1_puts("On-chip debugger found, skipping EBREAK instruction\r\n\r\n");
+	}
 
 	while (1) {
 		/* Read in the time of the day */
@@ -120,7 +124,9 @@ int main(int argc, char *argv[], char *envp[])
 		ebreak_counter++;
 		if (ebreak_counter == BAUD_RATE/24UL) {
 			ebreak_counter = 0;
-			__asm__ volatile ("ebreak;" :::);
+			if (!has_ocd) {
+				ebreak();
+			}
 			/* Start SPI1 transmission */
 			SPI1->DATA = 0xff;
 			/* Start I2C1 transmission, send START and STOP */

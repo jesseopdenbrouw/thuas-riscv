@@ -6,6 +6,7 @@ set_property -dict {PACKAGE_PIN M9 IOSTANDARD LVCMOS33} [get_ports {I_clk} ]
 #create_clock -period 10.000 -name I_clk -waveform {0.000 5.000} -add [get_ports {I_clk} ]
 # When using a MMCM at 125 MHz
 create_clock -period 8.000 -name I_clk -waveform {0.000 4.0000} -add [get_ports {I_clk} ]
+#create_generated_clock -multiply_by 9 -source [get_ports I_clk] -name override_clock [get_pins {clk_mult0/inst/mmcm_adv_inst/CLKOUT0}]
 
 ## Reset (BTN0)
 set_property -dict {PACKAGE_PIN D2 IOSTANDARD LVCMOS33} [get_ports {I_areset}]
@@ -65,19 +66,22 @@ set_property -dict {PACKAGE_PIN M15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout
 set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[12]} ]
 set_property -dict {PACKAGE_PIN L15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[13]} ]
 
-## Fillers for GPIOA PIN (PIO40 to PIO48)
+## Fillers for GPIOA PIN (PIO40 to PIO43)
 set_property -dict {PACKAGE_PIN C5 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[1]} ]
 set_property -dict {PACKAGE_PIN A2 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[2]} ]
 set_property -dict {PACKAGE_PIN B2 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[3]} ]
 set_property -dict {PACKAGE_PIN B1 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[4]} ]
-set_property -dict {PACKAGE_PIN C1 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[5]} ]
-set_property -dict {PACKAGE_PIN B3 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[6]} ]
-set_property -dict {PACKAGE_PIN B4 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[7]} ]
-set_property -dict {PACKAGE_PIN A3 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[8]} ]
-set_property -dict {PACKAGE_PIN A4 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[9]} ]
+
+## JTAG connections (PIO44 to PIO48)
+set_property -dict {PACKAGE_PIN C1 IOSTANDARD LVCMOS33} [get_ports {I_trst} ]
+set_property -dict {PACKAGE_PIN B3 IOSTANDARD LVCMOS33} [get_ports {I_tms} ]
+set_property -dict {PACKAGE_PIN B4 IOSTANDARD LVCMOS33} [get_ports {O_tdo} ]
+set_property -dict {PACKAGE_PIN A3 IOSTANDARD LVCMOS33} [get_ports {I_tdi} ]
+set_property -dict {PACKAGE_PIN A4 IOSTANDARD LVCMOS33} [get_ports {I_tck} ]
 
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]
+#set_property INTERNAL_VREF 0.675 [get_iobanks 34]
 
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]

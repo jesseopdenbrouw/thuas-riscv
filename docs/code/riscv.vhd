@@ -1,3 +1,10 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.processor_common.all;
+
 -- The microcontroller
 entity riscv is
     generic (
@@ -5,6 +12,12 @@ entity riscv is
           SYSTEM_FREQUENCY : integer;
           -- Frequecy of the hardware clock
           CLOCK_FREQUENCY : integer;
+          -- Have On-chip debugger?
+          HAVE_OCD : boolean;
+          -- Do we have a bootloader ROM?
+          HAVE_BOOTLOADER_ROM : boolean;
+          -- Disable CSR address check when in debug mode
+          OCD_CSR_CHECK_DISABLE : boolean;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -23,8 +36,6 @@ entity riscv is
           VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
           HAVE_REGISTERS_IN_RAM : boolean;
-          -- Do we have a bootloader ROM?
-          HAVE_BOOTLOADER_ROM : boolean;
           -- Address width in bits, size is 2**bits
           ROM_ADDRESS_BITS : integer;
           -- Address width in bits, size is 2**bits
@@ -60,6 +71,12 @@ entity riscv is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          -- JTAG connection
+          I_trst : in  std_logic;
+          I_tms  : in  std_logic;
+          I_tck  : in  std_logic;
+          I_tdi  : in  std_logic;
+          O_tdo  : out std_logic;
           -- GPIOA
           I_gpioapin : in data_type;
           O_gpioapout : out data_type;

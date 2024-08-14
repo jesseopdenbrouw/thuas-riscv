@@ -72,6 +72,13 @@ set_property -dict {PACKAGE_PIN V13 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout
 set_property -dict {PACKAGE_PIN U12 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[12]} ]
 set_property -dict {PACKAGE_PIN V15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[13]} ]
 
+## PMODB, used for JTAG, pins 1 to 4, 7 
+set_property -dict {PACKAGE_PIN P17 IOSTANDARD LVCMOS33} [get_ports {I_tck} ]
+set_property -dict {PACKAGE_PIN P18 IOSTANDARD LVCMOS33} [get_ports {I_tdi} ]
+set_property -dict {PACKAGE_PIN R18 IOSTANDARD LVCMOS33} [get_ports {I_tms} ]
+set_property -dict {PACKAGE_PIN T18 IOSTANDARD LVCMOS33} [get_ports {I_trst} ]
+set_property -dict {PACKAGE_PIN P14 IOSTANDARD LVCMOS33} [get_ports {O_tdo} ]
+
 
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]

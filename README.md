@@ -6,27 +6,28 @@ for an FPGA.
 ## Description
 
 This RISC-V microcontroller uses the RV32IM instruction set
-and the Zicsr, Zicntr, Zicond, Zihpm, Zba and Zbs extensions.
-The microcontroller supports exceptions and interrupts.
-`ECALL`, `EBREAK`, `WFI` and `MRET` are supported. `FENCE`
-and `FENCE.I` act as no-operation
-(`NOP`). Currently only machine mode is supported. We
-successfully tested complex programs with interrupts
-and exceptions and implemented a basic syscall library,
-both with the `ECALL` instruction and C functions overriding
-the C library functions. `sbrk`, `read`, `write`, `times` and
-`gettimeofday` are supported. The External (system) Timer
-is implemented and generates an interrupt if `time` >=
-`timecmp`. The processor can handle up to 16 fast local
-interrupts. Reads from ROM, RAM and I/O require 3 clock
-cycles. Writes require 2 clock cycles. Multiplications
-require 3 clock cycles, divisions require 18 clock cycles,
-CSR accesses take 1 clock cycle.
-Jumps/calls/branches taken require 3 clock cycles, the
-processor does not implement branch prediction. All other
-instructions require 1 clock cycle. Interrupts
-are direct or vectored. Current Coremark testbench shows
-a CPI of 1.73 and a score of 1.93 coremark/MHz.
+and the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and
+Sdtrig extensions. The microcontroller is build around a
+three-stage pipelined core.
+
+All instructions from the "The RISC-V
+Instruction Set Manual Volume I, Unprivileged Architecture,
+Version 20240411", RV32, are supported. The instructions
+from the M standard (hardware multiply/divide), RV32, are
+supported. From the "The RISC-V Instruction Set Manual:
+Volume II Privileged Architecture, Version 20240411", RV32,
+`ECALL`, `EBREAK`, `MRET` and `WFI` are supported. The
+microcontroller supports Machine mode only. Traps (interrupts
+and exceptions) are supported.
+
+Loads from memory require 3 clocks, stores require 2 clocks.
+CSR operations require 1 clock. Multiplies require 3 clocks,
+divides require 18 clocks. Jumps/branches taken require 3
+clocks, the microcontroller does not support branch prediction.
+All other instructions require 1 clock.
+
+Current Coremark testbench shows a CPI of 1.73 and a score
+of 1.93 coremark/MHz.
 
 Software is written in C, (C++ is supported but there are
 some limitations) and compiled using the RISC-V GNU C/C++
@@ -34,9 +35,11 @@ compiler.
 
 ## Current flavor
 
-The design is equipped with a bootloader program and registers in onboard RAM.
-The bootloader can be removed from synthesis. The registers can be placed in
-logic cells. The design runs at a speed of approximately 85 MHz (DE0-CV board).
+The design is equipped with bootloader and on-chip debugger
+hardware (both can be switched off). The bootloader can
+be used without the on-chip debugger to upload executables
+to the processor. The on-chip debugger can be used with
+OpenOCD and GDB. It works with Eclipse CDT.
  
 ## Memory
 
@@ -65,15 +68,18 @@ on 256 MB (top 4 bits) sections.
 
 ## CSR
 
-A number of CSR registers are implemented: `time`, `timeh`, `[m]cycle`, `[m]cycleh`,
-`[m]instret`, `[m]instreth`, `mvendorid`, `marchid`, `mimpid`, `mhartid`, `mstatus`,
-`mstatush`, `misa`, `mie`, `mtvec`, `mscratch`, `mepc`, `mcause`, `mip`,
-`mcountinhibit` as are the HPM counters and event selectors. Some of these CSRs
-are hardwired. Others will be implemented
-when needed. The `time` and `timeh` CSRs produces the time since reset in
-microseconds, shadowed from the External Timer memory mapped registers. Also
-two custom CSRs are implemented: `mxhw` which holds information of included
-peripherals and `mxspeed` which contains the synthesized clock speed.
+A number of CSR registers are implemented: `time`, `timeh`, `[m]cycle`,
+`[m]cycleh`, `[m]instret`, `[m]instreth`, `mvendorid`, `marchid`,
+`mimpid`, `mhartid`, `mstatus`, `mstatush`, `misa`, `mie`, `mtvec`,
+`mscratch`, `mepc`, `mcause`, `mip`, `mcountinhibit` as are the HPM
+counters and event selectors. If on-chip debugging is enabled, the
+`dcsr`, `dpc`, `tselect`, `tdata1` and `tdata2` CSRs are available.
+Some of these CSRs are hardwired. Others will be implemented when
+needed. The `time` and `timeh` CSRs produces the time since reset
+in microseconds, shadowed from the External Timer memory mapped
+registers. Also two custom CSRs are implemented: `mxhw` which holds
+information of included peripherals and `mxspeed` which contains
+the synthesized clock speed.
 
 ## FPGA
 
@@ -102,16 +108,27 @@ We provide a basic set of systems call, trapped (ECALL) and non-trapped
 are by default set up by the RISC-V C/C++ compiler, so no extra handling
 is needed.
 
+## On-chip debugger
+
+The processor is equipped with an on-chip debugger that complies to the
+RISC-V Debug Specification v1.0.0-rc3. It is an all-hardware solution,
+there is no program buffer involved. All processor registers (including
+CSRs) can be read and written (when possible). Memory can be read and
+written. There is one hardware breakpoint available. De on-chip debugger
+is compatible with OpenOCD and GDB. It can be used with Eclipse CDT. By
+default, the on-chip debugger is disabled.
+
 ## Bootloader
+
 By default, the design is equipped with a bootloader. When resetting the
-FPGA, the bootloader waits about 5 seconds @50 MHz before the program in the ROM
-is started. Using the bootloader, a program can written to the ROM (see
-the documentation). The bootloader can also be used to inspect the
-memory contents.
+FPGA, the bootloader waits about 5 seconds @50 MHz before the program
+in the ROM is started. Using the bootloader, a program can written to
+the ROM (see the documentation). The bootloader can also be used to
+inspect the memory contents.
 
-## Preliminary support for Windows
+## Support for Windows
 
-There is preliminary support for Windows. `srec2vhdl` and
+There is support for Windows. `srec2vhdl` and
 `upload` can be build with GCC MinGW and Visual Studio.
 For building the RISC-V programs, a RISC-V GNU GCC compiler
 is needed.
@@ -122,6 +139,7 @@ at [xPack RISC-V Toolchain](https://xpack.github.io/dev-tools/riscv-none-elf-gcc
 and [Windows build tools](https://xpack.github.io/dev-tools/windows-build-tools/).
 For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look
 at [The xPack GNU Compiler Collection (GCC)](https://xpack.github.io/dev-tools/gcc/).
+For on-chip debugging, see [xPack OpenOCD](ihttps://xpack-dev-tools.github.io/openocd-xpack/).
 
 ## Plans (or not) and issues
 

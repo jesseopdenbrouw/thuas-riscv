@@ -74,6 +74,8 @@ vcom -93 -work work ${prefix}core.vhd
 vcom -93 -work work ${prefix}address_decode.vhd
 vcom -93 -work work ${prefix}instr_router.vhd
 vcom -93 -work work ${prefix}riscv.vhd
+vcom -93 -work work ${prefix}dm.vhd
+vcom -93 -work work ${prefix}dtm.vhd
 vcom -93 -work work ${prefix}tb_riscv.vhd
 
 # Start the simulator
@@ -113,7 +115,8 @@ add wave            -label id_ex dut/core0/id_ex
 add wave -divider "Core Internals - Execute & Write back"
 add wave            -label ex_wb dut/core0/ex_wb
 add wave -divider "Core Internals - Registers"
-add wave            -label regs dut/core0/regs
+# Registers are spread over three instances (rs1, rs2, debug)
+add wave            -label regs dut/core0/regs_rs1
 add wave -divider "Core Internals - Execute MD"
 add wave            -label md dut/core0/md
 add wave -divider "Internals - Memory access"
@@ -126,7 +129,7 @@ add wave -divider "Internals - RAM"
 add wave            -label RAM_mem_request dut/mem_request_ram_int
 add wave            -label RAM_mem_response dut/mem_response_ram_int
 add wave -radix hex -label RAM_sim dut/ram0/ram_alt
-add wave -divider "Internals - ROMs"
+#add wave -divider "Internals - ROMs"
 #add wave -radix hex -label rom dut/rom
 add wave -divider "Internals - IO"
 add wave            -label IO_mem_request dut/mem_request_io_int

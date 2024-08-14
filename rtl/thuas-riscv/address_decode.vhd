@@ -163,14 +163,18 @@ begin
             O_bus_response.ready <= I_mem_response_io.ready;
         -- Referencing unimplemented memory results in an access error
         else
+            O_bus_response.ready <= '0';
             if I_bus_request.acc = memaccess_read then
                 O_bus_response.load_access_error <= '1';
+                -- Signal ready anyway, otherwise the bus will hang.
+                O_bus_response.ready <= '1';
             end if;
             if I_bus_request.acc = memaccess_write then
                 O_bus_response.store_access_error <= '1';
+                -- Signal ready anyway, otherwise the bus will hang.
+                O_bus_response.ready <= '1';
             end if;
-            O_bus_response.data <= (others => 'X');
-            O_bus_response.ready <= '0';
+            O_bus_response.data <= (others => '0');
         end if;
     end process;
     

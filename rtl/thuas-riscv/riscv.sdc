@@ -47,7 +47,7 @@ set_time_format -unit ns -decimal_places 3
 #**************************************************************
 
 #  50.00 MHz
-#create_clock -name {clk} -period 20.000 -waveform { 0.000 10.000 } [get_ports {clk}]
+#create_clock -name {I_clk} -period 20.000 -waveform { 0.000 10.000 } [get_ports {I_clk}]
 #  66.67 MHz
 #create_clock -name {clk} -period 15.000 -waveform { 0.000 7.500 } [get_ports {clk}]
 #  100.00 MHz

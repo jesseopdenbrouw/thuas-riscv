@@ -126,7 +126,7 @@ in the ROM is started. Using the bootloader, a program can written to
 the ROM (see the documentation). The bootloader can also be used to
 inspect the memory contents.
 
-## Support for Windows
+## Support for Windows tools
 
 There is support for Windows. `srec2vhdl` and
 `upload` can be build with GCC MinGW and Visual Studio.

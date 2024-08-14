@@ -52,6 +52,12 @@ entity core is
           SYSTEM_FREQUENCY : integer;
           -- Hardware version in BCD
           HW_VERSION : integer;
+          -- Do we have on-chip debugger (OCD)?
+          HAVE_OCD : boolean;
+          -- If bootloader enabled, adjust the boot address
+          HAVE_BOOTLOADER_ROM : boolean;
+          -- Disable CSR address check when in debug mode
+          OCD_CSR_CHECK_DISABLE : boolean;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -70,8 +76,6 @@ entity core is
           VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
           HAVE_REGISTERS_IN_RAM : boolean;
-          -- If bootloader enabled, adjust the boot address
-          HAVE_BOOTLOADER_ROM : boolean;
           -- 4 high bits of ROM address
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
@@ -96,7 +100,6 @@ entity core is
           HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
-          
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -110,7 +113,17 @@ entity core is
           I_intrio : data_type;
           -- [m]time from the memory mapped I/O
           I_mtime : in data_type;
-          I_mtimeh : in data_type
+          I_mtimeh : in data_type;
+          -- Debug signals
+          I_dm_core_data_request : in dm_core_data_request_type;
+          O_dm_core_data_response : out dm_core_data_response_type;
+          I_halt_req : in std_logic;
+          I_reset_req : in std_logic;
+          I_resume_req : in std_logic;
+          I_ackhavereset : in std_logic;
+          O_halt_ack : out std_logic;
+          O_reset_ack : out std_logic;
+          O_resume_ack : out std_logic
          );
 end entity core;
 
@@ -170,23 +183,37 @@ signal ex_wb : ex_wb_type;
 -- Number of registers: 16 for E, 32 for I
 constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16, 32);
 type regs_array_type is array (0 to NUMBER_OF_REGISTERS-1) of data_type;
-signal regs : regs_array_type;
+-- Quartus will not generate RAM blocks for registers when they are in a record
+signal regs_rs1, regs_rs2, regs_debug : regs_array_type;
 -- Do not check for read during write. For some reason, Quartus
 -- thinks that there are asynchronous read and write clocks.
 attribute ramstyle : string;
-attribute ramstyle of regs : signal is "no_rw_check";
+attribute ramstyle of regs_rs1 : signal is "no_rw_check";
+attribute ramstyle of regs_rs2 : signal is "no_rw_check";
+attribute ramstyle of regs_debug : signal is "no_rw_check";
+signal selrs1 : integer range 0 to NUMBER_OF_REGISTERS-1;
+signal selrs2 : integer range 0 to NUMBER_OF_REGISTERS-1;
 
 -- Control signals
 type state_type is (state_boot0, state_boot1, state_exec, state_mem,
                     state_flush, state_flush2, state_md, state_md2,
-                    state_trap, state_trap2, state_mret, state_mret2,
-                    state_wfi);
+                    state_trap, state_trap2, state_trap3, state_mret,
+                    state_mret2, state_wfi, state_debug, state_debugflush,
+                    state_debugflush2, state_debugflush3);
 type control_type is record
     -- Stall, flush, jump/branch, instructions retired
     stall : std_logic;
     flush : std_logic;
     penalty : std_logic;
     instret : std_logic;
+    indebug : std_logic;
+    step : std_logic;
+    bpmatch : std_logic;
+    stall_on_trigger : std_logic;
+    load_pc : std_logic;
+    load_dpc : std_logic;
+    skip_match : std_logic;
+    isstepping : std_logic;
     -- The state of the controller
     state : state_type;
     -- Forwarding latest result
@@ -305,6 +332,13 @@ type csr_reg_type is record
     mhpmevent9 : data_type;
     mxhw : data_type;
     mxspeed : data_type;
+    dcsr : data_type;
+    dpc : data_type;
+    tselect : data_type;
+    tdata1 : data_type;
+    tdata2 : data_type;
+    tinfo : data_type;
+    dcsr_cause : std_logic_vector(3 downto 0);
 end record csr_reg_type;
 signal csr_reg : csr_reg_type;
 
@@ -316,6 +350,8 @@ type csr_transfer_type is record
 end record csr_transfer_type;
 signal csr_transfer : csr_transfer_type;
 
+-- Used with on-chip debugger
+signal data_from_gpr : data_type;
 
 begin
 
@@ -326,26 +362,87 @@ begin
     -- other blocks.
     --
     
+    
+    -- Hardware breakpoint match
+    control.bpmatch <= '1' when id_ex.pc = csr_reg.tdata2 and                   -- instruction address match
+                                csr_reg.tdata1(6) = '1' and                     -- and M mode
+                                csr_reg.tdata1(2) = '1' and                     -- and EXECUTE
+                                csr_reg.tdata1(15 downto 12) = "0001" and       -- and enter debug mode
+                                csr_reg.tdata1(10 downto 07) = "0000" else      -- and match equal   
+                       '0'; 
+
     -- Processor state control
     process (I_clk, I_areset) is
     begin
         if I_areset = '1' then
             control.state <= state_boot0;
+            control.step <= '0';
+            O_halt_ack <= '0';
+            O_reset_ack <= '0';
+            O_resume_ack <= '0';
+            control.load_pc <= '0';
+            control.load_dpc <= '0';
+            control.skip_match <= '0';
+            csr_reg.dcsr_cause <= "0000";
         elsif rising_edge(I_clk) then
+            control.load_pc <= '0';
+            control.load_dpc <= '0';
+            if I_ackhavereset = '1' then
+                O_reset_ack <= '0';
+            end if;
             case control.state is
                 -- Booting first cycle
                 when state_boot0 =>
                     control.state <= state_boot1;
+                    control.skip_match <= '0';
+                    control.step <= '0';
+                    O_halt_ack <= '0';
+                    O_reset_ack <= '0';
+                    O_resume_ack <= '0';
+                    csr_reg.dcsr_cause <= "0000";
                 -- Booting second cycle
                 when state_boot1 =>
                     control.state <= state_exec;
+                    O_reset_ack <= '1';
                 -- The executing state, can be interrupted.
                 when state_exec =>
+                    O_resume_ack <= '1';  -- keep this at '1'
+                    O_halt_ack <= '0';
+
+                    -- If user halt request...
+                    if I_halt_req = '1' and HAVE_OCD then
+                        O_halt_ack <= '1';                  -- Signal halt
+                        control.step <= '0';                --
+                        control.state <= state_debug;       -- Goto to debug state
+                        control.load_dpc <= '1';            -- Load DPC with PC
+                        csr_reg.dcsr_cause <= "1011";       -- Signal halt to user
+                    -- If hardware breakpoint and not resuming from this breakpoint...
+                    elsif control.bpmatch = '1' and control.skip_match = '0' and HAVE_OCD then
+                        O_halt_ack <= '1';                  -- Signal halt
+                        control.step <= '0';                --
+                        control.state <= state_debug;       -- Goto debug state
+                        control.load_dpc <= '1';            -- Load DPC with PC
+                        csr_reg.dcsr_cause <= "1010";       -- Signal HW break to user
+                    -- If software breakpoint...
+                    -- Can be switched off with: <targetname> riscv set_ebreakm off
+                    -- dcsr(15) is dcsr.ebreakm bit
+                    elsif control.ebreak_request = '1' and csr_reg.dcsr(15) = '1' and HAVE_OCD then
+                        O_halt_ack <= '1';                  -- Signal halt
+                        control.step <= '0';                --
+                        control.state <= state_debug;       -- Goto debug state
+                        control.load_dpc <= '1';            -- Load DPC with PC
+                        csr_reg.dcsr_cause <= "1001";       -- Signal EBREAK to user
+                    elsif control.isstepping = '1' and control.step = '0' and HAVE_OCD then
+                        O_halt_ack <= '1';                  -- Signal halt
+                        control.step <= '0';
+                        control.state <= state_debug;       -- Goto debug state
+                        control.load_dpc <= '1';            -- Load DPC with PC
+                        csr_reg.dcsr_cause <= "1100";       -- Signal STEP to user
                     -- If there is a trap request, it can be an interrupt
                     -- or an exception.
-                    if control.trap_request = '1' then
+                    elsif control.trap_request = '1' then
                         control.state <= state_trap;
-                    elsif control.wfi_request = '1' then
+                    elsif control.wfi_request = '1' then----
                         control.state <= state_wfi;
                     -- If we have an mret request (MRET)
                     elsif control.mret_request = '1' then
@@ -360,6 +457,8 @@ begin
                     elsif id_ex.md_start = '1' then
                         control.state <= state_md;
                     end if;
+                    control.step <= '0';
+
                 -- Wait for data (read from ROM, boot ROM, RAM or I/O)
                 when state_mem =>
                     -- If there is a trap then it is one of load/store misaligned error
@@ -376,6 +475,13 @@ begin
                 -- Second state flush
                 when state_flush2 =>
                     control.state <= state_exec;
+                -- Flush after leaving debug state
+                when state_debugflush =>
+                    control.state <= state_debugflush2;
+                when state_debugflush2 =>
+                    control.state <= state_debugflush3;
+                when state_debugflush3 =>
+                    control.state <= state_exec;
                 -- MD operation in progress (cannot be interrupted)
                 when state_md =>
                     if md.ready = '1' then
@@ -389,6 +495,13 @@ begin
                     control.state <= state_trap2;
                 -- Second state of trap handling, flushes pipeline
                 when state_trap2 =>
+                    if control.isstepping = '1' then
+                        control.state <= state_trap3;
+                    else
+                        control.state <= state_exec;
+                    end if;
+                -- Need this extra state to load the correct PC in DPC
+                when state_trap3 =>
                     control.state <= state_exec;
                 -- First state of MRET, flushes the pipeline
                 when state_mret =>
@@ -398,8 +511,35 @@ begin
                     control.state <= state_exec;
                 -- Stalling on WFI, waiting for an interrupt
                 when state_wfi =>
-                    if control.trap_request = '1' then
+                    -- A halt request on WFI goes to debug state
+                    if I_halt_req = '1' and HAVE_OCD then
+                        O_halt_ack <= '1';                  -- Signal halt
+                        control.step <= '0';                --
+                        control.state <= state_debug;       -- Goto to debug state
+                        control.load_dpc <= '1';            -- Load DPC with PC
+                        csr_reg.dcsr_cause <= "1011";       -- Signal halt to user                  
+                    elsif control.trap_request = '1' then
                         control.state <= state_trap;
+                    end if;
+                -- When we're in debug...
+                when state_debug =>
+                    csr_reg.dcsr_cause <= "0000";
+                    O_halt_ack <= '1';
+                    -- If resuming from stepping
+                    if I_resume_req = '1' and control.isstepping = '1' then
+                        control.state <= state_debugflush;   -- Flush the pipeline
+                        control.step <= '1';            -- Set stepping
+                        csr_reg.dcsr_cause <= "1000";   -- Clear DCSR.cause
+                        control.load_pc <= '1';         -- Load PC with DPC
+                        O_halt_ack <= '0';              -- Signal run
+                        control.skip_match <= control.bpmatch;
+                    elsif I_resume_req = '1' then
+                        control.state <= state_debugflush;   -- Flush the pipeline
+                        control.step <= '0';            -- Not stepping
+                        csr_reg.dcsr_cause <= "1000";   -- Clear DCSR.cause
+                        control.load_pc <= '1';         -- Load PC with DPC
+                        O_halt_ack <= '0';              -- Signal run
+                        control.skip_match <= control.bpmatch;
                     end if;
                 when others =>
                     control.state <= state_exec;
@@ -408,19 +548,28 @@ begin
     end process;
     
     -- Determine stall
-    -- We need to stall if we are waiting for data from memory OR we stall the PC and md unit is not ready
+    -- We need to stall if we...
     control.stall <= '1' when (control.state = state_exec and id_ex.ismem = '1' and I_bus_response.ready = '0') or
                               (control.state = state_md) or
                               (control.state = state_wfi) or
                               (control.state = state_mem and I_bus_response.ready = '0') or
                               (control.state = state_exec and id_ex.md_start = '1')
                          else '0';
+    -- If we got a trigger (breakpoint (hw/sw) or step)
+    control.stall_on_trigger <= '1' when (control.state = state_exec and I_halt_req = '1' and HAVE_OCD) or
+                                         (control.state = state_exec and control.bpmatch = '1' and control.skip_match = '0' and HAVE_OCD) or
+                                         (control.state = state_exec and control.ebreak_request = '1' and csr_reg.dcsr(15) = '1' and HAVE_OCD) or
+                                         (control.state = state_debug and HAVE_OCD) or
+                                         (control.state = state_exec and control.isstepping = '1' and control.step = '0' and HAVE_OCD)
+                                    else '0';
+
     -- Needed for the instruction fetch for the ROM or boot ROM
-    O_instr_request.stall <= control.stall;
+    O_instr_request.stall <= control.stall or control.stall_on_trigger;
 
     -- We need to flush if we are jumping/branching or servicing interrupts
     control.flush <= '1' when control.penalty = '1' or
                               control.state = state_flush or
+                              control.state = state_debugflush or
                               control.state = state_trap or 
                               control.state = state_trap2 or
                               control.state = state_mret or
@@ -430,13 +579,21 @@ begin
     -- Instructions retired -- not exact, needs more detail
     control.instret <= '1' when (control.state = state_exec and control.trap_request = '0' and id_ex.ismem = '0'
                                                             and id_ex.md_start = '0' and control.penalty = '0'
-                                                            and control.mret_request = '0') or
+                                                            and control.mret_request = '0' and I_halt_req = '0'
+                                                            and control.bpmatch = '0' and control.ebreak_request = '0'
+                                                            and control.stall_on_trigger = '0') or
                                  (control.state = state_mem and I_bus_response.ready = '1') or
                                   control.state = state_md2 or
                                   control.state = state_flush2 or
                                   control.state = state_mret2
                            else '0'; 
-                                
+                                    
+    -- We're in debug
+    control.indebug <= '1' when control.state = state_debug else '0';
+    
+    -- We're stepping
+    control.isstepping <= '1' when csr_reg.dcsr(2) = '1' else '0';
+    
     -- Delay the release request (for use in the CSR)
     control.mret_request_delay <= '1' when control.state = state_mret2 else '0';
     
@@ -513,8 +670,11 @@ begin
                 pc(pc'left downto pc'left-3) <= ROM_HIGH_NIBBLE;
             end if;
         elsif rising_edge(I_clk) then
+            -- Load DPC to PC
+            if control.load_pc = '1' then
+                pc <= csr_reg.dpc;
             -- Should we stall the pipeline
-            if control.stall = '1' then
+            elsif control.stall = '1' or control.stall_on_trigger = '1' then
                 -- PC holds value
                 null;
             else
@@ -574,7 +734,7 @@ begin
             if_id.pc <= (others => '0');
         elsif rising_edge(I_clk) then
             -- Must we stall?
-            if control.stall = '1' or id_ex.pc_op = pc_hold then
+            if control.stall = '1' or control.stall_on_trigger = '1' or id_ex.pc_op = pc_hold then
                 null;
             else
                 if_id.pc <= pc;
@@ -586,6 +746,7 @@ begin
     --
     -- Instruction decode block
     --
+    --id_ex.instr <= I_instr_response.instr;
    
     process (I_clk, I_areset, I_instr_response, control) is
     variable opcode_v : std_logic_vector(6 downto 0);
@@ -641,12 +802,13 @@ begin
         imm_shamt_v(31 downto 5) := (others => '0');
         imm_shamt_v(4 downto 0) := rs2_v;
 
-        selrs1_v := to_integer(unsigned(rs1_v));
-        selrs2_v := to_integer(unsigned(rs2_v));
+        -- Select registers from the register file
+        selrs1 <= to_integer(unsigned(rs1_v));
+        selrs2 <= to_integer(unsigned(rs2_v));
         
         if I_areset = '1' then
             id_ex.pc <= (others => '0');
-            id_ex.instr <= (others => '0');
+            id_ex.instr <= (others => 'X');
             id_ex.rd <= (others => '0');
             id_ex.rs1 <= (others => '0');
             id_ex.rs2 <= (others => '0');
@@ -657,8 +819,6 @@ begin
             id_ex.ismem <= '0';
             id_ex.alu_op <= alu_unknown;
             id_ex.pc_op <= pc_incr;
-            id_ex.rs1data <= (others => '0');
-            id_ex.rs2data <= (others => '0');
             id_ex.md_start <= '0';
             id_ex.md_op <= (others => '0');
             id_ex.memaccess <= memaccess_nop;
@@ -673,8 +833,33 @@ begin
             control.illegal_instruction_decode <= '0';
             control.reg0_write_once <= '0';
         elsif rising_edge(I_clk) then
+            id_ex.instr <= I_instr_response.instr;
+            if control.stall_on_trigger = '1' then
+                -- Set all registers to default
+                id_ex.rd <= (others => '0');
+                id_ex.rs1 <= (others => '0');
+                id_ex.rs2 <= (others => '0');
+                id_ex.rd_en <= '0';
+                id_ex.imm <= imm_i_v;
+                id_ex.isimm <= '0';
+                id_ex.isunsigned <= '0';
+                id_ex.ismem <= '0';
+                id_ex.alu_op <= alu_nop;
+                id_ex.pc_op <= pc_incr;
+                id_ex.md_start <= '0';
+                id_ex.md_op <= (others => '0');
+                id_ex.memaccess <= memaccess_nop;
+                id_ex.memsize <= memsize_unknown;
+                id_ex.csr_op <= csr_nop;
+                id_ex.csr_addr <= (others => '0');
+                id_ex.csr_immrs1 <= (others => '0');
+                control.ecall_request <= '0';
+                control.ebreak_request <= '0';
+                control.mret_request <= '0';
+                control.wfi_request <= '0';
+                control.illegal_instruction_decode <= '0';
             -- if a trap is requested
-            if control.trap_request = '1' then
+            elsif control.trap_request = '1' then
                 -- ALU does nothing
                 id_ex.alu_op <= alu_nop;
                 -- No writeback to register
@@ -693,6 +878,7 @@ begin
                 control.wfi_request <= '0';
                 -- Illegal instruction reset
                 control.illegal_instruction_decode <= '0';
+--                control.reg0_write_once <= '1';
             -- We need to stall the operation
             elsif control.stall = '1' then
                 -- Set id_ex.md_start to 0. It is already registered.
@@ -707,7 +893,6 @@ begin
                 control.wfi_request <= '0';
             else
                 -- Set all registers to default
-                id_ex.instr <= I_instr_response.instr;
                 id_ex.pc <= if_id.pc;
                 id_ex.rd <= rd_v;
                 id_ex.rs1 <= rs1_v;
@@ -719,8 +904,6 @@ begin
                 id_ex.ismem <= '0';
                 id_ex.alu_op <= alu_nop;
                 id_ex.pc_op <= pc_incr;
-                id_ex.rs1data <= regs(selrs1_v);
-                id_ex.rs2data <= regs(selrs2_v);
                 id_ex.md_start <= '0';
                 id_ex.md_op <= (others => '0');
                 id_ex.memaccess <= memaccess_nop;
@@ -735,7 +918,7 @@ begin
                 control.illegal_instruction_decode <= '0';
                 control.reg0_write_once <= '1';
 
-                if control.flush = '1' then
+                if control.flush = '1' or control.state = state_debugflush or control.state = state_debugflush2 then
                     id_ex.alu_op <= alu_nop;
                 else
                     case opcode_v is
@@ -1061,16 +1244,20 @@ begin
                                     elsif I_instr_response.instr(31 downto 20) = "000000000001" then
                                         -- EBREAK
                                         control.ebreak_request <= '1';
-                                        id_ex.alu_op <= alu_trap;
-                                        id_ex.pc_op <= pc_hold;
+                                        -- Check the dcsr.ebreakm flag, if 0 then trap
+                                        if csr_reg.dcsr(15) = '0' then
+                                            id_ex.alu_op <= alu_trap;
+                                            id_ex.pc_op <= pc_hold;
+                                        end if;
                                     elsif I_instr_response.instr(31 downto 20) = "001100000010" then
                                         -- MRET
                                         id_ex.alu_op <= alu_mret;
                                         control.mret_request <= '1';
                                         id_ex.pc_op <= pc_load_mepc;
                                     elsif I_instr_response.instr(31 downto 20) = "000100000101" then
-                                        -- WFI, skip for now
-                                        control.wfi_request <= '1';
+                                        -- WFI
+                                        -- Only execute while not stepping
+                                        control.wfi_request <= not control.isstepping;
                                         null;
                                     else
                                         control.illegal_instruction_decode <= '1';
@@ -1147,20 +1334,77 @@ begin
             
     end process;
 
-    -- Generate register in RAM
+    
+    --
+    -- The registers.
+    -- Due to the nature of the registers, three separate processes are used:
+    -- One for first source register, one for second source register and one
+    -- for debugging purposes. Most synthesizers will create registers in
+    -- onboard RAM blocks.
+    --
+    
+    -- Generate register in onboard RAM blocks
     gen_regs_ram: if HAVE_REGISTERS_IN_RAM generate
         -- Register: exec & retire
         -- Do NOT include a reset, otherwise registers will be in ALM flip-flops
         -- Do NOT set x0 to all zero bits
-        process (I_clk, I_areset, id_ex.rd, I_instr_response.instr) is
+        -- Next process is for the core register R1 and R2
+        process (I_clk, I_areset, control, id_ex, I_dm_core_data_request) is
         variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
         begin
-            selrd_v := to_integer(unsigned(id_ex.rd));
-            
+            if control.indebug = '1' then
+                selrd_v := to_integer(unsigned(I_dm_core_data_request.address(4 downto 0)));
+            else
+                selrd_v := to_integer(unsigned(id_ex.rd));
+            end if;
             if rising_edge(I_clk) then
-                if control.stall = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
-                    regs(selrd_v) <= id_ex.result;
+                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                    regs_rs1(selrd_v) <= id_ex.result;
+                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                    regs_rs1(selrd_v) <= I_dm_core_data_request.data;
                 end if;
+                if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
+                else
+                    id_ex.rs1data <= regs_rs1(selrs1);
+                end if;
+            end if;
+        end process;
+        process (I_clk, I_areset, control, id_ex, I_dm_core_data_request) is
+        variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
+        begin
+            if control.indebug = '1' then
+                selrd_v := to_integer(unsigned(I_dm_core_data_request.address(4 downto 0)));
+            else
+                selrd_v := to_integer(unsigned(id_ex.rd));
+            end if;
+            if rising_edge(I_clk) then
+                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                    regs_rs2(selrd_v) <= id_ex.result;
+                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                    regs_rs2(selrd_v) <= I_dm_core_data_request.data;
+                end if;
+                if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
+                else
+                    id_ex.rs2data <= regs_rs2(selrs2);
+                end if;
+            end if;
+        end process;
+        -- Next is for debug
+        process (I_clk, I_areset, control, id_ex, I_dm_core_data_request) is
+        variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
+        begin
+            if control.indebug = '1' then
+                selrd_v := to_integer(unsigned(I_dm_core_data_request.address(4 downto 0)));
+            else
+                selrd_v := to_integer(unsigned(id_ex.rd));
+            end if;
+            if rising_edge(I_clk) then
+                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                    regs_debug(selrd_v) <= id_ex.result;
+                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                    regs_debug(selrd_v) <= I_dm_core_data_request.data;
+                end if;
+                data_from_gpr <= regs_debug(selrd_v);
             end if;
         end process;
     end generate;
@@ -1170,18 +1414,33 @@ begin
         -- Register: exec & retire
         -- Registers in ALM flip-flops, x0 (zero) hardwired to all 0.
         -- Registers are cleared on reset
-        process (I_clk, I_areset, id_ex.rd, I_instr_response.instr) is
+        process (I_clk, I_areset, id_ex.rd, I_instr_response.instr, I_dm_core_data_request.address) is
         variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
         begin
-            selrd_v := to_integer(unsigned(id_ex.rd));
+            if control.indebug = '1' then
+                selrd_v := to_integer(unsigned(I_dm_core_data_request.address(4 downto 0)));
+            else
+                selrd_v := to_integer(unsigned(id_ex.rd));
+            end if;
 
             if I_areset = '1' then
-                regs <= (others => (others => '0'));
+                regs_debug <= (others => (others => '0'));
+                id_ex.rs1data <= (others => '0');
+                id_ex.rs2data <= (others => '0');
             elsif rising_edge(I_clk) then
-                if control.stall = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
-                    regs(selrd_v) <= id_ex.result;
+                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                    regs_debug(selrd_v) <= id_ex.result;
+                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                    regs_debug(selrd_v) <= I_dm_core_data_request.data;
                 end if;
-                regs(0) <= (others => '0');
+                regs_debug(0) <= (others => '0');
+                if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
+                    null;
+                else
+                    id_ex.rs1data <= regs_debug(selrs1);
+                    id_ex.rs2data <= regs_debug(selrs2);
+                end if;
+                data_from_gpr <= regs_debug(selrd_v);
             end if;
         end process;
     end generate;
@@ -1450,7 +1709,7 @@ begin
                 -- Clock in the multiplicand and multiplier
                 -- In the Cyclone V, these are embedded registers
                 -- in the DSP units.
-                if id_ex.md_start = '1' and control.trap_request = '0' then
+                if id_ex.md_start = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
                     if id_ex.md_op(1) = '1' then
                         if id_ex.md_op(0) = '1' then
                             md.rdata_a <= '0' & unsigned(a_v);
@@ -1529,7 +1788,7 @@ begin
             elsif rising_edge(I_clk) then 
                 -- If start and dividing...
                 md.div_ready <= '0';
-                if id_ex.md_start = '1' and id_ex.md_op(2) = '1' and control.trap_request = '0' then
+                if id_ex.md_start = '1' and id_ex.md_op(2) = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
                     -- Signal that we are running
                     div_running_v := '1';
                     -- For restarting the division
@@ -1636,7 +1895,7 @@ begin
             elsif rising_edge(I_clk) then 
                 -- If start and dividing...
                 md.div_ready <= '0';
-                if id_ex.md_start = '1' and id_ex.md_op(2) = '1' and control.trap_request = '0' then
+                if id_ex.md_start = '1' and id_ex.md_op(2) = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
                     div_running_v := '1';
                     count_v := 0;
                 end if;
@@ -1732,7 +1991,7 @@ begin
             ex_wb.rddata <= (others => '0');
             ex_wb.pc <= (others => '0');
         elsif rising_edge(I_clk) then
-            if control.stall = '1' then
+            if control.stall = '1' or control.stall_on_trigger = '1' then
                 null;
             else
                 ex_wb.rd_en <= id_ex.rd_en;
@@ -1752,17 +2011,21 @@ begin
 
     -- This is the interface between the core and the memory (ROM, RAM, I/O)
     -- Memory access type and size are computed in the instruction decoding unit
-    process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb) is
+    process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb, I_dm_core_data_request) is
     variable address_v : unsigned(31 downto 0);
     begin
         
+        -- If we're in debug
+        if control.indebug = '1' then
+            address_v := unsigned(I_dm_core_data_request.address);
         -- Check if we need forward or not
-        if control.forwarda = '1' then
+        elsif control.forwarda = '1' then
             address_v := unsigned(ex_wb.rddata);
+            address_v := address_v + unsigned(id_ex.imm);
         else
             address_v := unsigned(id_ex.rs1data);
+            address_v := address_v + unsigned(id_ex.imm);
         end if;
-        address_v := address_v + unsigned(id_ex.imm);
 
         if I_areset = '1' then
             O_bus_request.size <= memsize_unknown;
@@ -1778,8 +2041,28 @@ begin
                 csr_transfer.address_to_mtval <= (others => '0');
             -- else clock in the credentials for memory access
             else
+                -- Debug
+                if control.indebug = '1' then
+                    if I_dm_core_data_request.readmem = '1' then
+                        O_bus_request.acc <= memaccess_read;
+                    elsif I_dm_core_data_request.writemem = '1' then
+                        O_bus_request.acc <= memaccess_write;
+                    else
+                        O_bus_request.acc <= memaccess_nop;
+                    end if;
+                    if (I_dm_core_data_request.readmem or I_dm_core_data_request.writemem) = '0' then
+                        O_bus_request.size <= memsize_unknown;
+                    elsif I_dm_core_data_request.size = "00" then
+                        O_bus_request.size <= memsize_byte;
+                    elsif I_dm_core_data_request.size = "01" then
+                        O_bus_request.size <= memsize_halfword;
+                    elsif I_dm_core_data_request.size = "10" then
+                        O_bus_request.size <= memsize_word;
+                    else
+                        O_bus_request.size <= memsize_unknown;
+                    end if;
                 -- Disable the bus when flushing or trap
-                if control.flush = '1' or control.trap_request = '1' then
+                elsif control.flush = '1' or control.trap_request = '1' or control.stall_on_trigger = '1' then
                     O_bus_request.acc <= memaccess_nop;
                     O_bus_request.size <= memsize_unknown;
                 else
@@ -1791,19 +2074,22 @@ begin
                 csr_transfer.address_to_mtval <= std_logic_vector(address_v);
                 
                 -- Data out to memory
-                if control.forwardb = '1' then
+                if control.indebug = '1' then
+                    O_bus_request.data <= I_dm_core_data_request.data;
+                elsif control.forwardb = '1' then
                     O_bus_request.data <= ex_wb.rddata;
                 else
                     O_bus_request.data <= id_ex.rs2data;
-                end iF;
+                end if;
             end if;
         end if;
     end process;
     -- Address of the memory operation, this is a simple copy
     -- outside the rising edge to make 1 register instead of 2
-    O_bus_request.addr <= csr_transfer.address_to_mtval;
+    O_bus_request.addr <= I_dm_core_data_request.address when control.indebug = '1' else csr_transfer.address_to_mtval;
     
-        --
+    
+    --
     -- Interface to the CSR
     --
     
@@ -1830,7 +2116,8 @@ begin
     --
     
     process (I_clk, I_areset, csr_access, csr_reg,
-             control, id_ex, I_bus_response.ready, md) is
+             control, id_ex, I_bus_response.ready, md,
+             I_dm_core_data_request, pc) is
     variable csr_addr_v : integer range 0 to csr_size-1;
     variable event3_v, event4_v, event5_v, event6_v, event7_v, event8_v, event9_v : boolean;
     variable csr_content_v : data_type;
@@ -1898,13 +2185,21 @@ begin
         end if;
                     
         -- Fetch CSR address
-        csr_addr_v := to_integer(unsigned(csr_access.address));
+        if control.indebug = '1' then
+            csr_addr_v := to_integer(unsigned(I_dm_core_data_request.address(11 downto 0)));
+        else
+            csr_addr_v := to_integer(unsigned(csr_access.address));
+        end if;
 
         -- Check for correct access
-        if csr_access.op = csr_nop then
+        -- This is troublesome on Eclipse, so if we are in debug, unimplemented
+        -- registers return -1 as value
+        if control.indebug = '0' and csr_access.op = csr_nop then
             control.illegal_instruction_csr <= '0';
-        elsif csr_access.address(11 downto 10) = "11" and (csr_access.op = csr_rw or csr_access.op = csr_rwi or csr_access.immrs1 /= "00000") then
+        elsif control.indebug = '0' and csr_access.address(11 downto 10) = "11" and (csr_access.op = csr_rw or csr_access.op = csr_rwi or csr_access.immrs1 /= "00000") then
             control.illegal_instruction_csr <= '1';
+        elsif control.indebug = '1' and ((I_dm_core_data_request.writecsr = '0' and I_dm_core_data_request.readcsr = '0') or OCD_CSR_CHECK_DISABLE) then
+            control.illegal_instruction_csr <= '0';
         elsif csr_addr_v = cycle_addr or
               csr_addr_v = time_addr or
               csr_addr_v = instret_addr or
@@ -1913,63 +2208,63 @@ begin
               csr_addr_v = instreth_addr or
 
              (csr_addr_v = hpmcounter3_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter3h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter3h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter4_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter4h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter4h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter5_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter5h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter5h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter6_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter6h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter6h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter7_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter7h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter7h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter8_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter8h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter8h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter9_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter9h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter9h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter10_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter10h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter10h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter11_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter11h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter11h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter12_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter12h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter12h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter13_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter13h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter13h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter14_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter14h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter14h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter15_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter15h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter15h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter16_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter16h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter16h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter17_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter17h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter17h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter18_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter18h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter18h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter19_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter19h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter19h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter20_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter20h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter20h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter21_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter21h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter21h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter22_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter22h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter22h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter23_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter23h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter23h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter24_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter24h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter24h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter25_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter25h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter25h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter26_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter26h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter26h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter27_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter27h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter27h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter28_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter28h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter28h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter29_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter29h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter29h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter30_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter30h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter30h_addr and HAVE_ZIHPM) or
              (csr_addr_v = hpmcounter31_addr and HAVE_ZIHPM) or
-             (csr_addr_v = hpmcounter31h_addr  and HAVE_ZIHPM) or
+             (csr_addr_v = hpmcounter31h_addr and HAVE_ZIHPM) or
               
               csr_addr_v = mvendorid_addr or
               csr_addr_v = marchid_addr or
@@ -2079,6 +2374,14 @@ begin
              (csr_addr_v = mhpmcounter31_addr and HAVE_ZIHPM) or
              (csr_addr_v = mhpmcounter31h_addr  and HAVE_ZIHPM) or
              (csr_addr_v = mhpmevent31_addr and HAVE_ZIHPM) or
+             
+             (csr_addr_v = dcsr_addr and control.indebug = '1' and HAVE_OCD) or
+             (csr_addr_v = dpc_addr and control.indebug = '1' and HAVE_OCD) or
+             (csr_addr_v = tselect_addr and HAVE_OCD) or
+             (csr_addr_v = tdata1_addr and HAVE_OCD) or
+             (csr_addr_v = tdata2_addr and HAVE_OCD) or
+             (csr_addr_v = tinfo_addr and HAVE_OCD) or
+             
               csr_addr_v = mxhw_addr or
               csr_addr_v = mxspeed_addr then
             control.illegal_instruction_csr <= '0';
@@ -2130,8 +2433,6 @@ begin
             when mtval_addr         => csr_access.datain <= csr_reg.mtval;
             when mip_addr           => csr_access.datain <= csr_reg.mip;
             when mconfigptr_addr    => csr_access.datain <= csr_reg.mconfigptr;
-            when mxhw_addr          => csr_access.datain <= csr_reg.mxhw;
-            when mxspeed_addr       => csr_access.datain <= csr_reg.mxspeed;
             when mhpmcounter3_addr  => csr_access.datain <= csr_reg.mhpmcounter3;
             when mhpmcounter3h_addr => csr_access.datain <= csr_reg.mhpmcounter3h;
             when mhpmevent3_addr    => csr_access.datain <= csr_reg.mhpmevent3;
@@ -2153,6 +2454,14 @@ begin
             when mhpmcounter9_addr  => csr_access.datain <= csr_reg.mhpmcounter9;
             when mhpmcounter9h_addr => csr_access.datain <= csr_reg.mhpmcounter9h;
             when mhpmevent9_addr    => csr_access.datain <= csr_reg.mhpmevent9;
+            when dcsr_addr          => csr_access.datain <= csr_reg.dcsr;
+            when dpc_addr           => csr_access.datain <= csr_reg.dpc;
+            when tselect_addr       => csr_access.datain <= csr_reg.tselect;
+            when tdata1_addr        => csr_access.datain <= csr_reg.tdata1;
+            when tdata2_addr        => csr_access.datain <= csr_reg.tdata2;
+            when tinfo_addr         => csr_access.datain <= csr_reg.tinfo;
+            when mxhw_addr          => csr_access.datain <= csr_reg.mxhw;
+            when mxspeed_addr       => csr_access.datain <= csr_reg.mxspeed;
             when others             => csr_access.datain <= (others => '0');
         end case;
     
@@ -2194,6 +2503,10 @@ begin
             csr_reg.mhpmcounter9 <= (others => '0');
             csr_reg.mhpmcounter9h <= (others => '0');
             csr_reg.mhpmevent9 <= (others => '0');
+            csr_reg.dcsr <= (others => '0');
+            csr_reg.dpc <= (others => '0');
+            csr_reg.tdata1 <= (others => '0');
+            csr_reg.tdata2 <= (others => '0');
         elsif rising_edge(I_clk) then
             --  Do we count cycles?
             if csr_reg.mcountinhibit(0) = '0' then
@@ -2281,7 +2594,7 @@ begin
             
             -- If no trap is pending, then update the selected csr_reg.
             -- Needed because the instruction is restarted after MRET
-            if csr_access.op /= csr_nop and control.trap_request = '0' then
+            if csr_access.op /= csr_nop and control.trap_request = '0' and control.indebug = '0' and control.stall_on_trigger = '0' then
                 -- Select the CSR
                 case csr_addr_v is
                     when mcycle_addr => csr_content_v := csr_reg.mcycle;
@@ -2316,6 +2629,9 @@ begin
                     when mepc_addr => csr_content_v := csr_reg.mepc;
                     when mcause_addr => csr_content_v := csr_reg.mcause;
                     when mtval_addr => csr_content_v := csr_reg.mtval;
+                    when tselect_addr => csr_content_v := csr_reg.tselect;
+                    when tdata1_addr => csr_content_v := csr_reg.tdata1;
+                    when tdata2_addr => csr_content_v := csr_reg.tdata2;
                     when others => csr_content_v := (others => '-');
                 end case;
                 -- Do the operation
@@ -2373,9 +2689,69 @@ begin
                     when mepc_addr => csr_reg.mepc <= csr_content_v;
                     when mcause_addr => csr_reg.mcause <= csr_content_v;
                     when mtval_addr => csr_reg.mtval <= csr_content_v;
+                    when tdata1_addr => csr_reg.tdata1 <= csr_content_v;
+                    when tdata2_addr => csr_reg.tdata2 <= csr_content_v;
                     when others => null;
                 end case;
             end if;
+
+            -- Set the cause for halting in DCSR
+            -- cause(3) is load flag
+            if csr_reg.dcsr_cause(3) = '1' and HAVE_OCD then
+                csr_reg.dcsr(8 downto 6) <= csr_reg.dcsr_cause(2 downto 0);
+                if csr_reg.dcsr_cause(2 downto 0) = "010" then
+                    csr_reg.tdata1(22) <= '1';  -- hit0
+                end if;
+            end if;
+            -- If a halt/break/step, load DPC with PC
+            if control.load_dpc = '1' and HAVE_OCD then
+                csr_reg.dpc <= id_ex.pc;
+            end if;
+
+            -- When we're in debug mode ...
+            if control.indebug = '1' and I_dm_core_data_request.writecsr = '1' and HAVE_OCD then
+                case csr_addr_v is
+                    when mcycle_addr => csr_reg.mcycle <= I_dm_core_data_request.data;
+                    when mcycleh_addr => csr_reg.mcycleh <= I_dm_core_data_request.data;
+                    when minstret_addr => csr_reg.minstret <= I_dm_core_data_request.data;
+                    when minstreth_addr => csr_reg.minstreth <= I_dm_core_data_request.data;
+                    when mhpmevent3_addr => csr_reg.mhpmevent3 <= I_dm_core_data_request.data;
+                    when mhpmevent4_addr => csr_reg.mhpmevent4 <= I_dm_core_data_request.data;
+                    when mhpmevent5_addr => csr_reg.mhpmevent5 <= I_dm_core_data_request.data;
+                    when mhpmevent6_addr => csr_reg.mhpmevent6 <= I_dm_core_data_request.data;
+                    when mhpmevent7_addr => csr_reg.mhpmevent7 <= I_dm_core_data_request.data;
+                    when mhpmevent8_addr => csr_reg.mhpmevent8 <= I_dm_core_data_request.data;
+                    when mhpmevent9_addr => csr_reg.mhpmevent9 <= I_dm_core_data_request.data;
+                    when mhpmcounter3_addr => csr_reg.mhpmcounter3 <= I_dm_core_data_request.data;
+                    when mhpmcounter4_addr => csr_reg.mhpmcounter4 <= I_dm_core_data_request.data;
+                    when mhpmcounter5_addr => csr_reg.mhpmcounter5 <= I_dm_core_data_request.data;
+                    when mhpmcounter6_addr => csr_reg.mhpmcounter6 <= I_dm_core_data_request.data;
+                    when mhpmcounter7_addr => csr_reg.mhpmcounter7 <= I_dm_core_data_request.data;
+                    when mhpmcounter8_addr => csr_reg.mhpmcounter8 <= I_dm_core_data_request.data;
+                    when mhpmcounter9_addr => csr_reg.mhpmcounter9 <= I_dm_core_data_request.data;
+                    when mhpmcounter3h_addr => csr_reg.mhpmcounter3h <= I_dm_core_data_request.data;
+                    when mhpmcounter4h_addr => csr_reg.mhpmcounter4h <= I_dm_core_data_request.data;
+                    when mhpmcounter5h_addr => csr_reg.mhpmcounter5h <= I_dm_core_data_request.data;
+                    when mhpmcounter6h_addr => csr_reg.mhpmcounter6h <= I_dm_core_data_request.data;
+                    when mhpmcounter7h_addr => csr_reg.mhpmcounter7h <= I_dm_core_data_request.data;
+                    when mhpmcounter8h_addr => csr_reg.mhpmcounter8h <= I_dm_core_data_request.data;
+                    when mhpmcounter9h_addr => csr_reg.mhpmcounter9h <= I_dm_core_data_request.data;
+                    when mstatus_addr => csr_reg.mstatus <= I_dm_core_data_request.data;
+                    when mie_addr => csr_reg.mie <= I_dm_core_data_request.data;
+                    when mtvec_addr => csr_reg.mtvec <= I_dm_core_data_request.data;
+                    when mcountinhibit_addr => csr_reg.mcountinhibit <= I_dm_core_data_request.data;
+                    when mscratch_addr => csr_reg.mscratch <= I_dm_core_data_request.data;
+                    when mepc_addr => csr_reg.mepc <= I_dm_core_data_request.data;
+                    when mcause_addr => csr_reg.mcause <= I_dm_core_data_request.data;
+                    when mtval_addr => csr_reg.mtval <= I_dm_core_data_request.data;
+                    when dcsr_addr => csr_reg.dcsr <= I_dm_core_data_request.data;
+                    when dpc_addr => csr_reg.dpc <= I_dm_core_data_request.data;
+                    when tdata1_addr => csr_reg.tdata1 <= I_dm_core_data_request.data;
+                    when tdata2_addr => csr_reg.tdata2 <= I_dm_core_data_request.data;
+                    when others => null;
+                end case;
+            end if;
+
             
             -- Set all bits hard to 0 except MTIE (7), MSIE (3)
             csr_reg.mie(csr_reg.mie'left downto 8) <= (others => '0');
@@ -2446,11 +2822,53 @@ begin
                 csr_reg.mhpmcounter9h <= (others => '0');
                 csr_reg.mhpmevent9 <= (others => '0');
             end if;
+
+            if HAVE_OCD then
+                -- Debug registers
+                csr_reg.dcsr(1 downto 0) <= "11";                -- Alwyas M-mode
+                csr_reg.dcsr(3) <= '0';                          -- NMI interrupt pending not used
+                csr_reg.dcsr(4) <= '0';                          -- mpriven not used
+                csr_reg.dcsr(5) <= '0';                          -- v not used
+                csr_reg.dcsr(9) <= '0';                          -- stoptime not used
+                csr_reg.dcsr(10) <= '0';                         -- stopcount not used
+                csr_reg.dcsr(11) <= '0';                         -- stepie not used
+                csr_reg.dcsr(12) <= '0';                         -- ebreaku not used
+                csr_reg.dcsr(13) <= '0';                         -- ebreaks not used
+                csr_reg.dcsr(14) <= '0';                         -- reserved
+                csr_reg.dcsr(16) <= '0';                         -- ebreakvu not used
+                csr_reg.dcsr(17) <= '0';                         -- ebreakvs not used
+                csr_reg.dcsr(27 downto 18) <= (others => '0');   -- reserved
+                csr_reg.dcsr(31 downto 28) <= "0100";            -- version 1.0
+
+                csr_reg.tdata1(31 downto 28) <= x"6";            -- always type 6 (mcontrol6)
+                csr_reg.tdata1(26) <= '0';                       -- uncertain
+                csr_reg.tdata1(25) <= '0';                       -- hit1 = 0
+                csr_reg.tdata1(24) <= '0';                       -- vs
+                csr_reg.tdata1(23) <= '0';                       -- vu
+                csr_reg.tdata1(20) <= '0';                       -- 0
+                csr_reg.tdata1(19) <= '0';                       -- 0
+                csr_reg.tdata1(5) <= '0';                        -- uncertainen
+                csr_reg.tdata1(4) <= '0';                        -- S mode
+                csr_reg.tdata1(3) <= '0';                        -- U mode
+                csr_reg.tdata1(1) <= '0';                        -- no store
+                csr_reg.tdata1(0) <= '0';                        -- no load
+                csr_reg.dpc(0) <= '0';                           -- LSB always 0
+                csr_reg.tselect <= (others => '0');              -- Only 1 hw breakpoint
+                -- Debug tinfo
+                csr_reg.tinfo <= x"01000006";
+            else
+                csr_reg.dcsr <= (others => '0');
+                csr_reg.dpc <= (others => '0');
+                csr_reg.tdata1 <= (others => '0');
+                csr_reg.tdata2 <= (others => '0');
+                csr_reg.tinfo <= (others => '0');
+                csr_reg.tselect <= (others => '0');
+            end if;
             
             -- Interrupt handling takes priority over possible user
             -- update of the CSRs.
             -- The LIC checks if exceptions/interrupts are enabled.
-            if control.trap_request = '1' then
+            if control.trap_request = '1' and control.stall_on_trigger = '0' then
                 -- Copy mie to mpie
                 csr_reg.mstatus(7) <= csr_reg.mstatus(3);
                 -- Set M mode
@@ -2546,7 +2964,8 @@ begin
     csr_reg.mxhw(24) <= '1' when UART1_BREAK_RESETS else '0';
     csr_reg.mxhw(25) <= '1' when HAVE_WDT else '0';
     csr_reg.mxhw(26) <= '1' when HAVE_ZIHPM else '0';
-    csr_reg.mxhw(csr_reg.mxhw'left downto 27) <= (others => '0');
+    csr_reg.mxhw(27) <= '1' when HAVE_OCD else '0';
+    csr_reg.mxhw(csr_reg.mxhw'left downto 28) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));
@@ -2574,93 +2993,94 @@ begin
         -- Priority as of Table 3.7 of "Volume II: RISC-V Privileged Architectures V20211203"
         -- Local hardware interrupts take priority over exceptions, the RISC-V system timer
         -- has the lowest hardware interrupt priority. Not all exceptions are implemented.
-        -- NMI triggered by watchdog timeout, cannot be blocked.
-        if I_intrio(31) = '1' then
+        -- Interrupts only when not stepping.
+        -- NMI triggered by watchdog timeout, cannot be blocked, except by stepping.
+        if I_intrio(31) = '1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(31, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- Currently unassigned
-        elsif I_intrio(30) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(30) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(30, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- Currently unassigned
-        elsif I_intrio(29) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(29) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(29, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- Currently unassigned
-        elsif I_intrio(28) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(28) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(28, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- SPI1
-        elsif I_intrio(27) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(27) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(27, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- I2C1
-        elsif I_intrio(26) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(26) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(26, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- Currently unassigned
-        elsif I_intrio(25) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(25) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(25, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- I2C2
-        elsif I_intrio(24) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(24) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(24, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- UART1
-        elsif I_intrio(23) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(23) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(23, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- Currently unassigned
-        elsif I_intrio(22) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(22) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(22, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- TIMER2
-        elsif I_intrio(21) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(21) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(21, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- TIMER1
-        elsif I_intrio(20) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(20) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(20, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- Currently unassigned
-        elsif I_intrio(19) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(19) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(19, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- EXTI
-        elsif I_intrio(18) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(18) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(18, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- Currently unassigned
-        elsif I_intrio(17) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(17) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(17, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- Currently unassigned
-        elsif I_intrio(16) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(16) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(16, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- RISC-V machine software interrupt
-        elsif I_intrio(3) = '1' and csr_reg.mstatus(3) = '1' and csr_reg.mie(3) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(3) = '1' and csr_reg.mstatus(3) = '1' and csr_reg.mie(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(3, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
         -- RISC-V external timer interrupt
-        elsif I_intrio(7) = '1' and csr_reg.mstatus(3) = '1' and csr_reg.mie(7) = '1' and control.may_interrupt ='1' then
+        elsif I_intrio(7) = '1' and csr_reg.mstatus(3) = '1' and csr_reg.mie(7) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(7, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
@@ -2681,8 +3101,8 @@ begin
         elsif control.ecall_request = '1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(11, control.trap_mcause'length));
-        -- EBREAK instruction
-        elsif control.ebreak_request = '1' then
+        -- EBREAK instruction, Priv Spec if dcsr.EBREAKM is off
+        elsif control.ebreak_request = '1' and csr_reg.dcsr(15) = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(3, control.trap_mcause'length));
         -- Load access error (inimplemented memory)
@@ -2703,11 +3123,25 @@ begin
             control.trap_mcause <= std_logic_vector(to_unsigned(6, control.trap_mcause'length));
         end if;
         control.trap_mcause(30 downto 5) <= (others => '0');
-        
+
         -- Signal interrupt release
         if control.mret_request_delay = '1' then
             control.trap_release <= '1';
         end if;
     end process;
+
+    -- Communication to and from DM
+    O_dm_core_data_response.data <= csr_access.datain when I_dm_core_data_request.readcsr = '1' else
+                                    data_from_gpr when I_dm_core_data_request.readgpr = '1' else
+                                    I_bus_response.data when I_dm_core_data_request.readmem = '1' else
+                                    x"00000000";
+
+    O_dm_core_data_response.ack <= I_bus_response.ready;
+    O_dm_core_data_response.buserr <= control.indebug and
+                                      (I_bus_response.load_misaligned_error or I_bus_response.store_misaligned_error or
+                                       I_bus_response.load_access_error or I_bus_response.store_access_error);
+    O_dm_core_data_response.excep <= control.indebug and
+                                     (control.illegal_instruction_csr or control.illegal_instruction_decode);
+
         
 end architecture rtl;

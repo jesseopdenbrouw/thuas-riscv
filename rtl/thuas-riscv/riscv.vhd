@@ -52,6 +52,12 @@ entity riscv is
           SYSTEM_FREQUENCY : integer;
           -- Frequecy of the hardware clock
           CLOCK_FREQUENCY : integer;
+          -- Have On-chip debugger?
+          HAVE_OCD : boolean;
+          -- Do we have a bootloader ROM?
+          HAVE_BOOTLOADER_ROM : boolean;
+          -- Disable CSR address check when in debug mode
+          OCD_CSR_CHECK_DISABLE : boolean;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -70,8 +76,6 @@ entity riscv is
           VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
           HAVE_REGISTERS_IN_RAM : boolean;
-          -- Do we have a bootloader ROM?
-          HAVE_BOOTLOADER_ROM : boolean;
           -- Address width in bits, size is 2**bits
           ROM_ADDRESS_BITS : integer;
           -- Address width in bits, size is 2**bits
@@ -107,6 +111,12 @@ entity riscv is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          -- JTAG connection
+          I_trst : in  std_logic;
+          I_tms  : in  std_logic;
+          I_tck  : in  std_logic;
+          I_tdi  : in  std_logic;
+          O_tdo  : out std_logic;
           -- GPIOA
           I_gpioapin : in data_type;
           O_gpioapout : out data_type;
@@ -145,6 +155,10 @@ component core is
           HW_VERSION : integer;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
+          -- Have On-chip debugger?
+          HAVE_OCD : boolean;
+          -- Disable CSR address check when in debug mode
+          OCD_CSR_CHECK_DISABLE : boolean;
           -- Do we have the integer multiply/divide unit?
           HAVE_MULDIV : boolean;
           -- Fast divide (needs more area)?
@@ -201,7 +215,17 @@ component core is
           I_intrio : data_type;
           -- time from the memory mapped I/O
           I_mtime : in data_type;
-          I_mtimeh : in data_type
+          I_mtimeh : in data_type;
+          -- Debug signals
+          I_dm_core_data_request : in dm_core_data_request_type;
+          O_dm_core_data_response : out dm_core_data_response_type;
+          I_halt_req : in std_logic;
+          I_reset_req : in std_logic;
+          I_resume_req : in std_logic;
+          I_ackhavereset : in std_logic;
+          O_halt_ack : out std_logic;
+          O_reset_ack : out std_logic;
+          O_resume_ack : out std_logic
          );
 end component core;
 component address_decode is
@@ -252,6 +276,7 @@ end component instruction_router;
 component rom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
+          HAVE_OCD : boolean;
           ROM_ADDRESS_BITS : integer;
           HAVE_FAST_STORE : boolean
          );
@@ -364,6 +389,46 @@ component io is
           O_reset_from_wdt : out std_logic
          );
 end component io;
+-- Reused from NEORV32 bu S.T. Nolting <www.neorv32.org>
+component dtm is
+    generic (
+        IDCODE_VERSION : std_logic_vector(03 downto 0); -- version
+        IDCODE_PARTID  : std_logic_vector(15 downto 0); -- part number
+        IDCODE_MANID   : std_logic_vector(10 downto 0)  -- manufacturer id
+    );
+    port (I_clk       : in  std_logic;
+          I_areset    : in  std_logic;
+          -- JTAG connection --
+          I_trst : in  std_logic;
+          I_tck  : in  std_logic;
+          I_tms  : in  std_logic;
+          I_tdi  : in  std_logic;
+          O_tdo  : out std_logic;
+          -- Debug module interface (DMI) --
+          O_dmi_request   : out dmi_request_type;
+          I_dmi_response  : in  dmi_response_type
+         );
+end component dtm;
+component dm is
+    port (I_clk : std_logic;
+          I_areset : std_logic;
+          --
+          I_dmi_request : in dmi_request_type;
+          O_dmi_response : out dmi_response_type;
+          --
+          O_reset_req : out std_logic;
+          I_reset_ack : in std_logic;
+          O_halt_req : out std_logic;
+          I_halt_ack : in std_logic;
+          O_resume_req : out std_logic;
+          I_resume_ack : in std_logic;     
+          O_ackhavereset : out std_logic;     
+          --
+          O_dm_core_data_request : out dm_core_data_request_type;
+          I_dm_core_data_response : in dm_core_data_response_type
+         );
+end component dm;
+
 
 -- The clock and the external reset
 signal clk_int : std_logic;
@@ -411,6 +476,20 @@ signal areset_sys_int : std_logic;
 signal break_from_uart1_int : std_logic;
 signal reset_from_wdt_int : std_logic;
 
+-- Signals between DTM and DM
+signal dmi_request_int : dmi_request_type;
+signal dmi_response_int : dmi_response_type;
+--
+signal halt_req_int, halt_ack_int : std_logic;
+signal resume_req_int, resume_ack_int : std_logic;
+signal reset_req_int, reset_ack_int : std_logic;
+signal ackhavereset_int : std_logic;
+--
+signal dm_core_data_request_int : dm_core_data_request_type;
+signal dm_core_data_response_int : dm_core_data_response_type;
+
+
+
 begin
 
     -- Just pass on the clock
@@ -419,16 +498,16 @@ begin
     areset_int <= areset_sys_int;
     
     -- Synchronize the asynchronous reset.
-    -- Also: reset the system if a UART1 BREAK is detected
-    -- or when the watchdog timer expires.
+    -- Also: reset the system if an UART1 BREAK is detected
+    -- or watchdog reset or debug reset.
     process (I_clk, I_areset) is
     begin
         if I_areset = '1' then
             areset_sys_sync_int <= (others => '0');
             areset_sys_int      <= '1';
         elsif rising_edge(I_clk) then
-            -- If a UART1 BREAK is detected, reset the system
-            if break_from_uart1_int = '1' or reset_from_wdt_int = '1' then
+            -- If a UART1 BREAK is detected or watchdog reset or debug reset, reset the system
+            if break_from_uart1_int = '1' or reset_from_wdt_int = '1' or reset_req_int = '1' then
                 areset_sys_sync_int <= (others => '0');
             else
                 areset_sys_sync_int <= areset_sys_sync_int(areset_sys_sync_int'left-1 downto 0) & '1';
@@ -442,6 +521,8 @@ begin
               SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
               HW_VERSION => HW_VERSION,
               HAVE_RISCV_E => HAVE_RISCV_E,
+              HAVE_OCD => HAVE_OCD,
+              OCD_CSR_CHECK_DISABLE => OCD_CSR_CHECK_DISABLE,
               HAVE_MULDIV => HAVE_MULDIV,
               FAST_DIVIDE => FAST_DIVIDE,
               HAVE_ZBA => HAVE_ZBA,
@@ -476,7 +557,17 @@ begin
               I_intrio => intrio_int,
               -- [m]time
               I_mtime => mtime_int,
-              I_mtimeh => mtimeh_int
+              I_mtimeh => mtimeh_int,
+              -- Debug signals
+              I_dm_core_data_request => dm_core_data_request_int,
+              O_dm_core_data_response => dm_core_data_response_int,
+              I_halt_req => halt_req_int,
+              I_reset_req => reset_req_int,
+              I_resume_req => resume_req_int,
+              I_ackhavereset => ackhavereset_int,
+              O_halt_ack => halt_ack_int,
+              O_reset_ack => reset_ack_int,
+              O_resume_ack => resume_ack_int
              );
     
     address_decode0: address_decode
@@ -522,6 +613,7 @@ begin
     rom0: rom
     generic map (
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
+              HAVE_OCD => HAVE_OCD,
               ROM_ADDRESS_BITS => ROM_ADDRESS_BITS,
               HAVE_FAST_STORE => HAVE_FAST_STORE
              )
@@ -617,4 +709,66 @@ begin
               O_reset_from_wdt => reset_from_wdt_int
              );
 
+    debuggen : if HAVE_OCD generate
+        -- Reused from NEORV32 by S.T. Nolting <www.neorv32.org>
+        dtm0: dtm
+        generic map (IDCODE_VERSION => "0000",
+                     IDCODE_PARTID  => x"face",
+                     IDCODE_MANID   => "00000000000"
+                    )
+        port map (I_clk => I_clk,
+                  I_areset => I_areset,
+                  I_trst => I_trst,
+                  I_tck => I_tck,
+                  I_tms => I_tms,
+                  I_tdi => I_tdi,
+                  O_tdo => O_tdo,
+                  --
+                  O_dmi_request => dmi_request_int,
+                  I_dmi_response => dmi_response_int
+                 );
+        
+        -- Debug Module
+        dm0: dm
+        port map (I_clk => I_clk,
+                  I_areset => I_areset,
+                  --
+                  I_dmi_request => dmi_request_int,
+                  O_dmi_response => dmi_response_int,
+                  --
+                  O_reset_req => reset_req_int,
+                  I_reset_ack => reset_ack_int,
+                  O_halt_req => halt_req_int,
+                  I_halt_ack => halt_ack_int,
+                  O_resume_req => resume_req_int,
+                  I_resume_ack => resume_ack_int,
+                  O_ackhavereset => ackhavereset_int,
+                  --
+                  O_dm_core_data_request => dm_core_data_request_int,
+                  I_dm_core_data_response => dm_core_data_response_int
+                 );
+    end generate debuggen;
+    
+    notdebuggen : if not HAVE_OCD generate
+        O_tdo <= 'Z';
+        reset_req_int <= '0';
+        halt_req_int <='0';
+        resume_req_int <= '0';
+        ackhavereset_int <= '0';
+        
+        dm_core_data_request_int.address <= (others => '0');
+        dm_core_data_request_int.data <= (others => '0');
+        dm_core_data_request_int.size <= (others => '0');
+        dm_core_data_request_int.readcsr <= '0';
+        dm_core_data_request_int.readgpr <= '0';
+        dm_core_data_request_int.readmem <= '0';
+        dm_core_data_request_int.writecsr <= '0';
+        dm_core_data_request_int.writegpr <= '0';
+        dm_core_data_request_int.writemem <= '0';
+
+        --dm_core_data_response_int.data <= (others => '0');
+        --dm_core_data_response_int.excep <= '0';
+        --dm_core_data_response_int.ack <= '0';
+    end generate notdebuggen;
+    
 end architecture rtl;

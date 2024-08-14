@@ -50,6 +50,11 @@ architecture sim of tb_riscv is
 -- Component is loaded by processor_common.vhd
 signal clk : std_logic;
 signal areset : std_logic;
+signal trst : std_logic;
+signal tck : std_logic;
+signal tms : std_logic;
+signal tdi : std_logic;
+signal tdo : std_logic;
 signal gpioapin : data_type;
 signal gpioapout : data_type;
 signal uart1txd, uart1rxd : std_logic;
@@ -77,20 +82,28 @@ constant chartosend : std_logic_vector := "01000001";
 begin
 
     -- Instantiate the processor
-    dut : riscv
+    dut: riscv
     generic map (
               -- Oscillator at 50 MHz
               SYSTEM_FREQUENCY => 50000000,
               -- Frequency of clock() et al. KEEP THIS TO 1M
               CLOCK_FREQUENCY => 1000000,
-              -- Do we have RISC-V embedded 916 registers)?
+              -- Do we have RISC-V embedded (16 registers)?
               HAVE_RISCV_E => false,
+              -- Have On-chip debugger?
+              HAVE_OCD => false,
+              -- Do we have the buildin bootloader?
+              HAVE_BOOTLOADER_ROM => false,
+              -- Disable CSR address check when in debug mode
+              OCD_CSR_CHECK_DISABLE => TRUE,
               -- Do we have integer hardware multiply/divide?
               HAVE_MULDIV => TRUE,
               -- Do we have the fast divider?
               FAST_DIVIDE => TRUE,
               -- Do we have the Zba extension?
               HAVE_ZBA => false,
+              -- Do we have Zbs (bit instructions)?
+              HAVE_ZBS => false,
               -- Do we have Zicond (czero.{eqz|nez})?
               HAVE_ZICOND => false,
               -- Do we have HPM counters?
@@ -99,8 +112,6 @@ begin
               VECTORED_MTVEC => TRUE,
               -- Do we have registers in onboard RAM?
               HAVE_REGISTERS_IN_RAM => TRUE,
-              -- Do we have the buildin bootloader?
-              HAVE_BOOTLOADER_ROM => false,
               -- Number of address bits for ROM
               ROM_ADDRESS_BITS => 16,
               -- Number of address bits for RAM
@@ -129,34 +140,46 @@ begin
               HAVE_TIMER1 => TRUE,
               -- Use Timer 2?
               HAVE_TIMER2 => TRUE,
-              -- Use watchdog?
+              -- use watchdog?
               HAVE_WDT => TRUE,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
              )
     port map (I_clk => clk,
               I_areset => areset,
+              -- JTAG connection
+              I_trst => trst,
+              I_tck  => tck,
+              I_tms  => tms,
+              I_tdi  => tdi,
+              O_tdo  => tdo,
+              -- GPIO
               I_gpioapin => gpioapin,
               O_gpioapout => gpioapout,
+              -- UART1
               I_uart1rxd => uart1rxd,
               O_uart1txd => uart1txd,
+              -- I2C1
               IO_i2c1scl => i2c1scl,
               IO_i2c1sda => i2c1sda,
+              -- I2C2
               IO_i2c2scl => i2c2scl,
               IO_i2c2sda => i2c2sda,
+              -- SPI1
               O_spi1sck => spi1sck,
               O_spi1mosi => spi1mosi,
               I_spi1miso => spi1miso,
               O_spi1nss => spi1nss,
+              -- SPI2
               O_spi2sck => spi2sck,
               O_spi2mosi => spi2mosi,
               I_spi2miso => spi2miso,
+              -- TIMER2
               O_timer2oct => timer2oct,
               IO_timer2icoca => timer2icoca,
               IO_timer2icocb => timer2icocb,
               IO_timer2icocc => timer2icocc
-             );
-    
+            );    
     -- Generate a symmetric clock signal, 50 MHz
     process is
     begin
@@ -173,6 +196,11 @@ begin
     begin
         -- Reset is active high
         areset <= '1';
+        -- JTAG
+        trst <= '1';
+        tck <= '0';
+        tms <= '0';
+        tdi <= '0';
         -- RxD input is idle high
         uart1rxd <= '1';
         gpioapin <= x"ffffff40";

@@ -139,7 +139,7 @@ at [xPack RISC-V Toolchain](https://xpack.github.io/dev-tools/riscv-none-elf-gcc
 and [Windows build tools](https://xpack.github.io/dev-tools/windows-build-tools/).
 For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look
 at [The xPack GNU Compiler Collection (GCC)](https://xpack.github.io/dev-tools/gcc/).
-For on-chip debugging, see [xPack OpenOCD](ihttps://xpack-dev-tools.github.io/openocd-xpack/).
+For on-chip debugging, see [xPack OpenOCD](https://xpack-dev-tools.github.io/openocd-xpack/).
 
 ## Plans (or not) and issues
 

@@ -96,7 +96,7 @@ uint64_t csr_get_mhpmcounter9(void);
 	__v;											\
 })
 
-/* mxhw CSR, if installed */
+/* mxhw CSR */
 #define CSR_MXHW_GPIOA     (1 << 0)
 #define CSR_MXHW_UART1     (1 << 4)
 #define CSR_MXHW_I2C1      (1 << 6)
@@ -115,8 +115,10 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_MXHW_ZBS       (1 << 23)
 #define CSR_MXHW_BREAK     (1 << 24)
 #define CSR_MXHW_WDT       (1 << 25)
-#define CSR_MXHW_ZIHMP     (1 << 26)
+#define CSR_MXHW_ZIHPM     (1 << 26)
+#define CSR_MXHW_OCD       (1 << 27)
 
+/* HPM selection bits */
 #define CSR_HPM_JUMP       (1 << 0)
 #define CSR_HPM_BRANCH     (1 << 0)
 #define CSR_HPM_STALLS     (1 << 1)

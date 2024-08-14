@@ -55,6 +55,7 @@ use work.rom_image.all;
 entity rom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
+          HAVE_OCD : boolean;
           ROM_ADDRESS_BITS : integer;
           HAVE_FAST_STORE : boolean
          );
@@ -107,7 +108,7 @@ begin
             end if;
             -- Read the data
             romdata_v := rom(address_data_v);
-            if HAVE_BOOTLOADER_ROM then
+            if HAVE_BOOTLOADER_ROM OR HAVE_OCD then
                 -- Write the ROM ;-)
                 if I_mem_request.cs = '1' and I_mem_request.wren = '1' and I_mem_request.size = memsize_word then
                     rom(address_data_v) <= I_mem_request.data(7 downto 0) & I_mem_request.data(15 downto 8) & 

@@ -45,10 +45,15 @@ use work.processor_common.all;
 entity de0_cv is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          -- JTAG connection
+          I_trst : in  std_logic;
+          I_tms  : in  std_logic;
+          I_tck  : in  std_logic;
+          I_tdi  : in  std_logic;
+          O_tdo  : out std_logic;
           -- GPIOA
           I_gpioapin : in data_type;
           O_gpioapout : out data_type;
-          
           -- UART1
           I_uart1rxd : in std_logic;
           O_uart1txd : out std_logic;
@@ -89,8 +94,14 @@ begin
               SYSTEM_FREQUENCY => 50000000,
               -- Frequency of clock() et al. KEEP THIS TO 1M
               CLOCK_FREQUENCY => 1000000,
-              -- Do we have RISC-V embedded 916 registers)?
+              -- Do we have RISC-V embedded (16 registers)?
               HAVE_RISCV_E => false,
+              -- Have On-chip debugger?
+              HAVE_OCD => TRUE,
+              -- Do we have the buildin bootloader?
+              HAVE_BOOTLOADER_ROM => false,
+              -- Disable CSR address check when in debug mode
+              OCD_CSR_CHECK_DISABLE => TRUE,
               -- Do we have integer hardware multiply/divide?
               HAVE_MULDIV => TRUE,
               -- Do we have the fast divider?
@@ -107,8 +118,6 @@ begin
               VECTORED_MTVEC => TRUE,
               -- Do we have registers in onboard RAM?
               HAVE_REGISTERS_IN_RAM => TRUE,
-              -- Do we have the buildin bootloader?
-              HAVE_BOOTLOADER_ROM => TRUE,
               -- Number of address bits for ROM
               ROM_ADDRESS_BITS => 16,
               -- Number of address bits for RAM
@@ -140,10 +149,16 @@ begin
               -- use watchdog?
               HAVE_WDT => TRUE,
               -- UART1 BREAK triggers system reset
-              UART1_BREAK_RESETS => TRUE
+              UART1_BREAK_RESETS => false
              )
     port map (I_clk => I_clk,
               I_areset => areset_int,
+              -- JTAG connection
+              I_trst => I_trst,
+              I_tck  => I_tck,
+              I_tms  => I_tms,
+              I_tdi  => I_tdi,
+              O_tdo  => O_tdo,
               -- GPIO
               I_gpioapin => I_gpioapin,
               O_gpioapout => O_gpioapout,

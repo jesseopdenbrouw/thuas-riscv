@@ -43,8 +43,8 @@ use ieee.numeric_std.all;
 
 package processor_common is
 
-    -- Hardware version
-    constant HW_VERSION : integer := 16#00_09_10_01#;
+    -- Hardware version, BCD encoded
+    constant HW_VERSION : integer := 16#01_00_00_00#;
     
     -- Used data types
     -- The common data type is 32 bits wide
@@ -150,6 +150,59 @@ package processor_common is
     -- Response instruction to instruction router
     type instr_response2_type is record
         instr : data_type;
+    end record;
+
+    -- DMI request --
+    type dmi_request_type is record
+        addr : std_logic_vector(06 downto 0);
+        data : std_logic_vector(31 downto 0);
+        op   : std_logic_vector(01 downto 0);
+    end record;
+
+    -- DMI response --
+    type dmi_response_type is record
+        data : std_logic_vector(31 downto 0);
+        ack  : std_logic;
+    end record;
+
+    -- DMI request operation --
+    constant dmi_req_nop_c : std_logic_vector(1 downto 0) := "00"; -- no operation
+    constant dmi_req_rd_c  : std_logic_vector(1 downto 0) := "01"; -- read access
+    constant dmi_req_wr_c  : std_logic_vector(1 downto 0) := "10"; -- write access
+
+    -- DM to core data request
+    type dm_core_data_request_type is record
+        address  : std_logic_vector(31 downto 0);
+        readgpr  : std_logic;
+        readcsr  : std_logic;
+        readmem  : std_logic;
+        writegpr : std_logic;
+        writecsr : std_logic;
+        writemem : std_logic;
+        size     : std_logic_vector(1 downto 0); -- only for mem access
+        data     : std_logic_vector(31 downto 0);
+    end record;
+
+    -- Core to DM data response
+    type dm_core_data_response_type is record
+        data     : std_logic_vector(31 downto 0);
+        excep    : std_logic;
+        buserr   : std_logic;
+        ack      : std_logic;
+    end record;
+    
+    -- CPU state change request
+    type cpu_statechange_request_type is record
+        reset  : std_logic;
+        halt   : std_logic;
+        resume : std_logic;
+    end record;
+    
+    -- CPU state change response
+    type cpu_statechange_response_type is record
+        reset  : std_logic;
+        halt   : std_logic;
+        resume : std_logic;
     end record;
 
     -- Constants
@@ -341,11 +394,19 @@ package processor_common is
     constant mhpmevent29_addr : integer := 16#33d#; --
     constant mhpmevent30_addr : integer := 16#33e#; --
     constant mhpmevent31_addr : integer := 16#33f#; --
+    
+    -- Debug registers
+    constant dcsr_addr : integer := 16#7b0#; --
+    constant dpc_addr : integer := 16#7b1#; --
+    constant tselect_addr : integer := 16#7a0#; --
+    constant tdata1_addr : integer := 16#7a1#; --
+    constant tdata2_addr : integer := 16#7a2#; --
+    constant tinfo_addr : integer := 16#7a4#; --
 
     -- M mode custom read-only
     constant mxhw_addr : integer := 16#fc0#;
     constant mxspeed_addr : integer := 16#fc1#;
-    
+   
     -- Constants for interrupt priority
     -- Changes here must be reflected in the interrupt handler in software
     constant INTR_PRIO_SPI1 : integer := 27;
@@ -363,93 +424,102 @@ package processor_common is
     
     -- Component description of the RISC-V SoC
     component riscv is
-    generic (
-          -- The frequency of the system
-          SYSTEM_FREQUENCY : integer := 50000000;
-          -- Frequecy of the hardware clock
-          CLOCK_FREQUENCY : integer := 1000000;
-          -- RISCV E (embedded) of RISCV I (full)
-          HAVE_RISCV_E : boolean := false;
-          -- Do we have the integer multiply/divide unit?
-          HAVE_MULDIV : boolean := TRUE;
-          -- Fast divide (needs more area)?
-          FAST_DIVIDE : boolean := TRUE;
-          -- Do we have Zba (sh?add)
-          HAVE_ZBA : boolean := TRUE;
-          -- Do we have Zbs (bit instructions)?
-          HAVE_ZBS : boolean := TRUE;
-          -- Do we have Zicond (czero.{eqz|nez})?
-          HAVE_ZICOND : boolean := TRUE;
-          -- Do we have HPM counters?
-          HAVE_ZIHPM : boolean := false;
-          -- Do we enable vectored mode for mtvec?
-          VECTORED_MTVEC : boolean := TRUE;
-          -- Do we have registers is RAM?
-          HAVE_REGISTERS_IN_RAM : boolean := TRUE;
-          -- Do we have a bootloader ROM?
-          HAVE_BOOTLOADER_ROM : boolean := TRUE;
-          -- Address width in bits, size is 2**bits
-          ROM_ADDRESS_BITS : integer := 16;
-          -- Address width in bits, size is 2**bits
-          RAM_ADDRESS_BITS : integer := 15;
-          -- 4 high bits of ROM address
-          ROM_HIGH_NIBBLE : memory_high_nibble := x"0";
-          -- 4 high bits of boot ROM address
-          BOOT_HIGH_NIBBLE : memory_high_nibble := x"1";
-          -- 4 high bits of RAM address
-          RAM_HIGH_NIBBLE : memory_high_nibble := x"2";
-          -- 4 high bits of I/O address
-          IO_HIGH_NIBBLE : memory_high_nibble := x"F";
-          -- Do we use fast store?
-          HAVE_FAST_STORE : boolean := false;
-          -- Do we have UART1?
-          HAVE_UART1 : boolean := TRUE;
-          -- Do we have SPI1?
-          HAVE_SPI1 : boolean := TRUE;
-          -- Do we have SPI2?
-          HAVE_SPI2 : boolean := TRUE;
-          -- Do we have I2C1?
-          HAVE_I2C1 : boolean := TRUE;
-          -- Do we have I2C2?
-          HAVE_I2C2 : boolean := TRUE;
-          -- Do we have TIMER1?
-          HAVE_TIMER1 : boolean := TRUE;
-          -- Do we have TIMER2?
-          HAVE_TIMER2 : boolean := TRUE;
-          -- use watchdog?
-          HAVE_WDT : boolean := TRUE;
-          -- UART1 BREAK triggers system reset
-          UART1_BREAK_RESETS : boolean := false
-         );
-    port (I_clk : in std_logic;
-          I_areset : in std_logic;
-          -- GPIOA
-          I_gpioapin : in data_type;
-          O_gpioapout : out data_type;
-          -- UART1
-          I_uart1rxd : in std_logic;
-          O_uart1txd : out std_logic;
-          -- I2C1
-          IO_i2c1scl : inout std_logic;
-          IO_i2c1sda : inout std_logic;
-          -- I2C2
-          IO_i2c2scl : inout std_logic;
-          IO_i2c2sda : inout std_logic;
-          -- SPI1
-          O_spi1sck : out std_logic;
-          O_spi1mosi : out std_logic;
-          I_spi1miso : in std_logic;
-          O_spi1nss : out std_logic;
-          -- SPI2
-          O_spi2sck : out std_logic;
-          O_spi2mosi : out std_logic;
-          I_spi2miso : in std_logic;
-          -- TIMER2
-          O_timer2oct : out std_logic;
-          IO_timer2icoca : inout std_logic;
-          IO_timer2icocb : inout std_logic;
-          IO_timer2icocc : inout std_logic
-         );
+        generic (-- The frequency of the system
+                  SYSTEM_FREQUENCY : integer;
+                  -- Frequecy of the hardware clock
+                  CLOCK_FREQUENCY : integer;
+                  -- Have On-chip debugger?
+                  HAVE_OCD : boolean;
+                  -- Do we have a bootloader ROM?
+                  HAVE_BOOTLOADER_ROM : boolean;
+                  -- Disable CSR address check when in debug mode
+                  OCD_CSR_CHECK_DISABLE : boolean;
+                  -- RISCV E (embedded) of RISCV I (full)
+                  HAVE_RISCV_E : boolean;
+                  -- Do we have the integer multiply/divide unit?
+                  HAVE_MULDIV : boolean;
+                  -- Fast divide (needs more area)?
+                  FAST_DIVIDE : boolean;
+                  -- Do we have Zba (sh?add)
+                  HAVE_ZBA : boolean;
+                  -- Do we have Zbs (bit instructions)?
+                  HAVE_ZBS : boolean;
+                  -- Do we have Zicond (czero.{eqz|nez})?
+                  HAVE_ZICOND : boolean;
+                  -- Do we have HPM counters?
+                  HAVE_ZIHPM : boolean;
+                  -- Do we enable vectored mode for mtvec?
+                  VECTORED_MTVEC : boolean;
+                  -- Do we have registers is RAM?
+                  HAVE_REGISTERS_IN_RAM : boolean;
+                  -- Address width in bits, size is 2**bits
+                  ROM_ADDRESS_BITS : integer;
+                  -- Address width in bits, size is 2**bits
+                  RAM_ADDRESS_BITS : integer;
+                  -- 4 high bits of ROM address
+                  ROM_HIGH_NIBBLE : memory_high_nibble;
+                  -- 4 high bits of boot ROM address
+                  BOOT_HIGH_NIBBLE : memory_high_nibble;
+                  -- 4 high bits of RAM address
+                  RAM_HIGH_NIBBLE : memory_high_nibble;
+                  -- 4 high bits of I/O address
+                  IO_HIGH_NIBBLE : memory_high_nibble;
+                  -- Do we use fast store?
+                  HAVE_FAST_STORE : boolean;
+                  -- Do we have UART1?
+                  HAVE_UART1 : boolean;
+                  -- Do we have SPI1?
+                  HAVE_SPI1 : boolean;
+                  -- Do we have SPI2?
+                  HAVE_SPI2 : boolean;
+                  -- Do we have I2C1?
+                  HAVE_I2C1 : boolean;
+                  -- Do we have I2C2?
+                  HAVE_I2C2 : boolean;
+                  -- Do we have TIMER1?
+                  HAVE_TIMER1 : boolean;
+                  -- Do we have TIMER2?
+                  HAVE_TIMER2 : boolean;
+                  -- use watchdog?
+                  HAVE_WDT : boolean;
+                  -- UART1 BREAK triggers system reset
+                  UART1_BREAK_RESETS : boolean
+             );
+        port (I_clk : in std_logic;
+              I_areset : in std_logic;
+              -- JTAG connection
+              I_trst : in  std_logic;
+              I_tck  : in  std_logic;
+              I_tms  : in  std_logic;
+              I_tdi  : in  std_logic;
+              O_tdo  : out std_logic;
+              -- GPIOA
+              I_gpioapin : in data_type;
+              O_gpioapout : out data_type;
+              -- UART1
+              I_uart1rxd : in std_logic;
+              O_uart1txd : out std_logic;
+              -- I2C1
+              IO_i2c1scl : inout std_logic;
+              IO_i2c1sda : inout std_logic;
+              -- I2C2
+              IO_i2c2scl : inout std_logic;
+              IO_i2c2sda : inout std_logic;
+              -- SPI1
+              O_spi1sck : out std_logic;
+              O_spi1mosi : out std_logic;
+              I_spi1miso : in std_logic;
+              O_spi1nss : out std_logic;
+              -- SPI2
+              O_spi2sck : out std_logic;
+              O_spi2mosi : out std_logic;
+              I_spi2miso : in std_logic;
+              -- TIMER2
+              O_timer2oct : out std_logic;
+              IO_timer2icoca : inout std_logic;
+              IO_timer2icocb : inout std_logic;
+              IO_timer2icocc : inout std_logic
+             );
     end component riscv;
 
     -- Function to get an integer based on condition is true of false

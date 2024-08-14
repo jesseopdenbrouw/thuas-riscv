@@ -51,10 +51,11 @@ int main(void)
 	uart1_printf("has Zbs extension: %s\r\n", (hw & CSR_MXHW_ZBS) ? "yes" : "no");
 	uart1_printf("UART1 break resets processor: %s\r\n", (hw & CSR_MXHW_BREAK) ? "yes" : "no");
 	uart1_printf("has watchdog (WDT): %s\r\n", (hw & CSR_MXHW_WDT) ? "yes" : "no");
-	uart1_printf("has Zihmp counters: %s\r\n", (hw & CSR_MXHW_ZIHMP) ? "yes" : "no");
+	uart1_printf("has Zihpm counters: %s\r\n", (hw & CSR_MXHW_ZIHPM) ? "yes" : "no");
+	uart1_printf("has on-chip debugger: %s\r\n", (hw & CSR_MXHW_OCD) ? "yes" : "no");
 
 	/* Are HPM counters enabled... */
-	if (hw & CSR_MXHW_ZIHMP) {
+	if (hw & CSR_MXHW_ZIHPM) {
 		/* Disable all counters, this will disable only the implemented counters */
 		csr_write(mcountinhibit, -1);
 		/* Read back the implemented counters */

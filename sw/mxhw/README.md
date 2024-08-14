@@ -37,6 +37,7 @@ custom CS register `mxhw`. The register is located at address
 | 24   | UART1 break detect resets processor |
 | 25   | Watchdog enabled        |
 | 26   | HPM counters enabled    |
+| 27   | On-chip debugging enabled |
 | rest | Reserved                |
 
 It also prints the synthesized clock frequency and the hardware version.

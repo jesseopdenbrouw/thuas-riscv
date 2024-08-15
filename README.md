@@ -73,7 +73,7 @@ A number of CSR registers are implemented: `time`, `timeh`, `[m]cycle`,
 `mimpid`, `mhartid`, `mstatus`, `mstatush`, `misa`, `mie`, `mtvec`,
 `mscratch`, `mepc`, `mcause`, `mip`, `mcountinhibit` as are the HPM
 counters and event selectors. If on-chip debugging is enabled, the
-`dcsr`, `dpc`, `tselect`, `tdata1` and `tdata2` CSRs are available.
+`dcsr`, `dpc`, `tselect`, `tdata1`, `tdata2`and `tinfo` CSRs are available.
 Some of these CSRs are hardwired. Others will be implemented when
 needed. The `time` and `timeh` CSRs produces the time since reset
 in microseconds, shadowed from the External Timer memory mapped
@@ -128,7 +128,7 @@ inspect the memory contents.
 
 ## Support for Windows tools
 
-There is support for Windows. `srec2vhdl` and
+There is support for Windows tools. `srec2vhdl` and
 `upload` can be build with GCC MinGW and Visual Studio.
 For building the RISC-V programs, a RISC-V GNU GCC compiler
 is needed.

@@ -1650,6 +1650,7 @@ For working with the UART on board of the processor, you need an USB-to-U(S)ART 
 .An USB-to-U(S)ART converter. Make sure that the voltages do not exceed 3.3 V.
 image::images/usb-usart-ttl.jpg[width=200]
 
+Note: if you are using the https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE], there is a second channel avaiable for UART connection.
 
 === I2C code
 The baud rate prescaler must be loaded with the number of system clock cycles for *one-half* bit time minus 1 for Standard mode, and *one-third* bit time minus 1 for Fast mode. Note that the prescaler is in the CTRL register and must be preserved:

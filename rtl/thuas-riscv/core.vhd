@@ -140,7 +140,7 @@ end record if_id_type;
 signal if_id : if_id_type;
 
 -- ID/EX signals for Execute stage
-    -- Behavior of the Program Counter
+-- Behavior of the Program Counter
 type pc_op_type is (pc_hold, pc_incr, pc_loadoffset, pc_loadoffsetregister,
                     pc_branch, pc_load_mepc, pc_load_mtvec);
 type id_ex_type is record
@@ -184,6 +184,7 @@ signal ex_wb : ex_wb_type;
 constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16, 32);
 type regs_array_type is array (0 to NUMBER_OF_REGISTERS-1) of data_type;
 -- Quartus will not generate RAM blocks for registers when they are in a record
+-- Also, Quartus will not generate RAM blocks when one set of registers is to be copied three times
 signal regs_rs1, regs_rs2, regs_debug : regs_array_type;
 -- Do not check for read during write. For some reason, Quartus
 -- thinks that there are asynchronous read and write clocks.
@@ -195,6 +196,7 @@ signal selrs1 : integer range 0 to NUMBER_OF_REGISTERS-1;
 signal selrs2 : integer range 0 to NUMBER_OF_REGISTERS-1;
 
 -- Control signals
+-- States of the controller
 type state_type is (state_boot0, state_boot1, state_exec, state_mem,
                     state_flush, state_flush2, state_md, state_md2,
                     state_trap, state_trap2, state_trap3, state_mret,

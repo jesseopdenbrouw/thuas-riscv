@@ -894,7 +894,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `mult` -- integer multiplication with the C library. Set to the E extension with no hardware multiply/divide support. For simulations.
 * `mxhw` -- Program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized processor to the terminal. Works on the board.
 * `qsort` -- sorts an integer array using the `qsort` C library function and prints the result to UART1. Works on the DE0-CV board.
-* `riemann_left` -- calculates the Riemann Left Sum of sin^2 from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
+* `riemann_left` -- calculates the Riemann Left Sum of sin^2^ from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
 * `shift` -- shifts. For use in simulations.
 * `spi1readeeprom` -- using the SPI1 peripheral to read out 16 bytes of the 25AA010A EEPROM slave, one byte at the time, using hardware Slave Select. Uses UART1. Works on the board.
 * `spi1softnss` -- as `spi1readeeprom`, using software Slave Select.

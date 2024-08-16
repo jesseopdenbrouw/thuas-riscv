@@ -908,7 +908,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `timer2pwm` -- Shows how use TIMER2's PWM and Output Compare feature. Works on the board.
 * `timer2ic` -- Shows how use TIMER2's Input Capture feature. Works on the board.
 * `trig` -- some float trigonometry functions for float and double. Prints results to UART1. This is a big binary. Works on the board.
-* `upload` -- a Linux/PC program to upload an S-record file using the bootloader.
+* `upload` -- a PC program to upload an S-record file using the bootloader.
 * `uart_cpp` -- Simple {cpp} UART program. Makes use of a singleton design pattern. Works on the board.
 * `uart_interrupt` -- Example program on how to use the UART1 interrupt for transmiiting and receiving data. Works on the board.
 * `uart_printf` -- simple program that prints an integer, a pointer, a float and a double to the terminal using `printf`, this is a big binary. Works on the board.
@@ -938,6 +938,7 @@ srec2vhdl [-fbwhqvd0] [-i <arg>] inputfile [outputfile]
 `inputfile` is the S-record file, created by the `objdump` program. `outputfile` is the VHDL output file. When omitted, `stdout` is used. There are a number of options:
 
 * `-f` makes a full output that directly can be used. If not used, only the ROM table contents itself is produced.
+* `-d` ROM contents is in double words (64 bits, Little Endian).
 * `-w` ROM contents is in words (32 bits, Little Endian).
 * `-h` ROM contents is in half words (16 bits, Little Endian).
 * `-b` ROM contents is in bytes (8 bits).
@@ -946,7 +947,7 @@ srec2vhdl [-fbwhqvd0] [-i <arg>] inputfile [outputfile]
 * `-0` Output unused ROM data as 0.
 * `-q` Quiet output, only error messages are displayed.
 * `-B` Generate bootloader image.
-* `-i <arg>` indents each line with `<arg>` spaces.
+* `-i <arg>` Indents each line with `<arg>` spaces.
 
 Note: unused ROM addresses are not output, except when the `-0` or `-x` options are used.
 
@@ -962,24 +963,24 @@ The ROM, bootloader ROM, RAM and I/O may be moved to another start location. The
 
 [source,vhdl,subs=attributes+]
 ----
-          -- 4 high bits of ROM address
-          ROM_HIGH_NIBBLE : memory_high_nibble;
-          -- 4 high bits of boot ROM address
-          BOOT_HIGH_NIBBLE : memory_high_nibble;
-          -- 4 high bits of RAM address
-          RAM_HIGH_NIBBLE : memory_high_nibble;
-          -- 4 high bits of I/O address
-          IO_HIGH_NIBBLE : memory_high_nibble;
+  -- 4 high bits of ROM address
+  ROM_HIGH_NIBBLE : memory_high_nibble;
+  -- 4 high bits of boot ROM address
+  BOOT_HIGH_NIBBLE : memory_high_nibble;
+  -- 4 high bits of RAM address
+  RAM_HIGH_NIBBLE : memory_high_nibble;
+  -- 4 high bits of I/O address
+  IO_HIGH_NIBBLE : memory_high_nibble;
 ----
 
 Change the start locations of the memories by changing the constants. Make sure the memories do not overlap. To change the sizes of the ROM and the RAM, look for the lines as shown below:
 
 [source,vhdl,subs=attributes+]
 ----
-          -- Address width in bits, size is 2**bits
-          ROM_ADDRESS_BITS : integer;
-          -- Address width in bits, size is 2**bits
-          RAM_ADDRESS_BITS : integer;
+  -- Address width in bits, size is 2**bits
+  ROM_ADDRESS_BITS : integer;
+  -- Address width in bits, size is 2**bits
+  RAM_ADDRESS_BITS : integer;
 ----
 
 Note that you also have to make changes to the linker script. In the file `riscv.ld`, at the top you will find the following lines. Change the origins in accordance with the VHDL description.
@@ -1052,22 +1053,22 @@ A simple help menu is presented.
 
 
 === Upload protocol
-(When not using the `-n` option) Uploading an S-record file uses a simple handshake protocol. The `upload` program sends a single exclamation mark (`!`). The bootloader responds with an question mark (`?`) and a newline (`\n`). Now each S-record line is transmitted character by character, including the end-of-line termination character (`\r` and/or `\n`). After a line is processed, the bootloader responds with a question mark and a newline. After all S-record lines are transmitted, the `upload`| program either sends a `J` to start the application, or a `#` to start the monitor.
+(When not using the `-n` option) Uploading an S-record file uses a simple handshake protocol. The `upload` program sends a single exclamation mark (`!`). The bootloader responds with an question mark (`?`) and a newline (`\n`). Now each S-record line is transmitted character by character, including the end-of-line termination character (`\r` and/or `\n`). After a line is processed, the bootloader responds with a question mark and a newline. After all S-record lines are transmitted, the `upload` program either sends a `J` to start the application, or a `#` to start the monitor.
 
-(When using the `-n` option) The `upload` program transmits a dollar sign (`$`) to inform the bootloader that handshake is turned off. The `upload` program then transmits the S-record file and doesn't wait for acknowledge (the bootloader will not send an acknowledge). This provides a fast upload scenario (about 4 times faster then when using acknowledge). Also, the terminal program (e.g. Putty) can be left open on Linux.On Windows, a serial port can only be opened exclusively (by one program).
+(When using the `-n` option) The `upload` program transmits a dollar sign (`$`) to inform the bootloader that handshake is turned off. The `upload` program then transmits the S-record file and doesn't wait for acknowledge (the bootloader will not send an acknowledge). This provides a fast upload scenario (about 4 times faster then when using acknowledge). Also, the terminal program (e.g. Putty) can be left open on Linux. On Windows, a serial port can only be opened exclusively by one program.
 
 === Updating the bootloader
 The ROM contents of the bootloader is created as part of the `make` process and is available in the `sw/bootloader` directory. The file `bootloader.vhd` holds a copy of the program. When modifying the bootloader, the `make` process has to be run again and the file `bootloader.vhd` must be copied to the RTL directory with the name `bootrom_image.vhd`.
 
 === Implications on the hardware design
-The design has a separate ROM that incorporates the bootloader. The original ROM, at address 0x00000000 is extended with a write port, together with the instruction read port and the data read port. In fact, the ROM has become a (program) RAM. Because the Cyclone FPGA ROMs (and RAMs) can only have two ports (out/out or in/out), the original ROM hardware is duplicated (by the synthesizer). This takes up onboard RAM blocks, but very few ALMs (cells). % The speed decrements by a few MHz.
+The design has a separate ROM that incorporates the bootloader. The original ROM, at address 0x00000000 is extended with a write port, together with the instruction read port and the data read port. In fact, the ROM has become a (program) RAM. Because the Cyclone FPGA ROMs (and RAMs) can only have two ports (out/out or in/out), the original ROM hardware is duplicated (by the synthesizer). This takes up onboard RAM blocks, but very few ALMs (cells).
 
 Note that the ROM can only be (over)written with words on a 4-byte boundary.
 
 
 == Using the on-chip debbuger
 *note: experimental* +
-The on-chip debugger (OCD) follows the guidelines of the RISC-V debug specification version 1.0.0-rc3 (https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf). The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module (TM). The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
+The on-chip debugger (OCD) follows the guidelines of the RISC-V debug specification version 1.0.0-rc3 (https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf). The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module \(TM\). The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
 
 * Standard JTAG access port.
 * Halt/resume the hart,
@@ -1108,13 +1109,13 @@ The hart can be in five ''states'': resetting, running, halting, halted and resu
 
 *Run Control* To resume the hart, issue the OpenOCD command `resume`. To halt the hart, issue the OpenOCD command `halt`. Note that the `cycle` and `time` counters keep on running in the halted state.
 
-*Single-stepping* When the hart is halted, use the OpenOCD command *step* to execute exactly one instruction. Note that interrupts are blocked while single-stepping. Note that the `cycle` and `time` counters keep on running.
+*Single-stepping* When the hart is halted, use the OpenOCD command `step` to execute exactly one instruction. Note that interrupts are blocked while single-stepping. Note that the `cycle` and `time` counters keep on running.
 
 *Software Breakpoints* The OCD can insert instruction address breakpoints and run a hart until a breakpoint is hit. This is done by replacing the instruction at the breakpoint address with the EBREAK instruction. As such, the EBREAK instruction can not be used in user programs. When the breakpoint is hit, the hart enters debug mode. To set up a software breakpoint, use the OpenOCD command `bp <address> 4`.
 
-*Hardware Breakpoint* the hart is equipped with one hardware breakpoint. This is useful when the ROM is read-only. When hitting the hardware breakpoint, The core enters debug mode. To set up a hardware breakpoint, use the OpenOCD command `bp <address> 4 hw`.
+*Hardware Breakpoint* the hart is equipped with one hardware breakpoint. This is useful when the ROM is read-only. When hitting the hardware breakpoint, the core enters debug mode. To set up a hardware breakpoint, use the OpenOCD command `bp <address> 4 hw`.
 
-*WFI Instruction* When the hart is halting when executing the WFI instruction, the hart enters debug mode. Then stepping, the WFI instruction is treated as a NOP instruction.
+*WFI Instruction* When the hart is halting when executing the WFI instruction, the hart enters debug mode. When stepping, the WFI instruction is treated as a NOP instruction.
 
 To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification. When using OCD, the bootloader is usually disabled.
 
@@ -1125,7 +1126,7 @@ Tests with the OCD were conducted with an FT2232H MINI MODULE. See https://ftdic
 
 == Support for Windows tools
 
-There is support for Windows tools. Both `srec2vhdl` and `upload` can be build with GCC MinGW and Visual Studio.For building the RISC-V programs, a RISC-V GNU GCC compiler is needed.
+There is support for Windows tools. Both `srec2vhdl` and `upload` can be build with GCC MinGW and Visual Studio. For building the RISC-V programs, a RISC-V GNU GCC compiler is needed.
 
 Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`, `mkdir` etc.). Please have a look at {https://xpack.github.io/dev-tools/riscv-none-elf-gcc/
 and https://xpack.github.io/dev-tools/windows-build-tools/. For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look at https://xpack.github.io/dev-tools/gcc/. OpenOCD can be found at https://xpack-dev-tools.github.io/openocd-xpack/.
@@ -1156,8 +1157,9 @@ Before `main` is called, the C Runtime startup code (normally in a file called `
 * Call the global constructors.
 * Call `main`.
 * Call the global destructors.
+* Call `exit`
 
-Although this is a bare metal processor, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in de code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copies to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
+Although this is a bare metal processor, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in the code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copies to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
 
 [source,c,subs=attributes+]
 ----
@@ -1195,13 +1197,13 @@ void pre_init_trap_handler(void);
 /* argv array for main */
 static char *argv[] = {
 #ifndef NO_ARGC_ARGV
-        PROG_NAME,
-        "THUAS RISC-V RV32IM bare metal processor",
-        "The Hague University of Applied Sciences",
-        "Department of Electrical Engineering",
-        "J.E.J. op den Brouw",
+    PROG_NAME,
+    "THUAS RISC-V RV32IM bare metal processor",
+    "The Hague University of Applied Sciences",
+    "Department of Electrical Engineering",
+    "J.E.J. op den Brouw",
 #endif
-        NULL};
+    NULL};
 /* Calculate argc */
 #define argc (sizeof(argv)/sizeof(argv[0])-1)
 
@@ -1519,7 +1521,7 @@ To initialize UART1, use the code in the listing below:
 #define BAUD_RATE (9600UL)
 
 /* Initialize the Baud Rate Generator */
-void UART1_init(void)
+void uart1_init(void)
 {
     /* Set baud rate generator */
     UART1->BAUD = F_CPU/BAUD_RATE-1;

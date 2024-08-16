@@ -1,0 +1,768 @@
+%
+% Register layout of the I/O
+%
+% (c)2024, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+%
+
+\documentclass[12pt]{article}
+
+\author{Jesse E. J. op den Brouw\thanks{\href{mailto:J.E.J.opdenBrouw@hhs.nl}{\texttt{J.E.J.opdenBrouw@hhs.nl}}}\\[2ex]The Hague University of Applied Sciences}
+\title{Register layout of the I/O of the THUAS RISC-V processor}
+\date{\today\\[2ex]\normalsize\url{https://github.com/jesseopdenbrouw/thuas-riscv}\\[2ex]For design \texttt{thuas-riscv}}
+
+\usepackage[a4paper,inner=1.0in,outer=1.2in,top=1in,bottom=1.5in,footskip=0.4in]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[charter]{mathdesign}
+\usepackage[scale=0.92]{nimbusmono}
+\usepackage{booktabs}
+\usepackage{mathtools}
+\usepackage{rotating}
+\usepackage{register}
+\usepackage[english]{babel}
+\usepackage{longtable}
+
+%% Making captions nicer...
+\usepackage[font=footnotesize,format=plain,labelfont=bf,textfont=sl]{caption}
+\usepackage[labelformat=simple,font=footnotesize,format=plain,labelfont=bf,textfont=sl]{subcaption}
+\captionsetup[figure]{format=hang,justification=centering,singlelinecheck=off,skip=2ex}
+\captionsetup[table]{format=hang,justification=centering,singlelinecheck=off,skip=2ex}
+\captionsetup[subfigure]{format=hang,justification=centering,singlelinecheck=off,skip=2ex}
+\captionsetup[subtable]{format=hang,justification=centering,singlelinecheck=off,skip=2ex}
+%% Put parens around the subfig name (a) (b) etc. Needs labelformat simple
+\renewcommand\thesubfigure{(\alph{subfigure})}
+\renewcommand\thesubtable{(\alph{subtable})}
+
+% Parskip et al.
+\usepackage{parskip}
+\makeatletter
+\setlength{\parfillskip}{00\p@ \@plus 1fil}
+\makeatother
+
+\usepackage{textcomp}
+\usepackage{listings}
+\definecolor{mygray}{RGB}{230,230,230}
+\lstset{
+    basicstyle = \ttfamily,
+    numbers = left,
+    numberstyle=\tiny\color{gray},
+    breaklines = true,
+    showspaces = false,
+    prebreak = \raisebox{-0.5ex}[0ex][0ex]{\color{red}\ensuremath{\hookleftarrow}},
+    postbreak = \raisebox{-0.5ex}[0ex][0ex]{\color{red}\ensuremath{\hookrightarrow}},
+    upquote = true,
+    tabsize = 4,
+    frame = lines,
+    backgroundcolor = \color{mygray},
+}
+
+\usepackage{tikz}
+\usetikzlibrary{backgrounds,shapes,arrows,automata,decorations.pathreplacing}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks}
+
+\begin{document}
+
+\section{I/O registers}
+\label{sec:ioregisters}
+This is a list of currently supported I/O addresses. 
+The default start address is 0xF0000000. The offset is given in bytes. Note that the I/O can only be accesses on 4-byte boundaries and on word size accesses.
+
+\subsection{GPIOA -- General Purpose I/O}
+
+\begin{register}{H}{Port A input register GPIOA\_PIN}{0x00}%
+\label{pinx}%
+\regfield{PIN}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.6\textwidth]\begin{reglist}[000000]
+\itemsep-1.5ex
+\item[Note:] This I/O register can only be read. Writes are ignored.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{Port A output register GPIOA\_POUT}{0x04}%
+\label{poutx}%
+\regfield{POUT}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.6\textwidth]\begin{reglist}[000000]
+\itemsep-1.5ex
+\item[Write] The data is written to the output pins.
+\item[Read] The last entered data is read back.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{External input interrupt control register GPIOA\_EXTC}{0x18}%
+\label{extc}%
+\regfield{Reserved}{24}{8}{{0}}%
+\regfield{PIN}{5}{3}{{0}}%
+\regfield{EDGE}{2}{1}{{0}}%
+\regfield{Reserved}{1}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
+\itemsep-1.5ex
+\item[PIN] Port pin number as input source.
+\item[EDGE] Edge selection: 00 = off, 01 = rising, 10 = falling, 11 = both. 
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{External input interrupt status register GPIOA\_EXTS}{0x1c}%
+\label{exts}%
+\regfield{Reserved}{31}{1}{{0}}%
+\regfield{DETECT}{1}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
+\itemsep-1.5ex
+\item[DETECT] Edge detected. Must be cleared to reset the pending interrupt.
+\end{reglist}\end{regdesc}
+
+\subsection{UART1 -- Universal Asynchronous Receiver/Transmitter}
+
+\begin{register}{H}{UART1 control register UART1\_CTRL}{0x20}
+\label{uart1ctrl}
+\regfield{Reserved}{23}{9}{{0}}%
+\regfield{Parity}{2}{7}{{0}}%
+\regfield{SP2}{1}{6}{{0}}%
+\regfield{BRIE}{1}{5}{{1}}%
+\regfield{RCIE}{1}{4}{{1}}%
+\regfield{TCIE}{1}{3}{{1}}%
+\regfield{Size}{2}{1}{{0}}%
+\regfield{EN}{1}{0}{{0}}%
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.7\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[Parity] 00: none, 10: even, 11: odd.
+\item[SP2] 0: one stop bit, 1: two stop bits.
+\item[BRIE] BREAK received interrupt enable.
+\item[TCIE] Transmit character interrupt enable.
+\item[RCIE] Receive character interrupt enable.
+\item[Size] 00: 8 bits, 10: 9 bits, 11: 7 bits, excluding the parity.
+\item[EN] Enable UART1 (both receiver and transmitter)
+%\item[Stop Bits] Meaning
+%\item[0] 1 Stop bit
+%\item[1] 2 Stop bits
+%\item
+%\item[Parity] Meaning
+%\item[00] No parity
+%\item[01] Reserved
+%\item[10] Even parity
+%\item[11] Odd parity
+%\item
+%\item[Data bits]
+%\item[0] 8 bits
+%\item[9] 9 bits
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{UART1 status register UART1\_STAT}{0x24}
+\label{uart1stat}
+\regfield{Reserved}{26}{6}{{0}}%
+\regfield{BR}{1}{5}{{0}}%
+\regfield{TC}{1}{4}{{0}}%
+\regfield{RC}{1}{3}{{0}}%
+\regfield{PE}{1}{2}{{0}}%
+\regfield{RF}{1}{1}{{0}}%
+\regfield{FE}{1}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
+\itemsep-1.5ex
+\item[BR] BREAK condition detected. A BREAK is a stream of null bits for the duration of 1 start bit + number of data bits + 1 stop bit.
+\item[TC] Transmit completed. Set directly to 1 when a character was transmitted. Automatically cleared when writing new character to the data register or when writing 0 in the TC bit in \mbox{UART1\_STAT}.
+\item[RC] Receive completed. Set to 1 when a character was received. Automatically cleared when data register is read or when writing 0 in the RC bit in UART1\_STAT.
+\item[PE] Parity error. Set to 1 if parity is enabled and there is a parity error while receiving. Automatically cleared when data register is read or when writing 0 in the PE bit in UART1\_STAT.
+\item[RF] Receive failed. Set to 1 when failed receiving (invalid start bit). Automatically cleared when data register is read or when writing 0 in the RF bit in UART1\_STAT.
+\item [FE] Frame error. Set to 1 when a low is detected at the position of the (first) stop bit. Automatically cleared when data register is read or writing a 0 in the FE bit in UART1\_STAT.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{UART1 data register UART1\_DATA}{0x28}
+\label{uart1data}
+\regfield{Reserved}{22}{9}{{0}}%
+\regfield{Data}{9}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.6\textwidth]\begin{reglist}[000000000]
+\itemsep-1.5ex
+\item[Write] The data is written to an internal buffer and transmitted.
+\item[Read] The last received data is read.
+\end{reglist}\end{regdesc}
+\hspace*{2cm}Size depends on the Size field in the UART1 Control Register.
+
+\begin{register}{H}{UART1 baud rate register UART1\_BAUD}{0x2c}
+\label{uart1baud}
+\regfield{Rerserved}{16}{16}{{0}}%
+\regfield{Prescaler}{16}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.6\textwidth]\begin{reglist}[000000000]
+\itemsep-1.5ex
+\item[Prescaler] Baud rate = $\dfrac{f_{system}}{\textrm{prescaler}+1}$
+\end{reglist}\end{regdesc}
+
+
+\subsection{I2C1 -- Inter-Integrated Circuit master-only controller}
+General purpose I\textsuperscript{2}C peripheral, with programmable baud rate prescaler, start- and stopbit generation, no clock stretching, no arbitration, Standard mode (Sm) and Fast mode (Fm) only.
+
+\begin{register}{H}{I2C1 control register I2C1\_CTRL}{0x40}
+\label{i2c1ctrl}
+\regfield{BAUD}{16}{16}{{0}}%
+\regfield{Reserved}{4}{12}{{0}}%
+\regfield{MACK}{1}{11}{{0}}%
+\regfield{HARDSTOP}{1}{10}{{0}}%
+%\regfield{DPG}{1}{10}{{0}}%
+\regfield{START}{1}{9}{{0}}%
+\regfield{STOP}{1}{8}{{0}}%
+\regfield{Reserved}{4}{4}{{0}}%
+%\regfield{Reserved}{1}{4}{{0}}%
+\regfield{TCIE}{1}{3}{{0}}%
+\regfield{FM}{1}{2}{{0}}%
+\regfield{Reserved}{2}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.9\textwidth]\begin{reglist}[000000000]
+\item [BAUD] Baud rate prescaler. Number of system clock pulses minus 1 for \textbf{one-half} bit time (Sm) or \textbf{one-third} bit time (Fm).
+Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C clock frequency is 763\,Hz.
+\item [MACK] Set to 1 to acknowledge a reception by the master. Must only be used when receiving.
+\item [HARDSTOP] Set to 1 to just generate a STOP condition. Useful after addressing a target that didn't respond. Cleared by hardware.
+%\item [DPG] Disable STOP generation after Acknowledge Fail. Can be used to send a repeated START.
+\item [START] Send a START before next byte send. Cleared by hardware when transmission ends.
+\item [STOP] Send a STOP after next byte send or received. Cleared by hardware when transmission ends.
+%\item [RCIE] Receive Complete interrupt enable.
+\item [TCIE] Transmission Complete interrupt enable.
+\item [FM] 0: Standard mode 1:1 (SCL 1/2 low, 1/2 high)\\1: Fast mode 2:1 (SCL 2/3 low, 1/3 high)
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{I2C1 status register I2C1\_STAT}{0x44}
+\label{i2c1stat}
+\regfield{Reserved}{25}{7}{{0}}%
+\regfield{BUSY}{1}{6}{{0}}%
+\regfield{AF}{1}{5}{{0}}%
+\regfield{Reserved}{1}{4}{{0}}%
+\regfield{TC}{1}{3}{{0}}%
+\regfield{TRANS}{1}{2}{{0}}%
+\regfield{Reserved}{2}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000000]
+\item [BUSY] Set to 1 when SDA or SCL is low, set to 0 when STOP condition is detected, independent of the I2C1 device.
+\item [AF] Acknowledge Fail, set when no target responded. Cleared by hardware when \lstinline|I2C1_DATA| is accessed.
+%\item [RC] Receive Complete, including sending STOP. Cleared by hardware when I2C1\_DATA is read.
+\item [TC] Transmission Complete, including START or STOP, if any. Cleared by hardware when \lstinline|I2C1_DATA| is accessed.
+\item [TRANS] Indicates transmitting (1) or not (0) by this controller.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{I2C1 data register I2C1\_DATA}{0x48}
+\label{i2c11data}
+\regfield{Reserved}{24}{8}{{0}}%
+\regfield{Data}{8}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
+%\itemsep-1.5ex
+\item[Write] The data is written to an internal buffer and transmitted.
+\item[Read] The last received data is read.
+\end{reglist}\end{regdesc}
+
+
+\subsection{I2C2 -- Inter-Integrated Circuit master-only controller}
+General purpose I\textsuperscript{2}C peripheral, with programmable baud rate prescaler, start- and stopbit generation, no clock stretching, no arbitration, Standard mode (Sm) and Fast mode (Fm) only.
+
+\begin{register}{H}{I2C2 control register I2C2\_CTRL}{0x50}
+\label{i2c2ctrl}
+\regfield{BAUD}{16}{16}{{0}}%
+\regfield{Reserved}{4}{12}{{0}}%
+\regfield{MACK}{1}{11}{{0}}%
+\regfield{HARDSTOP}{1}{10}{{0}}%
+%\regfield{DPG}{1}{10}{{0}}%
+\regfield{START}{1}{9}{{0}}%
+\regfield{STOP}{1}{8}{{0}}%
+\regfield{Reserved}{4}{4}{{0}}%
+%\regfield{Reserved}{1}{4}{{0}}%
+\regfield{TCIE}{1}{3}{{0}}%
+\regfield{FM}{1}{2}{{0}}%
+\regfield{Reserved}{2}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.9\textwidth]\begin{reglist}[000000000]
+\item [BAUD] Baud rate prescaler. Number of system clock pulses minus 1 for \textbf{one-half} bit time (Sm) or \textbf{one-third} bit time (Fm).
+Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C clock frequency is 763\,Hz.
+\item [MACK] Set to 1 to acknowledge a reception by the master. Must only be used when receiving.
+\item [HARDSTOP] Set to 1 to just generate a STOP condition. Useful after addressing a target that didn't respond. Cleared by hardware.
+%\item [DPG] Disable STOP generation after Acknowledge Fail. Can be used to send a repeated START.
+\item [START] Send a START before next byte send. Cleared by hardware when transmission ends.
+\item [STOP] Send a STOP after next byte send or received. Cleared by hardware when transmission ends.
+%\item [RCIE] Receive Complete interrupt enable.
+\item [TCIE] Transmission Complete interrupt enable.
+\item [FM] 0: Standard mode 1:1 (SCL 1/2 low, 1/2 high)\\1: Fast mode 2:1 (SCL 2/3 low, 1/3 high)
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{I2C2 status register I2C2\_STAT}{0x54}
+\label{i2c2stat}
+\regfield{Reserved}{25}{7}{{0}}%
+\regfield{BUSY}{1}{6}{{0}}%
+\regfield{AF}{1}{5}{{0}}%
+\regfield{Reserved}{1}{4}{{0}}%
+\regfield{TC}{1}{3}{{0}}%
+\regfield{TRANS}{1}{2}{{0}}%
+\regfield{Reserved}{2}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000000]
+\item [BUSY] Set to 1 when SDA or SCL is low, set to 0 when STOP condition is detected, independent of the I2C1 device.
+\item [AF] Acknowledge Fail, set when no target responded. Cleared by hardware when \lstinline|I2C2_DATA| is accessed.
+%\item [RC] Receive Complete, including sending STOP. Cleared by hardware when I2C1\_DATA is read.
+\item [TC] Transmission Complete, including START or STOP, if any. Cleared by hardware when \lstinline|I2C2_DATA| is accessed.
+\item [TRANS] Indicates transmitting (1) or not (0) by this controller.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{I2C2 data register I2C2\_DATA}{0x58}
+\label{i2c21data}
+\regfield{Reserved}{24}{8}{{0}}%
+\regfield{Data}{8}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
+%\itemsep-1.5ex
+\item[Write] The data is written to an internal buffer and transmitted.
+\item[Read] The last received data is read.
+\end{reglist}\end{regdesc}
+
+
+\subsection{SPI1 -- Serial Peripheral Interface}
+General purpose SPI master peripheral, with prescaler, 8/16/24/32 bits data exchange, hardware NSS and interrupt.
+
+\begin{register}{H}{SPI1 control register SPI1\_CTRL}{0x60}
+\label{spi1ctrl}
+\regfield{Reserved}{4}{28}{{0}}%
+\regfield{NSS setup}{8}{20}{{0}}%
+\regfield{NSS hold}{8}{12}{{0}}%
+\regfield{Reserved}{1}{9}{{0}}%
+\regfield{Prescaler}{3}{8}{{0}}%
+\regfield{Reserved}{2}{6}{{0}}%
+\regfield{Size}{2}{4}{{0}}%
+\regfield{TCIE}{1}{3}{{0}}%
+\regfield{CPOL}{1}{2}{{0}}%
+\regfield{CPHA}{1}{1}{{0}}%
+\regfield{Reserved}{1}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000000i]
+\item [NSS setup] Number of system clock pulses after NSS active before transfer starts
+\item [NSS hold] Number of system clock pulses before NSS inactive after transfer ends
+\item [Prescaler]
+\begin{description}\itemsep-7pt
+\item[000] /2
+\item[001] /4
+\item[010] /8
+\item[011] /16
+\item[100] /32
+\item[101] /64
+\item[110] /128
+\item[111] /256
+\end{description}
+Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is 195.3125\,kHz.
+\item [Size]
+\begin{description}\itemsep-7pt
+\item[00] 8 bits
+\item[01] 16 bits
+\item[10] 24 bits
+\item[11] 32 bits
+\end{description}
+\item [TCIE] Transfer complete interrupt enable
+\item [CPOL] Clock polarity
+\item [CPHA] Transfer phase
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{SPI1 status register SPI1\_STAT}{0x64}
+\label{spi1stat}
+\regfield{Reserved}{28}{4}{{0}}%
+\regfield{TC}{1}{3}{{0}}%
+\regfield{Reserved}{3}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
+\item [TC] Transfer complete
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{SPI1 data register SPI1\_DATA}{0x68}
+\label{spi1data}
+\regfield{Data}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
+%\itemsep-1.5ex
+\item[Write] The data is written to an internal buffer and transmitted.
+\item[Read] The last received data is read.
+\end{reglist}\end{regdesc}
+Data size depends on the Size field in the SPI1 Control Register. Data is right aligned.
+
+
+\subsection{SPI2 -- Serial Peripheral Interface}
+SPI master peripheral dedicated for SD card access, with prescaler and 8/16/24/32 bits data exchange. This device has no interrupt available.
+\begin{register}{H}{SPI2 control register SPI2\_CTRL}{0x70}
+\label{spi2ctrl}
+\regfield{Reserved}{21}{11}{{0}}%
+\regfield{Prescaler}{3}{8}{{0}}%
+\regfield{Reserved}{2}{6}{{0}}%
+\regfield{Size}{2}{4}{{0}}%
+\regfield{Reserved}{1}{3}{{0}}%
+\regfield{CPOL}{1}{2}{{0}}%
+\regfield{CPHA}{1}{1}{{0}}%
+\regfield{Reserved}{1}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000000i]
+\item [Prescaler]
+\begin{description}\itemsep-7pt
+\item[000] /2
+\item[001] /4
+\item[010] /8
+\item[011] /16
+\item[100] /32
+\item[101] /64
+\item[110] /128
+\item[111] /256
+\end{description}
+Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is 195.3125\,kHz.
+\item [Size]
+\begin{description}\itemsep-7pt
+\item[00] 8 bits
+\item[01] 16 bits
+\item[10] 24 bits
+\item[11] 32 bits
+\end{description}
+\item [CPOL] Clock polarity
+\item [CPHA] Transfer phase
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{SPI2 status register SPI2\_STAT}{0x74}
+\label{spi2stat}
+\regfield{Reserved}{28}{4}{{0}}%
+\regfield{TC}{1}{3}{{0}}%
+\regfield{Reserved}{3}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
+\item [TC] Transfer complete
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{SPI2 data register SPI2\_DATA}{0x78}
+\label{spi2data}
+\regfield{Data}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
+%\itemsep-1.5ex
+\item[Write] The data is written to an internal buffer and transmitted.
+\item[Read] The last received data is read.
+\end{reglist}\end{regdesc}
+Data size depends on the Size field in the SPI2 Control Register. Data is right aligned.
+
+
+\subsection{TIMER1 -- a simple timer}
+Simple 32-bit timer peripheral for time base generation, with interrupt.
+
+\begin{register}{H}{TIMER1 control register TIMER1\_CTRL}{0x80}
+\label{timer1ctrl}
+\regfield{Reserved}{27}{5}{{0}}%
+\regfield{TIE}{1}{4}{{0}}%
+\regfield{Reserved}{3}{1}{{000}}%
+\regfield{EN}{1}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
+%\itemsep-1.5ex
+\item[EN] Enable the timer
+\item[TIE] Timer compare match interrupt enable
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER1 status register TIMER1\_STAT}{0x84}
+\label{timer1stat}
+\regfield{Reserved}{27}{5}{{0}}%
+\regfield{TCI}{1}{4}{{0}}%
+\regfield{Reserved}{4}{0}{{0000}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
+\itemsep-1.5ex
+\item[TCI] Timer compare match interrupt. Set to 1 on compare match between the timer Count register and the Compare Match register. Must be cleared by software by writing a 0.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER1 count register TIMER1\_CNTR}{0x88}
+\label{timer1cntr}
+\regfield{CNTR}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[CNTR] This register holds the counted clock pulses on the timer. This register may be written by software.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER1 compare timer T register TIMER1\_CMPT}{0x8c}
+\label{timer1cmpt}
+\regfield{CMPT}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[CMPT] This register holds the value at which the counter register is compared. On CNTR compares to greater than or equal to CMPT, the counter register will be cleared and the TCI flag will be set (both in the next clock cycle).
+\end{reglist}\end{regdesc}
+
+
+\subsection{TIMER2 -- a more elaborate timer}
+General purpose 16-bit timer with Output Compare, PWM generation and Input Capture capabilities, preload and interrupts.
+
+\begin{register}{H}{TIMER2 control register TIMER2\_CTRL}{0x90}
+\label{timer2ctrl}
+%\regfield{Reserved}{24}{8}{{0}}%
+\regfield{FOCC}{1}{31}{{0}}%
+\regfield{FOCB}{1}{30}{{0}}%
+\regfield{FOCA}{1}{29}{{0}}%
+\regfield{FOCT}{1}{28}{{0}}%
+\regfield{PHAC}{1}{27}{{0}}%
+\regfield{MODEC}{3}{24}{{000}}%
+\regfield{PHAB}{1}{23}{{0}}%
+\regfield{MODEB}{3}{20}{{000}}%
+\regfield{PHAA}{1}{19}{{0}}%
+\regfield{MODEA}{3}{16}{{000}}%
+\regfield{PHAT}{1}{15}{{0}}%
+\regfield{MODET}{3}{12}{{000}}%
+\regfield{PREC}{1}{11}{{0}}%
+\regfield{PREB}{1}{10}{{0}}%
+\regfield{PREA}{1}{9}{{0}}%
+\regfield{PRET}{1}{8}{{0}}%
+\regfield{CIE}{1}{7}{{0}}%
+\regfield{BIE}{1}{6}{{0}}%
+\regfield{AIE}{1}{5}{{0}}%
+\regfield{TIE}{1}{4}{{0}}%
+\regfield{OS}{1}{3}{{0}}%
+\regfield{Reserved}{2}{1}{{00}}%
+\regfield{EN}{1}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000]
+\itemsep-1.5ex
+\item [FOCC] Force Output Compare match C.
+\item [FOCB] Force Output Compare match B.
+\item [FOCA] Force Output Compare match A.
+\item [FOCT] Force Output Compare match T.
+\item [PHAC] Register C start phase.
+\item[MODEC] Register C mode.
+\item [PHAB] Register B start phase.
+\item[MODEB] Register B mode.
+\item [PHAA] Register A start phase.
+\item[MODEA] Register A mode.
+\item[PHAT] Register T start phase.
+\item[MODET] Register T mode.
+\item[PREC] Enable compare register C preload.
+\item[PREB] Enable compare register B preload.
+\item[PREA] Enable compare register A preload.
+\item[PRET] Enable compare register T preload.
+\item[CIE] Timer compare match/input capture C interrupt enable
+\item[BIE] Timer compare match/input capture B interrupt enable
+\item[AIE] Timer compare match/input capture A interrupt enable
+\item[TIE] Timer compare match T interrupt enable
+\item[OS] One-shot mode
+\item[EN] Enable the timer
+\end{reglist}\end{regdesc}
+
+If none of the FOC$x$ bits are 1, MODET and MODEA/B/C have the following meaning:
+\begin{description}\itemsep-7pt
+\item[000] Output off
+\item[001] Toggle on compare match
+\item[010] Set high on compare match
+\item[011] Set low on compare match
+\item[100] Edge-aligned PWM (only A/B/C, for T not allowed)
+\item[101] Reserved
+\item[110] Input capture positive edge (only A/B/C, for T not allowed)
+\item[111] Input capture negative edge (only A/B/C, for T not allowed)
+\end{description}
+If at least one of the FOC$x$ bits is 1, MODET and MODEA/B/C have the following meaning:
+\begin{description}\itemsep-7pt
+\item[000] Not used
+\item[001] Toggle output compare
+\item[010] Set high output compare
+\item[011] Set low output compare
+\item[100] not allowed
+\item[101] not allowed
+\item[110] not allowed
+\item[111] not allowed
+\end{description}
+In this case, the CTRL register is not written and keeps its original setting.
+
+\begin{register}{H}{TIMER2 status register TIMER2\_STAT}{0x94}
+\label{timer2stat}
+\regfield{Reserved}{24}{8}{{0}}%
+\regfield{CCI}{1}{7}{{0}}%
+\regfield{BCI}{1}{6}{{0}}%
+\regfield{ACI}{1}{5}{{0}}%
+\regfield{TCI}{1}{4}{{0}}%
+\regfield{Reserved}{4}{0}{{0000}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
+\itemsep-1.5ex
+\item[CCI] Timer compare match A interrupt. Set to 1 on compare match between the timer Count register and the Compare Match C register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
+\item[BCI] Timer compare match A interrupt. Set to 1 on compare match between the timer Count register and the Compare Match B register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
+\item[ACI] Timer compare match A interrupt. Set to 1 on compare match between the timer Count register and the Compare Match A register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
+\item[TCI] Timer compare match T interrupt. Set to 1 on compare match between the timer Count register and the Compare Match T register. Must be cleared by software by writing a 0.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER2 count register TIMER2\_CNTR}{0x98}
+\label{timer2cntr}
+\regfield{Reserved}{16}{16}{{0}}%
+\regfield{CNTR}{16}{0}{{0}}%
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[CNTR] This register holds the counted clock pulses on the timer. This register may be written by software. Rolls over when CNTR compare greater than or equal to CMPT on the next clock cycle.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER2 compare timer T register TIMER2\_CMPT}{0x9c}
+\label{timer2cmpt}
+\regfield{Reserved}{16}{16}{{0}}%
+\regfield{CMPT}{16}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[CMPT] This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPT, the Count register will be cleared and the TCI flag will be set (both in the next clock cycle).
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER2 prescaler register TIMER2\_PRSC}{0xa0}
+\label{timer2prsc}
+\regfield{Reserved}{16}{16}{{0}}%
+\regfield{PSRC}{16}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[PRSC] This register holds the prescaler of the timer. This register may be written by software. Whenever the internal prescaler is equal to or greater than this register, the internal prescaler is reset. This register should only be written when the timer is stopped. Writing this register resets the internal prescaler.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER2 compare timer A register TIMER2\_CMPA}{0xa4}
+\label{timer2cmpa}
+\regfield{Reserved}{16}{16}{{0}}%
+\regfield{CMPA}{16}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[CMPA] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPA, the ACI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPA on detecting the selected edge, and the ACI flag is set.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER2 compare timer B register TIMER2\_CMPB}{0xa8}
+\label{timer2cmpb}
+\regfield{Reserved}{16}{16}{{0}}%
+\regfield{CMPB}{16}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[CMPB] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPB, the BCI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPB on detecting the selected edge, and the BCI flag is set.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMER2 compare timer C register TIMER2\_CMPC}{0xac}
+\label{timer2cmpc}
+\regfield{Reserved}{16}{16}{{0}}%
+\regfield{CMPC}{16}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item[CMPC] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPC, the CCI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPC on detecting the selected edge, and the CCI flag is set.
+\end{reglist}\end{regdesc}
+
+
+\subsection{WDT -- Watchdog Timer}
+\begin{register}{H}{Watchdog control register WDT\_CTRL}{0xe0}
+\label{wdtctrl}
+\regfield{Prescaler}{24}{8}{{0}}%
+\regfield{LOCK}{1}{7}{{0}}%
+\regfield{reserved}{5}{2}{{0}}%
+\regfield{NMI}{1}{1}{{0}}%
+\regfield{EN}{1}{0}{{0}}%
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item [Prescaler] 24-bit prescaler. The timeout time is computed with
+\begin{equation*}
+t = \dfrac{Prescaler \cdot 256}{f_{cpu}}
+\end{equation*}
+\item [LOCK] If set to 1, the control register is locked. Watchdog write accesses trigger a system reset or NMI.
+\item [NMI] If set to 1, the watchdog triggers an NMI on timeout, otherswise the watchdog triggers a system reset on timeout.
+\item [EN] If set to 1, the WDT starts counting.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{Watchdog trigger register WDT\_TRIG}{0xe4}
+\label{wdttrig}
+\regfield{PASSWORD}{32}{0}{{0}}%
+\reglabel{Reset}\regnewline%
+\end{register}
+
+Note: this register must be written with the WDT password to reset the watchdog. No actual value is written in this register. Reads return all zero bits.
+
+
+
+\subsection{MSI -- Machine Software Interrupt}
+Note: MSI has to be enabled by writing a 1 to \lstinline[breaklines=false]|mie.MSIE|.
+
+\begin{register}{H}{MSI trigger register MSI\_TRIG}{0xec}
+\label{msitrig}
+\regfield{Reserved}{31}{1}{{0}}%
+\regfield{TRIG}{1}{0}{{0}}%
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item [TRIG] Writing a 1 to this field will trigger an MSI. Writing a 0 will disarm the trigger.
+\end{reglist}\end{regdesc}
+
+\subsection{MTIME -- RISC-V system timer}
+Note: the external timer interrupt has to be enabled by writing a 1 to \lstinline[breaklines=false]|mie.MTIE|.
+Note: the external timer will assert a pending interrupt if TIMEH:TIME (viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECPM (viewed as a 64-bit register). To negate the pending interrupt, set TIMECMPH:TIMECMP to a higher value than TIMEH:TIME. The TIMEH:TIME registers count the number of micro seconds since last reset. As such, the system clock frequency must be a integer multiple of 1\,MHz.
+
+\begin{register}{H}{TIME external timer register TIME}{0xf0}
+\label{time}
+\regfield{TIME}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item [TIME] This register holds the low 32 bits of the external timer. Currently read-only.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMEH external timer register TIME}{0xf4}
+\label{timeh}
+\regfield{TIMEH}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\itemsep-1.5ex
+\item [TIMEH] This register holds the upper 32 bits of the external timer. Currently read-only.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMECMP external timer compare register TIMECMP}{0xf8}
+\label{timecmp}
+\regfield{TIMECMP}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000000]
+\itemsep-1.5ex
+\item [TIMECMP] This register holds the low 32 bits of the external timer compare register.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{TIMECMPH external timer compare register TIMECMP}{0xfc}
+\label{timecmph}
+\regfield{TIMECMPH}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
+\itemsep-1.5ex
+\item [TIMECMPH] This register holds the upper 32 bits of the external timer compare register.
+\end{reglist}\end{regdesc}
+
+\end{document}

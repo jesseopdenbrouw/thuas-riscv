@@ -1,9 +1,11 @@
-# thuas-riscv
+= The THUAS RISC-V 32-bit processor in VHDL
+
+xref:docs/doc.adoc[Full Documentation]
 
 A RISC-V 32-bit microcontroller written in VHDL targeted
 for an FPGA.
 
-## Description
+== Quick info
 
 This RISC-V microcontroller uses the RV32IM instruction set
 and the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and
@@ -29,11 +31,11 @@ All other instructions require 1 clock.
 Current Coremark testbench shows a CPI of 1.73 and a score
 of 1.93 coremark/MHz.
 
-Software is written in C, (C++ is supported but there are
-some limitations) and compiled using the RISC-V GNU C/C++
+Software is written in C, ({cpp} is supported but there are
+some limitations) and compiled using the RISC-V GNU C/{cpp}
 compiler.
 
-## Current flavor
+== Current flavor
 
 The design is equipped with bootloader and on-chip debugger
 hardware (both can be switched off). The bootloader can
@@ -41,7 +43,7 @@ be used without the on-chip debugger to upload executables
 to the processor. The on-chip debugger can be used with
 OpenOCD and GDB. It works with Eclipse CDT.
  
-## Memory
+== Memory
 
 The microcontroller uses FPGA onboard RAM blocks to emulate RAM
 and program ROM. There is no support for cache or external RAM. Programs
@@ -66,14 +68,14 @@ ROM starts at 0x00000000, BOOT (if available) starts at 0x10000000,
 RAM starts at 0x20000000, I/O starts at 0xF0000000. May be changed
 on 256 MB (top 4 bits) sections.
 
-## CSR
+== CSR
 
 A number of CSR registers are implemented: `time`, `timeh`, `[m]cycle`,
 `[m]cycleh`, `[m]instret`, `[m]instreth`, `mvendorid`, `marchid`,
 `mimpid`, `mhartid`, `mstatus`, `mstatush`, `misa`, `mie`, `mtvec`,
 `mscratch`, `mepc`, `mcause`, `mip`, `mcountinhibit` as are the HPM
 counters and event selectors. If on-chip debugging is enabled, the
-`dcsr`, `dpc`, `tselect`, `tdata1`, `tdata2`and `tinfo` CSRs are available.
+`dcsr`, `dpc`, `tselect`, `tdata1`, `tdata2` and `tinfo` CSRs are available.
 Some of these CSRs are hardwired. Others will be implemented when
 needed. The `time` and `timeh` CSRs produces the time since reset
 in microseconds, shadowed from the External Timer memory mapped
@@ -81,34 +83,34 @@ registers. Also two custom CSRs are implemented: `mxhw` which holds
 information of included peripherals and `mxspeed` which contains
 the synthesized clock speed.
 
-## FPGA
+== FPGA
 
 The microcontroller is developed on a Cyclone V FPGA (5CEBA4F23C7)
 with the use of the DE0-CV board by Terasic and Intel Quartus Prime
-Lite 22.0. Simulation is possible with QuestaSim Intel Starter Edition.
+Lite 23.1. Simulation is possible with QuestaSim Intel Starter Edition.
 You need a (free) license for that. The processor uses about
 2900 ALM (cells) of 18480, depending on the settings. In the default
 settings, ROM, BOOT, RAM and registers uses 43% of the available RAM blocks.
 
 The design is also tested on a Digilent Arty S7/50 and a Cmod S7/25 (Spartan 7) board.
 
-## Software
+== Software
 
-A number of C programs have been tested, created by the GNU C/C++ Compiler for
+A number of C programs have been tested, created by the GNU C/{cpp} Compiler for
 RISC-V. We tested the use of (software) floating point operations (both
 float and double) and tested the mathematical library (sin, cos, et al.).
 Traps (interrupts and exceptions) are tested and work.
 Assembler programs can be compiled by the GNU assembler. We provide a CRT
-(C startup) and linker file. C++ is supported but many language concepts
+(C startup) and linker file. {cpp} is supported but many language concepts
 (e.g. cout with iostream) create a binary that is too big to fit in the
 ROM.
 
 We provide a basic set of systems call, trapped (ECALL) and non-trapped
 (functions overriding the C library functions). Trapped system calls
-are by default set up by the RISC-V C/C++ compiler, so no extra handling
+are by default set up by the RISC-V C/{cpp} compiler, so no extra handling
 is needed.
 
-## On-chip debugger
+== On-chip debugger
 
 The processor is equipped with an on-chip debugger that complies to the
 RISC-V Debug Specification v1.0.0-rc3. It is an all-hardware solution,
@@ -118,7 +120,7 @@ written. There is one hardware breakpoint available. De on-chip debugger
 is compatible with OpenOCD and GDB. It can be used with Eclipse CDT. By
 default, the on-chip debugger is disabled.
 
-## Bootloader
+== Bootloader
 
 By default, the design is equipped with a bootloader. When resetting the
 FPGA, the bootloader waits about 5 seconds @50 MHz before the program
@@ -126,7 +128,7 @@ in the ROM is started. Using the bootloader, a program can written to
 the ROM (see the documentation). The bootloader can also be used to
 inspect the memory contents.
 
-## Support for Windows tools
+== Support for Windows tools
 
 There is support for Windows tools. `srec2vhdl` and
 `upload` can be build with GCC MinGW and Visual Studio.
@@ -135,11 +137,11 @@ is needed.
 
 Best is to use a precompiled compiler for Windows and
 build tools (make, rm, mkdir etc.). Please have a look
-at [xPack RISC-V Toolchain](https://xpack.github.io/dev-tools/riscv-none-elf-gcc/)
-and [Windows build tools](https://xpack.github.io/dev-tools/windows-build-tools/).
+at https://xpack.github.io/dev-tools/riscv-none-elf-gcc/[xPack RISC-V Toolchain]
+and https://xpack.github.io/dev-tools/windows-build-tools/[Windows build tools].
 For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look
-at [The xPack GNU Compiler Collection (GCC)](https://xpack.github.io/dev-tools/gcc/).
-For on-chip debugging, see [xPack OpenOCD](https://xpack-dev-tools.github.io/openocd-xpack/).
+at https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)].
+For on-chip debugging, see https://xpack-dev-tools.github.io/openocd-xpack/[xPack OpenOCD].
 
 ## Plans (or not) and issues
 
@@ -152,7 +154,7 @@ For on-chip debugging, see [xPack OpenOCD](https://xpack-dev-tools.github.io/ope
 * Adding Zbb extension.
 * To start the pre-programmed bootloader, make sure the UART1 RxD pin is connected to a serial device OR make sure this pin is pulled high (DE0-CV board).
 
-## Disclaimer
+== Disclaimer
 
 This microcontroller is for educational purposes only.
 Work in progress. Things might change. Use with care.

@@ -86,7 +86,7 @@ The Program Counter contains the address of the currently fetched instruction. T
 
 === Instruction Decoder
 
-The instruction decoder decodes the instruction supplied by the ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides all control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit. %Some signals are directly wired to the memory.
+The instruction decoder decodes the instruction supplied by the ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides all control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit.
 
 === Control Unit
 The processor uses a eighteen-state FSM, see <<fig_fsm>> (without on-chip debugging). Upon reset, the processor starts in state `boot0`. In this state, the processor is executing a hardware no-operation, i.e. no computations are performed, but register `x0` (alias `zero`) is written with all-zero bits. This is because onboard RAM-blocks (where the registers are placed), cannot have a reset signal. In state `boot1` the processor performs a hardware no-operation (but the first instruction is being decoded). In the `exec` state, the processor is executing decoded instructions. If a trap request is being asserted, the processor executes the trap initiate sequence (saving the PC, fetching the handler start address, pipeline is flushed). If a memory access is requested, the processor initiates the memory access sequence (state `mem`). The processor waits in this state until the memory access is acknowledged. A jump (JAL, JALR) or a branch taken causes the processor to flush the pipeline and start fetching instruction from the target address (states `flush` and `flush2`). When the processor executes an integer multiply/divide instruction, the processor starts the MD sequence (states `md` and `md`|), and stalls until the operation is completed. When the processor executes an `mret` instruction, the processor executes the return sequence (fetching the saved PC, flushing the pipeline).
@@ -201,7 +201,7 @@ The event counter registers are currently 40 bits wide. Currently, there are 7 e
 |6 | multiply/divides
 |===
 
-For on-chip debugging purposes, there are five CSRs:
+For on-chip debugging purposes, there are six CSRs:
 
 * `dcsr` -- this register holds information between the DM and de hart.
 * `dpc` -- this register hold the PC value of the instruction to be executed when the core enters debug mode.
@@ -564,7 +564,7 @@ The design can be simulated fully, using QuestaSim Intel Starter or ModelSim Int
 === Customizing the design
 Using VHDL generics, the design can be customized.
 
-.Customization options for the design.}
+.Customization options for the design.
 [cols="1,1,1,1"]
 |===
 |Generic | Type | Typical | Comment

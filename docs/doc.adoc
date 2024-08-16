@@ -1572,7 +1572,7 @@ To wait for a character reception, use the code in the listing below:
 int uart1_getc(void)
 {
     /* Wait for received character */
-    while ((UART1->STAT & 0x04) == 0);
+    while ((UART1->STAT & 0x08) == 0);
 
     /* Return 8-bit data */
     return UART1->DATA & 0x000000ff;

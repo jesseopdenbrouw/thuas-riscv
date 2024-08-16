@@ -5,7 +5,7 @@ Jesse op den Brouw <j.e.j.opdenbrouw@hhs.nl>
 
 == Abstract
 
-This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba and Zbs (bit operations), Zihpm (extra counters) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM extensions and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 23.1 and QuestaSim Intel Starter Edition 2023.3. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
+This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba and Zbs (bit operations), Zihpm (extra counters) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 23.1 and QuestaSim Intel Starter Edition 2023.3. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
 
 The processor has a three-stage pipeline and executes each instruction in three clock cycles, but the next instructions are fetched and decoded while the current instruction is executed. Jump/branches taken require three clock cycles. Memory reads need three clock cycles, writes take two clock cycles. This processor also has a basic Control and Status Registers (CSR) set, suitable to handle traps, and a hardware integer multiplier/divider.
 
@@ -14,9 +14,9 @@ This is work in progress. Things will certainly change in the future.
 :sectnums:
 
 == Introduction
-This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one HART (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and Sdtrig extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic DE0-CV board.
+This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and Sdtrig extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic DE0-CV board.
 
-The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps and on-chip debugging. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
+The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), Writes take two clock cycles. RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps and on-chip debugging. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
 
 The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests showed an average CPI of 1.73 with a throughput of 1.93 coremark/MHz (4000 runs).
 
@@ -31,7 +31,7 @@ The core:
 * The Instruction Decoder decodes the fetched instruction and provides control signals to other building blocks.
 * The multiply/divide unit calculates integer multiplications, divisions and remainder.
 * The control unit regulates the data flow and control flow in the core.
-* The Control and Status Registers (CSR) contains a basic set of register.
+* The Control and Status Registers (CSR) contains a basic set of registers.
 * The Local Interrupt Controller (LIC) determines which trap is to be served.
 * The memory unit interfaces with memory.
 * The debug unit regulates on-chip debugging.
@@ -82,15 +82,14 @@ Note that the computation of jump target addresses is handled by the Program Cou
 
 === PC
 
-The Program Counter contains the address of the currently fetched instruction. The address is always on a 4-byte boundary although function calls and conditional jump (JAL, JALR en B$xx$ instructions) can be on non 4-byte boundaries (the C compiler will always create 4-bytes boundaries). The PC (or rather the VHDL description of the PC) handles the address calculations of jumps and branches taken. %Currently, the two lower bits of the PC are set to 0.
+The Program Counter contains the address of the currently fetched instruction. The address is always on a 4-byte boundary although function calls and conditional jump (JAL, JALR en B_xx_ instructions) can be on non 4-byte boundaries (the C compiler will always create 4-bytes boundaries). The PC (or rather the VHDL description of the PC) handles the address calculations of jumps and branches taken.
 
 === Instruction Decoder
 
-The instruction decoder decodes the instruction supplied by the ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides all control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit.
+The instruction decoder decodes the instruction supplied by the ROM or boot ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides all control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit.
 
 === Control Unit
-The processor uses a eighteen-state FSM, see <<fig_fsm>> (without on-chip debugging). Upon reset, the processor starts in state `boot0`. In this state, the processor is executing a hardware no-operation, i.e. no computations are performed, but register `x0` (alias `zero`) is written with all-zero bits. This is because onboard RAM-blocks (where the registers are placed), cannot have a reset signal. In state `boot1` the processor performs a hardware no-operation (but the first instruction is being decoded). In the `exec` state, the processor is executing decoded instructions. If a trap request is being asserted, the processor executes the trap initiate sequence (saving the PC, fetching the handler start address, pipeline is flushed). If a memory access is requested, the processor initiates the memory access sequence (state `mem`). The processor waits in this state until the memory access is acknowledged. A jump (JAL, JALR) or a branch taken causes the processor to flush the pipeline and start fetching instruction from the target address (states `flush` and `flush2`). When the processor executes an integer multiply/divide instruction, the processor starts the MD sequence (states `md` and `md`|), and stalls until the operation is completed. When the processor executes an `mret` instruction, the processor executes the return sequence (fetching the saved PC, flushing the pipeline).
-
+The processor uses a eighteen-state FSM, see <<fig_fsm>> (without on-chip debugging). Upon reset, the processor starts in state `boot0`. In this state, the processor is executing a hardware no-operation, i.e. no computations are performed, but register `x0` (alias `zero`) is written with all-zero bits. This is because onboard RAM-blocks (where the registers are placed), cannot have a reset signal. In state `boot1` the processor performs a hardware no-operation (but the first instruction is being decoded). In the `exec` state, the processor is executing decoded instructions. If a trap request is being asserted, the processor executes the trap initiate sequence (saving the PC, fetching the handler start address, pipeline is flushed). If a memory access is requested, the processor initiates the memory access sequence (state `mem`). The processor waits in this state until the memory access is acknowledged. A jump (JAL, JALR) or a branch taken causes the processor to flush the pipeline and start fetching instruction from the target address (states `flush` and `flush2`). When the processor executes an integer multiply/divide instruction, the processor starts the MD sequence (states `md` and `md`), and stalls until the operation is completed. When the processor executes an `mret` instruction, the processor executes the return sequence (fetching the saved PC, flushing the pipeline).
 
 .The state diagram of the controller, without the debug states.
 [[fig_fsm]]
@@ -110,12 +109,11 @@ image::images/load.svg[FSM]
 
 === Trap handling
 
-When an interrupt occurs, the FSM enters the `trap` state for fetching the trap vector. An interrupt can occur any time and is called asynchronous. When an interrupt occurs,
-the current instruction is aborted and must be restarted after return. After fetching the trap handler, new instructions are fetched and the instruction pipeline is flushed.
+When an interrupt occurs, the FSM enters the `trap` state for fetching the trap vector. An interrupt can occur any time and is called asynchronous. When an interrupt occurs, the current instruction is aborted and must be restarted after return. After fetching the trap handler, new instructions are fetched and the instruction pipeline is flushed.
 
 Exceptions are synchronous to the executing of instructions. When an exception occurs, the current instruction is discarded and must be restarted after return. Exceptions to this are the `ECALL` and `EBREAK` instructions. These instructions do cause a trap, but are not restarted, so the next instruction must be fetched after return. This has to be handled in software by the trap handler. 
 
-An ongoing memory access can only be interrupted by an exception (`mem` state). An ongoing hardware multiply/divide operation is *not* interrupted, the operation completes (and writes back the result in a register).
+An ongoing memory access can only be interrupted by an exception (`mem` state). An ongoing hardware multiply/divide operation is *not* interrupted, the operation completes and writes back the result in a register.
 
 When a trap request is asserted, the trap vector is loaded in the next clock cycle. Then, in the second clock cycle, the instruction is fetched and in the third clock cycle the instruction is decoded and in the fourth cycle the instruction is executed. On return from a trap handler, the original contents of the PC is fetched from the CSR and then instructions are fetched. A return flushes the pipeline.
 
@@ -137,7 +135,7 @@ The `mtval` CSR is written with offending memory address for load/store access/m
 
 The Address Decoder and Data Router routes reads and writes to the memory (ROM, bootloader ROM (only reads), RAM and the I/O). The processor uses a 32-bit linear address space for memory accesses. The address space is divided in 16 parts of 256 MB each. In the default setting, ROM starts at address 0x00000000 and the length is 64 kB. The bootloader ROM starts at address 0x10000000 and the length is 4 kB. Unused ROM addresses return 0x0000000. The RAM starts at address 0x20000000 and length is 32 kB. The I/O starts at address 0xF0000000 and the length is 16 kB by default.
 
-When data is read, the data is collected from the accessed memory and put on an internal bus to the ALU. The ALU can perform sign extension (byte and half word accesses) if needed. Please note that reading data from the ROM, bootloader ROM, RAM and I/O requires three clock cycles. Writing requires two clock cycles.
+When data is read, the data is collected from the accessed memory and put on an internal bus to the ALU. The ALU can perform sign extension or zero extenstion (byte and half word accesses) if needed. Please note that reading data from the ROM, bootloader ROM, RAM and I/O requires three clock cycles. Writing requires two clock cycles.
 
 Note that instructions can only be fetched from ROM and boot ROM.
 
@@ -151,7 +149,7 @@ The Instruction Router routes instructions from the ROM and the boot ROM. If the
 The RISC-V specification describes a set of 4096 control and status register in a separate address space. CSR operations require one clock cycle. Basic event counters are implemented:
 
 * `[m]cycle` and `[m]cycleh` -- these 32-bit registers form a 64-bit value that contains the counted clock cycles since the last reset.
-* `|time` and `timeh` -- these registers shadow the contents of the `MTIME` and `MTIMEH` registers from the I/O.
+* `time` and `timeh` -- these registers shadow the contents of the `MTIME` and `MTIMEH` registers from the I/O.
 * `[m]instret` and `[m]instreth` -- these 32-bit registers form a 64-bit value that contains the counted retired instructions since the last reset.
 
 Note that `time` and `timeh` are read-only. Writes are ignored.
@@ -221,7 +219,7 @@ Writing read-only registers causes an illegal instruction trap. Accessing a non-
 
 The Local Interrupt Controller is responsible for selecting which trap request must be serviced by the core. Interrupts have higher priority than exceptions. The state of the serviced trap is visible in the CSR.
 
-The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7)i and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, I2C2, UART1, TIMER2, TIMER1, EXTI external input interrupt, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
+The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7) and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, I2C2, UART1, TIMER2, TIMER1, EXTI external input interrupt, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
 
 Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture'': instruction access fault, instruction address misaligned, ECALL (M mode only), EBREAK, load/store address misaligned, load/store access fault. Note that ECALL and EBREAK are user instructions and can be interrupted by an interrupt (i.e. when the ECALL or EBREAK instruction is executing).
 
@@ -272,7 +270,7 @@ Reading the RAM (byte, half word, word) requires three clock cycles. A write req
 
 === I/O
 
-Currently, the I/O consists of one 32-bit data input and one 32-bit data output, a simple UART with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, a general purpose SPI peripheral with interrupt, a simple SPI peripheral (no interrupt), a watchdog timer, a software interrupt unit and the TIME and TIMEH memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A read requires three clock cycles, a write requires one or two clock cycles, depending on the VHDL generic `HAVE_FAST_STORE`. Section Note that not all I/O addresses are used.
+Currently, the I/O consists of one 32-bit data input and one 32-bit data output, a simple UART with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, a general purpose SPI peripheral with interrupt, a simple SPI peripheral (no interrupt), a watchdog timer, a software interrupt unit and the TIME and TIMEH memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A read requires three clock cycles, a write requires one or two clock cycles, depending on the VHDL generic `HAVE_FAST_STORE`. Note that not all I/O addresses are used.
 
 GPIOA has separate inputs and output, both 32 bits. This is because some FPGAs/synthesizers don't allow buried tri-state signals, i.e. the tri-state action must be done in the top level entity. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons. Note that KEY4 a.k.a. FPGA_RESET is connected to the reset of the processor. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt if a rising and/or falling edge is detected.
 
@@ -583,8 +581,8 @@ Using VHDL generics, the design can be customized.
 |VECTORED_MTVEC| boolean | TRUE | Use vectored interrupts
 |HAVE_REGISTERS_IN_RAM| boolean | TRUE | Use registers is onboard RAM
 |HAVE_BOOTLOADER_ROM| boolean | TRUE | Use the bootloader
-|ROM_ADDRESS_BITS| integer | 16 | ROM size is $2^{16} = 64$ kB
-|RAM_ADDRESS_BITS| integer | 15 | RAM size is $2^{15} = 32$ kB
+|ROM_ADDRESS_BITS| integer | 16 | ROM size is 2^16^ = 64 kB
+|RAM_ADDRESS_BITS| integer | 15 | RAM size is 2^15^ = 32 kB
 |ROM_HIGH_NIBBLE| slv(3..0) | x"0" | ROM at 0x0yyyyyyy
 |BOOT_HIGH_NIBBLE| slv(3..0) | x"1" | Boot at 0x1yyyyyyy
 |RAM_HIGH_NIBBLE| slv(3..0) | x"2" | RAM at 0x2yyyyyyy
@@ -704,6 +702,7 @@ Supported LTO compression algorithms: zlib
 gcc version 13.2.0 (gc891d8dc23e) 
 ----
 
+When using Windows, best is to use precompiled binaries. See <<sec_win>>.
 === Register subset
 It is possible to compile the toolchain to only use register `x0` to `x15`. This is called the RISC-V E extension. As a positive side effect, the register file can be cut down from 32 registers to 16 registers, saving 512 memory element. This will lower the ALM count (if placed in ALM flip-flops) and possible speed up the device. A negative side effect is that the pressure on register allocation is higher, possibly increasing instruction count when saving registers on the stack.
 
@@ -1124,7 +1123,7 @@ Note: the OCD is highly experimental. We tested the OCD with OpenOCD, GDB and Ec
 Tests with the OCD were conducted with an FT2232H MINI MODULE. See https://ftdichip.com/products/ft2232h-mini-module/. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB en Eclipse-CDT.
 
 
-== Support for Windows tools
+== Support for Windows tools [[sec_win]]
 
 There is support for Windows tools. Both `srec2vhdl` and `upload` can be build with GCC MinGW and Visual Studio. For building the RISC-V programs, a RISC-V GNU GCC compiler is needed.
 
@@ -1650,7 +1649,7 @@ For working with the UART on board of the processor, you need an USB-to-U(S)ART 
 .An USB-to-U(S)ART converter. Make sure that the voltages do not exceed 3.3 V.
 image::images/usb-usart-ttl.jpg[width=200]
 
-Note: if you are using the https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE], there is a second channel avaiable for UART connection.
+Note: if you are using the https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE], there is a second channel available for UART connection.
 
 === I2C code
 The baud rate prescaler must be loaded with the number of system clock cycles for *one-half* bit time minus 1 for Standard mode, and *one-third* bit time minus 1 for Fast mode. Note that the prescaler is in the CTRL register and must be preserved:

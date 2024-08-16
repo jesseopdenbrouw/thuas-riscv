@@ -300,7 +300,7 @@ The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Wh
 
 == The FPGA
 For this project, we use the Cyclone V FPGA from Intel (formerly Altera). See https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html.
-The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 2900 ALMs (about 16%) and 1,378,304 bits of internal memory (44%). The clock frequency is approximately 80 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 80\,MHz. This FPGA is mounted on a Terasic DE0-CV board (see <<fig_de0cv>>. The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. See http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921. For downloading the bitstream file, the onboard USB-Blaster is used.
+The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 2900 ALMs (about 16%) and 1,378,304 bits of internal memory (44%). The clock frequency is approximately 80 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 80 MHz. This FPGA is mounted on a Terasic DE0-CV board (see <<fig_de0cv>>. The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. See http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921. For downloading the bitstream file, the onboard USB-Blaster is used.
 
 .The DE0-CV board.
 [[fig_de0cv]]
@@ -629,12 +629,12 @@ If you want, you can compile the processor with the standard program incorporate
 To test one of the programs, change directory to one of the directories in `sw` and copy the file with `.vhd` extension to the directory containing the VHDL description under the name `rom_image.vhd`.
 Now start Quartus and start the compilation. After a successful compilation, you can program the Cyclone V on a DE0-CV board. If the bootloader is installed, you can also upload an S-record file.
 
-The design is targeted for a clock speed of 80\,MHz. Depending on how ''good'' the device is fabricated, higher clock speeds may be obtained. With one device, we could speed up the clock to 133 MHz.
+The design is targeted for a clock speed of 80 MHz. Depending on how ''good'' the device is fabricated, higher clock speeds may be obtained. With one device, we could speed up the clock to 133 MHz.
 
 Compilation of the hardware design is independent of the size of the software program. Several design goals may be selected, such as highest clock speed, minimum power or minimum area. Depending on the compilation settings, compilation time may decrease or increase.
 
 
-== Setting up the GNU C compiler for *this* RISC-V
+== Setting up the GNU C compiler for _this_ RISC-V
 
 The processor can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 13.2.0. Building the C/{cpp} compiler for Linux is straightforward:
 
@@ -763,7 +763,7 @@ void trap_handler(void)
 ----
 
 *Set up traps is vectored mode.* +
-In vectored mode, interrupts are routed to individual interrupt handlers and exceptions are routed to a common handler. You need a \textsl{jump table} to redirect interrupts to their handlers. The first entry redirects to the handler for execeptions.
+In vectored mode, interrupts are routed to individual interrupt handlers and exceptions are routed to a common handler. You need a _jump table_ to redirect interrupts to their handlers. The first entry redirects to the handler for execeptions.
 
 [source,c,subs=attributes+]
 ----
@@ -893,7 +893,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `monitor` -- simple monitor program. Works on the board. Uses strings, UART1, RAM, ROM, I/O and `sprintf` (and therefore `malloc` et al.).
 * `mult` -- integer multiplication with the C library. Set to the E extension with no hardware multiply/divide support. For simulations.
 * `mxhw` -- Program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized processor to the terminal.
-* `qsort` -- sorts an integer array using the \lstinline|qsort| C library function and prints the result to UART1. Works on the DE0-CV board.
+* `qsort` -- sorts an integer array using the `qsort` C library function and prints the result to UART1. Works on the DE0-CV board.
 * `riemann_left` -- calculates the Riemann Left Sum of sin2 from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
 * `shift` -- shifts. For use in simulations.
 * `spi1readeeprom` -- using the SPI1 peripheral to read out 16 bytes of the 25AA010A EEPROM slave, one byte at the time, using hardware Slave Select. Uses UART1. Works on the board.
@@ -982,7 +982,7 @@ Change the start locations of the memories by changing the constants. Make sure 
           RAM_ADDRESS_BITS : integer;
 ----
 
-Note that you also have to make changes to the linker script. In the file \lstinline|riscv.ld|, at the top you will find the following lines. Change the origins in accordance with the VHDL description.
+Note that you also have to make changes to the linker script. In the file `riscv.ld`, at the top you will find the following lines. Change the origins in accordance with the VHDL description.
 
 [source,subs=attributes+]
 ----

@@ -1525,6 +1525,7 @@ void uart1_init(void)
 {
     /* Set baud rate generator */
     UART1->BAUD = F_CPU/BAUD_RATE-1;
+	UART1->CTRL = 0x01;
 }
 ----
 
@@ -1787,4 +1788,9 @@ void external_timer_handler(void)
 ----
 
 Normally, this code is placed in the interrupt handler. MTIME and MTIMEH are read-only shadowed in the CSR time registers.
+
+[appendix]
+== I/O registers
+
+link:registers.pdf[Read the documentation on the I/O registers]
 

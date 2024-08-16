@@ -1,5 +1,5 @@
 .old/*
-docs/thuas-riscv.synctex.gz
+docs/*.synctex.gz
 sw-test/*
 rtl/thuas-riscv-test/*
 

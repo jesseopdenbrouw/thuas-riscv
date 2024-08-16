@@ -2,7 +2,6 @@
 Jesse op den Brouw <j.e.j.opdenbrouw@hhs.nl>
 :toc:
 
-[.text-justify]
 
 == Abstract
 
@@ -304,7 +303,7 @@ The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 308
 
 .The DE0-CV board.
 [[fig_de0cv]]
-image::inmages/image-de0-cv.jpg[]
+image::images/image-de0-cv.jpg[]
 
 Disabling the bootloader saves one copy of the ROM and the bootloader ROM. Then the used RAM is 786,432 bits (25%). Disabling registers in RAM saves 2048 bits, but increases the ALM count. You may see some warnings from the synthesizer.
 
@@ -1525,7 +1524,7 @@ void uart1_init(void)
 {
     /* Set baud rate generator */
     UART1->BAUD = F_CPU/BAUD_RATE-1;
-	UART1->CTRL = 0x01;
+    UART1->CTRL = 0x01;
 }
 ----
 

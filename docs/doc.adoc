@@ -1,5 +1,6 @@
 = The THUAS RISC-V 32-bit processor in VHDL
 Jesse op den Brouw <j.e.j.opdenbrouw@hhs.nl>
+:icons: font
 :toc:
 
 

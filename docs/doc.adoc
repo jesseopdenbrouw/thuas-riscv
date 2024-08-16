@@ -875,6 +875,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `flash` -- flash the DE0-CV board leds, works on the board.
 * `float` -- some floating point float computations. For simulation.
 * `FreeRTOSdemo` -- implementation of blinky demo and full demo of the FreeRTOS real-time operating system. Works on the board. Needs more tests with interrupts.
+* `gamma` -- program to test a one-argument function from the math library. Works on the board.
 * `global` -- test for globals and local statics with initialization. For simulation
 * `hex_display` -- program that reads 8 switches from the board and display them as a 2-digit hexadecimal value on the 7-segment display. Works on the board. Note that on the DE0-CV board, the decimal points cannot be used, because they are not connected to FPGA pins.
 * `i2c1findslaves` -- program that uses the I2C1 peripheral to find slaves on the I2C bus. Prints out the found slaves addresses on the terminal. Works on the board.
@@ -1066,7 +1067,7 @@ Note that the ROM can only be (over)written with words on a 4-byte boundary.
 
 
 == Using the on-chip debbuger
-*note: experimental* +
+:warning: *note: experimental* +
 The on-chip debugger (OCD) follows the guidelines of the RISC-V debug specification version 1.0.0-rc3 (https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf). The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module \(TM\). The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
 
 * Standard JTAG access port.

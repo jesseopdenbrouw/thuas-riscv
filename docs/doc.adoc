@@ -703,6 +703,7 @@ gcc version 13.2.0 (gc891d8dc23e)
 ----
 
 When using Windows, best is to use precompiled binaries. See <<sec_win>>.
+
 === Register subset
 It is possible to compile the toolchain to only use register `x0` to `x15`. This is called the RISC-V E extension. As a positive side effect, the register file can be cut down from 32 registers to 16 registers, saving 512 memory element. This will lower the ALM count (if placed in ALM flip-flops) and possible speed up the device. A negative side effect is that the pressure on register allocation is higher, possibly increasing instruction count when saving registers on the stack.
 

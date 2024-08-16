@@ -843,7 +843,7 @@ void timer1_handler(void)
 
 
 == Software programs
-The `sw` directory contains programs that run on this RISC-V processor. Under Linux, change to the `|sw` directory, customize the file `common.make` and issue the `make` command. Now all programs are compiled as is a THUAS-specific library. To upload a program to the RISC-V processor, change to one of the program directories, reset the processor and issue the command `make upload`. This will upload the corresponding S-record file to the processor using UART1. Make sure no terminal program (e.g. PuTTY) is connected. The bootloader hardware must be installed.
+The `sw` directory contains programs that run on this RISC-V processor. Under Linux, change to the `sw` directory, customize the file `common.make` and issue the `make` command. Now all programs are compiled as is a THUAS-specific library. To upload a program to the RISC-V processor, change to one of the program directories, reset the processor and issue the command `make upload`. This will upload the corresponding S-record file to the processor using UART1. Make sure no terminal program (e.g. PuTTY) is connected. The bootloader hardware must be installed.
 
 After `make` is run, a static library called `libthuasrv32.a` is available with functions to use the I/O and trap related functions. You need to supply the library to the linker. Also, two `specs` files are available. Use `--specs=<path-to>/thuas.specs` for including the THUAS library and use `--specs=<path-to>/nano.specs` for including the `nano` library *without* the `gloss` library (used for ECALL-driven system calls). If you need ECALL-driven system calls, use `--specs=nano.specs` (without a path name) to use the RISC-V specific `nano` library *with* the `gloss` library.
 
@@ -863,7 +863,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `add64` -- simple 64-bit addition. For use in the simulator.
 * `assembler` -- a simple assembler program. For use in the simulator.
 * `basel_problem` -- a program that calculates the sum of the inverses of the squares of natural numbers, up to 1000. For use in the simulator. Used to test the divider.
-* `bootloader` -- the bootloader program, placed in the bootloader ROM. It has separate startup and linker files. Uses UART1. Works on the board.
+* `bootloader` -- the bootloader program, placed in the bootloader ROM. It has a separate linker file. Uses UART1. Works on the board.
 * `clock` -- a simple clock using the CSR MTIME and MTIMEH registers to fetch the time since last reset. Uses UART1. Works on the board.
 * `complex` -- a simple program that shows the use of complex numbers. Works on the board.
 * `coremark` -- implementation of the CoreMark test suite. Uses UART1. Works on the board.
@@ -888,13 +888,13 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `ioadd` -- adds the lower 5 switches to the upper 5 switches and displays the result on the leds. Tests addition, shifting and I/O. Works on the board.
 * `linked_list` -- example on how to use linked lists. This program soups up all available dynamic RAM but does not penetrate the reserved stack space. Uses UART1. Works on the board.
 * `malloc` -- example to test `malloc` and friends. Works. Used in simulations.
-* `mcountinhibit| -- program to test the `mcountinhibit` CSR. Uses UART1. Works on the board.
+* `mcountinhibit` -- program to test the `mcountinhibit` CSR. Uses UART1. Works on the board.
 * `mhpmcounter` -- program to test the HPM counters. The Zihpm extension must be enabled for proper usage. Works on the board.
 * `monitor` -- simple monitor program. Works on the board. Uses strings, UART1, RAM, ROM, I/O and `sprintf` (and therefore `malloc` et al.).
 * `mult` -- integer multiplication with the C library. Set to the E extension with no hardware multiply/divide support. For simulations.
-* `mxhw` -- Program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized processor to the terminal.
+* `mxhw` -- Program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized processor to the terminal. Works on the board.
 * `qsort` -- sorts an integer array using the `qsort` C library function and prints the result to UART1. Works on the DE0-CV board.
-* `riemann_left` -- calculates the Riemann Left Sum of sin2 from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
+* `riemann_left` -- calculates the Riemann Left Sum of sin^2 from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
 * `shift` -- shifts. For use in simulations.
 * `spi1readeeprom` -- using the SPI1 peripheral to read out 16 bytes of the 25AA010A EEPROM slave, one byte at the time, using hardware Slave Select. Uses UART1. Works on the board.
 * `spi1softnss` -- as `spi1readeeprom`, using software Slave Select.

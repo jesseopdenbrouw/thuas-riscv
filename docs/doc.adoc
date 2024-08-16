@@ -1121,8 +1121,64 @@ To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug speci
 
 Note: the OCD is highly experimental. We tested the OCD with OpenOCD, GDB and Eclipse-CDT. When there are issues, please report them to J.E.J.opdenBrouw@hhs.nl.
 
-Tests with the OCD were conducted with an FT2232H MINI MODULE. See https://ftdichip.com/products/ft2232h-mini-module/. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB en Eclipse-CDT.
+Tests with the OCD were conducted with an FT2232H MINI MODULE. See https://ftdichip.com/products/ft2232h-mini-module/. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB and Eclipse-CDT.
 
+=== Using OpenOCD
+
+To start a debug session, start OpenOCD (at least version 0.12.0):
+
+[source,subs=attributes+]
+----
+openocd -f <path/to/>openocd.cfg
+----
+
+If OpenOCD can contact the DTM and finds a hart, the response is something like:
+
+[source,subs=attributes+]
+----
+Open On-Chip Debugger 0.12.0
+Licensed under GNU GPL v2
+For bug reports, read
+	http://openocd.org/doc/doxygen/bugs.html
+Info : clock speed 1000 kHz
+Info : JTAG tap: thuasrv32.cpu tap/device found: 0x0face001 (mfg: 0x000 (<invalid>), part: 0xface, ver: 0x0)
+Info : datacount=2 progbufsize=0
+Warn : We won't be able to execute fence instructions on this target. Memory may not always appear consistent. (progbufsize=0, impebreak=0)
+Info : Examined RISC-V core; found 1 harts
+Info :  hart 0: XLEN=32, misa=0x40001100
+Info : starting gdb server for thuasrv32.cpu.0 on 3333
+Info : Listening on port 3333 for gdb connections
+Info : JTAG tap: thuasrv32.cpu tap/device found: 0x0face001 (mfg: 0x000 (<invalid>), part: 0xface, ver: 0x0)
+Target HALTED. Ready for remote connections.
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+----
+
+Now we can connect to OpenOCD using `telnet`:
+
+[source,subs=attributes+]
+----
+telnet localhost 4444
+----
+
+and see a reponse:
+
+[source,subs=attributes+]
+----
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+Open On-Chip Debugger
+> 
+----
+
+We can issue commands:
+
+[source,subs=attributes+]
+----
+> get_reg s1 
+s1 0x00000000
+----
 
 == Support for Windows tools [[sec_win]]
 

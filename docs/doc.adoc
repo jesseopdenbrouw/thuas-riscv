@@ -327,8 +327,8 @@ Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed
 | Full OCD (all extensions, OCD)               | 86 | 4463 | 3470 | 1,313,792
 |===
 
-=== other boards
-We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:bords[here].
+=== Other boards
+We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../bords[here].
 
 
 

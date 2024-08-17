@@ -16,7 +16,7 @@ This is work in progress. Things will certainly change in the future.
 == Introduction
 This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and Sdtrig extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic DE0-CV board.
 
-The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), Writes take two clock cycles. RAM and I/O. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps and on-chip debugging. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
+The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. Writes take two clock cycles. ROM and RAM are implemented using onboard RAM block (which are buffered with an output register). The I/O output has a buffer register for reading to speed up the processor. The processor has a basic Control and Status Registers set, offering [M]CYCLE and [M]CYCLEH (completed clock cycles), TIME and TIMEH (time since last reset, in microseconds, shadowed from memory mapped registers), [M]INSTRET and [M]INSTRETH (number of retired instructions), and a basic set of CSRs to handle traps and on-chip debugging. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. CSR operations require one clock cycle.
 
 The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests showed an average CPI of 1.73 with a throughput of 1.93 coremark/MHz (4000 runs).
 
@@ -326,6 +326,10 @@ Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed
 | Default OCD (no bootloader, OCD)             | 87 | 3490 | 3005 | 1,313,792
 | Full OCD (all extensions, OCD)               | 86 | 4463 | 3470 | 1,313,792
 |===
+
+=== other boards
+We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:bords[here].
+
 
 
 == Processor hardware
@@ -650,7 +654,8 @@ In your home directory, enter the command
 ----
 git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
 ----
-Wait for the cloning to end (takes a long time, about 30 minutes on a Zbook G5 2020 with a 10 MB/s internet connection)
+Wait for the cloning to end (takes a long time, about 30 minutes on a Zbook G5 2020 with a 10 MB/s internet connection).
+Note: the toolchain is about 6.65 GB of data!
 Change to the directory with
 [source,subs=attributes+]
 ----
@@ -677,7 +682,12 @@ Enter:
 ----
 ../configure --prefix=/opt/riscv32 --with-arch=rv32im --with-abi=ilp32 --with-multilib-generator="rv32im_zicsr_zba_zbs_zicond-ilp32--;rv32e-ilp32e--"
 ----
-Now enter the `make` command: `sudo make -j 6` +
+Now enter the `make` command:
+[source,subs=attributes+]
+----
+sudo make -j 6
+----
+
 Here `make` has to run with supervisor privilege, because the toolchain is put in `/opt/riscv32`. This takes a some time (about 15 minutes on a Zbook G5). At some points the compilation seems to hang, but it is just compiling complicated C-files. By the way, you will see a lot of warnings.
 Now that the toolchain is setup, we have to put the path into the `$PATH` environment variable so enter
 [source,subs=attributes+]
@@ -1111,7 +1121,7 @@ The hart can be in five ''states'': resetting, running, halting, halted and resu
 
 *Single-stepping* When the hart is halted, use the OpenOCD command `step` to execute exactly one instruction. Note that interrupts are blocked while single-stepping. Note that the `cycle` and `time` counters keep on running.
 
-*Software Breakpoints* The OCD can insert instruction address breakpoints and run a hart until a breakpoint is hit. This is done by replacing the instruction at the breakpoint address with the EBREAK instruction. As such, the EBREAK instruction can not be used in user programs. When the breakpoint is hit, the hart enters debug mode. To set up a software breakpoint, use the OpenOCD command `bp <address> 4`.
+*Software Breakpoints* The OCD can insert instruction address breakpoints and run a hart until a breakpoint is hit. This is done by replacing the instruction at the breakpoint address with the EBREAK instruction. As such, the EBREAK instruction cannot be used in user programs. When the breakpoint is hit, the hart enters debug mode. To set up a software breakpoint, use the OpenOCD command `bp <address> 4`.
 
 *Hardware Breakpoint* the hart is equipped with one hardware breakpoint. This is useful when the ROM is read-only. When hitting the hardware breakpoint, the core enters debug mode. To set up a hardware breakpoint, use the OpenOCD command `bp <address> 4 hw`.
 
@@ -1203,19 +1213,19 @@ Some future plans:
 
 [appendix]
 == C Runtime startup code
-Before `main` is called, the C Runtime startup code (normally in a file called `crt0.s`, maybe we change that in the future) does some initialization:
+Before `main` is called, the C Runtime startup code (file `startup.c` in the `crt` directory) does some initialization:
 
 * Set up the trap vector address to catch early traps.
 * Load the Stack Pointer with the end address +1 of the RAM.
 * Load the Global Pointer with a suitable address.
 * Initialize (clear) the BBS section with 0, for globals/statics without initialization.
-* Initialize globals/statics *with* initialization.
+* Initialize globals/statics with initialization.
 * Call the global constructors.
 * Call `main`.
 * Call the global destructors.
 * Call `exit`
 
-Although this is a bare metal processor, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in the code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copies to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
+Although this is a bare metal processor, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in the code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copied to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
 
 [source,c,subs=attributes+]
 ----

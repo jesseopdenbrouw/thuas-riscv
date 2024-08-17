@@ -1095,22 +1095,22 @@ From the debug specification, Chapter 3, there is a list of requirements. Some a
 .List of requirements vor the on-chip debugger.
 [cols="1,1,1"]
 |===
-|Requirement                                                      | required   | implemented
+|Requirement                                                      | required | implemented
 
-|Give the debugger necessary information about the implementation | Required  | yes
-|Allow any individual hart to be halted and resumed.              | Required  | yes
+|Give the debugger necessary information about the implementation | Required | yes
+|Allow any individual hart to be halted and resumed.              | Required | yes
 |Provide status on which harts are halted.                        | Required | yes
-|Provide abstract read and write access to a halted hart’s GPRs.  | Required|& yes
+|Provide abstract read and write access to a halted hart’s GPRs.  | Required | yes
 |Provide access to a reset signal that allows debugging from the very first instruction after reset. | Required | yes
 |Provide a mechanism to allow debugging harts immediately out of reset (regardless of the reset cause). | Optional | yes
-|Provide abstract access to non-GPR hart registers.              | Optional | yes
+|Provide abstract access to non-GPR hart registers.               | Optional | yes
 |Provide a Program Buffer to force the hart to execute arbitrary instructions. | Optional | no
-|Allow multiple harts to be halted, resumed, and/or reset at the same time. | Optional | n.a.
-|Allow memory access from a hart’s point of view.                | Optional | yes
-|Allow direct System Bus Access.                                 | Optional | no
-|Group harts. When any hart in the group halts, they all halt.   | Optional | n.a.
+|Allow multiple harts to be halted, resumed, and/or reset at t he same time. | Optional | n.a.
+|Allow memory access from a hart’s point of view.                 | Optional | yes
+|Allow direct System Bus Access.                                  | Optional | no
+|Group harts. When any hart in the group halts, they all halt.    | Optional | n.a.
 |Respond to external triggers by halting each hart in a configured group. | Optional | n.a.
-|Signal an external trigger when a hart in a group halts.        | Optional | n.a.
+|Signal an external trigger when a hart in a group halts.         | Optional | n.a.
 |===
 
 The hart can be in five ''states'': resetting, running, halting, halted and resuming. When resetting, the reset synchronizer creates a three-clock-cycle reset signal after the reset signal is deasserted. It takes two clock cycles for the first instruction to be executed. In running, the hart executes instructions. Then, it is not possible to examine registers or memory. When a halt request is asserted, the core does not execute the current instruction, but enters the halted state. In the halted state (coined ''debug''), the hart is not executing instructions, and registers and memory may be examined. When resuming, the hart flushes the pipeline and starts executing instructions. All transitions take up a few clock cycles.
@@ -1127,7 +1127,7 @@ The hart can be in five ''states'': resetting, running, halting, halted and resu
 
 *WFI Instruction* When the hart is halting when executing the WFI instruction, the hart enters debug mode. When stepping, the WFI instruction is treated as a NOP instruction.
 
-To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification. When using OCD, the bootloader is usually disabled.
+To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while it isn't. When using OCD, the bootloader is usually disabled.
 
 Note: the OCD is highly experimental. We tested the OCD with OpenOCD, GDB and Eclipse-CDT. When there are issues, please report them to J.E.J.opdenBrouw@hhs.nl.
 
@@ -1164,6 +1164,8 @@ Info : Listening on port 6666 for tcl connections
 Info : Listening on port 4444 for telnet connections
 ----
 
+Note: the JTAG clock speed (here 1000 kHz) should be less than 1/5 of the RISC-V system clock.
+
 Now we can connect to OpenOCD using `telnet`:
 
 [source,subs=attributes+]
@@ -1196,6 +1198,8 @@ There is support for Windows tools. Both `srec2vhdl` and `upload` can be build w
 
 Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`, `mkdir` etc.). Please have a look at {https://xpack.github.io/dev-tools/riscv-none-elf-gcc/
 and https://xpack.github.io/dev-tools/windows-build-tools/. For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look at https://xpack.github.io/dev-tools/gcc/. OpenOCD can be found at https://xpack-dev-tools.github.io/openocd-xpack/.
+
+Before you can use OpenOCD with the FTDI FT2232H device, you need to replace the default driver with the libusb driver. This can easily be done with https://zadig.akeo.ie/[Zadig]. An example is given https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/windows[here].
 
 
 == Future plans (or not) and issues

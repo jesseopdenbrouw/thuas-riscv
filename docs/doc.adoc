@@ -328,7 +328,7 @@ Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed
 |===
 
 === Other boards
-We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../bords[here].
+We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../boards[here].
 
 
 

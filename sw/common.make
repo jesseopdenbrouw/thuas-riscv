@@ -59,4 +59,4 @@ SPECSSTRING = --specs=../lib/thuas.specs --specs=../lib/nano.specs
 
 # Options for the UPLOAD program
 UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0
-#UPLOAD_OPTIONS= -nv -d COM3
+#UPLOAD_OPTIONS= -nv -d COM1

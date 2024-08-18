@@ -1196,8 +1196,8 @@ s1 0x00000000
 
 There is support for Windows tools. Both `srec2vhdl` and `upload` can be build with GCC MinGW and Visual Studio. For building the RISC-V programs, a RISC-V GNU GCC compiler is needed.
 
-Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`, `mkdir` etc.). Please have a look at {https://xpack.github.io/dev-tools/riscv-none-elf-gcc/
-and https://xpack.github.io/dev-tools/windows-build-tools/. For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look at https://xpack.github.io/dev-tools/gcc/. OpenOCD can be found at https://xpack-dev-tools.github.io/openocd-xpack/.
+Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`, `mkdir` etc.). Please have a look at {https://xpack.github.io/dev-tools/riscv-none-elf-gcc/[xPack GNU RISC-V Embedded GCC]
+and https://xpack.github.io/dev-tools/windows-build-tools/[The xPack Windows Build Tools]. For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look at https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)]. OpenOCD can be found at https://xpack-dev-tools.github.io/openocd-xpack/[here].
 
 Before you can use OpenOCD with the FTDI FT2232H device, you need to replace the default driver with the libusb driver. This can easily be done with https://zadig.akeo.ie/[Zadig]. An example is given https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/windows[here].
 

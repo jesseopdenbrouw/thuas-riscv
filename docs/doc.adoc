@@ -643,12 +643,12 @@ The processor can run C and {cpp} programs that are compiled using the GNU C/{cp
 You need a current GNU C/{cpp} compiler installed or your Linux box. You also need all essential building tools:
 [source,subs=attributes+]
 ----
-apt install autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
+sudo apt install autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
 ----
 You need the texinfo package. On Ubuntu et al. issue
 [source,subs=attributes+]
 ----
-apt install texinfo
+sudo apt install texinfo
 ----
 In your home directory, enter the command
 [source,subs=attributes+]

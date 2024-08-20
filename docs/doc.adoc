@@ -3,6 +3,11 @@ Jesse op den Brouw <j.e.j.opdenbrouw@hhs.nl>
 :toc:
 
 
+Jesse op den Brouw
+The Hague University of Applied Sciences
+Department of Electrical Engineering
+
+
 == Abstract
 
 This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba and Zbs (bit operations), Zihpm (extra counters) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 23.1 and QuestaSim Intel Starter Edition 2023.3. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
@@ -40,6 +45,13 @@ The core:
 * The Local Interrupt Controller (LIC) determines which trap is to be served.
 * The memory unit interfaces with memory.
 * The debug unit regulates on-chip debugging.
+
+A simplified block diagram of the core is given in <<fig_core>>
+
+.Block diagram of the core.
+[[fig_core]]
+image::images/core.svg[FSM]
+
 
 The remaining building blocks:
 

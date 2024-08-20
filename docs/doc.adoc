@@ -3,8 +3,8 @@ Jesse op den Brouw <j.e.j.opdenbrouw@hhs.nl>
 :toc:
 
 
-Jesse op den Brouw
-The Hague University of Applied Sciences
+Jesse op den Brouw +
+The Hague University of Applied Sciences +
 Department of Electrical Engineering
 
 

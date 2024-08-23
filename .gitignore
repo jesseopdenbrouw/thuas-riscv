@@ -2,4 +2,4 @@
 docs/*.synctex.gz
 sw-test/*
 rtl/thuas-riscv-test/*
-
+eclipse/*

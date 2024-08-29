@@ -120,7 +120,7 @@ begin
                                                  I_mem_response_ram.store_misaligned_error or
                                                  I_mem_response_io.store_misaligned_error; 
 
-                                                -- ROM @ 0xxxxxxx, 256M space, read-write
+        -- ROM @ 0xxxxxxx, 256M space, read-write
         if I_bus_request.addr(31 downto 28) = ROM_HIGH_NIBBLE then
             if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
                 O_mem_request_rom.cs <= '1';

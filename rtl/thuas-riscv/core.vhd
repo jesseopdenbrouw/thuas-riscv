@@ -1817,7 +1817,7 @@ begin
                                 md.divisor2 <= ("0" & unsigned(b_v) & "0");
                                 md.divisor3 <= ("0" & unsigned(b_v) & "0") + ("00" & unsigned(b_v));
                             end if;
-                            count_v := count_v + 1;
+                            count_v := 1;
                             md.div_ready <= '0';
                             -- Determine the sign of the quotient and remainder
                             if (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '0' and (a_v(31) /= b_v(31)) and b_v /= all_zeros_c) or (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '1' and a_v(31) = '1') then
@@ -1917,7 +1917,7 @@ begin
                             else
                                 md.divisor <= unsigned(b_v); 
                             end if;
-                            count_v := count_v + 1; 
+                            count_v := 1; 
                             md.div_ready <= '0';
                             -- Determine the result sign
                             if (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '0' and (a_v(31) /= b_v(31)) and b_v /= all_zeros_c) or (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '1' and a_v(31) = '1') then

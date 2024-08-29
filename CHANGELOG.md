@@ -10,6 +10,9 @@ As an example, see below:
 mimpid = 0x01040312 -> Version 01.04.03.12 -> v1.4.3.12
 ```
 
-| Date       | Version  | Comment | Ticket |
-|:----------:|:--------:|:-------:|:------:|
-| 13.08.2024 | 1.0.0.0  | Based on version 0.9.10.1 + on-chip debugging |        |
+All dates are in dd.mm.yyyy format.
+
+| Date       | Version  | Comment | Issue |
+|:----------:|:--------:|:-------:|:-----:|
+| 13.08.2024 | 1.0.0.0  | Based on version 0.9.10.1 + on-chip debugging | |
+| 29.08.2024 | 1.0.0.1  | tdo = tdi when OCD is disabled, minor change in multipliers | |

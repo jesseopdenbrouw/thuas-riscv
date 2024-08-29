@@ -65,7 +65,7 @@ The remaining building blocks:
 * The debug transport module (DTM) is an interface between the DMI and the external debug hardware.
 
 === Registers
-The register file consists of thirty-two 32-bit registers denoted by `x0` to `x31`. Internally, the registers use Big Endian format. Register `x0` (alias `zero`) is hardwired to all zeros. Writing this register has no effect. Reading this register returns all zero bits. Normally, the `x`-names are not used but may be handy when simulating the designs. See Table <<tab_reg>>.
+The register file consists of thirty-two 32-bit registers denoted by `x0` to `x31`. Internally, the registers use Big Endian format. Register `x0` (alias `zero`) is hardwired to all zeros. Writing this register has no effect. Reading this register returns all zero bits. Normally, the `x`-names are not used but may be handy when simulating the designs. See <<tab_reg>>.
 A register can be written to, and two register can be selected for data and/or base address.
 
 .RISC-V registers
@@ -99,7 +99,7 @@ Note that the computation of jump target addresses is handled by the Program Cou
 
 === PC
 
-The Program Counter contains the address of the currently fetched instruction. The address is always on a 4-byte boundary although function calls and conditional jump (JAL, JALR en B_xx_ instructions) can be on non 4-byte boundaries (the C compiler will always create 4-bytes boundaries). The PC (or rather the hardware around the PC) handles the address calculations of jumps and branches taken.
+The Program Counter contains the address of the currently fetched instruction. The address is always on a 4-byte boundary although function calls and conditional jump (JAL, JALR en B$xx$ instructions) can be on non 4-byte boundaries (the C compiler will always create 4-bytes boundaries). The PC (or rather the hardware around the PC) handles the address calculations of jumps and branches taken.
 
 === Instruction Decoder
 
@@ -190,7 +190,7 @@ For trap handling, the following registers are implemented:
 * `mepc` -- contains the PC at point of trap of the *currently* executing instruction.
 * `mcause` -- contains the cause of the trap as set forward in ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture''. For local interrupts, additional codes are used.
 * `mtval` -- contains the address on the address bus when a trap occurs, or all-zero bits if not relevant.
-* `mip` -- contains the pending interrupts. For the lower 16 bits, only `MTIP` is implemented. The upper 16 bits are used for local interrupts. This register is read-only.
+* `mip` -- contains the pending interrupts. For the lower 16 bits, `MTIP` and `MSIP` are implemented. The upper 16 bits are used for local interrupts. This register is read-only.
 
 For counting purposes, the following registers are implemented:
 
@@ -218,7 +218,7 @@ For on-chip debugging purposes, there are six CSRs:
 
 * `dcsr` -- this register holds information between the DM and de hart.
 * `dpc` -- this register hold the PC value of the instruction to be executed when the core enters debug mode.
-* `tselect` -- this register is used to select a hardware breakpoint, since there is only one hardware breakpoint available this register is hardwrired to all-zero bits.
+* `tselect` -- this register is used to select a hardware breakpoint, since there is only one hardware breakpoint available this register is hardwired to all-zero bits.
 * `tdata1` -- this register selects the trigger type for hardware triggering, only type 6 is supported, and only instruction address breakpoint is available.
 * `tdata2` -- this register holds the instruction address of the breakpoint.
 * `tinfo` -- this register holds additional trigger information.
@@ -257,7 +257,7 @@ The asynchronous reset is active high. All registers are either set to 0 or 1 wh
 
 === Implemented instructions
 
-For the processor, all RV32IM Unprivileged instructions are implemented but the FENCE instruction act as a no-operation (NOP). ECALL and EBREAK are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, WFI is implemented and halts the processor at (PC + 4). MRET is used to return from an exception or an interrupt. FENCE.I acts as a NOP.
+For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction act as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
 
 
 == Memories
@@ -331,7 +331,7 @@ To find the best compilation result for speed and/or area, we have to tweak the 
 
 Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed is set to 1 and the optimization is set to balanced. The total amount of ALMs is 18480. The total amount of RAM bits is 3153920.
 
-.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model).
+.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.0.0.0).
 [[tab_metrics]]
 [cols="1,1,1,1]
 |===
@@ -770,6 +770,8 @@ The trap handler's entry address must be set up using `set_mtvec`. Next, set up 
 
 [source,c,subs=attributes+]
 ----
+#include <thuasrv32.h>
+
 int main(void)
 {
     set_mtvec(trap_handler, TRAP_DIRECT_MODE);
@@ -794,6 +796,8 @@ In vectored mode, interrupts are routed to individual interrupt handlers and exc
 
 [source,c,subs=attributes+]
 ----
+#include <thuasrv32.h>
+
 __attribute__ ((naked))
 void trap_handler_jump_table(void)
 {
@@ -881,6 +885,10 @@ In the `sw` directory, there are a number of software programs available. First,
 ** `riscv-largerom.ld` -- linker script with enlarged ROM: ROM = 128 kB, RAM = 32 kB, I/O = 16 kB. You need to update the ROM settings in the hardware.
 ** `riscv-big.ld` -- linker script with enlarged ROM and RAM: ROM = 128 kB, RAM = 64 kB, I/O = 16 kB. You need to update the ROM and RAM settings in the hardware.
 * `crt` -- contains the startup files.
+** `empty.S` -- contains only the `_start` label.
+** `simple.S` -- contains the `_start` label and sets up the global pointer and stack pointer.
+** `minimal.S` -- contains `_start` label, sets up the global pointer and stack pointer, calls `main` and halts the processor.
+** `startup.c` -- full-fledged startup code for any C program executable.
 * `bin` -- contains the binaries of `srec2vhdl` and `upload`. This directory is created when running `make`.
 * `include` -- contains the header files for the design. Use `#include <thuasrv32.h>` in programs.
 * `lib` -- contains the libraries for the design. Link against `libthuasrv32.a`.
@@ -936,7 +944,6 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `timer2pwm` -- Shows how use TIMER2's PWM and Output Compare feature. Works on the board.
 * `timer2ic` -- Shows how use TIMER2's Input Capture feature. Works on the board.
 * `trig` -- some float trigonometry functions for float and double. Prints results to UART1. This is a big binary. Works on the board.
-* `upload` -- a PC program to upload an S-record file using the bootloader.
 * `uart_cpp` -- Simple {cpp} UART program. Makes use of a singleton design pattern. Works on the board.
 * `uart_interrupt` -- Example program on how to use the UART1 interrupt for transmiiting and receiving data. Works on the board.
 * `uart_printf` -- simple program that prints an integer, a pointer, a float and a double to the terminal using `printf`, this is a big binary. Works on the board.
@@ -1106,7 +1113,7 @@ The on-chip debugger (OCD) follows the guidelines of the RISC-V debug specificat
 * Read/write all core registers (GPR and CSR),
 * Read/write memory.
 
-Accessing core registers and memory is done by Abstract Commands. There is no support for program buffer (progbuf) and System Bus Access. This means that the debugger cannot execute the `FENCE` instruction. That is not a problem, since the core will wait for a memory operation to be completed.
+The OCD is an all-hardware solution. Accessing core registers and memory is done by Abstract Commands. There is no support for program buffer (progbuf) and System Bus Access. This means that the debugger cannot execute the `fence` instruction (or any other instruction). That is not a problem, since the core will wait for a memory operation to be completed.
 
 From the debug specification, Chapter 3, there is a list of requirements. Some are mandatory, others are optional. All requirements for multiple harts are not applicable.
 
@@ -1218,11 +1225,15 @@ Sometimes, OpenOCD will cache the contents of the registers. In that case, use t
 s1 0x05f5e100
 ----
 
+=== Implications on the hardware design
+The OCD takes up a fair amount of ALMs and lowers the $f_{max}$ with about 5 MHz.
+
+
 == Support for Windows tools [[sec_win]]
 
 There is support for Windows tools. Both `srec2vhdl` and `upload` can be build with GCC MinGW and Visual Studio. For building the RISC-V programs, a RISC-V GNU GCC compiler is needed.
 
-Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`, `mkdir` etc.). Please have a look at https://xpack.github.io/dev-tools/riscv-none-elf-gcc/[xPack GNU RISC-V Embedded GCC] and https://xpack.github.io/dev-tools/windows-build-tools/[The xPack Windows Build Tools]. For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look at https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)]. OpenOCD can be found at https://xpack-dev-tools.github.io/openocd-xpack/[here].
+Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`, `mkdir` etc.). Please have a look at https://xpack.github.io/dev-tools/riscv-none-elf-gcc/[xPack GNU RISC-V Embedded GCC] and https://xpack.github.io/dev-tools/windows-build-tools/[The xPack Windows Build Tools]. For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look at https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)]. OpenOCD can be found at https://xpack-dev-tools.github.io/openocd-xpack/[xPack OpenOCD].
 
 Before you can use OpenOCD with the FTDI FT2232H device, you need to replace the default driver with the libusb driver. This can easily be done with https://zadig.akeo.ie/[Zadig]. An example is given https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/windows[here].
 

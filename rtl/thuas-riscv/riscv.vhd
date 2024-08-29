@@ -750,7 +750,8 @@ begin
     end generate debuggen;
     
     notdebuggen : if not HAVE_OCD generate
-        O_tdo <= 'Z';
+        -- Connect TDO to TDI, so that the scan chain stays intact
+        O_tdo <= I_tdi;
         reset_req_int <= '0';
         halt_req_int <='0';
         resume_req_int <= '0';

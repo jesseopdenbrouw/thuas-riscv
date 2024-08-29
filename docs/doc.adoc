@@ -1219,9 +1219,9 @@ s1 0x00000000
 
 Sometimes, OpenOCD will cache the contents of the registers. In that case, use the `-force` option:
 
-> get_reg -force s1 
 [source,subs=attributes+]
 ----
+> get_reg -force s1 
 s1 0x05f5e100
 ----
 

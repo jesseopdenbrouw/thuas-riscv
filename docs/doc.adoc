@@ -247,7 +247,7 @@ Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction S
 
 === Multiply/Divide Unit
 
-The processor is equipped with a hardware integer multiply/divide unit. All multiply/divide instructions are supported (`MUL`, `MULH`, `MULHSU`, `MULHU`, `DIV`, `DIVU`, `REM`, `REMU`) and the result is fed to the ALU. A multiplication takes three clock cycles (one clock-in, one multiply, one clock-out). For division, two versions are available. By default, the divider needs 18 clocks (one clock-in, 16 divide, one clock-out) for a division using a poor man's radix-4 division unit. As an alternative, a simple radix-2 division unit can be selected taking 34 clock cycles (one clock-in, 32 divide, one clock-out) to do the division. Thus, the radix-4 divider unit is faster, but needs more cells. The radix-2 divider unit is slower, but needs less cells. You have to enable the M standard support in the compiler. The multiplier uses special DSP units in the Cyclone V. Most regular FPGAs have onboard multipliers. Note that when executing an operation, the pipeline is stalled. Note that a trap request is postponed until the operation is completed and the result is saved in the register file. Selecting the radix-4 division has a minimum impact on the clock speed.
+The processor is equipped with a hardware integer multiply/divide unit. All multiply/divide instructions are supported (`mul`, `mulh`, `mulhsu`, `mulhu`, `div`, `divu`, `rem`, `remu`) and the result is fed to the ALU. A multiplication takes three clock cycles (one clock-in, one multiply, one clock-out). For division, two versions are available. By default, the divider needs 18 clocks (one clock-in, 16 divide, one clock-out) for a division using a poor man's radix-4 division unit. As an alternative, a simple radix-2 division unit can be selected taking 34 clock cycles (one clock-in, 32 divide, one clock-out) to do the division. Thus, the radix-4 divider unit is faster, but needs more cells. The radix-2 divider unit is slower, but needs less cells. You have to enable the M standard support in the compiler. The multiplier uses special DSP units in the Cyclone V. Most regular FPGAs have onboard multipliers. Note that when executing an operation, the pipeline is stalled. Note that a trap request is postponed until the operation is completed and the result is saved in the register file. Selecting the radix-4 division has a minimum impact on the clock speed.
 
 === Debug Module and Debug Transport Module
 
@@ -581,6 +581,8 @@ The pin assignments for the DE0-CV board are as follows. Note that not all signa
 
 Some pins are connected to the onboard GPIO headers. The DE0-CV board has two headers but currently only GPIO 0 is used.
 
+.View of the GPIO headers.
+[[fig_gpio]]
 image::images/de0-cv-gpio.svg[DE0-CV GPIO pin layout]
 
 === Simulation

@@ -97,9 +97,9 @@ begin
               -- Do we have RISC-V embedded (16 registers)?
               HAVE_RISCV_E => false,
               -- Have On-chip debugger?
-              HAVE_OCD => TRUE,
+              HAVE_OCD => false,
               -- Do we have the buildin bootloader?
-              HAVE_BOOTLOADER_ROM => false,
+              HAVE_BOOTLOADER_ROM => TRUE,
               -- Disable CSR address check when in debug mode
               OCD_CSR_CHECK_DISABLE => TRUE,
               -- Do we have integer hardware multiply/divide?

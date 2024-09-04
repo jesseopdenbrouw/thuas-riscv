@@ -344,10 +344,11 @@ begin
                     when cmd_readreg1 =>
                         dm_reg.state <= cmd_readreg2;
                     -- Reading a register takes two cycles, this is cycle 2
+                    -- Note that a CSR is actually read twice, that is not a problem
+                    -- because none of the CSRs have side effects
                     -- In this cycle, data0 is loaded with external data
                     when cmd_readreg2 =>
                         dm_reg.state <= cmd_idle;
-                    -- Writing a register takes two cycles, this is cycle 1
                     -- Writes take 1 cycle for csr, 2 for registers
                     when cmd_writereg1 =>
                         O_dm_core_data_request.writecsr <= '0';
@@ -375,7 +376,7 @@ begin
                         end if;
                     -- Write memory, wait for response
                     when cmd_writemem1 =>
-                    -- One-shot writemem
+                        -- One-shot writemem
                         O_dm_core_data_request.writemem <= '0';
                         if I_dm_core_data_response.ack = '1' then
                             dm_reg.state <= cmd_idle;

@@ -261,7 +261,7 @@ The asynchronous reset is active high. All registers are either set to 0 or 1 wh
 
 === Implemented instructions
 
-For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction act as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
+For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
 
 
 == Memories
@@ -594,7 +594,7 @@ Using VHDL generics, the design can be customized.
 .Customization options for the design.
 [cols="1,1,1,1"]
 |===
-|Generic | Type | Typical | Comment
+|Generic               | Type      | Typical  | Comment
 
 |SYSTEM_FREQUENCY      | integer   | 50000000 | The system frequency in Hz
 |CLOCK_FREQUENCY       | integer   | 1000000  | The clock frequency in Hz

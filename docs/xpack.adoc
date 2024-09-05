@@ -1,0 +1,97 @@
+= Installing xPacks on Windows 11
+
+First you have to install node.js. Goto to the https://nodejs.org/en[Web site] and download the node.js version. See screenshot below.
+
+image::images/download_nodejs.png[]
+
+Start the executable and run the installation:
+
+image::images/startinstall.png[]
+
+Next, accept the license agreement
+
+image::images/end_user_lic.png[]
+
+Next, accept destination folder:
+
+image::images/dest_folder.png[]
+
+Next, select all to be installed:
+
+image::images/setup.png[]
+
+We don't need tools...
+
+image::images/no_tools.png[]
+
+Start the installation
+
+image::images/ready.png[]
+
+Wait a while until the installation is completed
+
+Open a DOS-box and check is `npm` works. Mayby you have to set the `%PATH%` environment variable.
+
+image::images/npm_works.png[]
+
+Now we have to install `xpm`. Just type
+
+-----
+npm install xpm@latest
+-----
+
+Check that `xpm` is installed:
+
+-----
+xpm --version
+-----
+
+It should say something like `0.19.3`.
+
+Now we have to setup a xPack repository:
+Make a folder and change to that folder. Here, I use a folder on the D: disk:
+
+-----
+mkdir riscv
+cd riscv
+xpm init
+-----
+
+Now install the xPack GNU C compiler:
+
+-----
+xpm install @xpack-dev-tools/gcc@latest --verbose
+-----
+
+This takes a while. Check if `gcc` can be found. You may have to add the bin folder to the `%PATH%` environment variable. Here it should be `d:\PRG\riscv\xpacks\.bin`.
+
+Install xPack RISC-V C compiler, Windows build tools and OpenOCD:
+
+-----
+xpm install @xpack-dev-tools/riscv-none-elf-gcc@latest --verbose
+xpm install @xpack-dev-tools/windows-build-tools@latest --verbose
+xpm install @xpack-dev-tools/openocd@latest --verbose
+-----
+
+Now you can use a _busybox_ shell. Just enter:
+
+-----
+sh
+-----
+
+Check that the RISC-V compiler works:
+
+-----
+riscv-none-elf-gcc --version
+-----
+
+It should say something like:
+
+-----
+riscv-none-elf-gcc.exe (xPack GNU RISC-V Embedded GCC x86_64) 14.2.0
+Copyright (C) 2024 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-----
+
+You are up and running!

@@ -14,7 +14,6 @@
  *
  ****************************************************************************
  */
-
 /* For compiler */
 #include <string.h>
 #include <stdlib.h>
@@ -52,6 +51,8 @@ Enumeration     Func_1 ();
         Boolean Reg = true;
 #endif
 
+void Proc_1 (REG Rec_Pointer Ptr_Val_Par);
+
 /* variables for time measurement: */
 
 #ifdef TIMES
@@ -81,7 +82,7 @@ float           Microseconds,
 /* end of variables for time measurement */
 
 
-main ()
+int main (void)
 /*****/
 
   /* main program, corresponds to procedures        */
@@ -155,7 +156,7 @@ main ()
   Begin_Time = (long) time_info.tms_utime;
 #endif
 #ifdef TIME
-  Begin_Time = time ( (long *) 0);
+  Begin_Time = time ( (long long *) 0);
 #endif
 #ifdef MSC_CLOCK
   Begin_Time = clock();
@@ -216,7 +217,7 @@ main ()
   End_Time = (long) time_info.tms_utime;
 #endif
 #ifdef TIME
-  End_Time = time ( (long *) 0);
+  End_Time = time ( (long long *) 0);
 #endif
 #ifdef MSC_CLOCK
   End_Time = clock();
@@ -239,7 +240,7 @@ main ()
   uart1_printf ("Arr_2_Glob[8][7]:    %d\r\n", Arr_2_Glob[8][7]);
   uart1_printf ("        should be:   Number_Of_Runs + 10\r\n");
   uart1_printf ("Ptr_Glob->\r\n");
-  uart1_printf ("  Ptr_Comp:          %d\r\n", (int) Ptr_Glob->Ptr_Comp);
+  uart1_printf ("  Ptr_Comp:          %lu\n", (unsigned long) Ptr_Glob->Ptr_Comp);
   uart1_printf ("        should be:   (implementation-dependent)\r\n");
   uart1_printf ("  Discr:             %d\r\n", Ptr_Glob->Discr);
   uart1_printf ("        should be:   %d\r\n", 0);
@@ -250,7 +251,7 @@ main ()
   uart1_printf ("  Str_Comp:          %s\r\n", Ptr_Glob->variant.var_1.Str_Comp);
   uart1_printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\r\n");
   uart1_printf ("Next_Ptr_Glob->\r\n");
-  uart1_printf ("  Ptr_Comp:          %d\r\n", (int) Next_Ptr_Glob->Ptr_Comp);
+  uart1_printf ("  Ptr_Comp:          %lu\n", (unsigned long) Next_Ptr_Glob->Ptr_Comp);
   uart1_printf ("        should be:   (implementation-dependent), same as above\r\n");
   uart1_printf ("  Discr:             %d\r\n", Next_Ptr_Glob->Discr);
   uart1_printf ("        should be:   %d\r\n", 0);
@@ -303,14 +304,13 @@ main ()
     uart1_printf ("%d \r\n", (int)Dhrystones_Per_Second);
     uart1_printf ("\r\n");
   }
-  
+  return 0;
 }
 
 
-Proc_1 (Ptr_Val_Par)
+void Proc_1 (REG Rec_Pointer Ptr_Val_Par)
 /******************/
 
-REG Rec_Pointer Ptr_Val_Par;
     /* executed once */
 {
   REG Rec_Pointer Next_Record = Ptr_Val_Par->Ptr_Comp;  
@@ -341,12 +341,10 @@ REG Rec_Pointer Ptr_Val_Par;
 } /* Proc_1 */
 
 
-Proc_2 (Int_Par_Ref)
+void Proc_2 (One_Fifty   *Int_Par_Ref)
 /******************/
     /* executed once */
     /* *Int_Par_Ref == 1, becomes 4 */
-
-One_Fifty   *Int_Par_Ref;
 {
   One_Fifty  Int_Loc;  
   Enumeration   Enum_Loc;
@@ -364,13 +362,10 @@ One_Fifty   *Int_Par_Ref;
 } /* Proc_2 */
 
 
-Proc_3 (Ptr_Ref_Par)
+void Proc_3 (Rec_Pointer *Ptr_Ref_Par)
 /******************/
     /* executed once */
     /* Ptr_Ref_Par becomes Ptr_Glob */
-
-Rec_Pointer *Ptr_Ref_Par;
-
 {
   if (Ptr_Glob != Null)
     /* then, executed */
@@ -379,7 +374,7 @@ Rec_Pointer *Ptr_Ref_Par;
 } /* Proc_3 */
 
 
-Proc_4 () /* without parameters */
+void Proc_4 () /* without parameters */
 /*******/
     /* executed once */
 {
@@ -391,7 +386,7 @@ Proc_4 () /* without parameters */
 } /* Proc_4 */
 
 
-Proc_5 () /* without parameters */
+void Proc_5 () /* without parameters */
 /*******/
     /* executed once */
 {

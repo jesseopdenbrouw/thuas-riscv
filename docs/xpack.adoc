@@ -28,7 +28,7 @@ Start the installation
 
 image::images/ready.png[]
 
-Wait a while until the installation is completed
+Wait a while until the installation is completed.
 
 Open a DOS-box and check is `npm` works. Maybe you have to set the `%PATH%` environment variable.
 
@@ -63,7 +63,7 @@ Now install the xPack GNU C compiler:
 xpm install @xpack-dev-tools/gcc@latest --verbose
 -----
 
-This takes a while. Check if `gcc` can be found. You may have to add the `.bin` folder to the `%PATH%` environment variable. Here it should be `d:\PRG\riscv\xpacks\.bin`.
+This takes a while. Check if `gcc` can be found. You may have to add the `.bin` folder to the `%PATH%` environment variable. Here it should be `d:\riscv\xpacks\.bin`.
 
 Install xPack RISC-V C compiler, Windows build tools and OpenOCD:
 
@@ -73,7 +73,7 @@ xpm install @xpack-dev-tools/windows-build-tools@latest --verbose
 xpm install @xpack-dev-tools/openocd@latest --verbose
 -----
 
-Now you can use a _busybox_ shell. Just enter:
+Now you can use a ihttps://www.busybox.net/[_busybox_] shell. Just enter:
 
 -----
 sh

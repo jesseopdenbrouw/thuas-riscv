@@ -73,7 +73,7 @@ xpm install @xpack-dev-tools/windows-build-tools@latest --verbose
 xpm install @xpack-dev-tools/openocd@latest --verbose
 -----
 
-Now you can use a ihttps://www.busybox.net/[_busybox_] shell. Just enter:
+Now you can use a https://www.busybox.net/[_busybox_] shell. Just enter:
 
 -----
 sh

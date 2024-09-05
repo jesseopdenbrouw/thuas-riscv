@@ -1,9 +1,13 @@
 #  Common settings for the programs
 
+
+ifeq ($(OS),Windows_NT)
+# For xPack RISC-V compiler
+PREFIX = riscv-none-elf
+else
 # For Linux
 PREFIX = riscv32-unknown-elf
-# For xPack RISC-V compiler
-#PREFIX = riscv-none-elf
+endif
 
 # Compiler defaults
 CC = $(PREFIX)-gcc
@@ -58,5 +62,8 @@ MARCHABISTRING = -march=rv32im_zicsr -mabi=ilp32
 SPECSSTRING = --specs=../lib/thuas.specs --specs=../lib/nano.specs
 
 # Options for the UPLOAD program
+ifeq ($(OS),Windows_NT)
+UPLOAD_OPTIONS= -nv -d COM1
+else
 UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0
-#UPLOAD_OPTIONS= -nv -d COM1
+endif

@@ -36,8 +36,6 @@ void print_time(void)
 
 int main(int argc, char *argv[])
 {
-	uint32_t start;
-
 	uart1_init(BAUD_RATE, UART_CTRL_EN);
 	uart1_puts("\r\n");
 	uart1_puts(argv[0]);

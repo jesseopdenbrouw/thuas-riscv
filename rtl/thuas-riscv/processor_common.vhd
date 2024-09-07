@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_00_01_00#;
+    constant HW_VERSION : integer := 16#01_00_01_01#;
     
     -- Used data types
     -- The common data type is 32 bits wide
@@ -622,7 +622,7 @@ package body processor_common is
     variable xor_v : std_logic := '0';
     begin
         for i in input'range loop
-            xor_v := xor_v and input(i);
+            xor_v := xor_v xor input(i);
         end loop;
         return xor_v;
     end function xor_reduce;

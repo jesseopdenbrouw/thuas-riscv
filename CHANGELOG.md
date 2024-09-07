@@ -17,3 +17,5 @@ All dates are in dd.mm.yyyy format.
 | 13.08.2024 | 1.0.0.0  | Based on version 0.9.10.1 + on-chip debugging | |
 | 29.08.2024 | 1.0.0.1  | tdo = tdi when OCD is disabled, minor change in multipliers | |
 | 04.09.2024 | 1.0.0.2  | Some minor changes, no real hardware changes | |
+| 07.09.2024 | 1.0.1.0  | [dm] Added auto-increment on memory accesses | |
+

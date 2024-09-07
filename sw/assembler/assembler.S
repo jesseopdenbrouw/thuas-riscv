@@ -22,10 +22,20 @@
 		li t0, 0x8 | (0x3<<11)
 		csrw mstatus,t0
 
+		la	t0, 0x20000000
+		nop
+		nop
+		nop
 		nop
 
-		la	t0, 0x20000001
 		lw	t1, 0(t0)
+
+		nop
+		nop
+		nop
+		nop
+
+		sw	zero, 0(t0)
 
 	einde:
 		nop

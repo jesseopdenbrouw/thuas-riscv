@@ -58,6 +58,8 @@ entity riscv is
           HAVE_BOOTLOADER_ROM : boolean;
           -- Disable CSR address check when in debug mode
           OCD_CSR_CHECK_DISABLE : boolean;
+          -- Do we use post-increment address pointer when debugging?
+          OCD_AAMPOSTINCREMENT : boolean;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -410,6 +412,9 @@ component dtm is
          );
 end component dtm;
 component dm is
+    generic (
+             OCD_AAMPOSTINCREMENT : boolean
+            );
     port (I_clk : std_logic;
           I_areset : std_logic;
           --
@@ -730,6 +735,9 @@ begin
         
         -- Debug Module
         dm0: dm
+        generic map (
+                     OCD_AAMPOSTINCREMENT => OCD_AAMPOSTINCREMENT
+                    )
         port map (I_clk => I_clk,
                   I_areset => I_areset,
                   --

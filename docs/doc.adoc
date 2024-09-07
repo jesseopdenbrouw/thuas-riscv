@@ -600,6 +600,7 @@ Using VHDL generics, the design can be customized.
 |CLOCK_FREQUENCY       | integer   | 1000000  | The clock frequency in Hz
 |HAVE_OCD              | boolean   | false    | Enable on-chip debugging
 |OCD_CSR_CHECK_DISABLE | boolean   | false    | Disable CSR address check
+|OCD_AAMPOSTINCREMENT  | boolean   | TRUE     | Auto post-increment address register
 |HAVE_RISCV_E          | boolean   | false    | Embedded subset of registers
 |HAVE_MULDIV           | boolean   | TRUE     | Hardware multiply/divide
 |FAST_DIVIDE           | boolean   | TRUE     | Use fast divider
@@ -1111,7 +1112,7 @@ Note that the ROM can only be (over)written with words on a 4-byte boundary.
 
 == Using the on-chip debbuger
 *note: experimental* +
-The on-chip debugger (OCD) follows the guidelines of the RISC-V debug specification version 1.0.0-rc3 (https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf). The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module \(TM\). The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
+The on-chip debugger (OCD) follows the guidelines of the RISC-V debug specification version 1.0.0-rc3 (https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf). The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module +(TM)+. The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
 
 * Standard JTAG access port.
 * Halt/resume the hart,
@@ -1146,9 +1147,9 @@ From the debug specification, Chapter 3, there is a list of requirements. Some a
 |Signal an external trigger when a hart in a group halts.         | Optional | n.a.
 |===
 
-The hart can be in five ''states'': resetting, running, halting, halted and resuming. When resetting, the reset synchronizer creates a three-clock-cycle reset signal after the reset signal is deasserted. It takes two clock cycles for the first instruction to be executed. In running, the hart executes instructions. Then, it is not possible to examine registers or memory. When a halt request is asserted, the core does not execute the current instruction, but enters the halted state. In the halted state (coined ''debug''), the hart is not executing instructions, and registers and memory may be examined. When resuming, the hart flushes the pipeline and starts executing instructions. All transitions take up a few clock cycles, except when a integer division is in progress. Then, halting takes about 20 clock cycles.
+The hart can be in five ''states'': resetting, running, halting, halted and resuming. When resetting, the reset synchronizer creates a three-clock-cycle reset signal after the reset signal is deasserted. It takes two clock cycles for the first instruction to be executed. In running, the hart executes instructions. Then, it is not possible to examine registers or memory. When a halt request is asserted, the core does not execute the current instruction, but enters the halted state. In the halted state (coined ''debug''), the hart is not executing instructions, and registers and memory may be examined. When resuming, the hart flushes the pipeline and starts executing instructions. All transitions take up a few clock cycles, except when an integer division is in progress. Then, halting takes about 20 clock cycles.
 
-*Reset Control* The hart can be reset, even from the very first instruction. In OpenOCD, just issue the command `reset halt` and the hart will be reset and halted. Note that registers and memory retain their last committed value. Resetting the hart takes a few clock cycles.
+*Reset Control* The hart can be reset, even from the very first instruction. In OpenOCD, just issue the command `reset halt` and the hart will be reset and halted. Note that registers and RAM memory retain their last committed value, I/O memory is reset. Resetting the hart takes a few clock cycles.
 
 *Run Control* To resume the hart, issue the OpenOCD command `resume`. To halt the hart, issue the OpenOCD command `halt`. Note that the `cycle` and `time` counters keep on running in the halted state.
 
@@ -1160,11 +1161,12 @@ The hart can be in five ''states'': resetting, running, halting, halted and resu
 
 *WFI Instruction* When the hart is halting when executing the WFI instruction, the hart enters debug mode. When stepping, the WFI instruction is treated as a NOP instruction.
 
-To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while it isn't. When using OCD, the bootloader is usually disabled.
+To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while it isn't. When using OCD, the bootloader is usually disabled. If the VHDL generic `OCD_AAMPOSTINCREMENT` is set to true, bulk memory accessess will use the auto post-increment feature for the address register, e.g. when uploading a binary executable with GDB.
 
 Note: the OCD is highly experimental. We tested the OCD with OpenOCD, GDB and Eclipse-CDT. When there are issues, please report them to J.E.J.opdenBrouw@hhs.nl.
 
 Tests with the OCD were conducted with an FT2232H MINI MODULE. See https://ftdichip.com/products/ft2232h-mini-module/. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB and Eclipse-CDT.
+
 
 === Using OpenOCD
 
@@ -1244,6 +1246,8 @@ There is support for Windows tools. Both `srec2vhdl` and `upload` can be build w
 Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`, `mkdir` etc.). Please have a look at https://xpack.github.io/dev-tools/riscv-none-elf-gcc/[xPack GNU RISC-V Embedded GCC] and https://xpack.github.io/dev-tools/windows-build-tools/[The xPack Windows Build Tools]. For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look at https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)]. OpenOCD can be found at https://xpack-dev-tools.github.io/openocd-xpack/[xPack OpenOCD].
 
 Before you can use OpenOCD with the FTDI FT2232H device, you need to replace the default driver with the libusb driver. This can easily be done with https://zadig.akeo.ie/[Zadig]. An example is given https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/windows[here].
+
+Take a short tour on xref:docs/xpack.adoc[Installing xPacks on Windows 11].
 
 
 == Future plans (or not) and issues

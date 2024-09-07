@@ -4,7 +4,7 @@
   <vendor>jesseopdenbrouw</vendor>
   <name>thuasrv32</name>
   <series>RISC-V</series>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <description>The THUAS RV32 RISC-V Processor</description>
 
   <!-- CPU core -->
@@ -744,7 +744,7 @@
             <field>
               <name>TIMER_CTRL_PRET</name>
               <bitRange>[8:8]</bitRange>
-              <description>Timer 2 Preload C Enable</description>
+              <description>Timer 2 Preload T Enable</description>
             </field>
             <field>
               <name>TIMER_CTRL_PREA</name>
@@ -831,7 +831,7 @@
             <field>
               <name>TIMER_CTRL_TCI</name>
               <bitRange>[4:4]</bitRange>
-              <description>Timer 2 Compare Match C Interrupt</description>
+              <description>Timer 2 Compare Match T Interrupt</description>
             </field>
             <field>
               <name>TIMER_CTRL_ACI</name>

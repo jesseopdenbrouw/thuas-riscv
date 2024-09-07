@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_00_00_02#;
+    constant HW_VERSION : integer := 16#01_00_01_00#;
     
     -- Used data types
     -- The common data type is 32 bits wide
@@ -434,6 +434,8 @@ package processor_common is
                   HAVE_BOOTLOADER_ROM : boolean;
                   -- Disable CSR address check when in debug mode
                   OCD_CSR_CHECK_DISABLE : boolean;
+                  -- Do we use post-increment address pointer when debugging?
+                  OCD_AAMPOSTINCREMENT : boolean;                  
                   -- RISCV E (embedded) of RISCV I (full)
                   HAVE_RISCV_E : boolean;
                   -- Do we have the integer multiply/divide unit?

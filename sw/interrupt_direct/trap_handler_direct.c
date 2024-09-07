@@ -41,10 +41,6 @@ extern char *_end;
 extern char __stack_pointer$;
 extern char __stack_size;
 
-/* Empty environment */
-char *__env[1] = { 0 };
-char **environ = __env;
-
 /* Exceptions */
 #define INSTRUCTION_ALIGNED_FAULT_IN_MCAUSE (0)
 #define INSTRUCTION_ACCESS_FAULT_IN_MCAUSE (1)

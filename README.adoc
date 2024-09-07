@@ -143,6 +143,9 @@ For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a lo
 at https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)].
 For on-chip debugging, see https://xpack-dev-tools.github.io/openocd-xpack/[xPack OpenOCD].
 
+Take a short tour on xref:docs/xpack.adoc[Installing xPacks on Windows 11].
+
+
 ## Plans (or not) and issues
 
 * We are *not* planning the C standard.

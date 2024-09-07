@@ -1247,7 +1247,7 @@ Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`
 
 Before you can use OpenOCD with the FTDI FT2232H device, you need to replace the default driver with the libusb driver. This can easily be done with https://zadig.akeo.ie/[Zadig]. An example is given https://learn.adafruit.com/circuitpython-on-any-computer-with-ft232h/windows[here].
 
-Take a short tour on xref:docs/xpack.adoc[Installing xPacks on Windows 11].
+Take a short tour on xref:docs/xpack.adoc[Installing xPacks on Windows 11]. Current GCC release is 14.2.0.
 
 
 == Future plans (or not) and issues

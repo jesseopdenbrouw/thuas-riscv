@@ -110,8 +110,10 @@ begin
               HAVE_OCD => false,
               -- Do we have the buildin bootloader?
               HAVE_BOOTLOADER_ROM => TRUE,
-              -- Disable CSR address check when in debug mode
-              OCD_CSR_CHECK_DISABLE => TRUE,
+              -- Disable CSR address check when in debug mode?
+              OCD_CSR_CHECK_DISABLE => false,
+              -- Do we use post-increment address pointer when debugging?
+              OCD_AAMPOSTINCREMENT => false,
               -- Do we have integer hardware multiply/divide?
               HAVE_MULDIV => TRUE,
               -- Do we have the fast divider?

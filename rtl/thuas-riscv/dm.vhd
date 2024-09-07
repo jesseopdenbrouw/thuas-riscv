@@ -40,12 +40,17 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library work;
 use work.processor_common.all;
 
 -- The Debug Module
 entity dm is
+    generic (
+             -- Do we use address post-increment?
+             OCD_AAMPOSTINCREMENT : boolean
+            );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- Request from DMI (and DTM)
@@ -99,6 +104,7 @@ type dm_reg_type is record
     illegal_state : std_logic;
     illegal_cmd : std_logic;
     data0mustread : std_logic;
+    data1mustincrement : std_logic;
     clrerr : std_logic;
     hart_reset : std_logic;
     hart_resume_ack : std_logic;
@@ -106,8 +112,8 @@ type dm_reg_type is record
     wren : std_logic;
     rden : std_logic;
     --
-    data0, data1 : std_logic_vector(31 downto 0);
-    command : std_logic_vector(31 downto 0);
+    data0, data1 : data_type;
+    command : data_type;
     cmderr : std_logic_vector(2 downto 0);
     state : dmstate_type;
 end record;
@@ -187,6 +193,7 @@ begin
     
     -- Write DM
     process (I_clk, I_areset) is
+    variable add_v : integer range 0 to 4;
     begin
         if I_areset = '1' then
             dm_reg.halt_req <= '0';
@@ -239,6 +246,16 @@ begin
             -- Signal that data0 must read the bus (arg0)
             if dm_reg.data0mustread = '1' then
                 dm_reg.data0 <= I_dm_core_data_response.data;
+            end if;
+            -- When using memory address auto-increment
+            if dm_reg.data1mustincrement = '1' then
+                case dm_reg.command(22 downto 20) is
+                    when "000"  => add_v := 1;
+                    when "001"  => add_v := 2;
+                    when "010"  => add_v := 4;
+                    when others => add_v := 0;
+                    dm_reg.data1 <= std_logic_vector(unsigned(dm_reg.data1) + add_v);
+                end case;
             end if;
         end if;
     end process;
@@ -304,15 +321,15 @@ begin
                                 dm_reg.illegal_state <= '1';
                                 dm_reg.state <= cmd_error;
                             end if;
-                        elsif dm_reg.command(31 downto 24) = x"02" and     -- memory access
+                        elsif dm_reg.command(31 downto 24) = x"02" and              -- memory access
                               dm_reg.command(23) = '0' and
-                             (dm_reg.command(22 downto 20) = "000" or      -- 8-bit access
-                              dm_reg.command(22 downto 20) = "001" or      -- 16-bit access
-                              dm_reg.command(22 downto 20) = "010") and    -- 32-bit access
-                              dm_reg.command(19) = '0' and                 -- no post-increment
+                             (dm_reg.command(22 downto 20) = "000" or               -- 8-bit access
+                              dm_reg.command(22 downto 20) = "001" or               -- 16-bit access
+                              dm_reg.command(22 downto 20) = "010") and             -- 32-bit access
+                             (dm_reg.command(19) = '0' or OCD_AAMPOSTINCREMENT) and -- (no) post-increment
                               dm_reg.command(18) = '0' and
                               dm_reg.command(17) = '0' then
-                            if I_halt_ack = '1' then                       -- check halted
+                            if I_halt_ack = '1' then                    -- check halted
                                 dm_reg.state <= cmd_preparemem;
                             else
                                 dm_reg.illegal_state <= '1';
@@ -416,6 +433,8 @@ begin
     dm_reg.busy <= '0' when dm_reg.state = cmd_idle else '1';
     -- data0 must read data from the bus
     dm_reg.data0mustread <= '1' when dm_reg.state = cmd_readreg2 or (dm_reg.state = cmd_readmem1 and I_dm_core_data_response.ack = '1') else '0';
+    -- data1 must increment or not
+    dm_reg.data1mustincrement <= '1' when OCD_AAMPOSTINCREMENT and dm_reg.command(19) = '1' and (dm_reg.state = cmd_writemem1 or dm_reg.state = cmd_readmem1) and I_dm_core_data_response.ack = '1' else '0';
 
     O_halt_req <= dm_reg.halt_req and dm_reg.dm_active;
     O_resume_req <= dm_reg.resume_req and dm_reg.dm_active;

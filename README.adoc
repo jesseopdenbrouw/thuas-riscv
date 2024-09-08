@@ -23,7 +23,7 @@ microcontroller supports Machine mode only. Traps (interrupts
 and exceptions) are supported.
 
 Loads from memory require 3 clocks, stores require 2 clocks.
-CSR operations require 1 clock. Multiplies require 3 clocks,
+CSR operations require 1 clock. Multiplications require 3 clocks,
 divides require 18 clocks. Jumps/branches taken require 3
 clocks, the microcontroller does not support branch prediction.
 All other instructions require 1 clock.

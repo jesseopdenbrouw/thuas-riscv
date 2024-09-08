@@ -21,7 +21,12 @@ Original Author: Shay Gal-on
 
 /* Ported to THUASRV32 by Jesse op den Brouw */
 /* Based on NEORV32 by S.T. Nolting */
-
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
 #include <thuasrv32.h>
 #include <stdio.h>
 /* Currenly. the [m]instret counter cannot be cleared */
@@ -187,7 +192,6 @@ portable_init(core_portable *p, int *argc, char *argv[])
 void
 portable_fini(core_portable *p)
 {
-	char buffer[80];
 	p->portable_id = 0;
 
 	// show executed instructions, required cycles and resulting average CPI

@@ -46,7 +46,7 @@ The core:
 * The memory unit interfaces with memory.
 * The debug unit, including Trigger Module, regulates on-chip debugging.
 
-A simplified block diagram of the core is given in <<fig_core>>
+A simplified block diagram of the core is given in <<fig_core>>.
 
 .Block diagram of the core.
 [[fig_core]]
@@ -202,6 +202,8 @@ For counting purposes, the following registers are implemented:
 * `mhpmcounter3` to `mhpmcounter9` -- low order event counter registers.
 * `mhpmcounter3h` to `mhpmcounter9h` -- high order event counter registers.
 * `mhpmevent3` to `mhpmevent9` -- counter event select registers.
+
+The registers `mhpmcounter10` to `mhpmcounter31`, `mhpmcounter10h` to `mhpmcounter31h` and `mhpmevent10` to `mhpmeventcw319` are hardwires to all-zero bits.
 
 The event counter registers are currently 40 bits wide. Currently, there are 7 events that can be counted:
 

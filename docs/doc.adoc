@@ -1110,7 +1110,7 @@ The design has a separate ROM that incorporates the bootloader. The original ROM
 Note that the ROM can only be (over)written with words on a 4-byte boundary.
 
 
-== Using the on-chip debbuger
+== Using the on-chip debugger
 *note: experimental* +
 The on-chip debugger (OCD) follows the guidelines of the RISC-V debug specification version 1.0.0-rc3 (https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf). The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module +(TM)+. The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
 

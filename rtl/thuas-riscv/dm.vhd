@@ -254,8 +254,8 @@ begin
                     when "001"  => add_v := 2;
                     when "010"  => add_v := 4;
                     when others => add_v := 0;
-                    dm_reg.data1 <= std_logic_vector(unsigned(dm_reg.data1) + add_v);
                 end case;
+                dm_reg.data1 <= std_logic_vector(unsigned(dm_reg.data1) + add_v);
             end if;
         end if;
     end process;

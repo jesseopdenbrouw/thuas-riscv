@@ -30,7 +30,7 @@ else
 endif
 
 # Compiler flags
-CFLAGS += $(EFFORT)
+CFLAGS += $(EFFORT) "-DFLAGS_STR=\"$(EFFORT)\""
 
 
 # All header files

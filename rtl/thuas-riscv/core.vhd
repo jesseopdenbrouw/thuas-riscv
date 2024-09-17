@@ -118,7 +118,6 @@ entity core is
           I_dm_core_data_request : in dm_core_data_request_type;
           O_dm_core_data_response : out dm_core_data_response_type;
           I_halt_req : in std_logic;
-          I_reset_req : in std_logic;
           I_resume_req : in std_logic;
           I_ackhavereset : in std_logic;
           O_halt_ack : out std_logic;

@@ -222,7 +222,6 @@ component core is
           I_dm_core_data_request : in dm_core_data_request_type;
           O_dm_core_data_response : out dm_core_data_response_type;
           I_halt_req : in std_logic;
-          I_reset_req : in std_logic;
           I_resume_req : in std_logic;
           I_ackhavereset : in std_logic;
           O_halt_ack : out std_logic;
@@ -567,7 +566,6 @@ begin
               I_dm_core_data_request => dm_core_data_request_int,
               O_dm_core_data_response => dm_core_data_response_int,
               I_halt_req => halt_req_int,
-              I_reset_req => reset_req_int,
               I_resume_req => resume_req_int,
               I_ackhavereset => ackhavereset_int,
               O_halt_ack => halt_ack_int,

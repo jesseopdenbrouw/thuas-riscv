@@ -35,8 +35,9 @@
 -- #################################################################################################
 
 -- This file contains the description of the bootloader ROM. The ROM
--- is placed in immutable onboard RAM blocks. A read takes two
--- clock cycles, for both instruction and data.
+-- is placed in immutable onboard RAM blocks. A read takes one
+-- clock cycle, for both instruction and data.
+-- Note: the core adds an extra buffer for memory operations.
 
 library ieee;
 use ieee.std_logic_1164.all;

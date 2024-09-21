@@ -38,6 +38,7 @@
 -- RAM is placed in onboard RAM blocks. A write takes one
 -- clock cycle, a read takes two clock cycles. Reads and
 -- writes must be natural aligned.
+-- Note: the core adds an extra buffer for memory operations.
 
 library ieee;
 use ieee.std_logic_1164.all;

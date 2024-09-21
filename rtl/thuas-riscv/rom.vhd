@@ -36,13 +36,14 @@
 
 -- This file contains the description of the ROM. The ROM is
 -- placed in mutable onboard RAM blocks and can be changed
--- by writing to it. A read takes two clock cycles for
--- instructions and three clock cycles for data. The ROM
--- contents is placed in file processor_common_rom.vhd. ROM
--- can only be written on word boundaries when de bootloader
+-- by writing to it. A read takes one clock cycles for
+-- instructions and two clock cycles for data. The ROM
+-- contents is placed in file rom_image.vhd. ROM
+-- can only be written on word boundaries when the bootloader
 -- is synthesized. Instruction reads can only be on word
 -- boundaries. Data read can be on byte, halfword and word
 -- boundaries
+-- Note: the core adds an extra buffer for memory operations.
 
 library ieee;
 use ieee.std_logic_1164.all;

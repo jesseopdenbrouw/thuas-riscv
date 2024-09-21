@@ -193,6 +193,9 @@ attribute ramstyle of regs_rs2 : signal is "no_rw_check";
 attribute ramstyle of regs_debug : signal is "no_rw_check";
 signal selrs1 : integer range 0 to NUMBER_OF_REGISTERS-1;
 signal selrs2 : integer range 0 to NUMBER_OF_REGISTERS-1;
+-- Used with on-chip debugger
+signal data_from_gpr : data_type;
+
 
 -- Control signals
 -- States of the controller
@@ -350,9 +353,6 @@ type csr_transfer_type is record
     address_to_mtval : data_type;
 end record csr_transfer_type;
 signal csr_transfer : csr_transfer_type;
-
--- Used with on-chip debugger
-signal data_from_gpr : data_type;
 
 begin
 
@@ -1346,10 +1346,10 @@ begin
     
     -- Generate register in onboard RAM blocks
     gen_regs_ram: if HAVE_REGISTERS_IN_RAM generate
-        -- Register: exec & retire
+        -- Registers: retire
         -- Do NOT include a reset, otherwise registers will be in ALM flip-flops
         -- Do NOT set x0 to all zero bits
-        -- Next process is for the core register R1 and R2
+        -- Next process is for the core register RS1
         process (I_clk, I_areset, control, id_ex, I_dm_core_data_request) is
         variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
         begin
@@ -1370,6 +1370,7 @@ begin
                 end if;
             end if;
         end process;
+        -- Next process is for the core register RS2
         process (I_clk, I_areset, control, id_ex, I_dm_core_data_request) is
         variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
         begin
@@ -1390,7 +1391,8 @@ begin
                 end if;
             end if;
         end process;
-        -- Next is for debug
+        -- Next process is for the debug read.
+        -- We can't use RS1 or RS2, because RAM blocks can have only one output.
         process (I_clk, I_areset, control, id_ex, I_dm_core_data_request) is
         variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
         begin

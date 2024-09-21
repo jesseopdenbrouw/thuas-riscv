@@ -24,9 +24,9 @@ Build the complete set of examples by starting `make` on
 the command line. Make sure that the RISC-V C/C++ compiler
 is in the PATH environment variable.
 
-## Preliminary support for Windows
+## Support for Windows tools
 
-There is preliminary support for Windows. `srec2vhdl` and
+There is support for Windows tools. `srec2vhdl` and
 `upload` can be build with GCC MinGW and Visual Studio.
 For building the RISC-V programs, a RISC-V GNU GCC compiler
 is needed.

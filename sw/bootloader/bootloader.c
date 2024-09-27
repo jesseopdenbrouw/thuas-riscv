@@ -20,7 +20,7 @@
 
 #include <thuasrv32.h>
 
-#define VERSION "v0.6.2"
+#define VERSION "v0.6.3"
 #define BUFLEN (41)
 #define BOOTWAIT (10)
 
@@ -50,13 +50,7 @@ int main(int argc, char *argv[], char *envp[]) {
 	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	/* Send greeting */
-
-
-	uart1_puts("\r\n"
-				"___       _  __    _ \\ /__ __ \r\n"
-				" | |_|| ||_|(_ ---|_) V __) _)\r\n"
-				" | | ||_|| |__)   | \\   __)/__\r\n"
-	          );
+	printlogo();
 
 	uart1_puts("\r\nTHUAS RISC-V Bootloader " VERSION "\r\n"
 				"Clock frequency: ");

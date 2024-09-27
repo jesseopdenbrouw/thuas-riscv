@@ -23,6 +23,8 @@ uint32_t gethex(int n);
 void delayms(uint32_t delay);
 /* Print hardware version */
 void printhwversion(void);
+/* Print the THUAS RV32 logo */
+void printlogo(void);
 
 #ifdef __cplusplus
 }

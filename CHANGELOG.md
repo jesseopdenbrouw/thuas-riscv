@@ -21,4 +21,5 @@ All dates are in dd.mm.yyyy format.
 | 09.09.2024 | 1.0.1.1  | [dm] Fix bug in auto-increment calculation | |
 | 17.09.2024 | 1.0.1.2  | Removed unused signal | |
 | 21.09.2024 | 1.0.1.3  | Minor comment edits, moved a signal in core | |
+| 27.09.2024 | 1.0.1.4  | MEPC has bit 0 set to hard 0, PC witj JARL has bit 0 set to hard 0 | |
 

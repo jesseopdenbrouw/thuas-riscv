@@ -697,6 +697,8 @@ begin
                         else
                             pc <= std_logic_vector(unsigned(id_ex.imm) + unsigned(id_ex.rs1data));
                         end if;
+                        -- As per RISC-V unpriv spec
+                        pc(0) <= '0';
                     -- Branch
                     when pc_branch =>
                         -- Must we branch?
@@ -2922,6 +2924,8 @@ begin
             csr_transfer.mtvec_to_pc <= csr_reg.mtvec(csr_reg.mtvec'left downto 2) & "00";
         end if;
 
+        -- Low bit of mepc always 0, see priv ISA, S.3.1.14
+        csr_reg.mepc(0) <= '0';
     end process;
 
     -- Transfer of MEPC to the PC

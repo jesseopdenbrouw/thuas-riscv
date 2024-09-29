@@ -85,7 +85,8 @@ begin
         variable instr_var : data_type;
         variable instr_recode : data_type;
         variable romdata_var : data_type;
-        constant x : data_type := (others => 'X');
+        constant x : std_logic_vector(7 downto 0) := (others => 'X');
+
         begin
             -- Calculate addresses
             address_instr := to_integer(unsigned(I_instr_request.pc(bootloader_size_bits-1 downto 2)));
@@ -111,25 +112,25 @@ begin
                 if I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" then
                     O_mem_response.data <= romdata_var(7 downto 0) & romdata_var(15 downto 8) & romdata_var(23 downto 16) & romdata_var(31 downto 24);
                 elsif I_mem_request.size = memsize_halfword and I_mem_request.addr(1 downto 0) = "00" then
-                    O_mem_response.data <= x(31 downto 16) & romdata_var(23 downto 16) & romdata_var(31 downto 24);
+                    O_mem_response.data <= x & x & romdata_var(23 downto 16) & romdata_var(31 downto 24);
                 elsif I_mem_request.size = memsize_halfword and I_mem_request.addr(1 downto 0) = "10" then
-                    O_mem_response.data <= x(31 downto 16) & romdata_var(7 downto 0) & romdata_var(15 downto 8);
+                    O_mem_response.data <= x & x & romdata_var(7 downto 0) & romdata_var(15 downto 8);
                 elsif I_mem_request.size = memsize_byte then
                     case I_mem_request.addr(1 downto 0) is
-                        when "00" => O_mem_response.data <= x(31 downto 8) & romdata_var(31 downto 24);
-                        when "01" => O_mem_response.data <= x(31 downto 8) & romdata_var(23 downto 16);
-                        when "10" => O_mem_response.data <= x(31 downto 8) & romdata_var(15 downto 8);
-                        when "11" => O_mem_response.data <= x(31 downto 8) & romdata_var(7 downto 0);
-                        when others => O_mem_response.data <= x; O_mem_response.load_misaligned_error <= '1';
+                        when "00" => O_mem_response.data <= x & x & x & romdata_var(31 downto 24);
+                        when "01" => O_mem_response.data <= x & x & x & romdata_var(23 downto 16);
+                        when "10" => O_mem_response.data <= x & x & x & romdata_var(15 downto 8);
+                        when "11" => O_mem_response.data <= x & x & x & romdata_var(7 downto 0);
+                        when others => O_mem_response.data <= x & x & x & x; O_mem_response.load_misaligned_error <= '1';
                     end case;
                 else
                     -- Chip select, but not aligned
-                    O_mem_response.data <= x;
+                    O_mem_response.data <= x & x & x & x;
                     O_mem_response.load_misaligned_error <= '1';
                 end if;
             else
                 -- No chip select, so no data
-                O_mem_response.data <= x;
+                O_mem_response.data <= x & x & x & x;
             end if;
         end process;
         

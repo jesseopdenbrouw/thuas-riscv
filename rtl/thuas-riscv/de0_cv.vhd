@@ -103,7 +103,7 @@ begin
               -- Disable CSR address check when in debug mode
               OCD_CSR_CHECK_DISABLE => false,
               -- Do we use post-increment address pointer when debugging?
-              OCD_AAMPOSTINCREMENT => false,
+              OCD_AAMPOSTINCREMENT => TRUE,
               -- Do we have integer hardware multiply/divide?
               HAVE_MULDIV => TRUE,
               -- Do we have the fast divider?

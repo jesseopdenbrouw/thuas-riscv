@@ -535,7 +535,7 @@ begin
                     when mtimeh_addr     => O_mem_response.data <= mtime.mtimeh;
                     when mtimecmp_addr   => O_mem_response.data <= mtime.mtimecmp;
                     when mtimecmph_addr  => O_mem_response.data <= mtime.mtimecmph;
-                    when others => O_mem_response.data <= (others => '-');
+                    when others => O_mem_response.data <= (others => 'X');
                 end case;
             end if;
         end if;
@@ -2345,10 +2345,11 @@ begin
 
                 -- If enabled ...
                 if wdt_en = '1' then
-                    -- If we must clear ...
+                    -- If we must restart the counter ...
                     if wdt.mustrestart = '1' then
                         wdt.counter <= (others => '1');
                         wdt.counter(31 downto 8) <= wdt_prescaler;
+                    -- If time's up...
                     elsif wdt.counter = all_zeros_c then
                         wdt.mustreset <= '1';
                     else
@@ -2502,7 +2503,7 @@ begin
     -- This process determines if a side effect of reading a register may proceed.
     -- Side effect: reading a data register (e.g. UART1, SPI1/2, I2C) clears flags
     -- in the status register, but only if the read (LOAD) is not interrupted by
-    -- an assertion of an interrupt request.
+    -- an assertion or an interrupt request.
     process (I_clk, I_areset) is
     begin
         if I_areset = '1' then

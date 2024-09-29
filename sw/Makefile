@@ -70,6 +70,7 @@ SUBDIRS = add64 \
           uart1_sprintf \
           uart1_test \
           watchdog \
+          wdt_nmi \
           wfitest
 
 ifeq ($(OS),Windows_NT)

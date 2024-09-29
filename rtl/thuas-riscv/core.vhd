@@ -218,6 +218,7 @@ type control_type is record
     load_dpc : std_logic;
     skip_match : std_logic;
     isstepping : std_logic;
+    nmi_lockout : std_logic;
     -- The state of the controller
     state : state_type;
     -- Forwarding latest result
@@ -2512,6 +2513,7 @@ begin
             csr_reg.dpc <= (others => '0');
             csr_reg.tdata1 <= (others => '0');
             csr_reg.tdata2 <= (others => '0');
+            control.nmi_lockout <= '0';
         elsif rising_edge(I_clk) then
             --  Do we count cycles?
             if csr_reg.mcountinhibit(0) = '0' then
@@ -2901,6 +2903,8 @@ begin
                     -- Latch address from address bus
                     csr_reg.mtval <= csr_transfer.address_to_mtval;
                 end if;
+                -- Lock out further NMI interrupts
+                control.nmi_lockout <= '1';
             elsif control.trap_release = '1' then
                 -- Copy mpie to mie
                 csr_reg.mstatus(3) <= csr_reg.mstatus(7);
@@ -2908,12 +2912,8 @@ begin
                 csr_reg.mstatus(7) <= '1';
                 -- Keep M mode
                 csr_reg.mstatus(12 downto 11) <= "11";
-                -- mcause reset
-                --csr_reg.mcause <= (others => '0');
-                -- mepc reset
-                --csr_reg.mepc <= (others => '0');
-                -- mtval reset
-                --csr_reg.mtval <= (others => '0');
+             -- Enable further NMI interrupts
+                control.nmi_lockout <= '0';
             end if;
         end if;
 
@@ -3002,7 +3002,7 @@ begin
         -- has the lowest hardware interrupt priority. Not all exceptions are implemented.
         -- Interrupts only when not stepping.
         -- NMI triggered by watchdog timeout, cannot be blocked, except by stepping.
-        if I_intrio(31) = '1' and control.isstepping = '0' then
+        if I_intrio(31) = '1' and control.may_interrupt ='1' and control.nmi_lockout = '0' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(31, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';

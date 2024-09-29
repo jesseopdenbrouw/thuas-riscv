@@ -99,7 +99,7 @@ Note that the computation of jump target addresses is handled by the Program Cou
 
 === PC
 
-The Program Counter contains the address of the currently fetched instruction. The address is always on a 4-byte boundary although function calls and conditional jump (JAL, JALR en B$xx$ instructions) can be on non 4-byte boundaries (the C compiler will always create 4-bytes boundaries). Hardware around the PC handles the address calculations of jumps and branches taken.
+The Program Counter contains the address of the currently fetched instruction. The address is always on a 4-byte boundary although function calls and conditional jump (JAL, JALR en Bxx instructions) can be on non 4-byte boundaries (the C compiler will always create 4-bytes boundaries). Hardware around the PC handles the address calculations of jumps and branches taken.
 
 === Instruction Decoder
 
@@ -149,6 +149,8 @@ The following exceptions are implemented:
 The `mtval` CSR is written with offending memory address for load/store access/misaligned fault. For the remaining exceptions `mtval` is set to all-zero bits.
 
 When the on-chip debugger is used, `ebreak` is used by the debugger software (OpenOCD) to implement software breakpoints, and cannot be used as a user instruction.
+
+The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this timer times out, an NMI can be generated (the other option is to reset the processor). The NMI is interrupt with the highest priority and cannot be disabled.
 
 === Address Decoder and Data Router
 
@@ -312,13 +314,13 @@ SPI1 is a full-fledged SPI master. It can transfer 8-bit, 16-bit, 24-bit and 32-
 
 SPI2 is a simple SPI master dedicated for the micro SC card reader (DE0-CV board). It can transfer 8-bit, 16-bit, 24-bit and 32-bit data in one SPI cycle. It does not have an hardware NSS signal and no interrupt capability. A single I/O pin is needed for NSS. Currently, the MISO is not synchronized to the system clock.
 
-WDT is a simple watchdog that can trigger a system wide reset or a non-maskable interrupt (NMI). The NMI cannot be blocked. The NMI uses the same mechanism as other traps, so `mtvec` must point to a trap handler.
+WDT is a simple watchdog timer that can trigger a system wide reset or a non-maskable interrupt (NMI). The NMI cannot be blocked. The NMI uses the same mechanism as other traps, so `mtvec` must point to a trap handler. Note that an NMI will fire only when the control unit is in the `exec` state. This is done so that the processor is in a known state when the NMI fires. An NMI cannot be interrupted by another NMI. It is not always possible to return to a correct running state of the program. This depends on the program.
 
 The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger register will fire an MSI if `mie.MSIE` is set. As long a the trigger register is set to 1, MSIs will be fired. Cleared by writing a 0.
 
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since `clock()` and `gettimeofday()` depend on this value. As such, the system clock frequency must be a integer multiple of 1 MHz. Note that TIMEH:TIME is writable by software.
 
-Note that _all_ memory accesses must be acknowledged, even when this triggers an exception.
+Note that *all* memory accesses must be acknowledged, even when this triggers an exception.
 
 == The FPGA
 For this project, we use the Cyclone V FPGA from Intel (formerly Altera). See https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html.
@@ -394,6 +396,8 @@ entity riscv is
           HAVE_BOOTLOADER_ROM : boolean;
           -- Disable CSR address check when in debug mode
           OCD_CSR_CHECK_DISABLE : boolean;
+          -- Do we use post-increment address pointer when debugging?
+          OCD_AAMPOSTINCREMENT : boolean;
           -- RISCV E (embedded) of RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -685,7 +689,7 @@ git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
 (The `--recursive` option may be omitted, in which case the `make` process with fetch them.)
 Wait for the cloning to end (takes a long time, about 30 minutes on a Zbook G5 2020 with a 10 MB/s internet connection).
 Note: the toolchain is about 6.65 GB of data!
-Change to the directory with
+Change to the directory with:
 [source,subs=attributes+]
 ----
 cd riscv-gnu-toolchain
@@ -847,7 +851,7 @@ void trap_handler_jump_table(void)
     __asm__ volatile ("j default_handler;");
     __asm__ volatile ("j default_handler;");
     __asm__ volatile ("j default_handler;");
-    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j nmi_handler;");
 }
 
 int main(void)
@@ -961,7 +965,8 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `uart1_printlonglong` -- program that prints a long long and unsigned long long to the UART. Works on the board.
 * `uart_sprintf` -- simple program that prints an integer, a pointer, a float and a double to the terminal, this is a big binary. Works on the board.
 * `uart_test` -- simple UART1 program. Works on the board.
-* `watchdog` -- simple watchdog test program, NMI not yet tested. Works on the board.
+* `watchdog` -- simple watchdog test program, resets the processor when the watchdog timer times out. Works on the board.
+* `wdt_nmi` -- program to test the NMI with the watchdog timer. Works on the board. Needs more testing.
 * `wfitest` -- simple program to test the WFI instruction. Works on the board.
 
 Note: we use a lot of the `volatile` keyword to emit the variables to RAM for easy inspection in the simulator.

@@ -1181,7 +1181,7 @@ To start a debug session, start OpenOCD (at least version 0.12.0):
 
 [source,subs=attributes+]
 ----
-openocd -f <path/to/>openocd.cfg
+$ openocd -f <path/to/>openocd.cfg
 ----
 
 If OpenOCD can contact the DTM and finds a hart, the response is something like:
@@ -1212,7 +1212,7 @@ Now we can connect to OpenOCD using `telnet`:
 
 [source,subs=attributes+]
 ----
-telnet localhost 4444
+$ telnet localhost 4444
 ----
 
 and see a reponse:
@@ -1241,6 +1241,77 @@ Sometimes, OpenOCD will cache the contents of the registers. In that case, use t
 > get_reg -force s1 
 s1 0x05f5e100
 ----
+
+
+=== Using GDB
+
+You need a RISC-V compliant GDB executable. Then change to a directory containing the ELF-executable you want to debug:
+
+[source,subs=attributes+]
+----
+$ cd sw/interrupt_direct
+$ riscv32-unknown-elf-gdb interrupt_direct.elf
+----
+
+You will see a response:
+
+[source,subs=attributes+]
+----
+GNU gdb (GDB) 13.2
+Copyright (C) 2023 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "--host=x86_64-pc-linux-gnu --target=riscv32-unknown-elf".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from interrupt_direct.elf...
+(gdb) 
+----
+
+Connect to OpenOCD:
+
+[source,subs=attributes+]
+----
+(gdb) target remote :3333
+----
+
+OpenOCD responds with something like:
+
+[source,subs=attributes+]
+----
+Remote debugging using :3333
+uart1_putc (ch=<optimized out>) at uart/uart1_putc.c:24
+24		while ((UART1->STAT & UART_STAT_TC) == 0);
+----
+
+Now upload the executable:
+
+[source,subs=attributes+]
+----
+(gdb) load
+Loading section .text, size 0x29fc lma 0x0
+Loading section .rodata, size 0x468 lma 0x29fc
+Loading section .data, size 0x68 lma 0x2e64
+Start address 0x00000000, load size 11980
+Transfer rate: 9 KB/sec, 3993 bytes/write.
+(gdb)
+----
+
+and run the code on the target:
+
+[source,subs=attributes+]
+----
+(gdb) monitor reset run
+----
+
 
 === Implications on the hardware design
 The OCD takes up a fair amount of ALMs (500 - 700) and lowers the $f_{max}$ with about 5 MHz.

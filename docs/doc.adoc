@@ -340,18 +340,18 @@ To find the best compilation result for speed and/or area, we have to tweak the 
 
 Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed is set to 1 and the optimization is set to balanced. The total amount of ALMs is 18480. The total amount of RAM bits is 3153920.
 
-.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.0.0.0).
+.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.0.2.0).
 [[tab_metrics]]
 [cols="1,1,1,1]
 |===
 | Setup | $f_{max}$ | ALMs | FFs | RAM
 
-| Default {all I/O, MD, no extensions, no OCD} | 93 | 2861 | 2467 | 1,345,536
-| Default, no bootloader, no OCD               | 92 | 2911 | 2445 | 788,480
-| Default, only UART1 + bootloader, no OCD     | 92 | 2110 | 1447 | 1,345,536
-| Small (UART1, no boot, no MD, no OCD)        | 91 | 1693 | 1269 | 788,480 
-| Default OCD (no bootloader, OCD)             | 87 | 3490 | 3005 | 1,313,792
-| Full OCD (all extensions, OCD)               | 86 | 4463 | 3470 | 1,313,792
+| Default {all I/O, MD, no extensions, no OCD} | 88 | 2886 | 2449 | 1,345,536
+| Default, no bootloader, no OCD               | 93 | 2904 | 2471 | 788,480
+| Default, only UART1 + bootloader, no OCD     | 91 | 2088 | 1458 | 1,345,536
+| Small (UART1, no boot, no MD, no OCD)        | 92 | 1699 | 1278 | 788,480 
+| Default OCD (no bootloader, OCD)             | 84 | 3465 | 3076 | 1,313,792
+| Full OCD (all extensions, OCD)               | 82 | 4503 | 3529 | 1,313,792
 |===
 
 === Other boards

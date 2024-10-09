@@ -156,7 +156,7 @@ typedef struct {
 #define WDT ((WDT_struct_t *) WDT_BASE)
 
 #define WDT_CTRL (*(volatile uint32_t*)(WDT_BASE+0x00000000UL))
-#define WDT_STAT (*(volatile uint32_t*)(WDT_BASE+0x00000004UL))
+#define WDT_TRIG (*(volatile uint32_t*)(WDT_BASE+0x00000004UL))
 
 
 /*

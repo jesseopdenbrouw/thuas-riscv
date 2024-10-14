@@ -1,7 +1,7 @@
 
 # Simulation using GHDL
 
-it is possible to simulate the design using GHDL
+It is possible to simulate the design using GHDL
 and viewing the results using GTKWave.
 
 ## Usage

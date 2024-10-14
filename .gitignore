@@ -10,4 +10,7 @@ rtl/thuas-riscv/*.bak
 rtl/thuas-riscv/c5_pin_model_dump.txt
 rtl/thuas-riscv/serv_req_info.txt
 rtl/thuas-riscv/riscv.qws
-
+rtl/thuas-riscv/dse/*
+rtl/thuas-riscv/*dse*
+rtl/thuas-riscv/riscv.archive.rpt
+rtl/thuas-riscv/riscv_assignment_defaults.qdf

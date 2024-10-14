@@ -5,7 +5,8 @@ Jesse op den Brouw <j.e.j.opdenbrouw@hhs.nl>
 
 Jesse op den Brouw +
 The Hague University of Applied Sciences +
-Department of Electrical Engineering
+Department of Electrical Engineering +
+J.E.J.opdenBrouw@hhs.nl
 
 
 == Abstract
@@ -651,6 +652,7 @@ In the created directory, you will see the following directories:
 
 `boards` -- Files needed to use other boards. +
 `docs` -- Documentation. +
+`ghdl` -- Simulate using http://ghdl.free.fr/[GHDL] +
 `openocd` -- OpenOCD configuration file + SVD file. +
 `rtl` -- the VHDL description(s). +
 `sw` -- Sample software programs, linker script, library and startup files.
@@ -1172,7 +1174,7 @@ To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug speci
 
 Note: the OCD is highly experimental. We tested the OCD with OpenOCD, GDB and Eclipse-CDT. When there are issues, please report them to J.E.J.opdenBrouw@hhs.nl.
 
-Tests with the OCD were conducted with an FT2232H MINI MODULE. See https://ftdichip.com/products/ft2232h-mini-module/. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB and Eclipse-CDT.
+Tests with the OCD were conducted with an https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE]. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB and Eclipse-CDT.
 
 
 === Using OpenOCD
@@ -1208,7 +1210,7 @@ Info : Listening on port 4444 for telnet connections
 
 Note: the JTAG clock speed (here 1000 kHz) should be less than 1/5 of the RISC-V system clock.
 
-Now we can connect to OpenOCD using `telnet`:
+Now we can connect to OpenOCD using `telnet` (in a second terminal):
 
 [source,subs=attributes+]
 ----

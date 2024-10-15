@@ -80,29 +80,28 @@ begin
 
         -- Boot ROM, for both instructions and read-only data
         process (I_clk, I_areset, I_instr_request, I_mem_request) is
-        variable address_instr : integer range 0 to bootloader_size-1;
-        variable address_data : integer range 0 to bootloader_size-1;
-        variable instr_var : data_type;
-        variable instr_recode : data_type;
-        variable romdata_var : data_type;
+        variable address_instr_v : integer range 0 to bootloader_size-1;
+        variable address_data_v : integer range 0 to bootloader_size-1;
+        variable instr_v : data_type;
+        variable romdata_v : data_type;
         constant x : std_logic_vector(7 downto 0) := (others => 'X');
 
         begin
             -- Calculate addresses
-            address_instr := to_integer(unsigned(I_instr_request.pc(bootloader_size_bits-1 downto 2)));
-            address_data := to_integer(unsigned(I_mem_request.addr(bootloader_size_bits-1 downto 2)));
+            address_instr_v := to_integer(unsigned(I_instr_request.pc(bootloader_size_bits-1 downto 2)));
+            address_data_v := to_integer(unsigned(I_mem_request.addr(bootloader_size_bits-1 downto 2)));
 
             -- Quartus will detect ROM table and uses onboard RAM
             -- Do not use reset, otherwise ROM will be created with ALMs
             if rising_edge(I_clk) then
                 if I_instr_request.stall = '0' then
-                    instr_var := bootrom(address_instr);
+                    instr_v := bootrom(address_instr_v);
                 end if;
-                romdata_var := bootrom(address_data);
+                romdata_v := bootrom(address_data_v);
             end if;
             
             -- Recode instruction
-            O_instr_response.instr <= instr_var(7 downto 0) & instr_var(15 downto 8) & instr_var(23 downto 16) & instr_var(31 downto 24);
+            O_instr_response.instr <= instr_v(7 downto 0) & instr_v(15 downto 8) & instr_v(23 downto 16) & instr_v(31 downto 24);
             
             O_mem_response.load_misaligned_error <= '0';
             O_mem_response.store_misaligned_error <= '0';
@@ -110,17 +109,17 @@ begin
             -- By natural size, for data
             if I_mem_request.cs = '1' then
                 if I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" then
-                    O_mem_response.data <= romdata_var(7 downto 0) & romdata_var(15 downto 8) & romdata_var(23 downto 16) & romdata_var(31 downto 24);
+                    O_mem_response.data <= romdata_v(7 downto 0) & romdata_v(15 downto 8) & romdata_v(23 downto 16) & romdata_v(31 downto 24);
                 elsif I_mem_request.size = memsize_halfword and I_mem_request.addr(1 downto 0) = "00" then
-                    O_mem_response.data <= x & x & romdata_var(23 downto 16) & romdata_var(31 downto 24);
+                    O_mem_response.data <= x & x & romdata_v(23 downto 16) & romdata_v(31 downto 24);
                 elsif I_mem_request.size = memsize_halfword and I_mem_request.addr(1 downto 0) = "10" then
-                    O_mem_response.data <= x & x & romdata_var(7 downto 0) & romdata_var(15 downto 8);
+                    O_mem_response.data <= x & x & romdata_v(7 downto 0) & romdata_v(15 downto 8);
                 elsif I_mem_request.size = memsize_byte then
                     case I_mem_request.addr(1 downto 0) is
-                        when "00" => O_mem_response.data <= x & x & x & romdata_var(31 downto 24);
-                        when "01" => O_mem_response.data <= x & x & x & romdata_var(23 downto 16);
-                        when "10" => O_mem_response.data <= x & x & x & romdata_var(15 downto 8);
-                        when "11" => O_mem_response.data <= x & x & x & romdata_var(7 downto 0);
+                        when "00" => O_mem_response.data <= x & x & x & romdata_v(31 downto 24);
+                        when "01" => O_mem_response.data <= x & x & x & romdata_v(23 downto 16);
+                        when "10" => O_mem_response.data <= x & x & x & romdata_v(15 downto 8);
+                        when "11" => O_mem_response.data <= x & x & x & romdata_v(7 downto 0);
                         when others => O_mem_response.data <= x & x & x & x; O_mem_response.load_misaligned_error <= '1';
                     end case;
                 else

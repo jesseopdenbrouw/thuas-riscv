@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_00_02_00#;
+    constant HW_VERSION : integer := 16#01_00_02_01#;
     
     -- Used data types
     -- The common data type is 32 bits wide
@@ -569,11 +569,10 @@ package body processor_common is
     begin
         mem_v := (others => (others => '0')); -- [IMPORTANT] make sure remaining memory entries are set to zero
         if (init'length > depth) then
-            return mem_v;
+            report "Initialization image is overflowing memory range!" severity error;
+        else
+            mem_v(0 to init'length-1) := init(0 to init'length-1);
         end if;
-        for i in 0 to init'length-1 loop -- initialize only in range of source data array
-            mem_v(i) := init(i);
-        end loop;
         return mem_v;
     end function initialize_memory;
     

@@ -671,7 +671,7 @@ Compilation of the hardware design is independent of the size of the software pr
 
 == Setting up the GNU C compiler for _this_ RISC-V
 
-The processor can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 13.2.0. Building the C/{cpp} compiler for Linux is straightforward:
+The processor can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 14.2.0. Building the C/{cpp} compiler for Linux is straightforward:
 
 You need a current GNU C/{cpp} compiler installed or your Linux box. You also need all essential building tools:
 [source,subs=attributes+]
@@ -739,12 +739,12 @@ It should say something like:
 ----
 Using built-in specs.
 COLLECT_GCC=riscv32-unknown-elf-gcc
-COLLECT_LTO_WRAPPER=/opt/riscv32/libexec/gcc/riscv32-unknown-elf/13.2.0/lto-wrapper
+COLLECT_LTO_WRAPPER=/opt/riscv32/libexec/gcc/riscv32-unknown-elf/14.2.0/lto-wrapper
 Target: riscv32-unknown-elf
-Configured with: /home/jesse/riscv-gnu-toolchain/build/../gcc/configure --target=riscv32-unknown-elf --prefix=/opt/riscv32 --disable-shared --disable-threads --enable-languages=c,c++ --with-pkgversion=gc891d8dc23e --with-system-zlib --enable-tls --with-newlib --with-sysroot=/opt/riscv32/riscv32-unknown-elf --with-native-system-header-dir=/include --disable-libmudflap --disable-libssp --disable-libquadmath --disable-libgomp --disable-nls --disable-tm-clone-registry --src=../../gcc --enable-multilib --with-multilib-generator='rv32im_zicsr_zba-ilp32--;rv32e-ilp32e--' --with-abi=ilp32 --with-arch=rv32im --with-tune=rocket --with-isa-spec=20191213 'CFLAGS_FOR_TARGET=-Os    -mcmodel=medlow' 'CXXFLAGS_FOR_TARGET=-Os    -mcmodel=medlow'
+Configured with: /mnt/d/PROJECTS/RISCVDEV/riscv-gnu-toolchain/build/../gcc/configure --target=riscv32-unknown-elf --prefix=/opt/riscv32 --disable-shared --disable-threads --enable-languages=c,c++ --with-pkgversion= --with-system-zlib --enable-tls --with-newlib --with-sysroot=/opt/riscv32/riscv32-unknown-elf --with-native-system-header-dir=/include --disable-libmudflap --disable-libssp --disable-libquadmath --disable-libgomp --disable-nls --disable-tm-clone-registry --src=../../gcc --enable-multilib --with-multilib-generator='rv32im_zicsr_zba_zbs_zicond-ilp32--;rv32e-ilp32e--' --with-abi=ilp32 --with-arch=rv32im --with-tune=rocket --with-isa-spec=20191213 'CFLAGS_FOR_TARGET=-Os    -mcmodel=medlow' 'CXXFLAGS_FOR_TARGET=-Os    -mcmodel=medlow'
 Thread model: single
 Supported LTO compression algorithms: zlib
-gcc version 13.2.0 (gc891d8dc23e) 
+gcc version 14.2.0 () 
 ----
 
 When using Windows, best is to use precompiled binaries. See <<sec_win>>.

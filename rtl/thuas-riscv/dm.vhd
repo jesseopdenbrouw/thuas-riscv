@@ -361,7 +361,7 @@ begin
                     when cmd_readreg1 =>
                         dm_reg.state <= cmd_readreg2;
                     -- Reading a register takes two cycles, this is cycle 2
-                    -- Note that a CSR is actually read twice, that is not a problem
+                    -- Note that a CSR is actually accessed twice, that is not a problem
                     -- because none of the CSRs have side effects
                     -- In this cycle, data0 is loaded with external data
                     when cmd_readreg2 =>

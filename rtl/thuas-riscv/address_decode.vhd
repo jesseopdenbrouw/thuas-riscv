@@ -35,8 +35,8 @@
 -- #################################################################################################
 
 -- This file contains the description of address decoder and
--- data router, it interconnects the core with memory (ROM, RAM
--- and I/O).
+-- data router, it interconnects the core with memory (ROM,
+-- boot ROM, RAM and I/O).
 
 library ieee;
 use ieee.std_logic_1164.all;

@@ -301,7 +301,7 @@ alias i2c2ackfail : std_logic is i2c2.stat(5);
 alias i2c2busy : std_logic is i2c2.stat(6);
 
 
--- Register 23 not used, reserved
+-- Register 23 not used -- reserved
 
 
 -- SPI1 - full SPI master with hardware NSS
@@ -335,7 +335,6 @@ signal spi1 : spi1_type;
 constant spi2ctrl_addr : integer := 28; -- 0x70.b
 constant spi2stat_addr : integer := 29; -- 0x74.b
 constant spi2data_addr : integer := 30; -- ox78.b
--- Register 31 not used
 constant spi2mosidefault : std_logic := '1';
 
 type spi2state_type is (idle, first, second, leadout);
@@ -490,7 +489,7 @@ begin
     --
     process (I_clk, I_areset) is
     begin
-        -- Reading a register here doesn't have side effects such as clearing bits.
+        -- Reading a register may have side effects such clearing status bits
         if I_areset = '1' then
             O_mem_response.data <= (others => '0');
         elsif rising_edge(I_clk) then
@@ -880,7 +879,7 @@ begin
                 
                 -- If a BREAK is received by UART1, send this BREAK
                 -- upstream to the processor top. BREAK will only
-                -- be receuved when UART1 is enabled.
+                -- be received when UART1 is enabled.
                 O_break_received <= uart1br and boolean_to_std_logic(UART1_BREAK_RESETS);
                 
                 uart1.baud(31 downto 16) <= (others => '0');

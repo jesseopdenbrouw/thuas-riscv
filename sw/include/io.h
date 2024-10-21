@@ -21,11 +21,11 @@ extern "C" {
  * General purpose I/O
  */
 typedef struct {
-	volatile uint32_t PIN;         /** Port input */
-	volatile uint32_t POUT;        /** Port output */
-	volatile uint32_t reserved[4];
-	volatile uint32_t EXTC;        /** External interrupt control */
-	volatile uint32_t EXTS;        /** External interrupt status */
+    volatile uint32_t PIN;         /** Port input */
+    volatile uint32_t POUT;        /** Port output */
+    volatile uint32_t reserved[4];
+    volatile uint32_t EXTC;        /** External interrupt control */
+    volatile uint32_t EXTS;        /** External interrupt status */
 } GPIO_struct_t;
 
 #define GPIOA_BASE (IO_BASE+0x00000000UL)
@@ -41,10 +41,10 @@ typedef struct {
  * UART1i
  */
 typedef struct {
-	volatile uint32_t CTRL;
-	volatile uint32_t STAT;
-	volatile uint32_t DATA;
-	volatile uint32_t BAUD;
+    volatile uint32_t CTRL;
+    volatile uint32_t STAT;
+    volatile uint32_t DATA;
+    volatile uint32_t BAUD;
 } UART_struct_t;
 
 #define UART_BASE (IO_BASE+0x00000020UL)
@@ -60,9 +60,9 @@ typedef struct {
  * I2C1, I2C2
  */
 typedef struct {
-	volatile uint32_t CTRL;
-	volatile uint32_t STAT;
-	volatile uint32_t DATA;
+    volatile uint32_t CTRL;
+    volatile uint32_t STAT;
+    volatile uint32_t DATA;
 } I2C_struct_t;
 
 #define I2C_BASE (IO_BASE+0x00000040UL)
@@ -81,9 +81,9 @@ typedef struct {
  * SPI1, SPI2
  */
 typedef struct {
-	volatile uint32_t CTRL;
-	volatile uint32_t STAT;
-	volatile uint32_t DATA;
+    volatile uint32_t CTRL;
+    volatile uint32_t STAT;
+    volatile uint32_t DATA;
 } SPI_struct_t;
 
 #define SPI_BASE (IO_BASE+0x00000060UL)
@@ -102,10 +102,10 @@ typedef struct {
  * TIMER1
  */
 typedef struct {
-	volatile uint32_t CTRL;
-	volatile uint32_t STAT;
-	volatile uint32_t CNTR;
-	volatile uint32_t CMPT;
+    volatile uint32_t CTRL;
+    volatile uint32_t STAT;
+    volatile uint32_t CNTR;
+    volatile uint32_t CMPT;
 } TIMER1_struct_t;
 
 #define TIMER1_BASE (IO_BASE+0x00000080UL)
@@ -121,14 +121,14 @@ typedef struct {
  * TIMER2
  */
 typedef struct {
-	volatile uint32_t CTRL;
-	volatile uint32_t STAT;
-	volatile uint32_t CNTR;
-	volatile uint32_t CMPT;
-	volatile uint32_t PRSC;
-	volatile uint32_t CMPA;
-	volatile uint32_t CMPB;
-	volatile uint32_t CMPC;
+    volatile uint32_t CTRL;
+    volatile uint32_t STAT;
+    volatile uint32_t CNTR;
+    volatile uint32_t CMPT;
+    volatile uint32_t PRSC;
+    volatile uint32_t CMPA;
+    volatile uint32_t CMPB;
+    volatile uint32_t CMPC;
 } TIMER2_struct_t;
 
 #define TIMER2_BASE (IO_BASE+0x000000a0UL)
@@ -148,8 +148,8 @@ typedef struct {
  * Watchdog (WDT)
  */
 typedef struct {
-	volatile uint32_t CTRL;
-	volatile uint32_t TRIG;
+    volatile uint32_t CTRL;
+    volatile uint32_t TRIG;
 } WDT_struct_t;
 
 #define WDT_BASE (IO_BASE+0x000000e0UL)
@@ -163,7 +163,7 @@ typedef struct {
  * RISC-V Machine Software Interrupt (MSI)
  */
 typedef struct {
-	volatile uint32_t TRIG;
+    volatile uint32_t TRIG;
 } MSI_struct_t;
 
 #define MSI_BASE (IO_BASE+0x000000ecUL)
@@ -179,13 +179,13 @@ typedef struct {
 #define MTIMECMPH (*(volatile uint32_t*)(IO_BASE+0x000000fcUL))
 
 typedef struct {
-	volatile uint32_t time;
-	volatile uint32_t timeh;
+    volatile uint32_t time;
+    volatile uint32_t timeh;
 } MTIME_struct_t;
 
 typedef struct {
-	volatile uint32_t timecmp;
-	volatile uint32_t timecmph;
+    volatile uint32_t timecmp;
+    volatile uint32_t timecmph;
 } MTIMECMP_struct_t;
 
 #ifdef __cplusplus

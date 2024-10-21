@@ -578,7 +578,7 @@ The pin assignments for the DE0-CV board are as follows. Note that not all signa
 |i2c1scl       | B16      | GPIO_0_D1, I2C1 SCL
 |i2c1sda       | C16      | GPIO_0_D3, I2C1 SDA
 |i2c2scl       | K20      | GPIO_0_D5, I2C1 SCL
-|i2c2sda       | K22      | GPIO_0_D6, I2C1 SDA
+|i2c2sda       | K22      | GPIO_0_D7, I2C1 SDA
 |tck           | P18      | GPIO_0_27 , JTAG clock
 |tdi           | R17      | GPIO_0_29 , JTAG data in
 |tdo           | T20      | GPIO_0_31 , JTAG data out

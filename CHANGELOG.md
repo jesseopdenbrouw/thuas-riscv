@@ -25,5 +25,5 @@ All dates are in dd.mm.yyyy format.
 | 30.09.2024 | 1.0.1.5  | [core] fixed handling of NMI | |
 | 04.10.2024 | 1.0.2.0  | New version |
 | 19.10.2024 | 1.0.2.1  | [bootloader] Removed unused variable, renamed all variables to ending with v. [common] update function initialize_memory | |
-
+| 22.10.2024 | 1.0.2.2  | [io] SPI1 MOSI default to 1 | |
 

@@ -138,7 +138,7 @@ is needed.
 Best is to use a precompiled compiler for Windows and
 build tools (make, rm, mkdir etc.). Please have a look
 at https://xpack.github.io/dev-tools/riscv-none-elf-gcc/[xPack RISC-V Toolchain]
-and https://xpack.github.io/dev-tools/windows-build-tools/[Windows build tools].
+and https://xpack.github.io/dev-tools/windows-build-tools/[xPack Windows Build Tools].
 For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look
 at https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)].
 For on-chip debugging, see https://xpack-dev-tools.github.io/openocd-xpack/[xPack OpenOCD].

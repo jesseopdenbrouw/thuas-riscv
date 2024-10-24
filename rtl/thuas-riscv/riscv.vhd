@@ -155,7 +155,7 @@ component core is
           SYSTEM_FREQUENCY : integer;
           -- Hardware version in BCD
           HW_VERSION : integer;
-          -- RISCV E (embedded) of RISCV I (full)
+          -- RISCV E (embedded) or RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Have On-chip debugger?
           HAVE_OCD : boolean;
@@ -393,33 +393,33 @@ end component io;
 -- Reused from NEORV32 bu S.T. Nolting <www.neorv32.org>
 component dtm is
     generic (
-        IDCODE_VERSION : std_logic_vector(03 downto 0); -- version
-        IDCODE_PARTID  : std_logic_vector(15 downto 0); -- part number
-        IDCODE_MANID   : std_logic_vector(10 downto 0)  -- manufacturer id
-    );
+          IDCODE_VERSION : std_logic_vector(03 downto 0); -- version
+          IDCODE_PARTID  : std_logic_vector(15 downto 0); -- part number
+          IDCODE_MANID   : std_logic_vector(10 downto 0)  -- manufacturer id
+         );
     port (I_clk       : in  std_logic;
           I_areset    : in  std_logic;
-          -- JTAG connection --
+          -- JTAG connection
           I_trst : in  std_logic;
           I_tck  : in  std_logic;
           I_tms  : in  std_logic;
           I_tdi  : in  std_logic;
           O_tdo  : out std_logic;
-          -- Debug module interface (DMI) --
+          -- Debug module interface (DMI)
           O_dmi_request   : out dmi_request_type;
           I_dmi_response  : in  dmi_response_type
          );
 end component dtm;
 component dm is
     generic (
-             OCD_AAMPOSTINCREMENT : boolean
-            );
+          OCD_AAMPOSTINCREMENT : boolean
+         );
     port (I_clk : std_logic;
           I_areset : std_logic;
-          --
+          -- Debug module interface (DMI)
           I_dmi_request : in dmi_request_type;
           O_dmi_response : out dmi_response_type;
-          --
+          -- Debug signals
           O_reset_req : out std_logic;
           I_reset_ack : in std_logic;
           O_halt_req : out std_logic;
@@ -427,7 +427,6 @@ component dm is
           O_resume_req : out std_logic;
           I_resume_ack : in std_logic;     
           O_ackhavereset : out std_logic;     
-          --
           O_dm_core_data_request : out dm_core_data_request_type;
           I_dm_core_data_response : in dm_core_data_response_type
          );
@@ -438,18 +437,13 @@ end component dm;
 signal clk_int : std_logic;
 signal areset_int : std_logic;
 
+-- Instruction fetch from ROM and boot ROM
 signal instr_request_int : instr_request_type;
 signal instr_response_int : instr_response_type;
-
 signal instr_request_rom_int : instr_request_type;
 signal instr_response_rom_int : instr_response2_type;
-
 signal instr_request_boot_int : instr_request_type;
 signal instr_response_boot_int : instr_response2_type;
-
--- Data in and out of the core
-signal dataout_int : data_type;
-signal datain_int : data_type;
 
 -- Memory access signals from core to address decoder
 signal bus_request_int : bus_request_type;
@@ -468,11 +462,8 @@ signal mem_response_io_int : mem_response_type;
 signal mtime_int : data_type;
 signal mtimeh_int : data_type;
 
--- interrupts from I/O to core
+-- Interrupts from I/O to core
 signal intrio_int : data_type;
-
--- Instruction access error (now:unimplemented memory)
-signal instr_access_error_int : std_logic;
 
 -- Signals for reset
 signal areset_sys_sync_int : std_logic_vector(3 downto 0);

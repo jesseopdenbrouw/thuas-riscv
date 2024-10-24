@@ -3,6 +3,7 @@
 This is a self made program that converts a Motorola S-record file
 to a VHDL file suitable for inclusion in a VHDL description.
 
+```
 srec2vhdl v0.4 -- an S-record to VHDL table converter
 Usage: srec2vhdl [-fvqbhwd0xB] [-i <arg>] inputfile [outputfile]
    -f        Full table output
@@ -18,6 +19,7 @@ Usage: srec2vhdl [-fvqbhwd0xB] [-i <arg>] inputfile [outputfile]
    -B        Output as bootloader ROM
 If outputfile is omitted, stdout is used
 Program size must be less then 10 MB
+```
 
 The address of the first record is used as an offset
 so that the first record starts at vector element 0.

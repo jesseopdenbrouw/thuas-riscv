@@ -11,7 +11,7 @@
 -- This is an implementation of S.T. Nolting's DTM module.
 -- See https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd
 -- The structure of the hardware is the same, but the naming of some signals is
--- different.
+-- different. Still using TRST.
 
 
 library ieee;
@@ -21,10 +21,11 @@ library work;
 use work.processor_common.all;
 
 entity dtm is
-    generic (IDCODE_VERSION : std_logic_vector(03 downto 0) := "0000"; -- version
-             IDCODE_PARTID  : std_logic_vector(15 downto 0) := x"face"; -- part number
-             IDCODE_MANID   : std_logic_vector(10 downto 0) := "00000000000" -- manufacturer id
-            );
+    generic (
+          IDCODE_VERSION : std_logic_vector(03 downto 0) := "0000"; -- version
+          IDCODE_PARTID  : std_logic_vector(15 downto 0) := x"face"; -- part number
+          IDCODE_MANID   : std_logic_vector(10 downto 0) := "00000000000" -- manufacturer id
+         );
     port (I_clk    : in  std_logic;
           I_areset : in  std_logic;
           -- JTAG connection

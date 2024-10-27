@@ -706,10 +706,11 @@ begin
     debuggen : if HAVE_OCD generate
         -- Reused from NEORV32 by S.T. Nolting <www.neorv32.org>
         dtm0: dtm
-        generic map (IDCODE_VERSION => "0000",
-                     IDCODE_PARTID  => x"face",
-                     IDCODE_MANID   => "00000000000"
-                    )
+        generic map (
+                  IDCODE_VERSION => "0000",
+                  IDCODE_PARTID  => x"face",
+                  IDCODE_MANID   => "00000000000"
+                 )
         port map (I_clk => I_clk,
                   I_areset => I_areset,
                   I_trst => I_trst,
@@ -725,8 +726,8 @@ begin
         -- Debug Module
         dm0: dm
         generic map (
-                     OCD_AAMPOSTINCREMENT => OCD_AAMPOSTINCREMENT
-                    )
+                  OCD_AAMPOSTINCREMENT => OCD_AAMPOSTINCREMENT
+                 )
         port map (I_clk => I_clk,
                   I_areset => I_areset,
                   --
@@ -763,10 +764,6 @@ begin
         dm_core_data_request_int.writecsr <= '0';
         dm_core_data_request_int.writegpr <= '0';
         dm_core_data_request_int.writemem <= '0';
-
-        --dm_core_data_response_int.data <= (others => '0');
-        --dm_core_data_response_int.excep <= '0';
-        --dm_core_data_response_int.ack <= '0';
     end generate notdebuggen;
     
 end architecture rtl;

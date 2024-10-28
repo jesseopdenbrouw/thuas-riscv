@@ -2015,7 +2015,7 @@ begin
     -- Memory interface block
     --
 
-    -- This is the interface between the core and the memory (ROM, RAM, I/O)
+    -- This is the interface between the core and the memory (ROM, boot ROM, RAM, I/O)
     -- Memory access type and size are computed in the instruction decoding unit
     process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb, I_dm_core_data_request) is
     variable address_v : unsigned(31 downto 0);
@@ -2025,11 +2025,12 @@ begin
         if control.indebug = '1' then
             address_v := unsigned(I_dm_core_data_request.address);
         -- Check if we need forward or not
-        elsif control.forwarda = '1' then
-            address_v := unsigned(ex_wb.rddata);
-            address_v := address_v + unsigned(id_ex.imm);
         else
-            address_v := unsigned(id_ex.rs1data);
+            if control.forwarda = '1' then
+                address_v := unsigned(ex_wb.rddata);
+            else
+                address_v := unsigned(id_ex.rs1data);
+            end if;
             address_v := address_v + unsigned(id_ex.imm);
         end if;
 
@@ -2092,7 +2093,8 @@ begin
     end process;
     -- Address of the memory operation, this is a simple copy
     -- outside the rising edge to make 1 register instead of 2
-    O_bus_request.addr <= I_dm_core_data_request.address when control.indebug = '1' else csr_transfer.address_to_mtval;
+--    O_bus_request.addr <= I_dm_core_data_request.address when control.indebug = '1' else csr_transfer.address_to_mtval;
+    O_bus_request.addr <= csr_transfer.address_to_mtval;
     
     
     --

@@ -21,10 +21,11 @@ All dates are in dd.mm.yyyy format.
 | 09.09.2024 | 1.0.1.1  | [dm] Fix bug in auto-increment calculation | |
 | 17.09.2024 | 1.0.1.2  | Removed unused signal | |
 | 21.09.2024 | 1.0.1.3  | Minor comment edits, moved a signal in core | |
-| 27.09.2024 | 1.0.1.4  | MEPC has bit 0 set to hard 0, PC witj JARL has bit 0 set to hard 0 | |
+| 27.09.2024 | 1.0.1.4  | MEPC has bit 0 set to hard 0, PC witg JARL has bit 0 set to hard 0 | |
 | 30.09.2024 | 1.0.1.5  | [core] fixed handling of NMI | |
 | 04.10.2024 | 1.0.2.0  | New version |
 | 19.10.2024 | 1.0.2.1  | [bootloader] Removed unused variable, renamed all variables to ending with v. [common] update function initialize_memory | |
 | 22.10.2024 | 1.0.2.2  | [io] SPI1 MOSI default to 1 | |
 | 28.10.2024 | 1.0.2.3  | [core] rework memory access hardware | |
+| 30.10.2024 | 1.0.3.0  | New release | |
 

@@ -5,24 +5,35 @@
 
 PREFIX = ../rtl/thuas-riscv
 
+NOENT = \
+       processor_common.vhd \
+       bootrom_image.vhd \
+       rom_image.vhd \
+
+FILES = \
+		address_decode.vhd \
+		bootloader.vhd \
+		core.vhd \
+		de0_cv.vhd \
+		dm.vhd \
+		dtm.vhd \
+		instr_router.vhd \
+		io.vhd \
+		ram.vhd \
+		riscv.vhd \
+		rom.vhd \
+		tb_riscv.vhd
+
+ENTITIES = $(basename $(FILES))
+
+
 all: compile sim wave
 
 compile:
-	echo "Compiling all VHDL files..."
-	ghdl -a $(PREFIX)/processor_common.vhd
-	ghdl -a $(PREFIX)/rom_image.vhd
-	ghdl -a $(PREFIX)/bootrom_image.vhd
-	ghdl -a $(PREFIX)/address_decode.vhd $(PREFIX)/instr_router.vhd  $(PREFIX)/bootloader.vhd $(PREFIX)/io.vhd $(PREFIX)/core.vhd $(PREFIX)/ram.vhd $(PREFIX)/rom.vhd $(PREFIX)/riscv.vhd $(PREFIX)/dm.vhd $(PREFIX)/dtm.vhd $(PREFIX)/tb_riscv.vhd
-	ghdl -e address_decode
-	ghdl -e instruction_router
-	ghdl -e bootloader
-	ghdl -e io
-	ghdl -e core
-	ghdl -e rom
-	ghdl -e riscv
-	ghdl -e dm
-	ghdl -e dtm
-	ghdl -e tb_riscv
+	for i in $(NOENT) $(FILES); do ghdl -a $(PREFIX)/$$i; done
+	for i in $(ENTITIES); do ghdl -e $$i; done
+
+#	echo "Compiling all VHDL files..."
 
 sim:
 	echo "Running the simulation..."

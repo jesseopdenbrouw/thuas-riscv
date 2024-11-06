@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 library work;
 use work.processor_common.all;
 
-entity instruction_router is
+entity instr_router is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
           ROM_HIGH_NIBBLE : memory_high_nibble;
@@ -61,9 +61,9 @@ entity instruction_router is
           O_instr_request_boot : out instr_request_type;
           I_instr_response_boot : in instr_response2_type
          );
-end entity instruction_router;
+end entity instr_router;
 
-architecture rtl of instruction_router is
+architecture rtl of instr_router is
 begin
 
     O_instr_request_rom <= I_instr_request;

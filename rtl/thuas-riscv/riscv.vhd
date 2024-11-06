@@ -256,7 +256,7 @@ component address_decode is
           I_mem_response_io : in mem_response_type
          );
 end component address_decode;
-component instruction_router is
+component instr_router is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
           ROM_HIGH_NIBBLE : memory_high_nibble;
@@ -273,7 +273,7 @@ component instruction_router is
           O_instr_request_boot : out instr_request_type;
           I_instr_response_boot : in instr_response2_type
          );
-end component instruction_router;
+end component instr_router;
 component rom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
@@ -588,7 +588,7 @@ begin
               I_mem_response_io => mem_response_io_int
     );
     
-    instr_route0: instruction_router
+    instr_route0: instr_router
     generic map (
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,

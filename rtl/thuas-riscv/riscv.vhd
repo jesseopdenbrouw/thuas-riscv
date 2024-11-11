@@ -106,7 +106,9 @@ entity riscv is
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
-          -- use watchdog?
+          -- Use Machine-mode Software Interrupt?
+          HAVE_MSI : boolean;
+          -- Use watchdog?
           HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
@@ -135,7 +137,6 @@ entity riscv is
           O_spi1sck : out std_logic;
           O_spi1mosi : out std_logic;
           I_spi1miso : in std_logic;
-          O_spi1nss : out std_logic;
           -- SPI2
           O_spi2sck : out std_logic;
           O_spi2mosi : out std_logic;
@@ -199,6 +200,8 @@ component core is
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
+          -- Use Machine-mode Software Interrupt?
+          HAVE_MSI : boolean;
           -- Use watchdog?
           HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
@@ -341,7 +344,9 @@ component io is
           HAVE_TIMER1 : boolean ;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
-          -- use watchdog?
+          -- Use Machine-mode Software Interrupt?
+          HAVE_MSI : boolean;
+          -- Use watchdog?
           HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
@@ -369,7 +374,6 @@ component io is
           O_spi1sck : out std_logic;
           O_spi1mosi : out std_logic;
           I_spi1miso : in std_logic;
-          O_spi1nss : out std_logic;
           -- SPI2
           O_spi2sck : out std_logic;
           O_spi2mosi : out std_logic;
@@ -537,6 +541,7 @@ begin
               HAVE_I2C2 => HAVE_I2C2,
               HAVE_TIMER1 => HAVE_TIMER1,
               HAVE_TIMER2 => HAVE_TIMER2,
+              HAVE_MSI => HAVE_MSI,
               HAVE_WDT => HAVE_WDT,
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
@@ -658,6 +663,7 @@ begin
               HAVE_I2C2 => HAVE_I2C2,
               HAVE_TIMER1 => HAVE_TIMER1,
               HAVE_TIMER2 => HAVE_TIMER2,
+              HAVE_MSI => HAVE_MSI,
               HAVE_WDT => HAVE_WDT,
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
@@ -682,7 +688,6 @@ begin
               O_spi1sck => O_spi1sck,
               O_spi1mosi => O_spi1mosi,
               I_spi1miso => I_spi1miso,
-              O_spi1nss => O_spi1nss,
               -- SPI2
               O_spi2sck => O_spi2sck,
               O_spi2mosi => O_spi2mosi,

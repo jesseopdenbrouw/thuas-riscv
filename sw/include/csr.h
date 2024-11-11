@@ -117,6 +117,7 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_MXHW_WDT       (1 << 25)
 #define CSR_MXHW_ZIHPM     (1 << 26)
 #define CSR_MXHW_OCD       (1 << 27)
+#define CSR_MXHW_MSI       (1 << 28)
 
 /* HPM selection bits */
 #define CSR_HPM_JUMP       (1 << 0)

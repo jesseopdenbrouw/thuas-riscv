@@ -21,7 +21,7 @@
 #define F_CPU (50000000UL)
 #endif
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 /* Defines */
@@ -31,7 +31,7 @@
 #define EEPROMWRDI  (0x04)
 #define EEPROMRDSR  (0x05)
 #define EEPROMWREN  (0x06)
-#define ADDRESS (0x00)
+#define ADDRESS     (0x00)
 
 int main(void)
 {
@@ -39,14 +39,14 @@ int main(void)
 	/* Buffer with the WRITE command, the address and the data to write.
 	 * The 25AA010A can write 16 bytes max in one transfer, on 16-byte
 	 * boundaries. */
-	uint8_t wbuf[] = { EEPROMWRITE, ADDRESS, 'T', 'e', 's', 't', 0xbe, 0xef, 0xaa, 0xbb };
+	uint8_t wbuf[] = { EEPROMWRITE, ADDRESS, 'T', 'e', 's', 't', 'w', 'o', 'r', 'd', '\0' };
 	uint8_t rbuf[16] = { 0 };
 
 	/* Deactivate device, soft NSS high */
 	GPIOA->POUT |= 1<<15;
 
-	/* CS setup, CS hold, /16, 8 bits, mode 0 */
-	SPI1->CTRL = (0 << 20) | (0 << 12) | (3<<8) | (0<<4) | (0<<1);
+	/* /16, 8 bits, mode 0 */
+	SPI1->CTRL = (3<<8) | (0<<4) | (0<<1);
 
 	uart1_init(BAUD_RATE, UART_CTRL_EN);
 

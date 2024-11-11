@@ -33,7 +33,9 @@ int main(int argc, char *argv[], char *envp[]);
 /* Declare the constructor and destructor function */
 /* Declare the pre-init universal handler */
 void __libc_init_array(void);
+#ifdef WITH_DESTRUCTORS
 void __libc_fini_array(void);
+#endif
 void pre_init_trap_handler(void);
 
 /* argv array for main */
@@ -83,14 +85,6 @@ void _start(void)
 	volatile uint8_t *pdRom;
 #endif
 
-	/* Initialize the bss with 0 */
-	pStart = &_sbss;
-	pEnd = &_ebss;
-	while (pStart < pEnd) {
-		*pStart = 0x00;
-		pStart++;
-	}
-
 	/* Copy the ROM-placed RAM init data to the RAM */
 	pStart = &_sdata;
 	pEnd = &_edata;
@@ -99,6 +93,14 @@ void _start(void)
 		*pStart = *pdRom;
 		pStart++;
 		pdRom++;
+	}
+
+	/* Initialize the bss with 0 */
+	pStart = &_sbss;
+	pEnd = &_ebss;
+	while (pStart < pEnd) {
+		*pStart = 0x00;
+		pStart++;
 	}
 
 	/* Call the constructors */

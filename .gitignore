@@ -4,11 +4,15 @@ sw-test/*
 rtl/thuas-riscv-test/*
 eclipse/*
 rtl/thuas-riscv/db
+rtl/thuas-riscv/rtl_work
 rtl/thuas-riscv/output_files
 rtl/thuas-riscv/incremental_db
 rtl/thuas-riscv/*.bak
 rtl/thuas-riscv/c5_pin_model_dump.txt
 rtl/thuas-riscv/serv_req_info.txt
+rtl/thuas-riscv/modelsim.ini
+rtl/thuas-riscv/vsim.wlf
+rtl/thuas-riscv/transcript
 rtl/thuas-riscv/riscv.qws
 rtl/thuas-riscv/dse/*
 rtl/thuas-riscv/*dse*

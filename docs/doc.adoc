@@ -20,9 +20,9 @@ This is work in progress. Things will certainly change in the future.
 :sectnums:
 
 == Introduction
-This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and Sdtrig extension are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
+This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and Sdtrig extensions are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
 
-The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading ROM (data), RAM and I/O. Writes take two clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The I/O output has a buffer register for reading to speed up the processor. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings.
+The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The I/O output has a buffer register for reading to speed up the processor. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings.
 
 The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests showed an average CPI of 1.73 with a throughput of 1.93 coremark/MHz (4000 runs). An overview of the processor is given in <<fig_soc>>
 
@@ -57,16 +57,16 @@ image::images/core.svg[FSM]
 The remaining building blocks:
 
 * The ROM contains the program instructions and constant data. When the bootloader is implemented, the ROM may be written.
-* The bootloader ROM contains the program instructions and constant (read-only) data. The bootloader ROM may be excluded from the design
+* The bootloader ROM contains the bootloader program instructions and constant (read-only) data. The bootloader ROM may be excluded from the design
 * The RAM contains read-write data (mutable data).
 * The I/O is an interface with the outside world.
-* The Address Decoder and Data Router is an interface between the memory (ROM, BOOT, RAM, I/O) and the ALU and registers.
+* The Address Decoder and Data Router is an interface between the memory (ROM, boot ROM, RAM, I/O) and the core
 * The instruction router routes instructions from the ROM and the boot ROM (if enabled).
 * The debug module (DM) is an interface between the core and the debug module interface (DMI).
 * The debug transport module (DTM) is an interface between the DMI and the external debug hardware.
 
 === Registers
-The register file consists of thirty-two 32-bit registers denoted by `x0` to `x31`. Internally, the registers use Big Endian format. Register `x0` (alias `zero`) is hardwired to all zeros. Writing this register has no effect. Reading this register returns all zero bits. Normally, the `x`-names are not used but may be handy when simulating the designs. See <<tab_reg>>.
+The register file consists of thirty-two 32-bit registers denoted by `x0` to `x31`. Internally, the registers use Big Endian format. Register `x0` (alias `zero`) is hardwired to all zeros. Writing this register has no effect. Reading this register returns all zero bits. Normally, the `x` names are not used but may be handy when simulating the designs. See <<tab_reg>>.
 A register can be written to, and two register can be selected for data and/or base address.
 
 .RISC-V registers
@@ -115,7 +115,7 @@ image::images/fsm.svg[FSM]
 
 Note that a trap (interrupts and exceptions) can be initiated in the `exec` state and has priority over the others signals. Note that a trap (exceptions only) can be initiated in the `mem` state. Tn the `wfi` state, only an interrupt can be initiated. In all other states, a trap can never be initiated (interrupts are postponed until the processor is in the `exec` state).
 
-The PC points to +8 of the currently executing instruction, in a sequential instruction stream. If a jump or branch taken occurs, the FSM inserts a penalty because the PC has to be loaded with the correct value and a new instruction must be fetched (see <<fig_one>>). Reading RAM, ROM and I/O requires three clock cycles (see <<fig_load>>), a write requires two clock cycles. When a multiply, divide or remainder instruction is encountered, the FSM enters the `md` state and waits for the md-unit to complete (32+2 or 16+2 clock cycles). Note that `penalty`, `mem`, `mdstart` and `mret` cannot occur at the same time.
+The PC points to +8 of the currently executing instruction, in a sequential instruction stream. If a jump or branch taken occurs, the FSM inserts a penalty because the PC has to be loaded with the correct value and a new instruction must be fetched (see <<fig_one>>). Reading from memory requires three clock cycles (see <<fig_load>>), a write requires two clock cycles. When a multiply, divide or remainder instruction is encountered, the FSM enters the `md` state and waits for the md-unit to complete (32+2 or 16+2 clock cycles). Note that `penalty`, `mem`, `mdstart` and `mret` cannot occur at the same time.
 
 .Execution of one instruction.
 [[fig_one]]
@@ -127,7 +127,7 @@ image::images/load.svg[FSM]
 
 === Trap handling
 
-When an interrupt occurs, the FSM enters the `trap` state for fetching the trap vector. An interrupt can occur any time and is called asynchronous. When an interrupt occurs, instruction-to-executed is discarded and must be restarted after return. After fetching the trap handler, new instructions are fetched and the instruction pipeline is flushed.
+When an interrupt occurs, the FSM enters the `trap` state for fetching the trap vector. An interrupt can occur any time and is called asynchronous. When an interrupt occurs, the instruction-to-be-executed is discarded and must be restarted after return. After fetching the trap handler, the instruction pipeline is flushed and new instructions are fetched.
 
 Exceptions are synchronous to the executing of instructions. When an exception occurs, the current instruction is discarded. The instruction can be restarted, but that is not always possible (e.g. misaligned address, illegal instruction). Exceptions to this are the `ecall` and `ebreak` instructions. These instructions do cause a trap, but are not restarted, so the next instruction must be fetched after return. This has to be handled in software by the trap handler. 
 
@@ -157,11 +157,11 @@ The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this t
 
 The Address Decoder and Data Router routes reads and writes to the memory (ROM, bootloader ROM (only reads), RAM and the I/O). The processor uses a 32-bit linear address space for memory accesses. The address space is divided in 16 parts of 256 MB each. In the default setting, ROM starts at address 0x00000000 and the length is 64 kB. The bootloader ROM starts at address 0x10000000 and the length is 4 kB. Unused ROM addresses return 0x0000000. The RAM starts at address 0x20000000 and length is 32 kB. The I/O starts at address 0xF0000000 and the length is 16 kB by default.
 
-When data is read, the data is collected from the accessed memory and put on an internal bus to the ALU. The ALU can perform sign extension or zero extenstion (byte and half word accesses) if needed. Please note that reading data from the ROM, bootloader ROM, RAM and I/O requires three clock cycles. Writing requires two clock cycles.
+When data is read, the data is collected from the accessed memory and put on an internal bus to the ALU. The ALU can perform sign extension or zero extenstion (byte and half word accesses) if needed. 
 
 Note that instructions can only be fetched from ROM and boot ROM.
 
-Note that _all_ memory accesses must be acknowledged, even when this triggers an exception.
+Note that _all_ memory accesses are/must be acknowledged, even when this triggers an exception, otherwise the core hangs.
 
 === Instruction Router
 
@@ -190,10 +190,10 @@ Generic registers:
 For trap handling, the following registers are implemented:
 
 * `mstatus` -- the only implemented bits are `MIE`, `MPIE` and `MPP`, all other bits are hardwired zero.
-* `mie` -- for the lower 16 bits, only `MTIE` and `MSI` are implemented, all other bits are hardwired zero.
+* `mie` -- for the lower 16 bits, only `MTIE` and `MSI` are implemented, all other bits are hardwired zero. The upper 16 bits are hardwired zero.
 * `mtvec` -- contains the trap handler (vector) address, can be used in direct and vectored mode, and bit 1 is always 0.
 * `mstatush` -- this register is hardwired to all zero bits.
-* `mscratch` -- currently not used, but can be used by software trap handlers.
+* `mscratch` -- can be used by software trap handlers.
 * `mepc` -- contains the PC at point of trap of the *currently* executing instruction.
 * `mcause` -- contains the cause of the trap as set forward in ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture''. For local interrupts, additional codes are used.
 * `mtval` -- contains the address on the address bus when a trap occurs, or all-zero bits if not relevant.
@@ -219,13 +219,13 @@ The event counter registers are currently 40 bits wide. Currently, there are 7 e
 |2 | stores
 |3 | loads
 |4 | ECALLs
-|5 | EBREAK
+|5 | EBREAKs
 |6 | multiply/divides
 |===
 
 For on-chip debugging purposes, there are six CSRs:
 
-* `dcsr` -- this register holds information between the DM and de hart.
+* `dcsr` -- this register holds information between the DM and the hart.
 * `dpc` -- this register hold the PC value of the instruction to be executed when the core enters debug mode.
 * `tselect` -- this register is used to select a hardware breakpoint, since there is only one hardware breakpoint available this register is hardwired to all-zero bits.
 * `tdata1` -- this register selects the trigger type for hardware triggering, only type 6 is supported, and only instruction address breakpoint is available.
@@ -245,7 +245,7 @@ Writing read-only registers causes an illegal instruction trap. Accessing a non-
 
 The Local Interrupt Controller is responsible for selecting which trap request must be serviced by the core. Interrupts have higher priority than exceptions. The state of the serviced trap is visible in the CSR.
 
-The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7) and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, I2C2, UART1, TIMER2, TIMER1, EXTI external input interrupt, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
+The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7) and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, SPI2, I2C2, UART1, TIMER2, TIMER1, EXTI external input interrupt, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
 
 Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture'': instruction access fault, instruction address misaligned, ECALL (M mode only), EBREAK, load/store address misaligned, load/store access fault. Note that ECALL and EBREAK are user instructions and can be interrupted by an interrupt (i.e. when the ECALL or EBREAK instruction is executing).
 
@@ -256,7 +256,7 @@ The processor is equipped with a hardware integer multiply/divide unit. All mult
 
 === Debug Module and Debug Transport Module
 
-The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the debug specification. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up a hardware breakpoint, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
+The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up a hardware breakpoint, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
 
 he DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd).
 
@@ -277,11 +277,9 @@ The are four memories: ROM, boot ROM, RAM and I/O.
 
 The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. Reading ROM (as data) requires three cycles. This is automatically handled by the processor. The pipeline is stalled for two clock cycles when reading from ROM (data). Reading instructions requires two clock cycles.
 
-When the bootloader hardware is installed, the ROM is writable as words only. Although this write option is reserved for the bootloader, a user program can manipulate the ROM. A write requires one or two clock cycles, depending on the VHDL generic `HAVE_FAST_STORE`.
+When the bootloader hardware is installed or the on-chip debugger is enabled, the ROM is writable as words only. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. A write requires one or two clock cycles, depending on the VHDL generic `HAVE_FAST_STORE`.
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
-
-Note: instructions can only be fetched from the ROM and bootloader ROM.
 
 === Bootloader ROM
 
@@ -297,23 +295,25 @@ Reading the RAM (byte, half word, word) requires three clock cycles. A write req
 
 === I/O
 
-Currently, the I/O consists of one 32-bit data input and one 32-bit data output, a simple UART with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, a general purpose SPI peripheral with interrupt, a simple SPI peripheral (no interrupt), a watchdog timer, a software interrupt unit and the TIME and TIMEH memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A read requires three clock cycles, a write requires one or two clock cycles, depending on the VHDL generic `HAVE_FAST_STORE`. Note that not all I/O addresses are used.
+Currently, the I/O consists of one 32-bit data input and one 32-bit data output, a simple UART with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit and the TIME and TIMEH memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A read requires three clock cycles, a write requires one or two clock cycles, depending on the VHDL generic `HAVE_FAST_STORE`. Note that not all I/O addresses are used.
 
-GPIOA has separate inputs and output, both 32 bits. This is because some FPGAs/synthesizers don't allow buried tri-state signals, i.e. the tri-state action must be done in the top level entity. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons. Note that KEY4 a.k.a. FPGA_RESET is connected to the reset of the processor. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt if a rising and/or falling edge is detected.
+Note: GPIOA and MTIME are always included in synthesis.
+
+GPIOA has separate inputs and output, both 32 bits. This is because some FPGAs/synthesizers don't allow buried tri-state signals, i.e. the tri-state action must be done in the top level entity. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons (DE0-CV board). Note that KEY4 a.k.a. FPGA_RESET is connected to the reset of the processor. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt if a rising and/or falling edge is detected.
 
 UART1 can transmit and receive data at 7, 8 or 9 bits, no/even/odd parity and 1 or 2 stop bits. Tested speeds are 9600 bps, 115200 bps and 230400 bps. Several status flags are implemented to guide transmission. Receive, transmitted and BREAK character (local) interrupts are provided (one vector). These interrupt requests must be negated by software. A BREAK condition is found if UART1 samples 1 start bit + number of data bits + 1 stop bit to be low. UART1 does not provide hardware flow control.
 
 TIMER1 has a 32-bit count register and increments on every clock cycle. It does not have a prescaler. It counts up to compare match T register, after which is will be loaded with 0 again. A compare match (local) interrupt is provided (one vector). Whenever the timer count register is greater than or equal to the compare match T register, an interrupt request is asserted in the next clock cycle. The interrupt request has to be negated by software. A value of 0 in the compare match T register is valid: the counter does not count, but the compare match (local) interrupt is asserted.
 
-TIMER2 has a 16-bit count register and a 16-bit prescaler, and increments on every clock cycle. The counter can be used to generate signals (Output Compare/PWM) or detect incoming signal edges (Input Capture). When in output mode. the timer counts up to compare match T register, after which is will be loaded with 0 again. Compare match (local) interrupts are provided (one vector). Whenever the timer count register is greater than or equal to the compare match T register, an interrupt request is asserted. The interrupt request has to be negated by software. The timer provides three Channels with compare registers (A, B, C). Whenever the timer count register is greater than or equal to a compare register (A, B, C) the respective interrupt request is asserted. The interrupt requests have to be negated by software. A value of 0 in the compare match T register is valid: the counter does not count, but the compare match T (local) interrupt is asserted and the compare match interrupts (A, B, C) are asserted whenever the respective compare match register is 0. The prescaler is always preloaded: if the timer is off, the shadow prescaler register is directly written, if the timer is running, the preload register is written and the shadow register is updated at the the next CMPT match. The CMPT/A/B/C registers may optionally use a preload register. If preload is off, the shadow registers are directly written, if preload is on, the preload registers are written and the shadow registers are updated at the next CMPT match. In Input Compare mode, the Channels A, B and C can be selected to trigger on a positive or negative edge. When an edge is detected, the current value of CNTR is copied to the accompanying CMP_x_ register and the accompanying interrupt flag is asserted. Note that Channel T cannot be used for PWM and input capture. The input capture circuits use a two-stage synchronizer. 
+TIMER2 has a 16-bit count register and a 16-bit prescaler, and increments on every clock cycle. The counter can be used to generate signals (Output Compare/PWM) or detect incoming signal edges (Input Capture). When in output mode. the timer counts up to compare match T register, after which is will be loaded with 0 again. Compare match (local) interrupts are provided (one vector). Whenever the timer count register is greater than or equal to the compare match T register, an interrupt request is asserted. The interrupt request has to be negated by software. The timer provides three Channels with compare registers (A, B, C). Whenever the timer count register is greater than or equal to a compare register (A, B, C) the respective interrupt request is asserted. The interrupt requests have to be negated by software. A value of 0 in the compare match T register is valid: the counter does not count, but the compare match T (local) interrupt is asserted and the compare match interrupts (A, B, C) are asserted whenever the respective compare match register is 0. The prescaler is always preloaded: if the timer is off, the shadow prescaler register is directly written, if the timer is running, the preload register is written and the shadow register is updated at the the next CMPT match. The CMPT/A/B/C registers may optionally use a preload register. If preload is off, the shadow registers are directly written, if preload is on, the preload registers are written and the shadow registers are updated at the next CMPT match. In Input Compare mode, the Channels A, B and C can be selected to trigger on a positive or negative edge. When an edge is detected, the current value of CNTR is copied to the accompanying CMPx register and the accompanying interrupt flag is asserted. Note that Channel T cannot be used for PWM and input capture. The input capture circuits use a two-stage synchronizer. 
 
 I2C1 is a minimal I2C controller peripheral (master-only). It cannot react to clock stretching and lost arbitration, so only modern targets (slaves) can be connected in a one-master-only system. Both Standard mode (Sm) with a transmission speed of up to 100 kbps and Fast mode (Fm) with a transmission speed up to 400 kbps are implemented. Before sending the address byte, the send-start bit must be set and a START condition is send to the target when the address is written to the I2C1 data register. Before sending or receiving the last data byte, the send-stop bit must be set and a STOP condition is send to the target after the byte is send or received by the controller. The last byte received will not be acknowledged by the controller. When receiving intermediate bytes, the controller must acknowledge the reception with an ACK. This is controlled by the MACK bit in the control register. Sending a byte is straightforward: just write the byte to the data register. When receiving a byte, a dummy byte (data value of 0xff) must be send to the target. This way, the processor can create a pause in the transmission if needed. Note that the SCL line is kept low between byte transmissions. The baud rate prescaler must be loaded with the number of system clock cycles of *one-half* bit time minus 1 for Standard mode and *one-third* bit time minus 1 for Fast mode. Note that the prescaler is part of the control register CTRL and its value must be preserved when setting or clearing other bits. The SCL and SDA inputs are synchronized to the system clock using two 2-bit shift registers.
 
-I2C2 is exact copy of I2C1, but with a different interrupt priority.
+I2C2 is an exact copy of I2C1, but with a different interrupt priority.
 
-SPI1 is a full-fledged SPI master. It can transfer 8-bit, 16-bit, 24-bit and 32-bit data in one SPI cycle. It incorporates a programmable prescaler (from /2 to /256 in powers of 2) and all four phases of clock polarity (CPOL) and phase polarity (CPHA), hardware NSS (Slave Select, active low) and programmable Slave Select setup and hold time. It is possible to use a GPIO pin to use software-controlled NSS. Currently, the MISO is not synchronized to the system clock.
+SPI1 is a full-fledged SPI master. It can transfer 8-bit, 16-bit, 24-bit and 32-bit data in one SPI cycle. It incorporates a programmable prescaler (from /2 to /256 in powers of 2) and all four phases of clock polarity (CPOL) and phase polarity (CPHA). Use a GPIO pin to use software-controlled NSS. Currently, the MISO is not synchronized to the system clock. Transfer complete interrupt is available.
 
-SPI2 is a simple SPI master dedicated for the micro SC card reader (DE0-CV board). It can transfer 8-bit, 16-bit, 24-bit and 32-bit data in one SPI cycle. It does not have an hardware NSS signal and no interrupt capability. A single I/O pin is needed for NSS. Currently, the MISO is not synchronized to the system clock.
+SPI2 is an exact copy of SPI1, but with a different interrupt priority.
 
 WDT is a simple watchdog timer that can trigger a system wide reset or a non-maskable interrupt (NMI). The NMI cannot be blocked. The NMI uses the same mechanism as other traps, so `mtvec` must point to a trap handler. Note that an NMI will fire only when the control unit is in the `exec` state. This is done so that the processor is in a known state when the NMI fires. An NMI cannot be interrupted by another NMI. It is not always possible to return to a correct running state of the program. This depends on the program.
 
@@ -321,11 +321,11 @@ The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger 
 
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since `clock()` and `gettimeofday()` depend on this value. As such, the system clock frequency must be a integer multiple of 1 MHz. Note that TIMEH:TIME is writable by software.
 
-Note that *all* memory accesses must be acknowledged, even when this triggers an exception.
+Note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
 
 == The FPGA
-For this project, we use the Cyclone V FPGA from Intel (formerly Altera). See https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html.
-The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 2900 ALMs (about 16%) and 1,378,304 bits of internal memory (44%). The clock frequency is approximately 85 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 85 MHz. This FPGA is mounted on a Terasic DE0-CV board (see <<fig_de0cv>>. The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. See http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921. For downloading the bitstream file, the onboard USB-Blaster is used.
+For this project, we use the https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyclone V] FPGA from Intel (formerly Altera). 
+The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 2900 ALMs (about 16%) and 1,378,304 bits of internal memory (44%). The clock frequency is approximately 85 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 85 MHz. This FPGA is mounted on a http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[Terasic DE0-CV board] (see <<fig_de0cv>>). The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. For downloading the bitstream file, the onboard USB-Blaster is used.
 
 .The DE0-CV board.
 [[fig_de0cv]]
@@ -341,23 +341,33 @@ To find the best compilation result for speed and/or area, we have to tweak the 
 
 Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed is set to 1 and the optimization is set to balanced. The total amount of ALMs is 18480. The total amount of RAM bits is 3153920.
 
-.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.0.2.0).
+.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.0.4.0).
 [[tab_metrics]]
 [cols="1,1,1,1]
 |===
 | Setup | $f_{max}$ | ALMs | FFs | RAM
 
-| Default {all I/O, MD, no extensions, no OCD} | 88 | 2886 | 2449 | 1,345,536
-| Default, no bootloader, no OCD               | 93 | 2904 | 2471 | 788,480
-| Default, only UART1 + bootloader, no OCD     | 91 | 2088 | 1458 | 1,345,536
-| Small (UART1, no boot, no MD, no OCD)        | 92 | 1699 | 1278 | 788,480 
-| Default OCD (no bootloader, OCD)             | 84 | 3465 | 3076 | 1,313,792
-| Full OCD (all extensions, OCD)               | 82 | 4503 | 3529 | 1,313,792
+| Default (all I/O, MD, no extensions, no OCD) | 91 | 2909 | 2381 | 1,345,536
+| Default, no bootloader, no OCD               | 93 | 2984 | 2383 | 788,480
+| Default, only UART1 + bootloader, no OCD     | 90 | 2121 | 1379 | 1,345,536
+| Small (UART1, no boot, no MD, no OCD)        | 91 | 1716 | 1229 | 788,480 
+| Default OCD (no bootloader, OCD)             | 86 | 3480 | 2999 | 1,313,792
+| Full OCD (all extensions, OCD)               | 88 | 4460 | 3495 | 1,313,792
 |===
+| Default OCD + perf. options                  | 92 | 3480 | 3007 | 1,313,792
+|===
+
+Performance options: balanced, Advanced Fitter Settings:
+* Fitter Effort = Standard Fit
+* Physical Synthesis Effort level = Extra
+* Placement Effort Multiplier = 10.0
+* Router Timing Optimization Level = Maximum
+* Power Optimization During Fitting = Off
 
 === Other boards
 We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../boards[here]. The fabric of these FPGAs is faster that the Cyclone V and speeds of 100+ MHz may be obtained.
 
+We find good speed results when the implementation is set to Default and the implementation is set to Performance+Explore.
 
 
 == Processor hardware
@@ -445,7 +455,9 @@ entity riscv is
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
-          -- use watchdog?
+          -- Use Machine-mode Software Interrupt?
+          HAVE_MSI : boolean;
+          -- Use watchdog?
           HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
@@ -474,7 +486,6 @@ entity riscv is
           O_spi1sck : out std_logic;
           O_spi1mosi : out std_logic;
           I_spi1miso : in std_logic;
-          O_spi1nss : out std_logic;
           -- SPI2
           O_spi2sck : out std_logic;
           O_spi2mosi : out std_logic;
@@ -571,7 +582,6 @@ The pin assignments for the DE0-CV board are as follows. Note that not all signa
 |spi1sck       | K19      | GPIO_0_D26, SPI1 clock
 |spi1mosi      | R15      | GPIO_0_D28, SPI1 MOSI
 |spi1miso      | R16      | GPIO_0_D30, SPI1 MISO
-|spi1nss       | T19      | GPIO_0_D32, SPI1 hardware NSS
 |spi2sck       | H11      | SDCLOCK, SPI2 clock
 |spi2mosi      | B11      | SDCMD, SPI2 MOSI
 |spi2miso      | K9       | SDDAT0, SPI2 MISO
@@ -632,13 +642,14 @@ Using VHDL generics, the design can be customized.
 |HAVE_I2C2             | boolean   | TRUE     | Use I2C2
 |HAVE_TIMER1           | boolean   | TRUE     | Use TIMER1
 |HAVE_TIMER2           | boolean   | TRUE     | Use TIMER2
+|HAVE_MSI              | boolean   | TRUE     | Use Machine-mode Software Interrupt
 |HAVE_WDT              | boolean   | TRUE     | Use watchdog (WDT)
 |UART1_BREAK_RESETS    | boolean   | false    | UART1 BREAK reception triggers system reset
 |===
 
 Notes: leave CLOCK_FREQUENCY at 1000000. The toolchain depends on it. Also for correct synthesis, SYSTEM_FREQUENCY must be a integer multiple of CLOCK_FREQUENCY.
 Setting HAVE_FAST_STORE makes a store *effectively* one clock cycle. The store still needs two clock cycles but the next instruction is executed while the store is taking place. If VECTORED_MTVEC is set to false, the core cannot execute vectored interrupts.
-When OCD_CSR_CHECK_DISABLE is set to true, accessing unimplemented CSRs do not trigger an exception. This breaks the RISC-V debug spec.
+When OCD_CSR_CHECK_DISABLE is set to true, accessing unimplemented CSRs does not trigger an exception. This breaks the RISC-V debug spec.
 
 == Cloning the RISC-V project
 Now we have to clone the RISC-V project. It incorporates the full Quartus Prime Lite project with the processor written in VHDL. It also incorporates many C program examples and a taylor-made program to convert a RISC-V executable to a VHDL table suitable for the ROM. Create a working directory (and change to that directory) and issue the command:
@@ -688,7 +699,7 @@ In your home directory, enter the command
 ----
 git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
 ----
-(The `--recursive` option may be omitted, in which case the `make` process with fetch them.)
+(The `--recursive` option may be omitted, in which case the `make` process will fetch the submodules.)
 Wait for the cloning to end (takes a long time, about 30 minutes on a Zbook G5 2020 with a 10 MB/s internet connection).
 Note: the toolchain is about 6.65 GB of data!
 Change to the directory with:
@@ -780,7 +791,7 @@ Note: when using traps, the system calls are handled by a trap handler (by using
 
 == Using trap handlers in software
 
-We provide (see software examples `interrupt_direct` and `interrupt_vectored`) a basic implementation of trap handlers. In direct mode, the trap handler handles all traps (interrupts and exceptions). The entry point (the address loaded in the `mtvec` CSR) must be set in the `main` function on a 4-byte boundary, as is enabling traps. In vectored mode, interrupts are redirected to their own handlers via a jump table. The start address of the jump table must be set in the `main` function on a 4-byte boundary *and* bit 0 of `mtvec` must be set to 1, and traps must be enabled. The first entry of the jump table points the trap handler that only handles exceptions. The external timer has its own handler called `external_timer_handler`. The Machine Software Interrupt (MSI) has its own handler calles `external_msi_handler`. I2C1 has its own handler called `i2c1_handler`. I2C2 has its own handler called `i2c2_handler`. TIMER1 has its own handler called `timer1_handler`. TIMER2 has its own handler called `timer2_handler`. Note that there is only one handler for all four interrupt sources. SPI1 has it own handler called `spi1_handler`. UART1 has its own handler called `uart1_handler`. This handler is used for both receive and transmit interrupts. Note that negating an interrupt request must be done by software in the respective handlers. The interrupt requests are *not* negated by hardware. Note: the external timer interrupt has to be enabled by writing a 1 to `mie.MTIE`. Both software examples implement all available interrupts: SPI1, I2C1, I2C2, TIMER2, UART1, TIMER1, MSI and external system timer. SPI2 doesn't have interrupts. When using traps, you need to set up the trap handler and interrupt service routines.
+We provide (see software examples `interrupt_direct` and `interrupt_vectored`) a basic implementation of trap handlers. In direct mode, the trap handler handles all traps (interrupts and exceptions). The entry point (the address loaded in the `mtvec` CSR) must be set in the `main` function on a 4-byte boundary, as is enabling traps. In vectored mode, interrupts are redirected to their own handlers via a jump table. The start address of the jump table must be set in the `main` function on a 4-byte boundary *and* bit 0 of `mtvec` must be set to 1, and traps must be enabled. The first entry of the jump table points the trap handler that only handles exceptions. The external timer has its own handler called `external_timer_handler`. The Machine Software Interrupt (MSI) has its own handler calles `external_msi_handler`. I2C1 has its own handler called `i2c1_handler`. I2C2 has its own handler called `i2c2_handler`. TIMER1 has its own handler called `timer1_handler`. TIMER2 has its own handler called `timer2_handler`. Note that there is only one handler for all four interrupt sources. SPI1 has it own handler called `spi1_handler`. UART1 has its own handler called `uart1_handler`. This handler is used for both receive and transmit interrupts. Note that negating an interrupt request must be done by software in the respective handlers. The interrupt requests are *not* negated by hardware. Note: the external timer interrupt has to be enabled by writing a 1 to `mie.MTIE`. Both software examples implement all available interrupts: SPI1, I2C1, SPI2, I2C2, TIMER2, UART1, TIMER1, MSI and external system timer. When using traps, you need to set up the trap handler and interrupt service routines.
 
 *Set up traps in direct mode.* +
 The trap handler's entry address must be set up using `set_mtvec`. Next, set up the I/O. Then, enable interrupts. The trap handler will be called for both interrupts and exceptions.
@@ -847,7 +858,7 @@ void trap_handler_jump_table(void)
     __asm__ volatile ("j default_handler;");
     __asm__ volatile ("j uart1_handler;");
     __asm__ volatile ("j i2c2_handler;");
-    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j spi2_handler;");
     __asm__ volatile ("j i2c1_handler;");
     __asm__ volatile ("j spi1_handler;");
     __asm__ volatile ("j default_handler;");
@@ -949,9 +960,8 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `qsort` -- sorts an integer array using the `qsort` C library function and prints the result to UART1. Works on the DE0-CV board.
 * `riemann_left` -- calculates the Riemann Left Sum of sin^2^ from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
 * `shift` -- shifts. For use in simulations.
-* `spi1readeeprom` -- using the SPI1 peripheral to read out 16 bytes of the 25AA010A EEPROM slave, one byte at the time, using hardware Slave Select. Uses UART1. Works on the board.
-* `spi1softnss` -- as `spi1readeeprom`, using software Slave Select.
-* `spi1speed` -- using the SPI1 peripheral to read out (full speed) 16 bytes of the 25AA010A EEPROM slave, using hardware Slave Select. Uses UART1. Works on the board.
+* `spi1softnss` -- using the SPI1 peripheral to read out 16 bytes of the 25AA010A EEPROM slave, one byte at the time, using software Slave Select.
+* `spi1speed` -- using the SPI1 peripheral to read out (full speed) 16 bytes of the 25AA010A EEPROM slave, using software Slave Select. Uses UART1. Works on the board.
 * `spi1writeeeprom` -- using the SPI1 peripheral to write and read out (full speed) the 25AA010A EEPROM slave, using software Slave Select. Uses UART1. Works on the board.
 * `sprintf` -- prints integers, floats/doubles to a string. This is a big binary. For simulations.
 * `string` -- some string functions. For simulations.
@@ -1350,17 +1360,24 @@ Before `main` is called, the C Runtime startup code (file `startup.c` in the `cr
 * Set up the trap vector address to catch early traps.
 * Load the Stack Pointer with the end address +1 of the RAM.
 * Load the Global Pointer with a suitable address.
-* Initialize (clear) the BBS section with 0, for globals/statics without initialization.
 * Initialize globals/statics with initialization.
+* Initialize (clear) the BBS section with 0, for globals/statics without initialization.
 * Call the global constructors.
 * Call `main`.
-* Call the global destructors.
+* Call the global destructors (if enabled).
 * Call `exit`
 
 Although this is a bare metal processor, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in the code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copied to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
 
 [source,c,subs=attributes+]
 ----
+/*
+ * Startup file for THUAS RISC-V bare metal processor
+ *
+ * (c) 2024, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ *
+ * */
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -1389,19 +1406,21 @@ int main(int argc, char *argv[], char *envp[]);
 /* Declare the constructor and destructor function */
 /* Declare the pre-init universal handler */
 void __libc_init_array(void);
+#ifdef WITH_DESTRUCTORS
 void __libc_fini_array(void);
+#endif
 void pre_init_trap_handler(void);
 
 /* argv array for main */
 static char *argv[] = {
 #ifndef NO_ARGC_ARGV
-    PROG_NAME,
-    "THUAS RISC-V RV32IM bare metal processor",
-    "The Hague University of Applied Sciences",
-    "Department of Electrical Engineering",
-    "J.E.J. op den Brouw",
+		PROG_NAME,
+		"THUAS RISC-V RV32IM bare metal processor",
+		"The Hague University of Applied Sciences",
+		"Department of Electrical Engineering",
+		"J.E.J. op den Brouw",
 #endif
-    NULL};
+		NULL};
 /* Calculate argc */
 #define argc (sizeof(argv)/sizeof(argv[0])-1)
 
@@ -1414,73 +1433,73 @@ __attribute__((naked))
 void _start(void)
 {
 
-    /* These assembler instructions set up the Global Pointer
-     * and the Stack Pointer and set the mtvec to the start
-     * address of the pre-init interrupt handler. This will
-     * catch pre-init traps. Mostly because of a bug. */
-    __asm__ volatile (".option push;"
-                      ".option norelax;"
-                      "la    t0, pre_init_trap_handler;"
-                      "csrw  mtvec,t0;"
-                      "la    gp, __global_pointer$;"
-                      "la    sp, __stack_pointer$;"
-                      ".option pop"
-                      : /* output: none */
-                      : /* input: none */
-                      : /* clobbers: none */);
+	/* These assembler instructions set up the Global Pointer
+	 * and the Stack Pointer and set the mtvec to the start
+	 * address of the pre-init interrupt handler. This will
+	 * catch pre-init traps. Mostly because of a bug. */
+	__asm__ volatile (".option push;"
+	                   ".option norelax;"
+	                   "la    t0, pre_init_trap_handler;"
+	                   "csrw  mtvec,t0;"
+	                   "la    gp, __global_pointer$;"
+	                   "la    sp, __stack_pointer$;"
+	                   ".option pop"
+	                   : /* output: none */
+	                   : /* input: none */
+	                   : /* clobbers: none */);
 
 #ifdef WITH_REGISTER
-    register uint8_t *pStart;
-    register uint8_t *pEnd;
-    register uint8_t *pdRom;
+	register uint8_t *pStart;
+	register uint8_t *pEnd;
+	register uint8_t *pdRom;
 #else
-    volatile uint8_t *pStart;
-    volatile uint8_t *pEnd;
-    volatile uint8_t *pdRom;
+	volatile uint8_t *pStart;
+	volatile uint8_t *pEnd;
+	volatile uint8_t *pdRom;
 #endif
 
-    /* Initialize the bss with 0 */
-    pStart = &_sbss;
-    pEnd = &_ebss;
-    while (pStart < pEnd) {
-        *pStart = 0x00;
-        pStart++;
-    }
+	/* Copy the ROM-placed RAM init data to the RAM */
+	pStart = &_sdata;
+	pEnd = &_edata;
+	pdRom = &_sidata;
+	while (pStart < pEnd) {
+		*pStart = *pdRom;
+		pStart++;
+		pdRom++;
+	}
 
-    /* Copy the ROM-placed RAM init data to the RAM */
-    pStart = &_sdata;
-    pEnd = &_edata;
-    pdRom = &_sidata;
-    while (pStart < pEnd) {
-        *pStart = *pdRom;
-        pStart++;
-        pdRom++;
-    }
+	/* Initialize the bss with 0 */
+	pStart = &_sbss;
+	pEnd = &_ebss;
+	while (pStart < pEnd) {
+		*pStart = 0x00;
+		pStart++;
+	}
 
-    /* Call the constructors */
-    __libc_init_array();
+	/* Call the constructors */
+	__libc_init_array();
 
-    /* At this point, the trap handler is not set up
-     * properly. Also, the external timer is not set
-     * up properly. This must be done in main() */
+	/* At this point, the trap handler is not set up
+	 * properly. Also, the external timer is not set
+	 * up properly. This must be done in main() */
 
-    /* Call main */
-    int ret = main(argc, argv, NULL);
+	/* Call main */
+	int ret = main(argc, argv, NULL);
 
 #ifdef WITH_DESTRUCTORS
-    /* Call the destructors */
-    __libc_fini_array();
+	/* Call the destructors */
+	__libc_fini_array();
 #endif
 
-    /* Stop execution */
-    exit(ret);
+	/* Stop execution */
+	exit(ret);
 }
 
 /* pre-init trap handler. Here to catch initialization errors */
 __attribute__((interrupt, used))
 void pre_init_trap_handler(void)
 {
-    while (1);
+	while (1);
 }
 ----
 

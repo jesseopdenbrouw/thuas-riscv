@@ -28,4 +28,5 @@ All dates are in dd.mm.yyyy format.
 | 22.10.2024 | 1.0.2.2  | [io] SPI1 MOSI default to 1 | |
 | 28.10.2024 | 1.0.2.3  | [core] rework memory access hardware | |
 | 30.10.2024 | 1.0.3.0  | New release (has wrong version number) | |
+| 11.11.2024 | 1.0.4.0  | New release. Removed hardware CS (NSS) from SPI1 because of limited usability. SPI2 now has interrupt (SPI1 and SPI2 are identical), fixed parity issues in UART1, minor edits. | |
 

@@ -50,7 +50,6 @@ SUBDIRS = add64 \
           qsort \
           riemann_left \
           shift \
-          spi1readeeprom \
           spi1softnss \
           spi1speed \
           spi1writeeeprom \

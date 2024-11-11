@@ -21,10 +21,9 @@ int main(void)
 	uart1_puts("\r\n\nWatchdog (WDT) test program\r\n\n");
 	uart1_puts("Wait for it... (watch the processor take an NMI)");
 
+	set_mtvec(trap_handler, TRAP_DIRECT_MODE);
 
 	wdt_init(WDT_PRESCALER(0xfffff) | WDT_NMI | WDT_EN);
-
-	set_mtvec(trap_handler, TRAP_DIRECT_MODE);
 
 	while (1) {
 		nop();
@@ -35,7 +34,6 @@ int main(void)
 void trap_handler(void)
 {
 	uart1_puts("\r\nIn NMI!");
-//	uart1_putc('c');
 	wdt_start();
 }
 

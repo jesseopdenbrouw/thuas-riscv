@@ -1,5 +1,5 @@
 %
-% Register layout of the I/O
+% THUAS RISC-V RV32: Register layout of the I/O
 %
 % (c)2024, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
 %
@@ -81,8 +81,9 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \end{register}
 \begin{regdesc}[0.6\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
-\item[Note:] This I/O register can only be read. Writes are ignored.
+\item[PIN] Port pin input values.
 \end{reglist}\end{regdesc}
+\textbf{Note:} This I/O register can only be read. Writes are ignored.
 
 \begin{register}{H}{Port A output register GPIOA\_POUT}{0x04}%
 \label{poutx}%
@@ -91,21 +92,20 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \end{register}
 \begin{regdesc}[0.6\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
-\item[Write] The data is written to the output pins.
-\item[Read] The last entered data is read back.
+\item[POUT] Port pin output values. Write: The data is written to the output pins. Read: The last entered data is read back.
 \end{reglist}\end{regdesc}
 
 \begin{register}{H}{External input interrupt control register GPIOA\_EXTC}{0x18}%
 \label{extc}%
 \regfield{Reserved}{24}{8}{{0}}%
-\regfield{PIN}{5}{3}{{0}}%
+\regfield{PINNR}{5}{3}{{0}}%
 \regfield{EDGE}{2}{1}{{0}}%
 \regfield{Reserved}{1}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
-\item[PIN] Port pin number as input source.
+\item[PINNR] Port pin number as input source.
 \item[EDGE] Edge selection: 00 = off, 01 = rising, 10 = falling, 11 = both. 
 \end{reglist}\end{regdesc}
 
@@ -125,37 +125,24 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \begin{register}{H}{UART1 control register UART1\_CTRL}{0x20}
 \label{uart1ctrl}
 \regfield{Reserved}{23}{9}{{0}}%
-\regfield{Parity}{2}{7}{{0}}%
+\regfield{PARITY}{2}{7}{{0}}%
 \regfield{SP2}{1}{6}{{0}}%
 \regfield{BRIE}{1}{5}{{1}}%
 \regfield{TCIE}{1}{4}{{1}}%
 \regfield{RCIE}{1}{3}{{1}}%
-\regfield{Size}{2}{1}{{0}}%
+\regfield{SIZE}{2}{1}{{0}}%
 \regfield{EN}{1}{0}{{0}}%
 \reglabel{Reset}\regnewline%
 \end{register}
-\begin{regdesc}[0.7\textwidth]\begin{reglist}[00000]
+\begin{regdesc}[0.75\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
-\item[Parity] 00: none, 10: even, 11: odd.
+\item[PARITY] 00: none, 10: even, 11: odd.
 \item[SP2] 0: one stop bit, 1: two stop bits.
 \item[BRIE] BREAK received interrupt enable.
 \item[TCIE] Transmit character interrupt enable.
 \item[RCIE] Receive character interrupt enable.
-\item[Size] 00: 8 bits, 10: 9 bits, 11: 7 bits, excluding the parity.
+\item[SIZE] 00: 8 bits, 10: 9 bits, 11: 7 bits, excluding the parity.
 \item[EN] Enable UART1 (both receiver and transmitter)
-%\item[Stop Bits] Meaning
-%\item[0] 1 Stop bit
-%\item[1] 2 Stop bits
-%\item
-%\item[Parity] Meaning
-%\item[00] No parity
-%\item[01] Reserved
-%\item[10] Even parity
-%\item[11] Odd parity
-%\item
-%\item[Data bits]
-%\item[0] 8 bits
-%\item[9] 9 bits
 \end{reglist}\end{regdesc}
 
 \begin{register}{H}{UART1 status register UART1\_STAT}{0x24}
@@ -182,25 +169,26 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \begin{register}{H}{UART1 data register UART1\_DATA}{0x28}
 \label{uart1data}
 \regfield{Reserved}{22}{9}{{0}}%
-\regfield{Data}{9}{0}{{0}}
+\regfield{DATA}{9}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.6\textwidth]\begin{reglist}[000000000]
 \itemsep-1.5ex
-\item[Write] The data is written to an internal buffer and transmitted.
-\item[Read] The last received data is read.
+\item[DATA] The data to be transmitted or received.
 \end{reglist}\end{regdesc}
-\hspace*{2cm}Size depends on the Size field in the UART1 Control Register.
+\textbf{Write:} The data is written to an internal buffer and transmitted.\\
+\textbf{Read:} The last received data is read. \\
+Size depends on the SIZE field in the UART1 Control Register.
 
 \begin{register}{H}{UART1 baud rate register UART1\_BAUD}{0x2c}
 \label{uart1baud}
 \regfield{Rerserved}{16}{16}{{0}}%
-\regfield{Prescaler}{16}{0}{{0}}
+\regfield{PRESCALER}{16}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.6\textwidth]\begin{reglist}[000000000]
 \itemsep-1.5ex
-\item[Prescaler] Baud rate = $\dfrac{f_{system}}{\textrm{prescaler}+1}$
+\item[PRESCALER] Baud rate = $\dfrac{f_{system}}{\textrm{prescaler}+1}$
 \end{reglist}\end{regdesc}
 
 
@@ -213,11 +201,9 @@ General purpose I\textsuperscript{2}C peripheral, with programmable baud rate pr
 \regfield{Reserved}{4}{12}{{0}}%
 \regfield{MACK}{1}{11}{{0}}%
 \regfield{HARDSTOP}{1}{10}{{0}}%
-%\regfield{DPG}{1}{10}{{0}}%
 \regfield{START}{1}{9}{{0}}%
 \regfield{STOP}{1}{8}{{0}}%
 \regfield{Reserved}{4}{4}{{0}}%
-%\regfield{Reserved}{1}{4}{{0}}%
 \regfield{TCIE}{1}{3}{{0}}%
 \regfield{FM}{1}{2}{{0}}%
 \regfield{Reserved}{2}{0}{{0}}
@@ -225,7 +211,7 @@ General purpose I\textsuperscript{2}C peripheral, with programmable baud rate pr
 \end{register}
 \begin{regdesc}[0.9\textwidth]\begin{reglist}[000000000]
 \item [BAUD] Baud rate prescaler. Number of system clock pulses minus 1 for \textbf{one-half} bit time (Sm) or \textbf{one-third} bit time (Fm).
-Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C clock frequency is 763\,Hz.
+Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C clock frequency is 763\,Hz (Sm).
 \item [MACK] Set to 1 to acknowledge a reception by the master. Must only be used when receiving.
 \item [HARDSTOP] Set to 1 to just generate a STOP condition. Useful after addressing a target that didn't respond. Cleared by hardware.
 %\item [DPG] Disable STOP generation after Acknowledge Fail. Can be used to send a repeated START.
@@ -258,14 +244,15 @@ Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C 
 \begin{register}{H}{I2C1 data register I2C1\_DATA}{0x48}
 \label{i2c11data}
 \regfield{Reserved}{24}{8}{{0}}%
-\regfield{Data}{8}{0}{{0}}
+\regfield{DATA}{8}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
 %\itemsep-1.5ex
-\item[Write] The data is written to an internal buffer and transmitted.
-\item[Read] The last received data is read.
+\item [DATA] Data to be transmitted or received.
 \end{reglist}\end{regdesc}
+Write: The data is written to an internal buffer and transmitted.\\
+Read: The last received data is read.
 
 
 \subsection{I2C2 -- Inter-Integrated Circuit master-only controller}
@@ -289,13 +276,11 @@ General purpose I\textsuperscript{2}C peripheral, with programmable baud rate pr
 \end{register}
 \begin{regdesc}[0.9\textwidth]\begin{reglist}[000000000]
 \item [BAUD] Baud rate prescaler. Number of system clock pulses minus 1 for \textbf{one-half} bit time (Sm) or \textbf{one-third} bit time (Fm).
-Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C clock frequency is 763\,Hz.
+Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C clock frequency is 763\,Hz (Sm).
 \item [MACK] Set to 1 to acknowledge a reception by the master. Must only be used when receiving.
 \item [HARDSTOP] Set to 1 to just generate a STOP condition. Useful after addressing a target that didn't respond. Cleared by hardware.
-%\item [DPG] Disable STOP generation after Acknowledge Fail. Can be used to send a repeated START.
 \item [START] Send a START before next byte send. Cleared by hardware when transmission ends.
 \item [STOP] Send a STOP after next byte send or received. Cleared by hardware when transmission ends.
-%\item [RCIE] Receive Complete interrupt enable.
 \item [TCIE] Transmission Complete interrupt enable.
 \item [FM] 0: Standard mode 1:1 (SCL 1/2 low, 1/2 high)\\1: Fast mode 2:1 (SCL 2/3 low, 1/3 high)
 \end{reglist}\end{regdesc}
@@ -312,7 +297,7 @@ Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C 
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[0000000]
-\item [BUSY] Set to 1 when SDA or SCL is low, set to 0 when STOP condition is detected, independent of the I2C1 device.
+\item [BUSY] Set to 1 when SDA or SCL is low, set to 0 when STOP condition is detected, independent of the I2C2 device.
 \item [AF] Acknowledge Fail, set when no target responded. Cleared by hardware when \lstinline|I2C2_DATA| is accessed.
 %\item [RC] Receive Complete, including sending STOP. Cleared by hardware when I2C1\_DATA is read.
 \item [TC] Transmission Complete, including START or STOP, if any. Cleared by hardware when \lstinline|I2C2_DATA| is accessed.
@@ -322,38 +307,34 @@ Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C 
 \begin{register}{H}{I2C2 data register I2C2\_DATA}{0x58}
 \label{i2c21data}
 \regfield{Reserved}{24}{8}{{0}}%
-\regfield{Data}{8}{0}{{0}}
+\regfield{DATA}{8}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
 %\itemsep-1.5ex
-\item[Write] The data is written to an internal buffer and transmitted.
-\item[Read] The last received data is read.
+\item [DATA] Data to be transmitted or received.
 \end{reglist}\end{regdesc}
+Write: The data is written to an internal buffer and transmitted.\\
+Read: The last received data is read.
 
 
 \subsection{SPI1 -- Serial Peripheral Interface}
-General purpose SPI master peripheral, with prescaler, 8/16/24/32 bits data exchange, hardware NSS and interrupt.
+General purpose SPI master peripheral, with prescaler, 8/16/24/32 bits data exchange and interrupt.
 
 \begin{register}{H}{SPI1 control register SPI1\_CTRL}{0x60}
 \label{spi1ctrl}
-\regfield{Reserved}{4}{28}{{0}}%
-\regfield{NSS setup}{8}{20}{{0}}%
-\regfield{NSS hold}{8}{12}{{0}}%
-\regfield{Reserved}{1}{9}{{0}}%
-\regfield{Prescaler}{3}{8}{{0}}%
+\regfield{Reserved}{21}{11}{{0}}%
+\regfield{PRESCALER}{3}{8}{{0}}%
 \regfield{Reserved}{2}{6}{{0}}%
-\regfield{Size}{2}{4}{{0}}%
+\regfield{SIZE}{2}{4}{{0}}%
 \regfield{TCIE}{1}{3}{{0}}%
 \regfield{CPOL}{1}{2}{{0}}%
 \regfield{CPHA}{1}{1}{{0}}%
 \regfield{Reserved}{1}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
-\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000000i]
-\item [NSS setup] Number of system clock pulses after NSS active before transfer starts
-\item [NSS hold] Number of system clock pulses before NSS inactive after transfer ends
-\item [Prescaler]
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000i]
+\item [PRESCALER]
 \begin{description}\itemsep-7pt
 \item[000] /2
 \item[001] /4
@@ -365,7 +346,7 @@ General purpose SPI master peripheral, with prescaler, 8/16/24/32 bits data exch
 \item[111] /256
 \end{description}
 Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is 195.3125\,kHz.
-\item [Size]
+\item [SIZE]
 \begin{description}\itemsep-7pt
 \item[00] 8 bits
 \item[01] 16 bits
@@ -390,33 +371,34 @@ Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is
 
 \begin{register}{H}{SPI1 data register SPI1\_DATA}{0x68}
 \label{spi1data}
-\regfield{Data}{32}{0}{{0}}
+\regfield{DATA}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
 %\itemsep-1.5ex
-\item[Write] The data is written to an internal buffer and transmitted.
-\item[Read] The last received data is read.
+\item [DATA] Data to be transmitted or received.
 \end{reglist}\end{regdesc}
-Data size depends on the Size field in the SPI1 Control Register. Data is right aligned.
+Write: The data is written to an internal buffer and transmitted.\\
+Read: The last received data is read.\\
+Data size depends on the SIZE field in the SPI1 Control Register. Data is right aligned.
 
 
 \subsection{SPI2 -- Serial Peripheral Interface}
-SPI master peripheral dedicated for SD card access, with prescaler and 8/16/24/32 bits data exchange. This device has no interrupt available.
+General purpose SPI master peripheral, with prescaler, 8/16/24/32 bits data exchange and interrupt.
 \begin{register}{H}{SPI2 control register SPI2\_CTRL}{0x70}
 \label{spi2ctrl}
 \regfield{Reserved}{21}{11}{{0}}%
-\regfield{Prescaler}{3}{8}{{0}}%
+\regfield{PRESCALER}{3}{8}{{0}}%
 \regfield{Reserved}{2}{6}{{0}}%
-\regfield{Size}{2}{4}{{0}}%
+\regfield{SIZE}{2}{4}{{0}}%
 \regfield{Reserved}{1}{3}{{0}}%
 \regfield{CPOL}{1}{2}{{0}}%
 \regfield{CPHA}{1}{1}{{0}}%
 \regfield{Reserved}{1}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
-\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000000i]
-\item [Prescaler]
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000i]
+\item [PRESCALER]
 \begin{description}\itemsep-7pt
 \item[000] /2
 \item[001] /4
@@ -428,7 +410,7 @@ SPI master peripheral dedicated for SD card access, with prescaler and 8/16/24/3
 \item[111] /256
 \end{description}
 Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is 195.3125\,kHz.
-\item [Size]
+\item [SIZE]
 \begin{description}\itemsep-7pt
 \item[00] 8 bits
 \item[01] 16 bits
@@ -452,15 +434,16 @@ Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is
 
 \begin{register}{H}{SPI2 data register SPI2\_DATA}{0x78}
 \label{spi2data}
-\regfield{Data}{32}{0}{{0}}
+\regfield{DATA}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
 %\itemsep-1.5ex
-\item[Write] The data is written to an internal buffer and transmitted.
-\item[Read] The last received data is read.
+\item [DATA] Data to be transmitted or received.
 \end{reglist}\end{regdesc}
-Data size depends on the Size field in the SPI2 Control Register. Data is right aligned.
+Write: The data is written to an internal buffer and transmitted.\\
+Read: The last received data is read.\\
+Data size depends on the SIZE field in the SPI2 Control Register. Data is right aligned.
 
 
 \subsection{TIMER1 -- a simple timer}
@@ -514,7 +497,7 @@ Simple 32-bit timer peripheral for time base generation, with interrupt.
 
 
 \subsection{TIMER2 -- a more elaborate timer}
-General purpose 16-bit timer with Output Compare, PWM generation and Input Capture capabilities, preload and interrupts.
+General purpose 16-bit timer with Output Compare, PWM generation and Input Capture capabilities, preload and interrupt (one vector).
 
 \begin{register}{H}{TIMER2 control register TIMER2\_CTRL}{0x90}
 \label{timer2ctrl}
@@ -682,21 +665,21 @@ In this case, the CTRL register is not written and keeps its original setting.
 \subsection{WDT -- Watchdog Timer}
 \begin{register}{H}{Watchdog control register WDT\_CTRL}{0xe0}
 \label{wdtctrl}
-\regfield{Prescaler}{24}{8}{{0}}%
+\regfield{PRESCALER}{24}{8}{{0}}%
 \regfield{LOCK}{1}{7}{{0}}%
 \regfield{reserved}{5}{2}{{0}}%
 \regfield{NMI}{1}{1}{{0}}%
 \regfield{EN}{1}{0}{{0}}%
 \reglabel{Reset}\regnewline%
 \end{register}
-\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[00000000000]
 \itemsep-1.5ex
-\item [Prescaler] 24-bit prescaler. The timeout time is computed with
+\item [PRESCALER] 24-bit prescaler. The timeout time is computed with
 \begin{equation*}
-t = \dfrac{Prescaler \cdot 256}{f_{cpu}}
+t = \dfrac{\mathrm{Prescaler} \cdot 256}{f_{cpu}}
 \end{equation*}
 \item [LOCK] If set to 1, the control register is locked. Watchdog write accesses trigger a system reset or NMI.
-\item [NMI] If set to 1, the watchdog triggers an NMI on timeout, otherswise the watchdog triggers a system reset on timeout.
+\item [NMI] If set to 1, the watchdog triggers an NMI on timeout, otherwise the watchdog triggers a system reset on timeout.
 \item [EN] If set to 1, the WDT starts counting.
 \end{reglist}\end{regdesc}
 

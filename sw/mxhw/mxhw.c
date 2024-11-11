@@ -53,6 +53,7 @@ int main(void)
 	uart1_printf("has watchdog (WDT): %s\r\n", (hw & CSR_MXHW_WDT) ? "yes" : "no");
 	uart1_printf("has Zihpm counters: %s\r\n", (hw & CSR_MXHW_ZIHPM) ? "yes" : "no");
 	uart1_printf("has on-chip debugger: %s\r\n", (hw & CSR_MXHW_OCD) ? "yes" : "no");
+	uart1_printf("has MSI: %s\r\n", (hw & CSR_MXHW_MSI) ? "yes" : "no");
 
 	/* Are HPM counters enabled... */
 	if (hw & CSR_MXHW_ZIHPM) {

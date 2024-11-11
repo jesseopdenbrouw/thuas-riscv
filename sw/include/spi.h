@@ -59,10 +59,7 @@ __attribute__((weak)) void spi2_csdisable(void);
 #define SPI_PRESCALER6 (6 << 8)
 #define SPI_PRESCALER7 (7 << 8)
 
-/* For SPI1 only */
 #define SPI_TCIE    (1 << 3)
-#define SPI_CSSETUP(A) ((A & 0xff) << 20)
-#define SPI_CSHOLD(A)  ((A & 0xff) << 12)
 
 #ifdef __cplusplus
 }

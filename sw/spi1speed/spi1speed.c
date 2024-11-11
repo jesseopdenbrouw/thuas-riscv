@@ -27,7 +27,7 @@
 #define F_CPU (50000000UL)
 #endif
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 #define EEPROMREAD (0x03)
@@ -35,12 +35,13 @@
 int main(void)
 {
 
-	/* CS setup, CS hold, /16, 24 bits, mode 0 */
-    spi1_init(SPI_CSSETUP(9) |
-              SPI_CSHOLD(9)  |
-              SPI_PRESCALER3 |
-              SPI_SIZE24     |
-              SPI_MODE0);
+	/* Deactivate device, soft NSS high */
+	GPIOA->POUT |= 1<<15;
+
+	/* /16, 24 bits, mode 0 */
+	spi1_init(SPI_PRESCALER3 |
+	          SPI_SIZE24     |
+	          SPI_MODE0);
 
 	uart1_init(BAUD_RATE, UART_CTRL_EN);
 	uart1_puts("\r\n");
@@ -52,9 +53,15 @@ int main(void)
 		/* Read first 16 bytes */
 		for (uint32_t addr = 0x00; addr < 0x10; addr++) {
 
+			/* Activate device, soft NSS low */
+			GPIOA->POUT &= ~(1<<15);
+
 			/* EEPROMREAD + addr + dummy */
 			/* During dummy, data is read from addr */
 			buf[addr] = (char) spi1_transfer((EEPROMREAD << 16) | (addr << 8));
+
+			/* Deactivate device, soft NSS high */
+			GPIOA->POUT |= 1<<15;
 		}
 
 		uart1_puts("Address 0x00: ");

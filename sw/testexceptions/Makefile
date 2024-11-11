@@ -10,7 +10,7 @@
 # The target
 TARGET = testexceptions
 
-
+EXTRA_CFLAGS = -O0
 
 #-----
 #----- do not edit below this point
@@ -27,6 +27,8 @@ ifneq ("$(wildcard $(COMMON_FILE))","")
 include $(COMMON_FILE)
 else
 endif
+
+CFLAGS += $(EXTRA_CFLAGS)
 
 # All header files
 HFILES = $(wildcard *.h)

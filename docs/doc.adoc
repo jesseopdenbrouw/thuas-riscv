@@ -353,7 +353,6 @@ Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed
 | Small (UART1, no boot, no MD, no OCD)        | 91 | 1716 | 1229 | 788,480 
 | Default OCD (no bootloader, OCD)             | 86 | 3480 | 2999 | 1,313,792
 | Full OCD (all extensions, OCD)               | 88 | 4460 | 3495 | 1,313,792
-|===
 | Default OCD + perf. options                  | 92 | 3480 | 3007 | 1,313,792
 |===
 

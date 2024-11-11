@@ -96,7 +96,9 @@ entity core is
           HAVE_TIMER1 : boolean;
           -- Do we have TIMER2?
           HAVE_TIMER2 : boolean;
-          -- use watchdog?
+          -- Use Machine-mode Software Interrupt?
+          HAVE_MSI : boolean;
+          -- Use watchdog?
           HAVE_WDT : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
@@ -699,7 +701,7 @@ begin
                             pc <= std_logic_vector(unsigned(id_ex.imm) + unsigned(id_ex.rs1data));
                         end if;
                         -- As per RISC-V unpriv spec
-                        pc(0) <= '0';
+                        --pc(0) <= '0';
                     -- Branch
                     when pc_branch =>
                         -- Must we branch?
@@ -718,8 +720,6 @@ begin
                         pc <= std_logic_vector(unsigned(pc) + 4);
                 end case;
             end if;
-            -- Lower two bits always 0
-            --pc(1 downto 0) <= "00";
         end if;
     end process;
     -- For fetching instructions
@@ -2946,7 +2946,7 @@ begin
     csr_reg.mip <= I_intrio;
 
     -- Custom read-only hardware description
-    csr_reg.mxhw(0) <= '1'; --gpioa
+    csr_reg.mxhw(0) <= '1'; --gpioa, always present
     csr_reg.mxhw(1) <= '0'; --reserved
     csr_reg.mxhw(2) <= '0'; --reserved
     csr_reg.mxhw(3) <= '0'; --reserved
@@ -2961,7 +2961,7 @@ begin
     csr_reg.mxhw(12) <= '0'; -- reserved
     csr_reg.mxhw(13) <= '0'; -- reserved
     csr_reg.mxhw(14) <= '0'; -- reserved
-    csr_reg.mxhw(15) <= '1'; -- TIME/TIMEH
+    csr_reg.mxhw(15) <= '1'; -- TIME/TIMEH, always present
     csr_reg.mxhw(16) <= '1' when HAVE_MULDIV else '0';
     csr_reg.mxhw(17) <= '1' when FAST_DIVIDE and HAVE_MULDIV else '0';
     csr_reg.mxhw(18) <= '1' when HAVE_BOOTLOADER_ROM else '0';
@@ -2974,7 +2974,8 @@ begin
     csr_reg.mxhw(25) <= '1' when HAVE_WDT else '0';
     csr_reg.mxhw(26) <= '1' when HAVE_ZIHPM else '0';
     csr_reg.mxhw(27) <= '1' when HAVE_OCD else '0';
-    csr_reg.mxhw(csr_reg.mxhw'left downto 28) <= (others => '0');
+    csr_reg.mxhw(28) <= '1' when HAVE_MSI else '0';
+    csr_reg.mxhw(csr_reg.mxhw'left downto 29) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));
@@ -3033,7 +3034,7 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(26, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- SPI2
         elsif I_intrio(25) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(25, control.trap_mcause'length));

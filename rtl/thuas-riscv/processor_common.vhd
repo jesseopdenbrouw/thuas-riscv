@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_00_02_03#;
+    constant HW_VERSION : integer := 16#01_00_04_00#;
     
     -- Used data types
     -- The common data type is 32 bits wide
@@ -101,7 +101,7 @@ package processor_common is
                          alu_czeroeqz, alu_czeronez                -- Zicond
                         );
                         
-    -- Control and State register operations
+    -- Control and Status Register operations
     type csr_op_type is (csr_nop, csr_rw, csr_rs, csr_rc, csr_rwi, csr_rsi, csr_rci);
     
     -- Access from core to address decoder
@@ -191,20 +191,6 @@ package processor_common is
         ack      : std_logic;
     end record;
     
-    -- CPU state change request
-    type cpu_statechange_request_type is record
-        reset  : std_logic;
-        halt   : std_logic;
-        resume : std_logic;
-    end record;
-    
-    -- CPU state change response
-    type cpu_statechange_response_type is record
-        reset  : std_logic;
-        halt   : std_logic;
-        resume : std_logic;
-    end record;
-
     -- Constants
     constant all_zeros_c : data_type := (others => '0');
     constant all_ones_c : data_type := (others => '1');
@@ -409,13 +395,22 @@ package processor_common is
    
     -- Constants for interrupt priority
     -- Changes here must be reflected in the interrupt handler in software
-    constant INTR_PRIO_SPI1 : integer := 27;
-    constant INTR_PRIO_I2C1 : integer := 26;
-    constant INTR_PRIO_I2C2 : integer := 24;
-    constant INTR_PRIO_UART1 : integer := 23;
-    constant INTR_PRIO_TIMER2: integer := 21;
+    constant INTR_PRIO_WDT    : integer := 31; --nmi
+    constant INTR_PRIO_FREE30 : integer := 30;
+    constant INTR_PRIO_FREE29 : integer := 29;
+    constant INTR_PRIO_FREE28 : integer := 28;
+    constant INTR_PRIO_SPI1   : integer := 27;
+    constant INTR_PRIO_I2C1   : integer := 26;
+    constant INTR_PRIO_SPI2   : integer := 25;
+    constant INTR_PRIO_I2C2   : integer := 24;
+    constant INTR_PRIO_UART1  : integer := 23;
+    constant INTR_PRIO_FREE22 : integer := 22;
+    constant INTR_PRIO_TIMER2 : integer := 21;
     constant INTR_PRIO_TIMER1 : integer := 20;
-    constant INTR_PRIO_EXTI : integer := 18;
+    constant INTR_PRIO_FREE19 : integer := 19;
+    constant INTR_PRIO_EXTI   : integer := 18;
+    constant INTR_PRIO_FREE17 : integer := 17;
+    constant INTR_PRIO_FREE16 : integer := 16;
     -- System Timer fixed to 7, do not change
     constant INTR_PRIO_MTIME : integer := 7;
     -- System Machine Software Interrupt fixed at 3, do not change
@@ -482,7 +477,9 @@ package processor_common is
                   HAVE_TIMER1 : boolean;
                   -- Do we have TIMER2?
                   HAVE_TIMER2 : boolean;
-                  -- use watchdog?
+                  -- Use Machine-mode Software Interrupt?
+                  HAVE_MSI : boolean;
+                  -- Use watchdog?
                   HAVE_WDT : boolean;
                   -- UART1 BREAK triggers system reset
                   UART1_BREAK_RESETS : boolean
@@ -511,7 +508,6 @@ package processor_common is
               O_spi1sck : out std_logic;
               O_spi1mosi : out std_logic;
               I_spi1miso : in std_logic;
-              O_spi1nss : out std_logic;
               -- SPI2
               O_spi2sck : out std_logic;
               O_spi2mosi : out std_logic;

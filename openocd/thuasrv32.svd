@@ -4,7 +4,7 @@
   <vendor>jesseopdenbrouw</vendor>
   <name>thuasrv32</name>
   <series>RISC-V</series>
-  <version>0.0.2</version>
+  <version>0.1.0</version>
   <description>The THUAS RV32 RISC-V Processor</description>
 
   <!-- CPU core -->
@@ -32,6 +32,7 @@
 
   <!-- Peripherals -->
   <peripherals>
+
 
     <!-- MTIME -->
     <!-- **************************************************************** -->
@@ -133,6 +134,7 @@
         </register>
       </registers>
     </peripheral>
+
 
     <!-- UART1 -->
     <!-- **************************************************************** -->
@@ -361,6 +363,7 @@
       </registers>
     </peripheral>
 
+
     <!-- I2C2 -->
     <!-- **************************************************************** -->
     <peripheral derivedFrom="I2C1">
@@ -438,6 +441,7 @@
         </register>
       </registers>
     </peripheral>
+
 
     <!-- MSI -->
     <!-- **************************************************************** -->
@@ -519,16 +523,6 @@
               <bitRange>[10:8]</bitRange>
               <description>SPI Prescaler</description>
             </field>
-            <field>
-              <name>SPI_CTRL_NSSHOLD</name>
-              <bitRange>[19:12]</bitRange>
-              <description>SPI NSS Hold Clock Pulses</description>
-            </field>
-            <field>
-              <name>SPI_CTRL_NSSSETUP</name>
-              <bitRange>[27:20]</bitRange>
-              <description>SPI NSS Setup Clock Pulses</description>
-            </field>
           </fields>
         </register>
         <register>
@@ -561,71 +555,19 @@
 
     <!-- SPI2 -->
     <!-- **************************************************************** -->
-    <peripheral>
+    <peripheral derivedFrom="SPI1">
       <name>SPI2</name>
       <description>Serial Peripheral interface 2</description>
       <groupName>SPI2</groupName>
       <baseAddress>0xF0000070</baseAddress>
+
+      <interrupt><name>SPI2_TC_IRQ</name><value>25</value></interrupt>
 
       <addressBlock>
         <offset>0</offset>
         <size>0x0c</size>
         <usage>registers</usage>
       </addressBlock>
-
-      <registers>
-        <register>
-          <name>CTRL</name>
-          <description>Control register</description>
-          <addressOffset>0x00</addressOffset>
-          <fields>
-            <field>
-              <name>SPI_CTRL_CPHA</name>
-              <bitRange>[1:1]</bitRange>
-              <description>SPI Clock Phase</description>
-            </field>
-            <field>
-              <name>SPI_CTRL_CPOL</name>
-              <bitRange>[2:2]</bitRange>
-              <description>SPI Clock Polarity</description>
-            </field>
-            <field>
-              <name>SPI_CTRL_SIZE</name>
-              <bitRange>[5:4]</bitRange>
-              <description>SPI Transmission Size</description>
-            </field>
-            <field>
-              <name>SPI_CTRL_PRESCALER</name>
-              <bitRange>[10:8]</bitRange>
-              <description>SPI Prescaler</description>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>STAT</name>
-          <description>Status register</description>
-          <addressOffset>0x04</addressOffset>
-          <fields>
-            <field>
-              <name>SPI_STAT_TC</name>
-              <bitRange>[3:3]</bitRange>
-              <description>SPI Transmission Complete</description>
-            </field>
-          </fields>
-        </register>
-        <register>
-          <name>DATA</name>
-          <description>Data register</description>
-          <addressOffset>0x08</addressOffset>
-          <fields>
-            <field>
-              <name>SPI_DATA_DATA</name>
-              <bitRange>[31:0]</bitRange>
-              <description>SPI Data Field</description>
-            </field>
-          </fields>
-        </register>
-      </registers>
     </peripheral>
 
 

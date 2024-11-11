@@ -25,7 +25,7 @@
 #define F_CPU (50000000UL)
 #endif
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 #define EEPROMREAD (0x03)
@@ -49,9 +49,7 @@ int main(void)
 	spi1_csdisable();
 
 	/* CS setup, CS hold, /16, 8 bits, mode 0 */
-    spi1_init(SPI_CSSETUP(0) |
-              SPI_CSHOLD(0)  |
-              SPI_PRESCALER3 |
+    spi1_init(SPI_PRESCALER3 |
               SPI_SIZE8      |
               SPI_MODE0);
 

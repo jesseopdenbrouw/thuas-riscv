@@ -67,7 +67,6 @@ entity de0_cv is
           O_spi1sck : out std_logic;
           O_spi1mosi : out std_logic;
           I_spi1miso : in std_logic;
-          O_spi1nss : out std_logic;
           -- SPI2
           O_spi2sck : out std_logic;
           O_spi2mosi : out std_logic;
@@ -148,7 +147,9 @@ begin
               HAVE_TIMER1 => TRUE,
               -- Use Timer 2?
               HAVE_TIMER2 => TRUE,
-              -- use watchdog?
+              -- Use Machine-mode Software Interrupt?
+              HAVE_MSI => TRUE,
+              -- Use watchdog?
               HAVE_WDT => TRUE,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
@@ -177,7 +178,6 @@ begin
               O_spi1sck => O_spi1sck,
               O_spi1mosi => O_spi1mosi,
               I_spi1miso => I_spi1miso,
-              O_spi1nss => O_spi1nss,
               -- SPI2
               O_spi2sck => O_spi2sck,
               O_spi2mosi => O_spi2mosi,

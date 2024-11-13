@@ -1,0 +1,871 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd" >
+  <vendor>jesseopdenbrouw</vendor>
+  <name>thuasrv32</name>
+  <series>RISC-V</series>
+  <version>0.1.0</version>
+  <description>The THUAS RV32 RISC-V Processor</description>
+
+  <!-- CPU core -->
+  <cpu>
+    <name>THUASRV32</name>
+    <revision>r2p0</revision>
+    <endian>little</endian>
+    <mpuPresent>false</mpuPresent>
+    <fpuPresent>false</fpuPresent>
+    <fpuDP>false</fpuDP>
+    <dspPresent>false</dspPresent>
+    <icachePresent>false</icachePresent>
+    <dcachePresent>false</dcachePresent>
+    <nvicPrioBits>4</nvicPrioBits>
+    <vendorSystickConfig>false</vendorSystickConfig>
+  </cpu>
+
+  <!-- defaults for all peripherals -->
+  <addressUnitBits>8</addressUnitBits>
+  <width>32</width>
+  <size>32</size>
+  <access>read-write</access>
+  <resetValue>0x00000000</resetValue>
+  <resetMask>0x00000000</resetMask> <!-- default IO devices do not have a dedicated reset -->
+
+  <!-- Peripherals -->
+  <peripherals>
+
+
+    <!-- MTIME -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>MTIME</name>
+      <description>Machine timer</description>
+      <groupName>MTIME</groupName>
+      <baseAddress>0xF00000F0</baseAddress>
+
+      <interrupt><name>MTIME_IRQ</name><value>7</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x10</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>MTIME</name>
+          <description>System time register - low</description>
+          <addressOffset>0x00</addressOffset>
+        </register>
+        <register>
+          <name>MTIMEH</name>
+          <description>System time register - high</description>
+          <addressOffset>0x04</addressOffset>
+        </register>
+        <register>
+          <name>MTIMECMP</name>
+          <description>Time compare register - low</description>
+          <addressOffset>0x08</addressOffset>
+        </register>
+        <register>
+          <name>MTIMECMPH</name>
+          <description>Time compare register - high</description>
+          <addressOffset>0x0C</addressOffset>
+        </register>
+      </registers>
+    </peripheral>
+
+
+    <!-- GPIO -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>GPIO</name>
+      <description>General purpose input/output port</description>
+      <groupName>GPIO</groupName>
+      <baseAddress>0xF0000000</baseAddress>
+
+      <interrupt><name>EXTI_IRQ</name><value>18</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x10</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>PIN</name>
+          <description>Parallel input register</description>
+          <addressOffset>0x00</addressOffset>
+          <access>read-only</access>
+        </register>
+        <register>
+          <name>POUT</name>
+          <description>Parallel output register</description>
+          <addressOffset>0x04</addressOffset>
+        </register>
+        <register>
+          <name>EXTC</name>
+          <description>External input interrupt control register</description>
+          <addressOffset>0x18</addressOffset>
+          <fields>
+            <field>
+              <name>EDGE</name>
+              <bitRange>[2:1]</bitRange>
+              <description>Select Edge</description>
+            </field>
+            <field>
+              <name>PIN</name>
+              <bitRange>[7:3]</bitRange>
+              <description>GPIO Pin input Select</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>EXTS</name>
+          <description>External input interrupt status register</description>
+          <addressOffset>0x1C</addressOffset>
+          <fields>
+            <field>
+              <name>DETECT</name>
+              <bitRange>[0:0]</bitRange>
+              <description>Edge detected</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+
+
+    <!-- UART1 -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>UART1</name>
+      <description>Universal Asynchronous Receiver/Transmitter</description>
+      <groupName>UART1</groupName>
+      <baseAddress>0xF0000020</baseAddress>
+
+      <interrupt><name>UART1_RX_IRQ</name><value>23</value></interrupt>
+      <interrupt><name>UART1_TX_IRQ</name><value>23</value></interrupt>
+      <interrupt><name>UART1_BR_IRQ</name><value>23</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x10</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>CTRL</name>
+          <description>Control register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>UART_CTRL_EN</name>
+              <bitRange>[0:0]</bitRange>
+              <description>UART enable flag</description>
+            </field>
+            <field>
+              <name>UART_CTRL_SIZE</name>
+              <bitRange>[2:1]</bitRange>
+              <description>Data size in frame</description>
+            </field>
+            <field>
+              <name>UART_CTRL_RCIE</name>
+              <bitRange>[3:3]</bitRange>
+              <description>Receive Complete interrupt enable</description>
+            </field>
+            <field>
+              <name>UART_CTRL_TCIE</name>
+              <bitRange>[4:4]</bitRange>
+              <description>Transmit Complete interrupt enable</description>
+            </field>
+            <field>
+              <name>UART_CTRL_BRIE</name>
+              <bitRange>[5:5]</bitRange>
+              <description>Break Received interrupt enable</description>
+            </field>
+            <field>
+              <name>UART_CTRL_STOP2</name>
+              <bitRange>[6:6]</bitRange>
+              <description>Two STOP bits enable</description>
+            </field>
+            <field>
+              <name>UART_CTRL_PARITY</name>
+              <bitRange>[8:7]</bitRange>
+              <description>Parity</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STAT</name>
+          <description>Status register</description>
+          <addressOffset>0x04</addressOffset>
+          <fields>
+            <field>
+              <name>UART_STAT_FE</name>
+              <bitRange>[0:0]</bitRange>
+              <description>Frame Error</description>
+            </field>
+            <field>
+              <name>UART_STAT_RF</name>
+              <bitRange>[1:1]</bitRange>
+              <description>Receive Failed</description>
+            </field>
+            <field>
+              <name>UART_STAT_PE</name>
+              <bitRange>[2:2]</bitRange>
+              <description>Parity Error</description>
+            </field>
+            <field>
+              <name>UART_STAT_RC</name>
+              <bitRange>[3:3]</bitRange>
+              <description>Receive Complete</description>
+            </field>
+            <field>
+              <name>UART_STAT_TC</name>
+              <bitRange>[4:4]</bitRange>
+              <description>Transmit Complete</description>
+            </field>
+            <field>
+              <name>UART_STAT_BR</name>
+              <bitRange>[5:5]</bitRange>
+              <description>BREAK Detected</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DATA</name>
+          <description>Data register</description>
+          <addressOffset>0x08</addressOffset>
+          <fields>
+            <field>
+              <name>DATA</name>
+              <bitRange>[9:0]</bitRange>
+              <description>Data to transmit or receive</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>BAUD</name>
+          <description>Baud rate divisor register</description>
+          <addressOffset>0x0c</addressOffset>
+          <fields>
+            <field>
+              <name>PRESCALER</name>
+              <bitRange>[15:0]</bitRange>
+              <description>Baud rate prescaler</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+
+
+    <!-- I2C1 -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>I2C1</name>
+      <description>Inter-Integrated Circuit 1</description>
+      <groupName>I2C1</groupName>
+      <baseAddress>0xF0000040</baseAddress>
+
+      <interrupt><name>I2C1_TC_IRQ</name><value>26</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x0c</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>CTRL</name>
+          <description>Control register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>I2C_CTRL_FM</name>
+              <bitRange>[2:2]</bitRange>
+              <description>I2C Fast Mode select</description>
+            </field>
+            <field>
+              <name>I2C_CTRL_TCIE</name>
+              <bitRange>[3:3]</bitRange>
+              <description>I2C Transmit Complete Interrupt Enable</description>
+            </field>
+            <field>
+              <name>I2C_CTRL_STOP</name>
+              <bitRange>[8:8]</bitRange>
+              <description>I2C Transmit STOP condition</description>
+            </field>
+            <field>
+              <name>I2C_CTRL_START</name>
+              <bitRange>[9:9]</bitRange>
+              <description>I2C Transmit START condition</description>
+            </field>
+            <field>
+              <name>I2C_CTRL_HARDSTOP</name>
+              <bitRange>[10:10]</bitRange>
+              <description>I2C Transmit direct STOP condition</description>
+            </field>
+            <field>
+              <name>I2C_CTRL_MACK</name>
+              <bitRange>[11:11]</bitRange>
+              <description>I2C Master Acknowlegde enable</description>
+            </field>
+            <field>
+              <name>I2C_CTRL_BAUD</name>
+              <bitRange>[31:16]</bitRange>
+              <description>I2C Baudrate Fiels</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STAT</name>
+          <description>Status register</description>
+          <addressOffset>0x04</addressOffset>
+          <fields>
+            <field>
+              <name>I2C_STAT_TRANS</name>
+              <bitRange>[2:2]</bitRange>
+              <description>I2C Tramission in progress</description>
+            </field>
+            <field>
+              <name>I2C_STAT_TC</name>
+              <bitRange>[3:3]</bitRange>
+              <description>I2C Tramission Complete</description>
+            </field>
+            <field>
+              <name>I2C_STAT_AF</name>
+              <bitRange>[5:5]</bitRange>
+              <description>I2C Acknowledge Failed</description>
+            </field>
+            <field>
+              <name>I2C_STAT_BUSY</name>
+              <bitRange>[6:6]</bitRange>
+              <description>I2C Bus Busy</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DATA</name>
+          <description>Data register</description>
+          <addressOffset>0x08</addressOffset>
+          <fields>
+            <field>
+              <name>I2C_DATA</name>
+              <bitRange>[7:0]</bitRange>
+              <description>I2C Data Field</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+
+
+    <!-- I2C2 -->
+    <!-- **************************************************************** -->
+    <peripheral derivedFrom="I2C1">
+      <name>I2C2</name>
+      <description>Inter-Integrated Circuit 2</description>
+      <groupName>I2C2</groupName>
+      <baseAddress>0xF0000050</baseAddress>
+
+      <interrupt><name>I2C2_TC_IRQ</name><value>24</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x0c</size>
+        <usage>registers</usage>
+      </addressBlock>
+    </peripheral>
+
+
+    <!-- WDT -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>WDT</name>
+      <description>Watchdog Timer</description>
+      <groupName>WDT</groupName>
+      <baseAddress>0xF00000E0</baseAddress>
+
+      <interrupt><name>WDT_IRQ</name><value>31</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x08</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>CTRL</name>
+          <description>Control register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>WDT_CTRL_EN</name>
+              <bitRange>[0:0]</bitRange>
+              <description>Watchdog Enable</description>
+            </field>
+            <field>
+              <name>WDT_CTRL_NMI</name>
+              <bitRange>[1:1]</bitRange>
+              <description>Watchdog NMI Enable</description>
+            </field>
+            <field>
+              <name>WDT_CTRL_LOCK</name>
+              <bitRange>[7:7]</bitRange>
+              <description>Watchdog Lock Enable</description>
+            </field>
+            <field>
+              <name>WDT_CTRL_PRESCALER</name>
+              <bitRange>[31:8]</bitRange>
+              <description>Watchdog Prescaler</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TRIG</name>
+          <description>Trigger register</description>
+          <addressOffset>0x04</addressOffset>
+          <access>write-only</access>
+          <fields>
+            <field>
+              <name>WDT_TRIG_PASSWORD</name>
+              <bitRange>[31:0]</bitRange>
+              <description>Password field</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+
+
+    <!-- MSI -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>MSI</name>
+      <description>Machine Software Interrupt</description>
+      <groupName>MSI</groupName>
+      <baseAddress>0xF00000EC</baseAddress>
+
+      <interrupt><name>MSI_IRQ</name><value>3</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x04</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>TRIG</name>
+          <description>Trigger register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>MSI_TRIG</name>
+              <bitRange>[0:0]</bitRange>
+              <description>MSI Trigger field</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+
+
+    <!-- SPI1 -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>SPI1</name>
+      <description>Serial Peripheral interface 1</description>
+      <groupName>SPI1</groupName>
+      <baseAddress>0xF0000060</baseAddress>
+
+      <interrupt><name>SPI1_TC_IRQ</name><value>27</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x0c</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>CTRL</name>
+          <description>Control register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>SPI_CTRL_CPHA</name>
+              <bitRange>[1:1]</bitRange>
+              <description>SPI Clock Phase</description>
+            </field>
+            <field>
+              <name>SPI_CTRL_CPOL</name>
+              <bitRange>[2:2]</bitRange>
+              <description>SPI Clock Polarity</description>
+            </field>
+            <field>
+              <name>SPI_CTRL_TCIE</name>
+              <bitRange>[3:3]</bitRange>
+              <description>SPI Transmission Complete Interrupt Enable</description>
+            </field>
+            <field>
+              <name>SPI_CTRL_SIZE</name>
+              <bitRange>[5:4]</bitRange>
+              <description>SPI Transmission Size</description>
+            </field>
+            <field>
+              <name>SPI_CTRL_PRESCALER</name>
+              <bitRange>[10:8]</bitRange>
+              <description>SPI Prescaler</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STAT</name>
+          <description>Status register</description>
+          <addressOffset>0x04</addressOffset>
+          <fields>
+            <field>
+              <name>SPI_STAT_TC</name>
+              <bitRange>[3:3]</bitRange>
+              <description>SPI Transmission Complete</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DATA</name>
+          <description>Data register</description>
+          <addressOffset>0x08</addressOffset>
+          <fields>
+            <field>
+              <name>SPI_DATA_DATA</name>
+              <bitRange>[31:0]</bitRange>
+              <description>SPI Data Field</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+
+
+    <!-- SPI2 -->
+    <!-- **************************************************************** -->
+    <peripheral derivedFrom="SPI1">
+      <name>SPI2</name>
+      <description>Serial Peripheral interface 2</description>
+      <groupName>SPI2</groupName>
+      <baseAddress>0xF0000070</baseAddress>
+
+      <interrupt><name>SPI2_TC_IRQ</name><value>25</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x0c</size>
+        <usage>registers</usage>
+      </addressBlock>
+    </peripheral>
+
+
+    <!-- TIMER1 -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>TIMER1</name>
+      <description>Timer 1</description>
+      <groupName>TIMER1</groupName>
+      <baseAddress>0xF0000080</baseAddress>
+
+      <interrupt><name>TIMER1_CMPT_IRQ</name><value>20</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x10</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>CTRL</name>
+          <description>Control register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_CTRL_EN</name>
+              <bitRange>[0:0]</bitRange>
+              <description>Timer 1 Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_TIE</name>
+              <bitRange>[4:4]</bitRange>
+              <description>Timer 1 Compare Match Interrupt Enable</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STAT</name>
+          <description>Status register</description>
+          <addressOffset>0x04</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_STAT_TCI</name>
+              <bitRange>[4:4]</bitRange>
+              <description>Timer 1 Compare Match Interrupt</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CNTR</name>
+          <description>Counter register</description>
+          <addressOffset>0x08</addressOffset>
+        </register>
+        <register>
+          <name>CMPT</name>
+          <description>Compare Match T register</description>
+          <addressOffset>0x0c</addressOffset>
+        </register>
+      </registers>
+    </peripheral>
+
+
+    <!-- TIMER2 -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>TIMER2</name>
+      <description>Timer 2</description>
+      <groupName>TIMER2</groupName>
+      <baseAddress>0xF0000090</baseAddress>
+
+      <interrupt><name>TIMER2_CMPT_IRQ</name><value>21</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x20</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>CTRL</name>
+          <description>Control register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_CTRL_EN</name>
+              <bitRange>[0:0]</bitRange>
+              <description>Timer 2 Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_OS</name>
+              <bitRange>[3:3]</bitRange>
+              <description>Timer 2 One Shot</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_TIE</name>
+              <bitRange>[4:4]</bitRange>
+              <description>Timer 2 Compare Match T Interrupt Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_AIE</name>
+              <bitRange>[5:5]</bitRange>
+              <description>Timer 2 Compare Match A Interrupt Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_BIE</name>
+              <bitRange>[6:6]</bitRange>
+              <description>Timer 2 Compare Match B Interrupt Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_CIE</name>
+              <bitRange>[7:7]</bitRange>
+              <description>Timer 2 Compare Match C Interrupt Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_PRET</name>
+              <bitRange>[8:8]</bitRange>
+              <description>Timer 2 Preload T Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_PREA</name>
+              <bitRange>[9:9]</bitRange>
+              <description>Timer 2 Preload A Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_PREB</name>
+              <bitRange>[10:10]</bitRange>
+              <description>Timer 2 Preload B Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_PREC</name>
+              <bitRange>[11:11]</bitRange>
+              <description>Timer 2 Preload C Enable</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_MODET</name>
+              <bitRange>[14:12]</bitRange>
+              <description>Timer 2 T Mode Field</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_PHAT</name>
+              <bitRange>[15:15]</bitRange>
+              <description>Timer 2 T Phase</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_MODEA</name>
+              <bitRange>[18:16]</bitRange>
+              <description>Timer 2 A Mode Field</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_PHAA</name>
+              <bitRange>[19:19]</bitRange>
+              <description>Timer 2 A Phase</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_MODEB</name>
+              <bitRange>[22:20]</bitRange>
+              <description>Timer 2 B Mode Field</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_PHAB</name>
+              <bitRange>[23:23]</bitRange>
+              <description>Timer 2 B Phase</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_MODEC</name>
+              <bitRange>[26:24]</bitRange>
+              <description>Timer 2 C Mode Field</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_PHAC</name>
+              <bitRange>[27:27]</bitRange>
+              <description>Timer 2 C Phase</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_FOCT</name>
+              <bitRange>[28:28]</bitRange>
+              <description>Timer 2 Force Compare Match T</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_FOCA</name>
+              <bitRange>[29:29]</bitRange>
+              <description>Timer 2 Force Compare Match A</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_FOCB</name>
+              <bitRange>[30:30]</bitRange>
+              <description>Timer 2 Force Compare Match B</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_FOCC</name>
+              <bitRange>[31:31]</bitRange>
+              <description>Timer 2 Force Compare Match C</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STAT</name>
+          <description>Status register</description>
+          <addressOffset>0x04</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_CTRL_TCI</name>
+              <bitRange>[4:4]</bitRange>
+              <description>Timer 2 Compare Match T Interrupt</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_ACI</name>
+              <bitRange>[5:5]</bitRange>
+              <description>Timer 2 Compare Match A Interrupt</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_BCI</name>
+              <bitRange>[6:6]</bitRange>
+              <description>Timer 2 Compare Match B Interrupt</description>
+            </field>
+            <field>
+              <name>TIMER_CTRL_CCI</name>
+              <bitRange>[7:7]</bitRange>
+              <description>Timer 2 Compare Match C Interrupt</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CNTR</name>
+          <description>Counter register</description>
+          <addressOffset>0x08</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_CNTR_CNTR</name>
+              <bitRange>[15:0]</bitRange>
+              <description>Timer 2 Counter Register</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CMPT</name>
+          <description>Compare Match T Register</description>
+          <addressOffset>0x0c</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_CMPT_CMPT</name>
+              <bitRange>[15:0]</bitRange>
+              <description>Timer 2 Compare Match T Register</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>PSRC</name>
+          <description>Prescaler Register</description>
+          <addressOffset>0x10</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_PRSC_PRSC</name>
+              <bitRange>[15:0]</bitRange>
+              <description>Timer 2 Prescaler Register</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CMPA</name>
+          <description>Compare Match A Register</description>
+          <addressOffset>0x14</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_CMPA_CMPA</name>
+              <bitRange>[15:0]</bitRange>
+              <description>Timer 2 Compare Match A Register</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CMPB</name>
+          <description>Compare Match B Register</description>
+          <addressOffset>0x18</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_CMPB_CMPB</name>
+              <bitRange>[15:0]</bitRange>
+              <description>Timer 2 Compare Match B Register</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>CMPC</name>
+          <description>Compare Match C Register</description>
+          <addressOffset>0x1c</addressOffset>
+          <fields>
+            <field>
+              <name>TIMER_CMPC_CMPC</name>
+              <bitRange>[15:0]</bitRange>
+              <description>Timer 2 Compare Match C Register</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+
+  </peripherals>
+</device>

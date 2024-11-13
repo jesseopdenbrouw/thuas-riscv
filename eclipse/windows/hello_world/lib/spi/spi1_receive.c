@@ -1,0 +1,16 @@
+/*
+ * spi1_receive.c -- receive a number of bytes from I2C1
+ *
+ */
+
+#include <stdint.h>
+
+#include <thuasrv32.h>
+
+/* Receives a array of bytes, while sending dummy bytes */
+void spi1_receive(uint8_t *buf, uint32_t len, uint32_t dummy)
+{
+	for (uint32_t i = 0; i < len; i++) {
+		*buf++ = spi1_transfer(dummy);
+	}
+}

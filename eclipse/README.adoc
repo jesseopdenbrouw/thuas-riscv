@@ -1,0 +1,27 @@
+
+= Using Eclipse-CDT
+
+Eclipse-CDT is an IDE specialized in developing software for
+microcontrollers based on Arm, AVR and RISC-V cores. You can
+download the IDE from https://projects.eclipse.org/projects/tools.cdt[here].
+
+== Windows
+
+Make sure you have the xPack versions of the RISC-V GCC compiler (including GDB),
+the Windows build tools and OpenOCD installed:
+
+* https://xpack.github.io/dev-tools/riscv-none-elf-gcc/[xPack RISC-V Toolchain]
+* https://xpack.github.io/dev-tools/windows-build-tools/[Windows build tools].
+* https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)].
+* https://xpack-dev-tools.github.io/openocd-xpack/[xPack OpenOCD].
+
+You might need to set the path to the GDB executable. Most of the time, the path to `gcc` and `openocd` is correct.
+
+When starting debugging, it takes some time to upload the binary to the processor. Just wait a bit.
+
+== Linux (upcoming)
+
+Make sure that the RISC-V GCC compiler and OpenOCD are installed and the path is in the `$PATH` variable.
+
+See the documentation on how to compile the RISC-V GCC yourself.
+

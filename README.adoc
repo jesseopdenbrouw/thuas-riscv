@@ -55,9 +55,8 @@ executable is transformed to a VHDL synthesizable ROM table.
 * RAM: a RAM of 32 kB using onboard RAM block available (may be extended).
 * I/O: a simple 32-bit input and 32-bit output is available, as
 is a simple 7/8/9-bit UART with interrupt capabilities. Two SPI devices are
-available, with one device used for SD card socket (DE0-CV board, no interrupt) and a
-general purpose SPI device with hardware NSS. Two I2C devices are
-available. A simple timer with interrupt is provided. A more elaborate
+available, both with interrupt. Two I2C devices are available, with
+interrupt. A simple timer with interrupt is provided. A more elaborate
 timer is included and can generate waveforms (Output Compare and PWM)
 or count edges (Input Capture). A watchdog timer is available, it can
 generate a system wide reset or an NMI. A machine mode software interrupt
@@ -85,14 +84,21 @@ the synthesized clock speed.
 
 == FPGA
 
-The microcontroller is developed on a Cyclone V FPGA (5CEBA4F23C7)
-with the use of the DE0-CV board by Terasic and Intel Quartus Prime
+The microcontroller is developed on a
+https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyclone V FPGA]
+(5CEBA4F23C7) with the use of the
+https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[DE0-CV board]
+by Terasic and Intel Quartus Prime
 Lite 23.1. Simulation is possible with QuestaSim Intel Starter Edition.
 You need a (free) license for that. The processor uses about
 2900 ALM (cells) of 18480, depending on the settings. In the default
 settings, ROM, BOOT, RAM and registers uses 43% of the available RAM blocks.
 
-The design is also tested on a Digilent Arty S7/50 and a Cmod S7/25 (Spartan 7) board.
+The design is also tested on a
+https://digilent.com/reference/programmable-logic/arty-s7/start[Digilent Arty S7/50]
+and a
+https://digilent.com/reference/programmable-logic/cmod-s7/start[Cmod S7/25]
+(Spartan 7) board.
 
 == Software
 
@@ -117,7 +123,7 @@ RISC-V Debug Specification v1.0.0-rc3. It is an all-hardware solution,
 there is no program buffer involved. All processor registers (including
 CSRs) can be read and written (when possible). Memory can be read and
 written. There is one hardware breakpoint available. De on-chip debugger
-is compatible with OpenOCD and GDB. It can be used with Eclipse CDT. By
+is compatible with OpenOCD, GDB and Eclipse-CDT. By
 default, the on-chip debugger is disabled.
 
 == Bootloader

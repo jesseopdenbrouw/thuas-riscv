@@ -1105,7 +1105,10 @@ begin
                 i2c1.data(31 downto 8) <= (others => '0');
                 i2c1.ctrl(15 downto 12) <= (others => '0');
                 i2c1.ctrl(7 downto 4) <= (others => '0');
-                i2c1.stat(31 downto 12) <= (others => '0');
+                i2c1.ctrl(1 downto 0) <= (others => '0');
+                i2c1.stat(31 downto 7) <= (others => '0');
+                i2c1.stat(4) <= '0';
+                i2c1.stat(1 downto 0) <= (others => '0');
             end if;
         end process;
         -- Drive the clock and data lines
@@ -1348,7 +1351,10 @@ begin
                 i2c2.data(31 downto 8) <= (others => '0');
                 i2c2.ctrl(15 downto 12) <= (others => '0');
                 i2c2.ctrl(7 downto 4) <= (others => '0');
-                i2c2.stat(31 downto 12) <= (others => '0');
+                i2c2.ctrl(1 downto 0) <= (others => '0');
+                i2c2.stat(31 downto 7) <= (others => '0');
+                i2c2.stat(4) <= '0';
+                i2c2.stat(1 downto 0) <= (others => '0');
             end if;
         end process;
         -- Drive the clock and data lines

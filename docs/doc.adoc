@@ -357,6 +357,7 @@ Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed
 |===
 
 Performance options: balanced, Advanced Fitter Settings:
+
 * Fitter Effort = Standard Fit
 * Physical Synthesis Effort level = Extra
 * Placement Effort Multiplier = 10.0
@@ -375,7 +376,7 @@ The processor hardware is composed of the following VHDL files:
 
 * `processor_common.vhd` -- Common types and constants.
 * `address_decode.vhd` -- The address decoder and data router to the memory
-* `core.vhd` -- The core contains the PC, the registers, the ALU, the MD unit, the control state machine, the memory interface, the CSR, the LICi and debug hardware.
+* `core.vhd` -- The core contains the PC, the registers, the ALU, the MD unit, the control state machine, the memory interface, the CSR, the LIC and debug hardware.
 * `instr_router.vhd` -- Description of the instruction router.
 * `rom.vhd` -- Description of the ROM. Will be placed in onboard, initialized RAM blocks. 
 * `rom_image.vhd` -- Description of the ROM contents.
@@ -662,6 +663,7 @@ In the created directory, you will see the following directories:
 
 `boards` -- Files needed to use other boards. +
 `docs` -- Documentation. +
+`eclipse` -- Projects using Eclipse-CDT. Currently Windows only. +
 `ghdl` -- Simulate using http://ghdl.free.fr/[GHDL] +
 `openocd` -- OpenOCD configuration file + SVD file. +
 `rtl` -- the VHDL description(s). +

@@ -373,8 +373,11 @@ type timer1_type is record
     cntr : data_type;
     cmpt : data_type;
 end record;
-signal timer1 : timer1_type;
 
+signal timer1 : timer1_type;
+alias timer1_en : std_logic is timer1.ctrl(0);
+alias timer1_tie : std_logic is timer1.ctrl(4);
+alias timer1_tci : std_logic is timer1.stat(4);
 
 -- registers 36 - 39 not used -- reserved
 
@@ -1780,17 +1783,19 @@ begin
                     end if;
                 end if;
                 -- Set unused bits to 0
-                timer1.ctrl(31 downto 12) <= (others => '0');
-                timer1.stat(31 downto 12) <= (others => '0');
+                timer1.ctrl(31 downto 5) <= (others => '0');
+                timer1.ctrl(3 downto 1) <= (others => '0');
+                timer1.stat(31 downto 5) <= (others => '0');
+                timer1.stat(3 downto 0) <= (others => '0');
                 
                 -- If timer is enabled....
-                if timer1.ctrl(0) = '1' then
+                if timer1_en = '1' then
                     -- If we hit the Compare Register T...
                     if timer1.cntr >= timer1.cmpt then
                         -- Reload Counter Register
                         timer1.cntr <= (others => '0');
                         -- Signal hit
-                        timer1.stat(4) <= '1';
+                        timer1_tci <= '1';
                     else
                         -- else, increment the Counter Register
                         timer1.cntr <= std_logic_vector(unsigned(timer1.cntr) + 1);
@@ -2218,6 +2223,10 @@ begin
                 else
                 end if;
                 -- Set unused bits, all counter registers are 16 bits.
+                timer2.ctrl(31 downto 28) <= (others => '0');
+                timer2.ctrl(02 downto 01) <= (others => '0');
+                timer2.stat(31 downto 08) <= (others => '0');
+                timer2.stat(03 downto 00) <= (others => '0');
                 timer2.cntr(31 downto 16) <= (others => '0');
                 timer2.cmpt(31 downto 16) <= (others => '0');
                 timer2.prsc(31 downto 16) <= (others => '0');

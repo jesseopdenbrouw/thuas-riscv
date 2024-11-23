@@ -437,9 +437,8 @@ component dm is
 end component dm;
 
 
--- The clock and the external reset
+-- The clock
 signal clk_int : std_logic;
-signal areset_int : std_logic;
 
 -- Instruction fetch from ROM and boot ROM
 signal instr_request_int : instr_request_type;
@@ -474,6 +473,8 @@ signal areset_sys_sync_int : std_logic_vector(3 downto 0);
 signal areset_sys_int : std_logic;
 signal break_from_uart1_int : std_logic;
 signal reset_from_wdt_int : std_logic;
+signal areset_debug_sync_int : std_logic_vector(1 downto 0);
+signal areset_debug_int : std_logic;
 
 -- Signals between DTM and DM
 signal dmi_request_int : dmi_request_type;
@@ -493,8 +494,7 @@ begin
 
     -- Just pass on the clock
     clk_int <= I_clk;
-    -- Reset from reset synchronizer
-    areset_int <= areset_sys_int;
+
     
     -- Synchronize the asynchronous reset.
     -- Also: reset the system if an UART1 BREAK is detected
@@ -502,9 +502,14 @@ begin
     process (I_clk, I_areset) is
     begin
         if I_areset = '1' then
-            areset_sys_sync_int <= (others => '0');
-            areset_sys_int      <= '1';
+            areset_sys_sync_int   <= (others => '0');
+            areset_sys_int        <= '1';
+            areset_debug_sync_int <= (others => '0');
+            areset_debug_int      <= '1';
         elsif rising_edge(I_clk) then
+            -- Reset for the debug units
+            areset_debug_sync_int <= areset_debug_sync_int(areset_debug_sync_int'left-1 downto 0) & '1';
+            areset_debug_int <= not and_reduce(areset_debug_sync_int);
             -- If a UART1 BREAK is detected or watchdog reset or debug reset, reset the system
             if break_from_uart1_int = '1' or reset_from_wdt_int = '1' or reset_req_int = '1' then
                 areset_sys_sync_int <= (others => '0');
@@ -546,7 +551,7 @@ begin
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               -- Instruction fetch
               O_instr_request => instr_request_int,
               I_instr_response => instr_response_int,
@@ -577,7 +582,7 @@ begin
               IO_HIGH_NIBBLE => IO_HIGH_NIBBLE
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               --
               I_bus_request => bus_request_int,
               O_bus_response => bus_response_int,
@@ -617,7 +622,7 @@ begin
               HAVE_FAST_STORE => HAVE_FAST_STORE
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               -- fetch instruction
               I_instr_request => instr_request_rom_int,
               O_instr_response => instr_response_rom_int,
@@ -630,7 +635,7 @@ begin
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               --
               I_instr_request => instr_request_boot_int,
               O_instr_response => instr_response_boot_int,
@@ -645,7 +650,7 @@ begin
               HAVE_FAST_STORE => HAVE_FAST_STORE
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               --
               I_mem_request => mem_request_ram_int,
               O_mem_response => mem_response_ram_int
@@ -668,7 +673,7 @@ begin
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               --
               I_mem_request => mem_request_io_int,
               O_mem_response => mem_response_io_int,
@@ -717,7 +722,7 @@ begin
                   IDCODE_MANID   => "00000000000"
                  )
         port map (I_clk => I_clk,
-                  I_areset => I_areset,
+                  I_areset => areset_debug_int,
                   I_trst => I_trst,
                   I_tck => I_tck,
                   I_tms => I_tms,
@@ -734,7 +739,7 @@ begin
                   OCD_AAMPOSTINCREMENT => OCD_AAMPOSTINCREMENT
                  )
         port map (I_clk => I_clk,
-                  I_areset => I_areset,
+                  I_areset => areset_debug_int,
                   --
                   I_dmi_request => dmi_request_int,
                   O_dmi_response => dmi_response_int,

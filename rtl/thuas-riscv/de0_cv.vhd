@@ -57,6 +57,9 @@ entity de0_cv is
           -- UART1
           I_uart1rxd : in std_logic;
           O_uart1txd : out std_logic;
+          -- UART2
+          I_uart2rxd : in std_logic;
+          O_uart2txd : out std_logic;
           -- I2C1
           IO_i2c1scl : inout std_logic;
           IO_i2c1sda : inout std_logic;
@@ -96,9 +99,9 @@ begin
               -- Do we have RISC-V embedded (16 registers)?
               HAVE_RISCV_E => false,
               -- Have On-chip debugger?
-              HAVE_OCD => false,
+              HAVE_OCD => TRUE,
               -- Do we have the buildin bootloader?
-              HAVE_BOOTLOADER_ROM => TRUE,
+              HAVE_BOOTLOADER_ROM => false,
               -- Disable CSR address check when in debug mode
               OCD_CSR_CHECK_DISABLE => false,
               -- Do we use post-increment address pointer when debugging?
@@ -106,7 +109,7 @@ begin
               -- Do we have integer hardware multiply/divide?
               HAVE_MULDIV => TRUE,
               -- Do we have the fast divider?
-              FAST_DIVIDE => TRUE,
+              FAST_DIVIDE => false,
               -- Do we have the Zba extension?
               HAVE_ZBA => false,
               -- Do we have Zbs (bit instructions)?
@@ -131,10 +134,12 @@ begin
               RAM_HIGH_NIBBLE => x"2",
               -- 4 high bits of I/O address
               IO_HIGH_NIBBLE => x"F",
-              -- Do we have fast store?
-              HAVE_FAST_STORE => false,
+              -- Buffer I/O response
+              BUFFER_IO_RESPONSE => false,
               -- Use UART1?
               HAVE_UART1 => TRUE,
+              -- Use UART2?
+              HAVE_UART2 => false,
               -- Use SPI1?
               HAVE_SPI1 => TRUE,
               -- Use SPI2?
@@ -168,6 +173,9 @@ begin
               -- UART1
               I_uart1rxd => I_uart1rxd,
               O_uart1txd => O_uart1txd,
+              -- UART2
+              I_uart2rxd => I_uart2rxd,
+              O_uart2txd => O_uart2txd,
               -- I2C1
               IO_i2c1scl => IO_i2c1scl,
               IO_i2c1sda => IO_i2c1sda,

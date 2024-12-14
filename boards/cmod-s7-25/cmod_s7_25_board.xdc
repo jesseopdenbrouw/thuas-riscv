@@ -41,7 +41,8 @@ set_property -dict {PACKAGE_PIN J11 IOSTANDARD LVCMOS33} [get_ports {IO_i2c2sda}
 set_property -dict {PACKAGE_PIN L14 IOSTANDARD LVCMOS33} [get_ports {O_spi1sck}]
 set_property -dict {PACKAGE_PIN K14 IOSTANDARD LVCMOS33} [get_ports {O_spi1mosi}]
 set_property -dict {PACKAGE_PIN J15 IOSTANDARD LVCMOS33} [get_ports {I_spi1miso}]
-set_property -dict {PACKAGE_PIN L13 IOSTANDARD LVCMOS33} [get_ports {O_spi1nss}]
+# Software generated Slave Select
+set_property -dict {PACKAGE_PIN L13 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[15]}]
 
 ## SPI2 (PIO3, PIO4, PIO5, PIO6)
 set_property -dict {PACKAGE_PIN M3 IOSTANDARD LVCMOS33} [get_ports {O_spi2sck}]
@@ -71,6 +72,10 @@ set_property -dict {PACKAGE_PIN C5 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[1
 set_property -dict {PACKAGE_PIN A2 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[2]} ]
 set_property -dict {PACKAGE_PIN B2 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[3]} ]
 set_property -dict {PACKAGE_PIN B1 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[4]} ]
+
+## UART2 (JA0, JA1)
+set_property -dict {PACKAGE_PIN J2 IOSTANDARD LVCMOS33} [get_ports {I_uart2rxd}]
+set_property -dict {PACKAGE_PIN H2 IOSTANDARD LVCMOS33} [get_ports {O_uart2txd}]
 
 ## JTAG connections (PIO44 to PIO48)
 set_property -dict {PACKAGE_PIN C1 IOSTANDARD LVCMOS33} [get_ports {I_trst} ]

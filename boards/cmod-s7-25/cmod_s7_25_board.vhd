@@ -56,10 +56,13 @@ entity cmod_s7_25_board is
           I_tms  : in  std_logic;
           -- GPIO
           I_gpioapin : in std_logic_vector(4 downto 0);
-          O_gpioapout : out std_logic_vector(14 downto 0);
+          O_gpioapout : out std_logic_vector(15 downto 0);
           -- UART1
           I_uart1rxd : in std_logic;
           O_uart1txd : out std_logic;
+          -- UART2
+          I_uart2rxd : in std_logic;
+          O_uart2txd : out std_logic;
           -- I2C1
           IO_i2c1scl : inout std_logic;
           IO_i2c1sda : inout std_logic;
@@ -70,7 +73,6 @@ entity cmod_s7_25_board is
           O_spi1sck : out std_logic;
           O_spi1mosi : out std_logic;
           I_spi1miso : in std_logic;
-          O_spi1nss : out std_logic;
           -- SPI2
           O_spi2sck : out std_logic;
           O_spi2mosi : out std_logic;
@@ -93,7 +95,7 @@ begin
 
     -- Not all GPIOA pins are connected
     pina_int(4 downto 0) <= I_gpioapin;
-    O_gpioapout <= pouta_int(14 downto 0);
+    O_gpioapout <= pouta_int(15 downto 0);
     
     -- Reset button of CMOD-S7 is active high
     areset_int <= I_areset;
@@ -107,17 +109,17 @@ begin
               -- Do we have RISC-V embedded (16 registers)?
               HAVE_RISCV_E => false,
               -- Have On-chip debugger?
-              HAVE_OCD => false,
+              HAVE_OCD => TRUE,
               -- Do we have the buildin bootloader?
-              HAVE_BOOTLOADER_ROM => TRUE,
-              -- Disable CSR address check when in debug mode?
+              HAVE_BOOTLOADER_ROM => false,
+              -- Disable CSR address check when in debug mode
               OCD_CSR_CHECK_DISABLE => false,
               -- Do we use post-increment address pointer when debugging?
-              OCD_AAMPOSTINCREMENT => false,
+              OCD_AAMPOSTINCREMENT => TRUE,
               -- Do we have integer hardware multiply/divide?
               HAVE_MULDIV => TRUE,
               -- Do we have the fast divider?
-              FAST_DIVIDE => TRUE,
+              FAST_DIVIDE => false,
               -- Do we have the Zba extension?
               HAVE_ZBA => false,
               -- Do we have Zbs (bit instructions)?
@@ -142,10 +144,12 @@ begin
               RAM_HIGH_NIBBLE => x"2",
               -- 4 high bits of I/O address
               IO_HIGH_NIBBLE => x"F",
-              -- Do we have fast store?
-              HAVE_FAST_STORE => false,
+              -- Buffer I/O response
+              BUFFER_IO_RESPONSE => false,
               -- Use UART1?
               HAVE_UART1 => TRUE,
+              -- Use UART2?
+              HAVE_UART2 => false,
               -- Use SPI1?
               HAVE_SPI1 => TRUE,
               -- Use SPI2?
@@ -179,6 +183,9 @@ begin
               -- UART1
               I_uart1rxd => I_uart1rxd,
               O_uart1txd => O_uart1txd,
+              -- UART2
+              I_uart2rxd => I_uart2rxd,
+              O_uart2txd => O_uart2txd,
               -- I2C1
               IO_i2c1scl => IO_i2c1scl,
               IO_i2c1sda => IO_i2c1sda,

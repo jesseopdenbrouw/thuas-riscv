@@ -47,11 +47,12 @@ set_property -dict {PACKAGE_PIN J13 IOSTANDARD LVCMOS33} [get_ports {IO_i2c1sda}
 set_property -dict {PACKAGE_PIN U15 IOSTANDARD LVCMOS33} [get_ports {IO_i2c2scl}]
 set_property -dict {PACKAGE_PIN V16 IOSTANDARD LVCMOS33} [get_ports {IO_i2c2sda}]
 
-## SPI1
+## SPI1 - ChipKit IO39, IO38, IO37
 set_property -dict {PACKAGE_PIN U17 IOSTANDARD LVCMOS33} [get_ports {O_spi1sck}]
 set_property -dict {PACKAGE_PIN U18 IOSTANDARD LVCMOS33} [get_ports {O_spi1mosi}]
 set_property -dict {PACKAGE_PIN U16 IOSTANDARD LVCMOS33} [get_ports {I_spi1miso}]
-set_property -dict {PACKAGE_PIN P13 IOSTANDARD LVCMOS33} [get_ports {O_spi1nss}]
+# Software generated Slave Select
+set_property -dict {PACKAGE_PIN P13 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[15]} ]
 
 ## SPI2 -- connected to ChipKit/Arduino SPI
 set_property -dict {PACKAGE_PIN G16 IOSTANDARD LVCMOS33} [get_ports {O_spi2sck}]
@@ -72,13 +73,16 @@ set_property -dict {PACKAGE_PIN V13 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout
 set_property -dict {PACKAGE_PIN U12 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[12]} ]
 set_property -dict {PACKAGE_PIN V15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[13]} ]
 
-## PMODB, used for JTAG, pins 1 to 4, 7 
+## JTAG -- PMODB, pins 1 to 4, 7 
 set_property -dict {PACKAGE_PIN P17 IOSTANDARD LVCMOS33} [get_ports {I_tck} ]
 set_property -dict {PACKAGE_PIN P18 IOSTANDARD LVCMOS33} [get_ports {I_tdi} ]
 set_property -dict {PACKAGE_PIN R18 IOSTANDARD LVCMOS33} [get_ports {I_tms} ]
 set_property -dict {PACKAGE_PIN T18 IOSTANDARD LVCMOS33} [get_ports {I_trst} ]
 set_property -dict {PACKAGE_PIN P14 IOSTANDARD LVCMOS33} [get_ports {O_tdo} ]
 
+## UART2 -- PMODB, pins 8 and 9
+set_property -dict {PACKAGE_PIN P15 IOSTANDARD LVCMOS33} [get_ports {I_uart2rxd}]
+set_property -dict {PACKAGE_PIN N15 IOSTANDARD LVCMOS33} [get_ports {O_uart2txd}]
 
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]

@@ -89,11 +89,11 @@ int main(void)
 				uart1_putc('.');
 			}
 			uart1_puts("\r\n");
-	
-			/* Simple delay */
-			for (volatile uint32_t i = 0; i < 5000000; i++);
 		}
 		uart1_puts("-----------------------------\r\n");
+
+		/* Simple delay */
+		for (volatile uint32_t i = 0; i < 5000000; i++);
 	}
 
 	return 0;

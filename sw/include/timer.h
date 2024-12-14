@@ -21,9 +21,9 @@ void timer1_enable_interrupt(void);
 void timer1_disable_interrupt(void);
 void timer1_clear_interrupt(void);
 
-#define TIMER1_EN (1 << 0)
-#define TIMER1_TIE (1 << 4)
-#define TIMER1_TCI (1 << 4)
+#define TIMER1_EN   (1 << 0)
+#define TIMER1_TCIE (1 << 4)
+#define TIMER1_TC   (1 << 4)
 
 #ifdef __cplusplus
 }

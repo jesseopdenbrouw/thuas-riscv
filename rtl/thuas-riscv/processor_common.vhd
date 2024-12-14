@@ -44,11 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-<<<<<<< HEAD
     constant HW_VERSION : integer := 16#01_01_00_00#;
-=======
-    constant HW_VERSION : integer := 16#01_00_04_02#;
->>>>>>> 72a48c3582e8f9df92246eef9d3d0fa846f4faa7
     
     -- Used data types
     -- The common data type is 32 bits wide

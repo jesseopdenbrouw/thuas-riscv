@@ -136,6 +136,9 @@ set_location_assignment PIN_R17 -to I_tdi
 set_location_assignment PIN_T18 -to I_tms
 set_location_assignment PIN_T15 -to I_trst
 set_location_assignment PIN_T20 -to O_tdo
+
+set_instance_assignment -name GLOBAL_SIGNAL GLOBAL_CLOCK -to "riscv:riscv0|areset_sys_int" -entity riscv -disable
+set_instance_assignment -name GLOBAL_SIGNAL GLOBAL_CLOCK -to "riscv:riscv0|areset_debug_int" -entity riscv -disable
 set_global_assignment -name VHDL_FILE processor_common.vhd
 set_global_assignment -name VHDL_FILE de0_cv.vhd
 set_global_assignment -name VHDL_FILE riscv.vhd
@@ -144,14 +147,25 @@ set_global_assignment -name VHDL_FILE address_decode.vhd
 set_global_assignment -name VHDL_FILE instr_router.vhd
 set_global_assignment -name VHDL_FILE rom.vhd
 set_global_assignment -name VHDL_FILE rom_image.vhd
-set_global_assignment -name VHDL_FILE bootloader.vhd
+set_global_assignment -name VHDL_FILE bootrom.vhd
 set_global_assignment -name VHDL_FILE bootrom_image.vhd
 set_global_assignment -name VHDL_FILE ram.vhd
-set_global_assignment -name VHDL_FILE io.vhd
 set_global_assignment -name VHDL_FILE dm.vhd
 set_global_assignment -name VHDL_FILE dtm.vhd
+set_global_assignment -name VHDL_FILE io_bus_switch.vhd
+set_global_assignment -name VHDL_FILE gpio.vhd
+set_global_assignment -name VHDL_FILE i2c.vhd
+set_global_assignment -name VHDL_FILE mtime.vhd
+set_global_assignment -name VHDL_FILE msi.vhd
+set_global_assignment -name VHDL_FILE spi.vhd
+set_global_assignment -name VHDL_FILE timera.vhd
+set_global_assignment -name VHDL_FILE timerb.vhd
+set_global_assignment -name VHDL_FILE uart.vhd
+set_global_assignment -name VHDL_FILE wdt.vhd
+set_global_assignment -name VHDL_FILE stub.vhd
 set_global_assignment -name SDC_FILE riscv.sdc
 set_global_assignment -name COMMAND_MACRO_FILE tb_riscv.do
 set_global_assignment -name VHDL_TEST_BENCH_FILE tb_riscv.vhd
-
+set_location_assignment PIN_R22 -to I_uart2rxd
+set_location_assignment PIN_T22 -to O_uart2txd
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

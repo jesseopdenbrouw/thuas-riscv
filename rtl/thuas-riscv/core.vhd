@@ -80,10 +80,12 @@ entity core is
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
           BOOT_HIGH_NIBBLE : memory_high_nibble;
-          -- Do we have fast store?
-          HAVE_FAST_STORE : boolean;
+          -- Buffer I/O response
+          BUFFER_IO_RESPONSE : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
+          -- Do we have UART2?
+          HAVE_UART2 : boolean;
           -- Do we have SPI1?
           HAVE_SPI1 : boolean;
           -- Do we have SPI2?
@@ -1168,21 +1170,21 @@ begin
                                     id_ex.memaccess <= memaccess_write;
                                     id_ex.memsize <= memsize_byte;
                                     id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= boolean_to_std_logic(not HAVE_FAST_STORE);
+                                    id_ex.ismem <= '1';
                                 -- Store halfword (no sign extension or zero extension)
                                 when "001" =>
                                     id_ex.alu_op <= alu_sh;
                                     id_ex.memaccess <= memaccess_write;
                                     id_ex.memsize <= memsize_halfword;
                                     id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= boolean_to_std_logic(not HAVE_FAST_STORE);
+                                    id_ex.ismem <= '1';
                                     -- Store word (no sign extension or zero extension)
                                 when "010" =>
                                     id_ex.alu_op <= alu_sw;
                                     id_ex.memaccess <= memaccess_write;
                                     id_ex.memsize <= memsize_word;
                                     id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= boolean_to_std_logic(not HAVE_FAST_STORE);
+                                    id_ex.ismem <= '1';
                                 when others =>
                                     control.illegal_instruction_decode <= '1';
                             end case;
@@ -2946,36 +2948,37 @@ begin
     csr_reg.mip <= I_intrio;
 
     -- Custom read-only hardware description
-    csr_reg.mxhw(0) <= '1'; --gpioa, always present
-    csr_reg.mxhw(1) <= '0'; --reserved
-    csr_reg.mxhw(2) <= '0'; --reserved
-    csr_reg.mxhw(3) <= '0'; --reserved
-    csr_reg.mxhw(4) <= '1' when HAVE_UART1 else '0';
-    csr_reg.mxhw(5) <= '0'; -- reserved
-    csr_reg.mxhw(6) <= '1' when HAVE_I2C1 else '0';
-    csr_reg.mxhw(7) <= '1' when HAVE_I2C2 else '0';
-    csr_reg.mxhw(8) <= '1' when HAVE_SPI1 else '0';
-    csr_reg.mxhw(9) <= '1' when HAVE_SPI2 else '0';
-    csr_reg.mxhw(10) <= '1' when HAVE_TIMER1 else '0';
-    csr_reg.mxhw(11) <= '1' when HAVE_TIMER2 else '0';
+    csr_reg.mxhw(00) <= '1'; --gpioa, always present
+    csr_reg.mxhw(01) <= '0'; --reserved
+    csr_reg.mxhw(02) <= '0'; --reserved
+    csr_reg.mxhw(03) <= '0'; --reserved
+    csr_reg.mxhw(04) <= boolean_to_std_logic(HAVE_UART1);
+    csr_reg.mxhw(05) <= boolean_to_std_logic(HAVE_UART2);
+    csr_reg.mxhw(06) <= boolean_to_std_logic(HAVE_I2C1);
+    csr_reg.mxhw(07) <= boolean_to_std_logic(HAVE_I2C2);
+    csr_reg.mxhw(08) <= boolean_to_std_logic(HAVE_SPI1);
+    csr_reg.mxhw(09) <= boolean_to_std_logic(HAVE_SPI2);
+    csr_reg.mxhw(10) <= boolean_to_std_logic(HAVE_TIMER1);
+    csr_reg.mxhw(11) <= boolean_to_std_logic(HAVE_TIMER2);
     csr_reg.mxhw(12) <= '0'; -- reserved
     csr_reg.mxhw(13) <= '0'; -- reserved
     csr_reg.mxhw(14) <= '0'; -- reserved
     csr_reg.mxhw(15) <= '1'; -- TIME/TIMEH, always present
-    csr_reg.mxhw(16) <= '1' when HAVE_MULDIV else '0';
-    csr_reg.mxhw(17) <= '1' when FAST_DIVIDE and HAVE_MULDIV else '0';
-    csr_reg.mxhw(18) <= '1' when HAVE_BOOTLOADER_ROM else '0';
-    csr_reg.mxhw(19) <= '1' when HAVE_REGISTERS_IN_RAM else '0';
-    csr_reg.mxhw(20) <= '1' when HAVE_ZBA else '0';
-    csr_reg.mxhw(21) <= '1' when HAVE_FAST_STORE else '0';
-    csr_reg.mxhw(22) <= '1' when HAVE_ZICOND else '0';
-    csr_reg.mxhw(23) <= '1' when HAVE_ZBS else '0';
-    csr_reg.mxhw(24) <= '1' when UART1_BREAK_RESETS else '0';
-    csr_reg.mxhw(25) <= '1' when HAVE_WDT else '0';
-    csr_reg.mxhw(26) <= '1' when HAVE_ZIHPM else '0';
-    csr_reg.mxhw(27) <= '1' when HAVE_OCD else '0';
-    csr_reg.mxhw(28) <= '1' when HAVE_MSI else '0';
-    csr_reg.mxhw(csr_reg.mxhw'left downto 29) <= (others => '0');
+    csr_reg.mxhw(16) <= boolean_to_std_logic(HAVE_MULDIV);
+    csr_reg.mxhw(17) <= boolean_to_std_logic(FAST_DIVIDE and HAVE_MULDIV);
+    csr_reg.mxhw(18) <= boolean_to_std_logic(HAVE_BOOTLOADER_ROM);
+    csr_reg.mxhw(19) <= boolean_to_std_logic(HAVE_REGISTERS_IN_RAM);
+    csr_reg.mxhw(20) <= boolean_to_std_logic(HAVE_ZBA);
+    csr_reg.mxhw(21) <= '0';
+    csr_reg.mxhw(22) <= boolean_to_std_logic(HAVE_ZICOND);
+    csr_reg.mxhw(23) <= boolean_to_std_logic(HAVE_ZBS);
+    csr_reg.mxhw(24) <= boolean_to_std_logic(UART1_BREAK_RESETS);
+    csr_reg.mxhw(25) <= boolean_to_std_logic(HAVE_WDT);
+    csr_reg.mxhw(26) <= boolean_to_std_logic(HAVE_ZIHPM);
+    csr_reg.mxhw(27) <= boolean_to_std_logic(HAVE_OCD);
+    csr_reg.mxhw(28) <= boolean_to_std_logic(HAVE_MSI);
+	 csr_reg.mxhw(29) <= boolean_to_std_logic(BUFFER_IO_RESPONSE);
+    csr_reg.mxhw(csr_reg.mxhw'left downto 30) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));
@@ -3115,11 +3118,11 @@ begin
         elsif control.ebreak_request = '1' and csr_reg.dcsr(15) = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(3, control.trap_mcause'length));
-        -- Load access error (inimplemented memory)
+        -- Load access error (unimplemented memory)
         elsif I_bus_response.load_access_error = '1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(5, control.trap_mcause'length));
-        -- Store access error (inimplemented memory)
+        -- Store access error (unimplemented memory)
         elsif I_bus_response.store_access_error = '1' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(7, control.trap_mcause'length));

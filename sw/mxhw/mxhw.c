@@ -35,6 +35,7 @@ int main(void)
 
 	uart1_printf("has GPIOA: %s\r\n", (hw & CSR_MXHW_GPIOA) ? "yes" : "no");
 	uart1_printf("has UART1: %s\r\n", (hw & CSR_MXHW_UART1) ? "yes" : "no");
+	uart1_printf("has UART2: %s\r\n", (hw & CSR_MXHW_UART2) ? "yes" : "no");
 	uart1_printf("has I2C1: %s\r\n", (hw & CSR_MXHW_I2C1) ? "yes" : "no");
 	uart1_printf("has I2C2: %s\r\n", (hw & CSR_MXHW_I2C2) ? "yes" : "no");
 	uart1_printf("has SPI1: %s\r\n", (hw & CSR_MXHW_SPI1) ? "yes" : "no");
@@ -46,7 +47,6 @@ int main(void)
 	uart1_printf("has bootloader: %s\r\n", (hw & CSR_MXHW_BOOT) ? "yes" : "no");
 	uart1_printf("has registers in RAM: %s\r\n", (hw & CSR_MXHW_REGRAM) ? "yes" : "no");
 	uart1_printf("has Zba extension: %s\r\n", (hw & CSR_MXHW_ZBA) ? "yes" : "no");
-	uart1_printf("has fast store: %s\r\n", (hw & CSR_MXHW_FASTSTORE) ? "yes" : "no");
 	uart1_printf("has Zicond: %s\r\n", (hw & CSR_MXHW_ZICOND) ? "yes" : "no");
 	uart1_printf("has Zbs extension: %s\r\n", (hw & CSR_MXHW_ZBS) ? "yes" : "no");
 	uart1_printf("UART1 break resets processor: %s\r\n", (hw & CSR_MXHW_BREAK) ? "yes" : "no");
@@ -54,6 +54,7 @@ int main(void)
 	uart1_printf("has Zihpm counters: %s\r\n", (hw & CSR_MXHW_ZIHPM) ? "yes" : "no");
 	uart1_printf("has on-chip debugger: %s\r\n", (hw & CSR_MXHW_OCD) ? "yes" : "no");
 	uart1_printf("has MSI: %s\r\n", (hw & CSR_MXHW_MSI) ? "yes" : "no");
+	uart1_printf("has Buffer I/O reponse: %s\r\n", (hw & CSR_MXHW_BUFFER) ? "yes" : "no");
 
 	/* Are HPM counters enabled... */
 	if (hw & CSR_MXHW_ZIHPM) {

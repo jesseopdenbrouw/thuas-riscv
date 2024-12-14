@@ -72,9 +72,10 @@
 This is a list of currently supported I/O addresses. 
 The default start address is 0xF0000000. The offset is given in bytes. Note that the I/O can only be accesses on 4-byte boundaries and on word size accesses.
 
+
 \subsection{GPIOA -- General Purpose I/O}
 
-\begin{register}{H}{Port A input register GPIOA\_PIN}{0x00}%
+\begin{register}{H}{Port A input register GPIOA\_PIN}{0x000}%
 \label{pinx}%
 \regfield{PIN}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -85,7 +86,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \end{reglist}\end{regdesc}
 \textbf{Note:} This I/O register can only be read. Writes are ignored.
 
-\begin{register}{H}{Port A output register GPIOA\_POUT}{0x04}%
+\begin{register}{H}{Port A output register GPIOA\_POUT}{0x004}%
 \label{poutx}%
 \regfield{POUT}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -95,7 +96,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \item[POUT] Port pin output values. Write: The data is written to the output pins. Read: The last entered data is read back.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{External input interrupt control register GPIOA\_EXTC}{0x18}%
+\begin{register}{H}{External input interrupt control register GPIOA\_EXTC}{0x018}%
 \label{extc}%
 \regfield{Reserved}{24}{8}{{0}}%
 \regfield{PINNR}{5}{3}{{0}}%
@@ -109,7 +110,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \item[EDGE] Edge selection: 00 = off, 01 = rising, 10 = falling, 11 = both. 
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{External input interrupt status register GPIOA\_EXTS}{0x1c}%
+\begin{register}{H}{External input interrupt status register GPIOA\_EXTS}{0x01c}%
 \label{exts}%
 \regfield{Reserved}{31}{1}{{0}}%
 \regfield{DETECT}{1}{0}{{0}}
@@ -120,9 +121,10 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \item[DETECT] Edge detected. Must be cleared to reset the pending interrupt.
 \end{reglist}\end{regdesc}
 
+
 \subsection{UART1 -- Universal Asynchronous Receiver/Transmitter}
 
-\begin{register}{H}{UART1 control register UART1\_CTRL}{0x20}
+\begin{register}{H}{UART1 control register UART1\_CTRL}{0x100}
 \label{uart1ctrl}
 \regfield{Reserved}{23}{9}{{0}}%
 \regfield{PARITY}{2}{7}{{0}}%
@@ -145,7 +147,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \item[EN] Enable UART1 (both receiver and transmitter)
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{UART1 status register UART1\_STAT}{0x24}
+\begin{register}{H}{UART1 status register UART1\_STAT}{0x104}
 \label{uart1stat}
 \regfield{Reserved}{26}{6}{{0}}%
 \regfield{BR}{1}{5}{{0}}%
@@ -166,7 +168,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \item [FE] Frame error. Set to 1 when a low is detected at the position of the (first) stop bit. Automatically cleared when data register is read or writing a 0 in the FE bit in UART1\_STAT.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{UART1 data register UART1\_DATA}{0x28}
+\begin{register}{H}{UART1 data register UART1\_DATA}{0x108}
 \label{uart1data}
 \regfield{Reserved}{22}{9}{{0}}%
 \regfield{DATA}{9}{0}{{0}}
@@ -180,8 +182,80 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \textbf{Read:} The last received data is read. \\
 Size depends on the SIZE field in the UART1 Control Register.
 
-\begin{register}{H}{UART1 baud rate register UART1\_BAUD}{0x2c}
+\begin{register}{H}{UART1 baud rate register UART1\_BAUD}{0x10c}
 \label{uart1baud}
+\regfield{Rerserved}{16}{16}{{0}}%
+\regfield{PRESCALER}{16}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.6\textwidth]\begin{reglist}[000000000]
+\itemsep-1.5ex
+\item[PRESCALER] Baud rate = $\dfrac{f_{system}}{\textrm{prescaler}+1}$
+\end{reglist}\end{regdesc}
+
+
+\subsection{UART2 -- Universal Asynchronous Receiver/Transmitter}
+
+\begin{register}{H}{UART2 control register UART2\_CTRL}{0xb00}
+\label{uart2ctrl}
+\regfield{Reserved}{23}{9}{{0}}%
+\regfield{PARITY}{2}{7}{{0}}%
+\regfield{SP2}{1}{6}{{0}}%
+\regfield{BRIE}{1}{5}{{1}}%
+\regfield{TCIE}{1}{4}{{1}}%
+\regfield{RCIE}{1}{3}{{1}}%
+\regfield{SIZE}{2}{1}{{0}}%
+\regfield{EN}{1}{0}{{0}}%
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.75\textwidth]\begin{reglist}[000000]
+\itemsep-1.5ex
+\item[PARITY] 00: none, 10: even, 11: odd.
+\item[SP2] 0: one stop bit, 1: two stop bits.
+\item[BRIE] BREAK received interrupt enable.
+\item[TCIE] Transmit character interrupt enable.
+\item[RCIE] Receive character interrupt enable.
+\item[SIZE] 00: 8 bits, 10: 9 bits, 11: 7 bits, excluding the parity.
+\item[EN] Enable UART2 (both receiver and transmitter)
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{UART2 status register UART2\_STAT}{0xb04}
+\label{uart2stat}
+\regfield{Reserved}{26}{6}{{0}}%
+\regfield{BR}{1}{5}{{0}}%
+\regfield{TC}{1}{4}{{0}}%
+\regfield{RC}{1}{3}{{0}}%
+\regfield{PE}{1}{2}{{0}}%
+\regfield{RF}{1}{1}{{0}}%
+\regfield{FE}{1}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
+\itemsep-1.5ex
+\item[BR] BREAK condition detected. A BREAK is a stream of null bits for the duration of 1 start bit + number of data bits + 1 stop bit.
+\item[TC] Transmit completed. Set directly to 1 when a character was transmitted. Automatically cleared when writing new character to the data register or when writing 0 in the TC bit in \mbox{UART2\_STAT}.
+\item[RC] Receive completed. Set to 1 when a character was received. Automatically cleared when data register is read or when writing 0 in the RC bit in UART2\_STAT.
+\item[PE] Parity error. Set to 1 if parity is enabled and there is a parity error while receiving. Automatically cleared when data register is read or when writing 0 in the PE bit in UART2\_STAT.
+\item[RF] Receive failed. Set to 1 when failed receiving (invalid start bit). Automatically cleared when data register is read or when writing 0 in the RF bit in UART2\_STAT.
+\item [FE] Frame error. Set to 1 when a low is detected at the position of the (first) stop bit. Automatically cleared when data register is read or writing a 0 in the FE bit in UART2\_STAT.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{UART2 data register UART2\_DATA}{0xb08}
+\label{uart2data}
+\regfield{Reserved}{22}{9}{{0}}%
+\regfield{DATA}{9}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.6\textwidth]\begin{reglist}[000000000]
+\itemsep-1.5ex
+\item[DATA] The data to be transmitted or received.
+\end{reglist}\end{regdesc}
+\textbf{Write:} The data is written to an internal buffer and transmitted.\\
+\textbf{Read:} The last received data is read. \\
+Size depends on the SIZE field in the UART2 Control Register.
+
+\begin{register}{H}{UART2 baud rate register UART2\_BAUD}{0x10c}
+\label{uart2baud}
 \regfield{Rerserved}{16}{16}{{0}}%
 \regfield{PRESCALER}{16}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -195,7 +269,7 @@ Size depends on the SIZE field in the UART1 Control Register.
 \subsection{I2C1 -- Inter-Integrated Circuit master-only controller}
 General purpose I\textsuperscript{2}C peripheral, with programmable baud rate prescaler, start- and stopbit generation, no clock stretching, no arbitration, Standard mode (Sm) and Fast mode (Fm) only.
 
-\begin{register}{H}{I2C1 control register I2C1\_CTRL}{0x40}
+\begin{register}{H}{I2C1 control register I2C1\_CTRL}{0x200}
 \label{i2c1ctrl}
 \regfield{BAUD}{16}{16}{{0}}%
 \regfield{Reserved}{4}{12}{{0}}%
@@ -222,7 +296,7 @@ Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C 
 \item [FM] 0: Standard mode 1:1 (SCL 1/2 low, 1/2 high)\\1: Fast mode 2:1 (SCL 2/3 low, 1/3 high)
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{I2C1 status register I2C1\_STAT}{0x44}
+\begin{register}{H}{I2C1 status register I2C1\_STAT}{0x204}
 \label{i2c1stat}
 \regfield{Reserved}{25}{7}{{0}}%
 \regfield{BUSY}{1}{6}{{0}}%
@@ -241,7 +315,7 @@ Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C 
 \item [TRANS] Indicates transmitting (1) or not (0) by this controller.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{I2C1 data register I2C1\_DATA}{0x48}
+\begin{register}{H}{I2C1 data register I2C1\_DATA}{0x208}
 \label{i2c11data}
 \regfield{Reserved}{24}{8}{{0}}%
 \regfield{DATA}{8}{0}{{0}}
@@ -258,17 +332,15 @@ Read: The last received data is read.
 \subsection{I2C2 -- Inter-Integrated Circuit master-only controller}
 General purpose I\textsuperscript{2}C peripheral, with programmable baud rate prescaler, start- and stopbit generation, no clock stretching, no arbitration, Standard mode (Sm) and Fast mode (Fm) only.
 
-\begin{register}{H}{I2C2 control register I2C2\_CTRL}{0x50}
+\begin{register}{H}{I2C2 control register I2C2\_CTRL}{0x300}
 \label{i2c2ctrl}
 \regfield{BAUD}{16}{16}{{0}}%
 \regfield{Reserved}{4}{12}{{0}}%
 \regfield{MACK}{1}{11}{{0}}%
 \regfield{HARDSTOP}{1}{10}{{0}}%
-%\regfield{DPG}{1}{10}{{0}}%
 \regfield{START}{1}{9}{{0}}%
 \regfield{STOP}{1}{8}{{0}}%
 \regfield{Reserved}{4}{4}{{0}}%
-%\regfield{Reserved}{1}{4}{{0}}%
 \regfield{TCIE}{1}{3}{{0}}%
 \regfield{FM}{1}{2}{{0}}%
 \regfield{Reserved}{2}{0}{{0}}
@@ -285,7 +357,7 @@ Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C 
 \item [FM] 0: Standard mode 1:1 (SCL 1/2 low, 1/2 high)\\1: Fast mode 2:1 (SCL 2/3 low, 1/3 high)
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{I2C2 status register I2C2\_STAT}{0x54}
+\begin{register}{H}{I2C2 status register I2C2\_STAT}{0x304}
 \label{i2c2stat}
 \regfield{Reserved}{25}{7}{{0}}%
 \regfield{BUSY}{1}{6}{{0}}%
@@ -304,7 +376,7 @@ Note: because of the 50\,MHz system frequency, the lowest I\textsuperscript{2}C 
 \item [TRANS] Indicates transmitting (1) or not (0) by this controller.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{I2C2 data register I2C2\_DATA}{0x58}
+\begin{register}{H}{I2C2 data register I2C2\_DATA}{0x308}
 \label{i2c21data}
 \regfield{Reserved}{24}{8}{{0}}%
 \regfield{DATA}{8}{0}{{0}}
@@ -321,7 +393,7 @@ Read: The last received data is read.
 \subsection{SPI1 -- Serial Peripheral Interface}
 General purpose SPI master peripheral, with prescaler, 8/16/24/32 bits data exchange and interrupt.
 
-\begin{register}{H}{SPI1 control register SPI1\_CTRL}{0x60}
+\begin{register}{H}{SPI1 control register SPI1\_CTRL}{0x400}
 \label{spi1ctrl}
 \regfield{Reserved}{21}{11}{{0}}%
 \regfield{PRESCALER}{3}{8}{{0}}%
@@ -358,7 +430,7 @@ Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is
 \item [CPHA] Transfer phase
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{SPI1 status register SPI1\_STAT}{0x64}
+\begin{register}{H}{SPI1 status register SPI1\_STAT}{0x404}
 \label{spi1stat}
 \regfield{Reserved}{28}{4}{{0}}%
 \regfield{TC}{1}{3}{{0}}%
@@ -369,7 +441,7 @@ Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is
 \item [TC] Transfer complete
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{SPI1 data register SPI1\_DATA}{0x68}
+\begin{register}{H}{SPI1 data register SPI1\_DATA}{0x408}
 \label{spi1data}
 \regfield{DATA}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -385,7 +457,7 @@ Data size depends on the SIZE field in the SPI1 Control Register. Data is right 
 
 \subsection{SPI2 -- Serial Peripheral Interface}
 General purpose SPI master peripheral, with prescaler, 8/16/24/32 bits data exchange and interrupt.
-\begin{register}{H}{SPI2 control register SPI2\_CTRL}{0x70}
+\begin{register}{H}{SPI2 control register SPI2\_CTRL}{0x500}
 \label{spi2ctrl}
 \regfield{Reserved}{21}{11}{{0}}%
 \regfield{PRESCALER}{3}{8}{{0}}%
@@ -421,7 +493,7 @@ Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is
 \item [CPHA] Transfer phase
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{SPI2 status register SPI2\_STAT}{0x74}
+\begin{register}{H}{SPI2 status register SPI2\_STAT}{0x504}
 \label{spi2stat}
 \regfield{Reserved}{28}{4}{{0}}%
 \regfield{TC}{1}{3}{{0}}%
@@ -432,7 +504,7 @@ Note: because of the 50\,MHz system frequency, the lowest SPI clock frequency is
 \item [TC] Transfer complete
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{SPI2 data register SPI2\_DATA}{0x78}
+\begin{register}{H}{SPI2 data register SPI2\_DATA}{0x508}
 \label{spi2data}
 \regfield{DATA}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -449,10 +521,10 @@ Data size depends on the SIZE field in the SPI2 Control Register. Data is right 
 \subsection{TIMER1 -- a simple timer}
 Simple 32-bit timer peripheral for time base generation, with interrupt.
 
-\begin{register}{H}{TIMER1 control register TIMER1\_CTRL}{0x80}
+\begin{register}{H}{TIMER1 control register TIMER1\_CTRL}{0x600}
 \label{timer1ctrl}
 \regfield{Reserved}{27}{5}{{0}}%
-\regfield{TIE}{1}{4}{{0}}%
+\regfield{TCIE}{1}{4}{{0}}%
 \regfield{Reserved}{3}{1}{{000}}%
 \regfield{EN}{1}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -460,22 +532,22 @@ Simple 32-bit timer peripheral for time base generation, with interrupt.
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
 %\itemsep-1.5ex
 \item[EN] Enable the timer
-\item[TIE] Timer compare match interrupt enable
+\item[TCIE] Timer compare match interrupt enable
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER1 status register TIMER1\_STAT}{0x84}
+\begin{register}{H}{TIMER1 status register TIMER1\_STAT}{0x604}
 \label{timer1stat}
 \regfield{Reserved}{27}{5}{{0}}%
-\regfield{TCI}{1}{4}{{0}}%
+\regfield{TC}{1}{4}{{0}}%
 \regfield{Reserved}{4}{0}{{0000}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
 \itemsep-1.5ex
-\item[TCI] Timer compare match interrupt. Set to 1 on compare match between the timer Count register and the Compare Match register. Must be cleared by software by writing a 0.
+\item[TCI] Timer compare match. Set to 1 on compare match between the timer Count register and the Compare Match register. Must be cleared by software by writing a 0.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER1 count register TIMER1\_CNTR}{0x88}
+\begin{register}{H}{TIMER1 count register TIMER1\_CNTR}{0x608}
 \label{timer1cntr}
 \regfield{CNTR}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -485,7 +557,7 @@ Simple 32-bit timer peripheral for time base generation, with interrupt.
 \item[CNTR] This register holds the counted clock pulses on the timer. This register may be written by software.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER1 compare timer T register TIMER1\_CMPT}{0x8c}
+\begin{register}{H}{TIMER1 compare timer T register TIMER1\_CMPT}{0x60c}
 \label{timer1cmpt}
 \regfield{CMPT}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -499,7 +571,7 @@ Simple 32-bit timer peripheral for time base generation, with interrupt.
 \subsection{TIMER2 -- a more elaborate timer}
 General purpose 16-bit timer with Output Compare, PWM generation and Input Capture capabilities, preload and interrupt (one vector).
 
-\begin{register}{H}{TIMER2 control register TIMER2\_CTRL}{0x90}
+\begin{register}{H}{TIMER2 control register TIMER2\_CTRL}{0x700}
 \label{timer2ctrl}
 %\regfield{Reserved}{24}{8}{{0}}%
 \regfield{FOCC}{1}{31}{{0}}%
@@ -518,10 +590,10 @@ General purpose 16-bit timer with Output Compare, PWM generation and Input Captu
 \regfield{PREB}{1}{10}{{0}}%
 \regfield{PREA}{1}{9}{{0}}%
 \regfield{PRET}{1}{8}{{0}}%
-\regfield{CIE}{1}{7}{{0}}%
-\regfield{BIE}{1}{6}{{0}}%
-\regfield{AIE}{1}{5}{{0}}%
-\regfield{TIE}{1}{4}{{0}}%
+\regfield{CCIE}{1}{7}{{0}}%
+\regfield{BCIE}{1}{6}{{0}}%
+\regfield{ACIE}{1}{5}{{0}}%
+\regfield{TCIE}{1}{4}{{0}}%
 \regfield{OS}{1}{3}{{0}}%
 \regfield{Reserved}{2}{1}{{00}}%
 \regfield{EN}{1}{0}{{0}}
@@ -545,57 +617,57 @@ General purpose 16-bit timer with Output Compare, PWM generation and Input Captu
 \item[PREB] Enable compare register B preload.
 \item[PREA] Enable compare register A preload.
 \item[PRET] Enable compare register T preload.
-\item[CIE] Timer compare match/input capture C interrupt enable
-\item[BIE] Timer compare match/input capture B interrupt enable
-\item[AIE] Timer compare match/input capture A interrupt enable
-\item[TIE] Timer compare match T interrupt enable
-\item[OS] One-shot mode
-\item[EN] Enable the timer
+\item[CCIE] Timer compare match/input capture C interrupt enable.
+\item[BCIE] Timer compare match/input capture B interrupt enable.
+\item[ACIE] Timer compare match/input capture A interrupt enable.
+\item[TCIE] Timer compare match T interrupt enable.
+\item[OS] One-shot mode.
+\item[EN] Enable the timer.
 \end{reglist}\end{regdesc}
 
 If none of the FOC$x$ bits are 1, MODET and MODEA/B/C have the following meaning:
 \begin{description}\itemsep-7pt
-\item[000] Output off
-\item[001] Toggle on compare match
-\item[010] Set high on compare match
-\item[011] Set low on compare match
-\item[100] Edge-aligned PWM (only A/B/C, for T not allowed)
-\item[101] Reserved
-\item[110] Input capture positive edge (only A/B/C, for T not allowed)
-\item[111] Input capture negative edge (only A/B/C, for T not allowed)
+\item[000] Output off.
+\item[001] Toggle on compare match.
+\item[010] Set high on compare match.
+\item[011] Set low on compare match.
+\item[100] Edge-aligned PWM (only A/B/C, for T not allowed).
+\item[101] Reserved.
+\item[110] Input capture positive edge (only A/B/C, for T not allowed).
+\item[111] Input capture negative edge (only A/B/C, for T not allowed).
 \end{description}
 If at least one of the FOC$x$ bits is 1, MODET and MODEA/B/C have the following meaning:
 \begin{description}\itemsep-7pt
-\item[000] Not used
-\item[001] Toggle output compare
-\item[010] Set high output compare
-\item[011] Set low output compare
-\item[100] not allowed
-\item[101] not allowed
-\item[110] not allowed
-\item[111] not allowed
+\item[000] Not used.
+\item[001] Toggle output compare.
+\item[010] Set high output compare.
+\item[011] Set low output compare.
+\item[100] not allowed.
+\item[101] not allowed.
+\item[110] not allowed.
+\item[111] not allowed.
 \end{description}
 In this case, the CTRL register is not written and keeps its original setting.
 
-\begin{register}{H}{TIMER2 status register TIMER2\_STAT}{0x94}
+\begin{register}{H}{TIMER2 status register TIMER2\_STAT}{0x704}
 \label{timer2stat}
 \regfield{Reserved}{24}{8}{{0}}%
-\regfield{CCI}{1}{7}{{0}}%
-\regfield{BCI}{1}{6}{{0}}%
-\regfield{ACI}{1}{5}{{0}}%
-\regfield{TCI}{1}{4}{{0}}%
+\regfield{CC}{1}{7}{{0}}%
+\regfield{BC}{1}{6}{{0}}%
+\regfield{AC}{1}{5}{{0}}%
+\regfield{TC}{1}{4}{{0}}%
 \regfield{Reserved}{4}{0}{{0000}}
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[0000]
 \itemsep-1.5ex
-\item[CCI] Timer compare match A interrupt. Set to 1 on compare match between the timer Count register and the Compare Match C register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
-\item[BCI] Timer compare match A interrupt. Set to 1 on compare match between the timer Count register and the Compare Match B register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
-\item[ACI] Timer compare match A interrupt. Set to 1 on compare match between the timer Count register and the Compare Match A register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
-\item[TCI] Timer compare match T interrupt. Set to 1 on compare match between the timer Count register and the Compare Match T register. Must be cleared by software by writing a 0.
+\item[CC] Timer compare match C. Set to 1 on compare match between the timer Count register and the Compare Match C register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
+\item[BC] Timer compare match B. Set to 1 on compare match between the timer Count register and the Compare Match B register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
+\item[AC] Timer compare match A. Set to 1 on compare match between the timer Count register and the Compare Match A register. Set on input capture on detecting selected edge. Must be cleared by software by writing a 0.
+\item[TC] Timer compare match T. Set to 1 on compare match between the timer Count register and the Compare Match T register. Must be cleared by software by writing a 0.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER2 count register TIMER2\_CNTR}{0x98}
+\begin{register}{H}{TIMER2 count register TIMER2\_CNTR}{0x708}
 \label{timer2cntr}
 \regfield{Reserved}{16}{16}{{0}}%
 \regfield{CNTR}{16}{0}{{0}}%
@@ -606,7 +678,7 @@ In this case, the CTRL register is not written and keeps its original setting.
 \item[CNTR] This register holds the counted clock pulses on the timer. This register may be written by software. Rolls over when CNTR compare greater than or equal to CMPT on the next clock cycle.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER2 compare timer T register TIMER2\_CMPT}{0x9c}
+\begin{register}{H}{TIMER2 compare timer T register TIMER2\_CMPT}{0x70c}
 \label{timer2cmpt}
 \regfield{Reserved}{16}{16}{{0}}%
 \regfield{CMPT}{16}{0}{{0}}
@@ -614,10 +686,10 @@ In this case, the CTRL register is not written and keeps its original setting.
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
 \itemsep-1.5ex
-\item[CMPT] This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPT, the Count register will be cleared and the TCI flag will be set (both in the next clock cycle).
+\item[CMPT] This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPT, the Count register will be cleared and the TC flag will be set (both in the next clock cycle).
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER2 prescaler register TIMER2\_PRSC}{0xa0}
+\begin{register}{H}{TIMER2 prescaler register TIMER2\_PRSC}{0x710}
 \label{timer2prsc}
 \regfield{Reserved}{16}{16}{{0}}%
 \regfield{PSRC}{16}{0}{{0}}
@@ -628,7 +700,7 @@ In this case, the CTRL register is not written and keeps its original setting.
 \item[PRSC] This register holds the prescaler of the timer. This register may be written by software. Whenever the internal prescaler is equal to or greater than this register, the internal prescaler is reset. This register should only be written when the timer is stopped. Writing this register resets the internal prescaler.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER2 compare timer A register TIMER2\_CMPA}{0xa4}
+\begin{register}{H}{TIMER2 compare timer A register TIMER2\_CMPA}{0x714}
 \label{timer2cmpa}
 \regfield{Reserved}{16}{16}{{0}}%
 \regfield{CMPA}{16}{0}{{0}}
@@ -636,10 +708,10 @@ In this case, the CTRL register is not written and keeps its original setting.
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
 \itemsep-1.5ex
-\item[CMPA] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPA, the ACI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPA on detecting the selected edge, and the ACI flag is set.
+\item[CMPA] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPA, the ACI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPA on detecting the selected edge, and the AC flag is set.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER2 compare timer B register TIMER2\_CMPB}{0xa8}
+\begin{register}{H}{TIMER2 compare timer B register TIMER2\_CMPB}{0x718}
 \label{timer2cmpb}
 \regfield{Reserved}{16}{16}{{0}}%
 \regfield{CMPB}{16}{0}{{0}}
@@ -647,10 +719,10 @@ In this case, the CTRL register is not written and keeps its original setting.
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
 \itemsep-1.5ex
-\item[CMPB] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPB, the BCI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPB on detecting the selected edge, and the BCI flag is set.
+\item[CMPB] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPB, the BCI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPB on detecting the selected edge, and the BC flag is set.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMER2 compare timer C register TIMER2\_CMPC}{0xac}
+\begin{register}{H}{TIMER2 compare timer C register TIMER2\_CMPC}{0x71c}
 \label{timer2cmpc}
 \regfield{Reserved}{16}{16}{{0}}%
 \regfield{CMPC}{16}{0}{{0}}
@@ -658,12 +730,12 @@ In this case, the CTRL register is not written and keeps its original setting.
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[00000]
 \itemsep-1.5ex
-\item[CMPC] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPC, the CCI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPC on detecting the selected edge, and the CCI flag is set.
+\item[CMPC] For Output Compare: This register holds the value at which the Count register is compared. On CNTR compares to greater than or equal to CMPC, the CCI flag will be set in the next clock cycle. For Input Capture: The value of CNTR is copied to CMPC on detecting the selected edge, and the CC flag is set.
 \end{reglist}\end{regdesc}
 
 
 \subsection{WDT -- Watchdog Timer}
-\begin{register}{H}{Watchdog control register WDT\_CTRL}{0xe0}
+\begin{register}{H}{Watchdog control register WDT\_CTRL}{0x800}
 \label{wdtctrl}
 \regfield{PRESCALER}{24}{8}{{0}}%
 \regfield{LOCK}{1}{7}{{0}}%
@@ -683,7 +755,7 @@ t = \dfrac{\mathrm{Prescaler} \cdot 256}{f_{cpu}}
 \item [EN] If set to 1, the WDT starts counting.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{Watchdog trigger register WDT\_TRIG}{0xe4}
+\begin{register}{H}{Watchdog trigger register WDT\_TRIG}{0x804}
 \label{wdttrig}
 \regfield{PASSWORD}{32}{0}{{0}}%
 \reglabel{Reset}\regnewline%
@@ -692,11 +764,10 @@ t = \dfrac{\mathrm{Prescaler} \cdot 256}{f_{cpu}}
 Note: this register must be written with the WDT password to reset the watchdog. No actual value is written in this register. Reads return all zero bits.
 
 
-
 \subsection{MSI -- Machine Software Interrupt}
 Note: MSI has to be enabled by writing a 1 to \lstinline[breaklines=false]|mie.MSIE|.
 
-\begin{register}{H}{MSI trigger register MSI\_TRIG}{0xec}
+\begin{register}{H}{MSI trigger register MSI\_TRIG}{0x900}
 \label{msitrig}
 \regfield{Reserved}{31}{1}{{0}}%
 \regfield{TRIG}{1}{0}{{0}}%
@@ -707,11 +778,12 @@ Note: MSI has to be enabled by writing a 1 to \lstinline[breaklines=false]|mie.M
 \item [TRIG] Writing a 1 to this field will trigger an MSI. Writing a 0 will disarm the trigger.
 \end{reglist}\end{regdesc}
 
+
 \subsection{MTIME -- RISC-V system timer}
 Note: the external timer interrupt has to be enabled by writing a 1 to \lstinline[breaklines=false]|mie.MTIE|.
 Note: the external timer will assert a pending interrupt if TIMEH:TIME (viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECPM (viewed as a 64-bit register). To negate the pending interrupt, set TIMECMPH:TIMECMP to a higher value than TIMEH:TIME. The TIMEH:TIME registers count the number of micro seconds since last reset. As such, the system clock frequency must be a integer multiple of 1\,MHz.
 
-\begin{register}{H}{TIME external timer register TIME}{0xf0}
+\begin{register}{H}{TIME external timer register TIME}{0xa00}
 \label{time}
 \regfield{TIME}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -721,7 +793,7 @@ Note: the external timer will assert a pending interrupt if TIMEH:TIME (viewed a
 \item [TIME] This register holds the low 32 bits of the external timer. Currently read-only.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMEH external timer register TIME}{0xf4}
+\begin{register}{H}{TIMEH external timer register TIME}{0xa04}
 \label{timeh}
 \regfield{TIMEH}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -731,7 +803,7 @@ Note: the external timer will assert a pending interrupt if TIMEH:TIME (viewed a
 \item [TIMEH] This register holds the upper 32 bits of the external timer. Currently read-only.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMECMP external timer compare register TIMECMP}{0xf8}
+\begin{register}{H}{TIMECMP external timer compare register TIMECMP}{0xa08}
 \label{timecmp}
 \regfield{TIMECMP}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
@@ -741,7 +813,7 @@ Note: the external timer will assert a pending interrupt if TIMEH:TIME (viewed a
 \item [TIMECMP] This register holds the low 32 bits of the external timer compare register.
 \end{reglist}\end{regdesc}
 
-\begin{register}{H}{TIMECMPH external timer compare register TIMECMP}{0xfc}
+\begin{register}{H}{TIMECMPH external timer compare register TIMECMP}{0xa0c}
 \label{timecmph}
 \regfield{TIMECMPH}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%

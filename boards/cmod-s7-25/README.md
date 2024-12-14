@@ -1,7 +1,7 @@
 
 # Cmod S7/25 Board
 
-The Cmod S7/25 board has a clock oscillator with a period of 83.333 ns (12 MHz). Use a MMCM to get 10 ns (100 MHz).
+The Cmod S7/25 board has a clock oscillator with a period of 83.333 ns (12 MHz). Use a MMCM to get 10 ns (100 MHz). Using a MMCM, 10 ns may not be feasible.
 
 In this directory, two files are present:
 

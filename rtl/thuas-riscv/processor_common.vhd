@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_00_04_01#;
+    constant HW_VERSION : integer := 16#01_01_00_00#;
     
     -- Used data types
     -- The common data type is 32 bits wide
@@ -101,7 +101,7 @@ package processor_common is
                          alu_czeroeqz, alu_czeronez                -- Zicond
                         );
                         
-    -- Control and Status Register operations
+    -- Control and State register operations
     type csr_op_type is (csr_nop, csr_rw, csr_rs, csr_rc, csr_rwi, csr_rsi, csr_rci);
     
     -- Access from core to address decoder
@@ -136,7 +136,20 @@ package processor_common is
         load_misaligned_error : std_logic;
         store_misaligned_error : std_logic;
     end record;
-    
+    constant mem_request_terminate_c : mem_request_type := (
+        size => memsize_unknown,
+        addr => (others => '0'),
+        data => (others => '0'),
+        cs   => '0',
+        wren => '0'
+       );
+    constant mem_response_terminate_c : mem_response_type := (
+        data => (others => '0'),
+        ready => '0',
+        load_misaligned_error => '0',
+        store_misaligned_error => '0'
+       );
+
     -- Request instruction from memory
     type instr_request_type is record
         pc : data_type;
@@ -407,7 +420,7 @@ package processor_common is
     constant INTR_PRIO_FREE22 : integer := 22;
     constant INTR_PRIO_TIMER2 : integer := 21;
     constant INTR_PRIO_TIMER1 : integer := 20;
-    constant INTR_PRIO_FREE19 : integer := 19;
+    constant INTR_PRIO_UART2  : integer := 19;
     constant INTR_PRIO_EXTI   : integer := 18;
     constant INTR_PRIO_FREE17 : integer := 17;
     constant INTR_PRIO_FREE16 : integer := 16;
@@ -461,10 +474,12 @@ package processor_common is
                   RAM_HIGH_NIBBLE : memory_high_nibble;
                   -- 4 high bits of I/O address
                   IO_HIGH_NIBBLE : memory_high_nibble;
-                  -- Do we use fast store?
-                  HAVE_FAST_STORE : boolean;
+                  -- Buffer I/O response
+                  BUFFER_IO_RESPONSE : boolean;
                   -- Do we have UART1?
                   HAVE_UART1 : boolean;
+                  -- Do we have UART1?
+                  HAVE_UART2 : boolean;
                   -- Do we have SPI1?
                   HAVE_SPI1 : boolean;
                   -- Do we have SPI2?
@@ -498,6 +513,9 @@ package processor_common is
               -- UART1
               I_uart1rxd : in std_logic;
               O_uart1txd : out std_logic;
+              -- UART2
+              I_uart2rxd : in std_logic;
+              O_uart2txd : out std_logic;
               -- I2C1
               IO_i2c1scl : inout std_logic;
               IO_i2c1sda : inout std_logic;

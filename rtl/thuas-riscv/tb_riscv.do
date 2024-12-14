@@ -67,15 +67,24 @@ vcom -93 -work work ${prefix}processor_common.vhd
 vcom -93 -work work ${prefix}rom_image.vhd
 vcom -93 -work work ${prefix}rom.vhd
 vcom -93 -work work ${prefix}bootrom_image.vhd
-vcom -93 -work work ${prefix}bootloader.vhd
+vcom -93 -work work ${prefix}bootrom.vhd
 vcom -93 -work work ${prefix}ram.vhd
-vcom -93 -work work ${prefix}io.vhd
 vcom -93 -work work ${prefix}core.vhd
 vcom -93 -work work ${prefix}address_decode.vhd
 vcom -93 -work work ${prefix}instr_router.vhd
-vcom -93 -work work ${prefix}riscv.vhd
 vcom -93 -work work ${prefix}dm.vhd
 vcom -93 -work work ${prefix}dtm.vhd
+vcom -93 -work work ${prefix}io_bus_switch.vhd
+vcom -93 -work work ${prefix}gpio.vhd
+vcom -93 -work work ${prefix}uart.vhd
+vcom -93 -work work ${prefix}timera.vhd
+vcom -93 -work work ${prefix}i2c.vhd
+vcom -93 -work work ${prefix}spi.vhd
+vcom -93 -work work ${prefix}timerb.vhd
+vcom -93 -work work ${prefix}wdt.vhd
+vcom -93 -work work ${prefix}msi.vhd
+vcom -93 -work work ${prefix}mtime.vhd
+vcom -93 -work work ${prefix}riscv.vhd
 vcom -93 -work work ${prefix}tb_riscv.vhd
 
 # Start the simulator
@@ -103,6 +112,7 @@ add wave -divider "tOP - Resets"
 add wave            -label areset_sys_sync_int dut/areset_sys_sync_int
 add wave            -label areset_sys_int dut/areset_sys_int
 add wave            -label break_from_uart1_int dut/break_from_uart1_int
+add wave            -label reset_from_wdt dut/reset_from_wdt_int
 #add wave -divider "Core - Inputs & Outputs"
 #add wave            -label I_instr_access_error dut/core0/I_instr_access_error
 add wave -divider "Core Internals - Control"
@@ -120,8 +130,8 @@ add wave            -label regs dut/core0/regs_rs1
 add wave -divider "Core Internals - Execute MD"
 add wave            -label md dut/core0/md
 add wave -divider "Internals - Memory access"
-add wave            -label bus_req dut/bus_request_int
-add wave            -label bus_rsp dut/bus_response_int
+add wave            -label bus_request dut/bus_request_int
+add wave            -label bus_response dut/bus_response_int
 add wave -divider "Internals - CSR"
 add wave -radix hex -label CSR_access dut/core0/csr_access
 add wave -radix hex -label CSR_reg dut/core0/csr_reg
@@ -134,18 +144,38 @@ add wave -radix hex -label RAM_sim dut/ram0/ram_alt
 add wave -divider "Internals - IO"
 add wave            -label IO_mem_request dut/mem_request_io_int
 add wave            -label IO_mem_response dut/mem_response_io_int
-add wave            -label GPIOA dut/io0/gpioa
-add wave            -label UART1 dut/io0/uart1
-add wave            -label I2C1 dut/io0/i2c1
-add wave            -label I2C2 dut/io0/i2c2
-add wave            -label SPI1 dut/io0/spi1
-add wave            -label SPI2 dut/io0/spi2
-add wave            -label TIMER1 dut/io0/timer1
-add wave            -label TIMER2 dut/io0/timer2
-add wave            -label WDT dut/io0/wdt
-add wave            -label MSI dut/io0/msi
-add wave            -label MTIME dut/io0/mtime
-add wave -radix hex -label IO_sim dut/io0/io_alt
+add wave -radix hex -label gpioa_rec dut/gpioa/gpio
+add wave -radix hex -label mtime_rec dut/mtime1/mtime
+if {[find signal -r */wdt1gen/*] != ""} {
+    add wave -radix hex -label wdt_rec dut/wdt1gen/wdt1/wdt
+}
+if {[find signal -r */msi1gen/*] != ""} {
+    add wave            -label msi_rec dut/msi1gen/msi1/msi
+}
+if {[find signal -r */timer1gen/*] != ""} {
+    add wave            -label timer1_rec dut/timer1gen/timer1/timera
+}
+if {[find signal -r */uart1gen/*] != ""} {
+    add wave            -label uart_rec dut/uart1gen/uart1/uart
+}
+if {[find signal -r */uart2gen/*] != ""} {
+    add wave            -label uart_rec dut/uart2gen/uart2/uart
+}
+if {[find signal -r */i2c1gen/*] != ""} {
+    add wave            -label i2c1_rec dut/i2c1gen/i2c1/i2c
+}
+if {[find signal -r */i2c2gen/*] != ""} {
+    add wave            -label i2c2_rec dut/i2c2gen/i2c2/i2c
+}
+if {[find signal -r */spi1gen/*] != ""} {
+    add wave            -label spi1_rec dut/spi1gen/spi1/spi
+}
+if {[find signal -r */spi1gen/*] != ""} {
+    add wave            -label spi2_rec dut/spi2gen/spi2/spi
+}
+if {[find signal -r */timer2gen/*] != ""} {
+    add wave            -label timer2_rec dut/timer2gen/timer2/timerb
+}
 
 # Open Structure, Signals (waveform) and List window
 view structure
@@ -158,7 +188,7 @@ view signals
 set NumericStdNoWarnings 1
 
 # Run simulation for xx us
-run 1000 us
+run 100 us
 
 # Fill up the waveform in the window
 wave zoom full

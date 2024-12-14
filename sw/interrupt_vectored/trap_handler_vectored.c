@@ -5,9 +5,9 @@
  *
  */
 
-/* Test if run on RV32 */
-#if (__riscv_xlen != 32)
-#error Only for RV32. Cannot continue.
+/* Test if run on RV32I */
+#if (__riscv_xlen != 32) && !defined(__riscv_32e)
+#error Only for RV32I. Cannot continue.
 #else
 
 /* Set to 0 to skip some system calls. There
@@ -26,6 +26,24 @@
 #include <stdlib.h>
 
 #include "handlers_vectored.h"
+
+/* This struct is needed for gettimeofday system call
+ * for RV32I. See newlib/libgloss/riscv/sys_gettimeofday.c
+ * In RV32I, gettimeofday C function calls the system
+ * call with value SYS_clock_gettime64. See also
+ * https://sourceware.org/git/?p=newlib-cygwin.git;a=commitdiff;h=20d00819984058e439cfe40818f81d7315c89201
+ */
+struct __timespec64
+{                 
+	int64_t tv_sec;         /* Seconds */
+# if BYTE_ORDER == BIG_ENDIAN
+	int32_t __padding;      /* Padding */
+	int32_t tv_nsec;        /* Nanoseconds */
+# else
+	int32_t tv_nsec;        /* Nanoseconds */
+	int32_t __padding;      /* Padding */
+# endif           
+};
 
 /* We use naked instead of interrupt because interrupt
  * will create a stack frame and restores a0, but that
@@ -241,8 +259,9 @@ void trap_handler_vectored(void)
 			}
 			return_value = len;
 			__asm__ volatile ("mv a0,%0" : : "r"(return_value));
-		/* gettimeofday system call */
-		/* takes a lot of time because of the divisions */
+		/* gettimeofday system call, for backwards compability, */
+		/* RV32I calls system call SYS_clock_gettime64. */
+		/* Takes a lot of time because of the divisions */
 		} else if (syscall_id == SYS_gettimeofday) {
 			register uint32_t a0 __asm__("a0");
 			register struct timeval *ptv = (struct timeval *) a0;
@@ -254,15 +273,39 @@ void trap_handler_vectored(void)
 			 * time CSRs, which are a copy of TIME and TIMEH
 			 * memory mapped registers */
 			__asm__ volatile("1: rdtimeh %0\n"
-		         	     "   rdtime  %1\n"
-			 	     "   rdtimeh %2\n"
-				     "   bne %0, %2, 1b"
-				     : "+r" (th), "+r" (tl), "+r" (tt));
+			                 "   rdtime  %1\n"
+			                 "   rdtimeh %2\n"
+			                 "   bne %0, %2, 1b"
+			               : "+r" (th), "+r" (tl), "+r" (tt));
 
 			thetime = ((uint64_t)th << 32ULL) | (uint64_t) tl;
 			/* This division and remainder take a long time */
 			ptv->tv_usec = (uint32_t) (thetime % 1000000ULL);
 			ptv->tv_sec = (uint64_t) (thetime / 1000000ULL);
+			return_value = 0;
+			__asm__ volatile ("mv a0,%0" : : "r"(return_value));
+		/* RV32I gettimeofday calls system call SYS_clock_gettime64 */
+		/* See newlib/libgloss/riscv/sys_gettimeofday.c */
+		/* Takes a lot of time because of the divisions */
+		} else if (syscall_id == SYS_clock_gettime64) {
+			register uint32_t a1 __asm__("a1");
+			register struct __timespec64 *pts64 = (struct __timespec64 *) a1;
+			register uint64_t thetime;
+			register uint32_t th,tl,tt;
+			th = tl = tt = 0;
+
+			/* Read in the 64-bit, micro second accurate
+			* time CSRs, which are a copy of TIME and TIMEH
+			* memory mapped registers */
+			__asm__ volatile("1: rdtimeh %0\n"
+			                 "   rdtime  %1\n"
+			                 "   rdtimeh %2\n"
+			                 "   bne %0, %2, 1b"
+			                 : "+r" (th), "+r" (tl), "+r" (tt));
+
+			thetime = ((uint64_t)th << 32ULL) | (uint64_t) tl;
+			pts64->tv_nsec = (int32_t) ((thetime % 1000000ULL) * 1000ULL);
+			pts64->tv_sec = (int64_t) (thetime / 1000000ULL);
 			return_value = 0;
 			__asm__ volatile ("mv a0,%0" : : "r"(return_value));
 		/* exit system call */

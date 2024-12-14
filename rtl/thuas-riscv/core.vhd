@@ -2977,7 +2977,7 @@ begin
     csr_reg.mxhw(26) <= boolean_to_std_logic(HAVE_ZIHPM);
     csr_reg.mxhw(27) <= boolean_to_std_logic(HAVE_OCD);
     csr_reg.mxhw(28) <= boolean_to_std_logic(HAVE_MSI);
-	 csr_reg.mxhw(29) <= boolean_to_std_logic(BUFFER_IO_RESPONSE);
+    csr_reg.mxhw(29) <= boolean_to_std_logic(BUFFER_IO_RESPONSE);
     csr_reg.mxhw(csr_reg.mxhw'left downto 30) <= (others => '0');
 
     -- Custom read-only synthesized clock frequency

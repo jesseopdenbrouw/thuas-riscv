@@ -4,5 +4,5 @@
 
 void inline timer1_clear_interrupt(void)
 {
-	TIMER1->STAT &= ~TIMER1_TCI;
+	TIMER1->STAT &= ~TIMER1_TC;
 }

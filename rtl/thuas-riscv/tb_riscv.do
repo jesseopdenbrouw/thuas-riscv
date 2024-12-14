@@ -112,7 +112,12 @@ add wave -divider "tOP - Resets"
 add wave            -label areset_sys_sync_int dut/areset_sys_sync_int
 add wave            -label areset_sys_int dut/areset_sys_int
 add wave            -label break_from_uart1_int dut/break_from_uart1_int
+<<<<<<< HEAD
 add wave            -label reset_from_wdt dut/reset_from_wdt_int
+=======
+add wave            -label areset_debug_sync_int dut/areset_debug_sync_int
+add wave            -label areset_debug_int dut/areset_debug_int
+>>>>>>> 72a48c3582e8f9df92246eef9d3d0fa846f4faa7
 #add wave -divider "Core - Inputs & Outputs"
 #add wave            -label I_instr_access_error dut/core0/I_instr_access_error
 add wave -divider "Core Internals - Control"

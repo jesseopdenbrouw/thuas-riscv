@@ -57,8 +57,7 @@ entity rom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
           HAVE_OCD : boolean;
-          ROM_ADDRESS_BITS : integer;
-          HAVE_FAST_STORE : boolean
+          ROM_ADDRESS_BITS : integer
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -109,7 +108,7 @@ begin
             end if;
             -- Read the data
             romdata_v := rom(address_data_v);
-            if HAVE_BOOTLOADER_ROM OR HAVE_OCD then
+            if HAVE_BOOTLOADER_ROM or HAVE_OCD then
                 -- Write the ROM ;-)
                 if I_mem_request.cs = '1' and I_mem_request.wren = '1' and I_mem_request.size = memsize_word then
                     rom(address_data_v) <= I_mem_request.data(7 downto 0) & I_mem_request.data(15 downto 8) & 
@@ -167,7 +166,7 @@ begin
         end if;
 
         -- Fuse read ready and write ready
-        O_mem_response.ready <= readready_v  or (I_mem_request.cs and I_mem_request.wren and boolean_to_std_logic(not HAVE_FAST_STORE));
+        O_mem_response.ready <= readready_v  or (I_mem_request.cs and I_mem_request.wren);
         
     end process;
 

@@ -12,17 +12,26 @@ NOENT = \
 
 FILES = \
 		address_decode.vhd \
-		bootloader.vhd \
+		bootrom.vhd \
 		core.vhd \
-		de0_cv.vhd \
 		dm.vhd \
 		dtm.vhd \
+		gpio.vhd \
+		i2c.vhd \
 		instr_router.vhd \
-		io.vhd \
+		io_bus_switch.vhd \
+		msi.vhd \
+		mtime.vhd \
 		ram.vhd \
 		riscv.vhd \
 		rom.vhd \
-		tb_riscv.vhd
+		spi.vhd \
+		tb_riscv.vhd \
+		timera.vhd \
+		timerb.vhd \
+		uart.vhd \
+		wdt.vhd \
+		stub.vhd
 
 ENTITIES = $(basename $(FILES))
 
@@ -30,18 +39,19 @@ ENTITIES = $(basename $(FILES))
 all: compile sim wave
 
 compile:
-	for i in $(NOENT) $(FILES); do ghdl -a $(PREFIX)/$$i; done
-	for i in $(ENTITIES); do ghdl -e $$i; done
+	@echo "Compiling..."
+	@for i in $(NOENT) $(FILES); do ghdl -a $(PREFIX)/$$i; done
+	@for i in $(ENTITIES); do ghdl -e $$i; done
 
 #	echo "Compiling all VHDL files..."
 
 sim:
-	echo "Running the simulation..."
+	@echo "Running the simulation..."
 	./tb_riscv --wave=tb_riscv.ghw --stop-time=1000us --ieee-asserts=disable --max-stack-alloc=1024
 
 wave:
-	echo "Starting GTKWave (takes a long time...)"
-	gtkwave -S tb_riscv.tcl tb_riscv.ghw
+	@echo "Starting GTKWave (takes a long time...)"
+	@gtkwave -S tb_riscv.tcl tb_riscv.ghw
 
 clean:
 	ghdl --clean

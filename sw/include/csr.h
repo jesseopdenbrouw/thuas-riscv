@@ -99,6 +99,7 @@ uint64_t csr_get_mhpmcounter9(void);
 /* mxhw CSR */
 #define CSR_MXHW_GPIOA     (1 << 0)
 #define CSR_MXHW_UART1     (1 << 4)
+#define CSR_MXHW_UART2     (1 << 5)
 #define CSR_MXHW_I2C1      (1 << 6)
 #define CSR_MXHW_I2C2      (1 << 7)
 #define CSR_MXHW_SPI1      (1 << 8)
@@ -110,7 +111,7 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_MXHW_BOOT      (1 << 18)
 #define CSR_MXHW_REGRAM    (1 << 19)
 #define CSR_MXHW_ZBA       (1 << 20)
-#define CSR_MXHW_FASTSTORE (1 << 21)
+/* #define CSR_MXHW_FASTSTORE (1 << 21) */
 #define CSR_MXHW_ZICOND    (1 << 22)
 #define CSR_MXHW_ZBS       (1 << 23)
 #define CSR_MXHW_BREAK     (1 << 24)
@@ -118,6 +119,7 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_MXHW_ZIHPM     (1 << 26)
 #define CSR_MXHW_OCD       (1 << 27)
 #define CSR_MXHW_MSI       (1 << 28)
+#define CSR_MXHW_BUFFER    (1 << 29)
 
 /* HPM selection bits */
 #define CSR_HPM_JUMP       (1 << 0)

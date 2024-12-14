@@ -68,7 +68,7 @@ main-build: coremark.elf secondary-outputs
 coremark.elf: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GNU RISC-V Cross C Linker'
-	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -T "D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\coremark\ldfiles\riscv.ld" -nostartfiles -Xlinker --gc-sections -Wl,-Map,"coremark.map" --specs=nano.specs -o "coremark.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -T "D:\PROJECTS\RISCVDEV\thuas-riscv-with-new-io\eclipse\windows\coremark\ldfiles\riscv.ld" -nostartfiles -Xlinker --gc-sections -Wl,-Map,"coremark.map" --specs=nano.specs -o "coremark.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

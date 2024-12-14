@@ -24,7 +24,6 @@ lib/csr \
 lib/gpio \
 lib/i2c \
 lib/spi \
-lib/syscalls \
 lib/timer \
 lib/uart \
 lib/util \

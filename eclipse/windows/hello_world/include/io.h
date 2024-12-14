@@ -38,7 +38,7 @@ typedef struct {
 
 
 /*
- * UART1i
+ * UART1
  */
 typedef struct {
     volatile uint32_t CTRL;
@@ -47,13 +47,21 @@ typedef struct {
     volatile uint32_t BAUD;
 } UART_struct_t;
 
-#define UART_BASE (IO_BASE+0x00000020UL)
-#define UART1 ((UART_struct_t *) UART_BASE)
+#define UART1_BASE (IO_BASE+0x00000100UL)
+#define UART1 ((UART_struct_t *) UART1_BASE)
 
-#define UART1_CTRL (*(volatile uint32_t*)(UART_BASE+0x00000000UL))
-#define UART1_STAT (*(volatile uint32_t*)(UART_BASE+0x00000004UL))
-#define UART1_DATA (*(volatile uint32_t*)(UART_BASE+0x00000008UL))
-#define UART1_BAUD (*(volatile uint32_t*)(UART_BASE+0x0000000cUL))
+#define UART1_CTRL (*(volatile uint32_t*)(UART1_BASE+0x00000000UL))
+#define UART1_STAT (*(volatile uint32_t*)(UART1_BASE+0x00000004UL))
+#define UART1_DATA (*(volatile uint32_t*)(UART1_BASE+0x00000008UL))
+#define UART1_BAUD (*(volatile uint32_t*)(UART1_BASE+0x0000000cUL))
+
+#define UART2_BASE (IO_BASE+0x00000b00UL)
+#define UART2 ((UART_struct_t *) UART2_BASE)
+
+#define UART2_CTRL (*(volatile uint32_t*)(UART2_BASE+0x00000000UL))
+#define UART2_STAT (*(volatile uint32_t*)(UART2_BASE+0x00000004UL))
+#define UART2_DATA (*(volatile uint32_t*)(UART2_BASE+0x00000008UL))
+#define UART2_BAUD (*(volatile uint32_t*)(UART2_BASE+0x0000000cUL))
 
 
 /*
@@ -65,9 +73,10 @@ typedef struct {
     volatile uint32_t DATA;
 } I2C_struct_t;
 
-#define I2C_BASE (IO_BASE+0x00000040UL)
-#define I2C1 ((I2C_struct_t *) I2C_BASE)
-#define I2C2 ((I2C_struct_t *) (I2C_BASE + 0x10))
+#define I2C1_BASE (IO_BASE+0x00000200UL)
+#define I2C2_BASE (IO_BASE+0x00000300UL)
+#define I2C1 ((I2C_struct_t *) I2C1_BASE)
+#define I2C2 ((I2C_struct_t *) I2C2_BASE)
 
 #define I2C1_CTRL (*(volatile uint32_t*)(I2C_BASE+0x00000000UL))
 #define I2C1_STAT (*(volatile uint32_t*)(I2C_BASE+0x00000004UL))
@@ -86,9 +95,10 @@ typedef struct {
     volatile uint32_t DATA;
 } SPI_struct_t;
 
-#define SPI_BASE (IO_BASE+0x00000060UL)
-#define SPI1 ((SPI_struct_t *) SPI_BASE)
-#define SPI2 ((SPI_struct_t *) (SPI_BASE + 0x10))
+#define SPI1_BASE (IO_BASE+0x00000400UL)
+#define SPI2_BASE (IO_BASE+0x00000500UL)
+#define SPI1 ((SPI_struct_t *) SPI1_BASE)
+#define SPI2 ((SPI_struct_t *) SPI2_BASE)
 
 #define SPI1_CTRL (*(volatile uint32_t*)(SPI_BASE+0x00000000UL))
 #define SPI1_STAT (*(volatile uint32_t*)(SPI_BASE+0x00000004UL))
@@ -108,7 +118,7 @@ typedef struct {
     volatile uint32_t CMPT;
 } TIMER1_struct_t;
 
-#define TIMER1_BASE (IO_BASE+0x00000080UL)
+#define TIMER1_BASE (IO_BASE+0x00000600UL)
 #define TIMER1 ((TIMER1_struct_t *) TIMER1_BASE)
 
 #define TIMER1_CTRL (*(volatile uint32_t*)(TIMER1_BASE+0x00000000UL))
@@ -131,7 +141,7 @@ typedef struct {
     volatile uint32_t CMPC;
 } TIMER2_struct_t;
 
-#define TIMER2_BASE (IO_BASE+0x000000a0UL)
+#define TIMER2_BASE (IO_BASE+0x00000700UL)
 #define TIMER2 ((TIMER2_struct_t *) TIMER2_BASE)
 
 #define TIMER2_CTRL (*(volatile uint32_t*)(TIMER2_BASE+0x00000000UL))
@@ -152,7 +162,7 @@ typedef struct {
     volatile uint32_t TRIG;
 } WDT_struct_t;
 
-#define WDT_BASE (IO_BASE+0x000000e0UL)
+#define WDT_BASE (IO_BASE+0x00000800UL)
 #define WDT ((WDT_struct_t *) WDT_BASE)
 
 #define WDT_CTRL (*(volatile uint32_t*)(WDT_BASE+0x00000000UL))
@@ -166,17 +176,17 @@ typedef struct {
     volatile uint32_t TRIG;
 } MSI_struct_t;
 
-#define MSI_BASE (IO_BASE+0x000000ecUL)
+#define MSI_BASE (IO_BASE+0x00000900UL)
 #define MSI ((MSI_struct_t *) MSI_BASE)
 #define MSI_TRIG (*(volatile uint32_t*)(MSI_BASE+0x00000000UL))
 
 /*
  * RISC-V system timer (in I/O)
  */
-#define MTIME (*(volatile uint32_t*)(IO_BASE+0x000000f0UL))
-#define MTIMEH (*(volatile uint32_t*)(IO_BASE+0x000000f4UL))
-#define MTIMECMP (*(volatile uint32_t*)(IO_BASE+0x000000f8UL))
-#define MTIMECMPH (*(volatile uint32_t*)(IO_BASE+0x000000fcUL))
+#define MTIME     (*(volatile uint32_t*)(IO_BASE+0x00000a00UL))
+#define MTIMEH    (*(volatile uint32_t*)(IO_BASE+0x00000a04UL))
+#define MTIMECMP  (*(volatile uint32_t*)(IO_BASE+0x00000a08UL))
+#define MTIMECMPH (*(volatile uint32_t*)(IO_BASE+0x00000a0cUL))
 
 typedef struct {
     volatile uint32_t time;

@@ -12,6 +12,15 @@ C_SRCS += \
 ../lib/syscalls/sys_sbrk.c \
 ../lib/syscalls/sys_times.c 
 
+O_SRCS += \
+../lib/syscalls/sys_env.o \
+../lib/syscalls/sys_exit.o \
+../lib/syscalls/sys_gettimeofday.o \
+../lib/syscalls/sys_read_write.o \
+../lib/syscalls/sys_remaining.o \
+../lib/syscalls/sys_sbrk.o \
+../lib/syscalls/sys_times.o 
+
 OBJS += \
 ./lib/syscalls/sys_env.o \
 ./lib/syscalls/sys_exit.o \
@@ -35,7 +44,7 @@ C_DEPS += \
 lib/syscalls/%.o: ../lib/syscalls/%.c lib/syscalls/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GNU RISC-V Cross C Compiler'
-	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -isystem"D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\interrupt_direct\include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
+	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -isystem"D:\PROJECTS\RISCVDEV\thuas-riscv-with-new-io\eclipse\windows\interrupt_direct\include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

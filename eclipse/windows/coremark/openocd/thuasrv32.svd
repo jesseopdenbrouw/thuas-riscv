@@ -4,13 +4,13 @@
   <vendor>jesseopdenbrouw</vendor>
   <name>thuasrv32</name>
   <series>RISC-V</series>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <description>The THUAS RV32 RISC-V Processor</description>
 
   <!-- CPU core -->
   <cpu>
     <name>THUASRV32</name>
-    <revision>r2p0</revision>
+    <revision>r2p1</revision>
     <endian>little</endian>
     <mpuPresent>false</mpuPresent>
     <fpuPresent>false</fpuPresent>
@@ -40,7 +40,7 @@
       <name>MTIME</name>
       <description>Machine timer</description>
       <groupName>MTIME</groupName>
-      <baseAddress>0xF00000F0</baseAddress>
+      <baseAddress>0xF0000A00</baseAddress>
 
       <interrupt><name>MTIME_IRQ</name><value>7</value></interrupt>
 
@@ -142,7 +142,7 @@
       <name>UART1</name>
       <description>Universal Asynchronous Receiver/Transmitter</description>
       <groupName>UART1</groupName>
-      <baseAddress>0xF0000020</baseAddress>
+      <baseAddress>0xF0000100</baseAddress>
 
       <interrupt><name>UART1_RX_IRQ</name><value>23</value></interrupt>
       <interrupt><name>UART1_TX_IRQ</name><value>23</value></interrupt>
@@ -262,13 +262,33 @@
     </peripheral>
 
 
+    <!-- UART2 -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>UART2</name>
+      <description>Universal Asynchronous Receiver/Transmitter</description>
+      <groupName>UART2</groupName>
+      <baseAddress>0xF0000b00</baseAddress>
+
+      <interrupt><name>UART1_RX_IRQ</name><value>19</value></interrupt>
+      <interrupt><name>UART1_TX_IRQ</name><value>19</value></interrupt>
+      <interrupt><name>UART1_BR_IRQ</name><value>19</value></interrupt>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x10</size>
+        <usage>registers</usage>
+      </addressBlock>
+    </peripheral>
+
+
     <!-- I2C1 -->
     <!-- **************************************************************** -->
     <peripheral>
       <name>I2C1</name>
       <description>Inter-Integrated Circuit 1</description>
       <groupName>I2C1</groupName>
-      <baseAddress>0xF0000040</baseAddress>
+      <baseAddress>0xF0000200</baseAddress>
 
       <interrupt><name>I2C1_TC_IRQ</name><value>26</value></interrupt>
 
@@ -370,7 +390,7 @@
       <name>I2C2</name>
       <description>Inter-Integrated Circuit 2</description>
       <groupName>I2C2</groupName>
-      <baseAddress>0xF0000050</baseAddress>
+      <baseAddress>0xF0000300</baseAddress>
 
       <interrupt><name>I2C2_TC_IRQ</name><value>24</value></interrupt>
 
@@ -388,7 +408,7 @@
       <name>WDT</name>
       <description>Watchdog Timer</description>
       <groupName>WDT</groupName>
-      <baseAddress>0xF00000E0</baseAddress>
+      <baseAddress>0xF0000800</baseAddress>
 
       <interrupt><name>WDT_IRQ</name><value>31</value></interrupt>
 
@@ -449,7 +469,7 @@
       <name>MSI</name>
       <description>Machine Software Interrupt</description>
       <groupName>MSI</groupName>
-      <baseAddress>0xF00000EC</baseAddress>
+      <baseAddress>0xF0000900</baseAddress>
 
       <interrupt><name>MSI_IRQ</name><value>3</value></interrupt>
 
@@ -482,7 +502,7 @@
       <name>SPI1</name>
       <description>Serial Peripheral interface 1</description>
       <groupName>SPI1</groupName>
-      <baseAddress>0xF0000060</baseAddress>
+      <baseAddress>0xF0000400</baseAddress>
 
       <interrupt><name>SPI1_TC_IRQ</name><value>27</value></interrupt>
 
@@ -559,7 +579,7 @@
       <name>SPI2</name>
       <description>Serial Peripheral interface 2</description>
       <groupName>SPI2</groupName>
-      <baseAddress>0xF0000070</baseAddress>
+      <baseAddress>0xF0000500</baseAddress>
 
       <interrupt><name>SPI2_TC_IRQ</name><value>25</value></interrupt>
 
@@ -577,7 +597,7 @@
       <name>TIMER1</name>
       <description>Timer 1</description>
       <groupName>TIMER1</groupName>
-      <baseAddress>0xF0000080</baseAddress>
+      <baseAddress>0xF0000600</baseAddress>
 
       <interrupt><name>TIMER1_CMPT_IRQ</name><value>20</value></interrupt>
 
@@ -637,7 +657,7 @@
       <name>TIMER2</name>
       <description>Timer 2</description>
       <groupName>TIMER2</groupName>
-      <baseAddress>0xF0000090</baseAddress>
+      <baseAddress>0xF0000700</baseAddress>
 
       <interrupt><name>TIMER2_CMPT_IRQ</name><value>21</value></interrupt>
 

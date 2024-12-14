@@ -19,8 +19,8 @@ void uart1_putc(int ch);
 void uart1_puts(char *s);
 /* Get one character from UART1 */
 int uart1_getc(void);
-/* Check if character is available */
-int uart1_available(void);
+/* Check if character has been received */
+int uart1_hasreceived(void);
 /* Get maximum size-1 characters in string buffer from UART1 */
 int uart1_gets(char buffer[], int size);
 /* Print formatted to UART1 */

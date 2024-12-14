@@ -19,22 +19,6 @@ C_SRCS += \
 ../lib/i2c/i2c2_transmit_address_only.c \
 ../lib/i2c/i2c2_transmit_byte.c 
 
-O_SRCS += \
-../lib/i2c/i2c1_init.o \
-../lib/i2c/i2c1_receive.o \
-../lib/i2c/i2c1_receive_byte.o \
-../lib/i2c/i2c1_transmit.o \
-../lib/i2c/i2c1_transmit_address.o \
-../lib/i2c/i2c1_transmit_address_only.o \
-../lib/i2c/i2c1_transmit_byte.o \
-../lib/i2c/i2c2_init.o \
-../lib/i2c/i2c2_receive.o \
-../lib/i2c/i2c2_receive_byte.o \
-../lib/i2c/i2c2_transmit.o \
-../lib/i2c/i2c2_transmit_address.o \
-../lib/i2c/i2c2_transmit_address_only.o \
-../lib/i2c/i2c2_transmit_byte.o 
-
 OBJS += \
 ./lib/i2c/i2c1_init.o \
 ./lib/i2c/i2c1_receive.o \
@@ -72,7 +56,7 @@ C_DEPS += \
 lib/i2c/%.o: ../lib/i2c/%.c lib/i2c/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GNU RISC-V Cross C Compiler'
-	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -isystem"D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\coremark\include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
+	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -isystem"D:\PROJECTS\RISCVDEV\thuas-riscv-with-new-io\eclipse\windows\coremark\include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

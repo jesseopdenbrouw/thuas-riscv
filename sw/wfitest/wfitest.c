@@ -20,9 +20,10 @@ int main(void)
 
 	set_mtvec(trap_handler, TRAP_DIRECT_MODE);
 
-	enable_irq();
-
+	/* Set external interrupt to pin 15, rising edge */
 	GPIOA->EXTC = (15 << 3) | (2 << 1);
+
+	enable_irq();
 
 	while (1) {
 		wfi();
@@ -34,5 +35,6 @@ int main(void)
 __attribute__ ((interrupt))
 void trap_handler(void)
 {
+	/* Clear flag */
 	GPIOA->EXTS = 0x00;
 }

@@ -11,9 +11,6 @@
 # The target
 TARGET = interrupt_vectored
 
-# Linker flags
-LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) --specs=../lib/thuas.specs --specs=nano.specs $(EXTRA_LINKER_FLAGS)
-
 
 #-----
 #----- do not edit below this point
@@ -30,6 +27,9 @@ ifneq ("$(wildcard $(COMMON_FILE))","")
 include $(COMMON_FILE)
 else
 endif
+
+# Linker flags
+LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) --specs=nano.specs --specs=../lib/thuas.specs $(EXTRA_LINKER_FLAGS)
 
 # All header files
 HFILES = $(wildcard *.h)

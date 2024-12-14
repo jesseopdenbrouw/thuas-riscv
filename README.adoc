@@ -22,9 +22,10 @@ Volume II Privileged Architecture, Version 20240411", RV32,
 microcontroller supports Machine mode only. Traps (interrupts
 and exceptions) are supported.
 
-Loads from memory require 3 clocks, stores require 2 clocks.
+Loads from memory require 3 clocks, stores require 2 clocks
+(except for I/O, then stores take 3 clocks).
 CSR operations require 1 clock. Multiplications require 3 clocks,
-divides require 18 clocks. Jumps/branches taken require 3
+divisions require 34 clocks. Jumps/branches taken require 3
 clocks, the microcontroller does not support branch prediction.
 All other instructions require 1 clock.
 
@@ -41,7 +42,7 @@ The design is equipped with bootloader and on-chip debugger
 hardware (both can be switched off). The bootloader can
 be used without the on-chip debugger to upload executables
 to the processor. The on-chip debugger can be used with
-OpenOCD and GDB. It works with Eclipse CDT.
+OpenOCD, GDB and Eclipse CDT.
  
 == Memory
 
@@ -53,9 +54,9 @@ executable is transformed to a VHDL synthesizable ROM table.
 * ROM: a ROM of 64 kB is available (placed in onboard RAM, may be extended).
 * BOOT: a bootloader ROM of 4 kB (placed in onboard RAM).
 * RAM: a RAM of 32 kB using onboard RAM block available (may be extended).
-* I/O: a simple 32-bit input and 32-bit output is available, as
-is a simple 7/8/9-bit UART with interrupt capabilities. Two SPI devices are
-available, both with interrupt. Two I2C devices are available, with
+* I/O: a simple 32-bit input and 32-bit output is available, as are two
+7/8/9-bit UARTs with interrupt capabilities. Two SPI devices are
+available, both with interrupt. Two I2C devices are available, both with
 interrupt. A simple timer with interrupt is provided. A more elaborate
 timer is included and can generate waveforms (Output Compare and PWM)
 or count edges (Input Capture). A watchdog timer is available, it can
@@ -123,13 +124,12 @@ RISC-V Debug Specification v1.0.0-rc3. It is an all-hardware solution,
 there is no program buffer involved. All processor registers (including
 CSRs) can be read and written (when possible). Memory can be read and
 written. There is one hardware breakpoint available. De on-chip debugger
-is compatible with OpenOCD, GDB and Eclipse-CDT. By
-default, the on-chip debugger is disabled.
+is compatible with OpenOCD, GDB and Eclipse-CDT.
 
 == Bootloader
 
-By default, the design is equipped with a bootloader. When resetting the
-FPGA, the bootloader waits about 5 seconds @50 MHz before the program
+The design can be equipped with a bootloader. When resetting the
+FPGA, the bootloader waits about 5 seconds @ 50 MHz before the program
 in the ROM is started. Using the bootloader, a program can written to
 the ROM (see the documentation). The bootloader can also be used to
 inspect the memory contents.

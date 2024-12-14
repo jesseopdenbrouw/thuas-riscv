@@ -90,10 +90,12 @@ entity riscv is
           RAM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble;
-          -- Do we use fast store?
-          HAVE_FAST_STORE : boolean;
+          -- Buffer I/O response
+          BUFFER_IO_RESPONSE : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
+          -- Do we have UART1?
+          HAVE_UART2 : boolean;
           -- Do we have SPI1?
           HAVE_SPI1 : boolean;
           -- Do we have SPI2?
@@ -127,6 +129,9 @@ entity riscv is
           -- UART1
           I_uart1rxd : in std_logic;
           O_uart1txd : out std_logic;
+          -- UART2
+          I_uart2rxd : in std_logic;
+          O_uart2txd : out std_logic;
           -- I2C1
           IO_i2c1scl : inout std_logic;
           IO_i2c1sda : inout std_logic;
@@ -184,10 +189,12 @@ component core is
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
           BOOT_HIGH_NIBBLE : memory_high_nibble;
-          -- Do we have fast store?
-          HAVE_FAST_STORE : boolean;
+          -- Buffer I/O response
+          BUFFER_IO_RESPONSE : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
+          -- Do we have UART2?
+          HAVE_UART2 : boolean;
           -- Do we have SPI1?
           HAVE_SPI1 : boolean;
           -- Do we have SPI2?
@@ -281,8 +288,7 @@ component rom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
           HAVE_OCD : boolean;
-          ROM_ADDRESS_BITS : integer;
-          HAVE_FAST_STORE : boolean
+          ROM_ADDRESS_BITS : integer
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -296,8 +302,7 @@ component rom is
 end component rom;
 component ram is
     generic (
-          RAM_ADDRESS_BITS : integer;
-          HAVE_FAST_STORE : boolean
+          RAM_ADDRESS_BITS : integer
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -307,7 +312,7 @@ component ram is
           O_mem_response : out mem_response_type
          );
 end component ram;
-component bootloader is
+component bootrom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean
          );
@@ -321,80 +326,9 @@ component bootloader is
           -- To address decoder
           O_mem_response : out mem_response_type
          );
-end component bootloader;
-component io is
-    generic (
-          -- The frequency of the system
-          SYSTEM_FREQUENCY : integer;
-          -- Frequency of the clock (1 MHz)_
-          CLOCK_FREQUENCY : integer;
-          -- Do we have fast store?
-          HAVE_FAST_STORE : boolean;
-          -- Do we have UART1?
-          HAVE_UART1 : boolean;
-          -- Do we have SPI1?
-          HAVE_SPI1 : boolean;
-          -- Do we have SPI2?
-          HAVE_SPI2 : boolean;
-          -- Do we have I2C1?
-          HAVE_I2C1 : boolean;
-          -- Do we have I2C2?
-          HAVE_I2C2 : boolean;
-          -- Do we have TIMER1?
-          HAVE_TIMER1 : boolean ;
-          -- Do we have TIMER2?
-          HAVE_TIMER2 : boolean;
-          -- Use Machine-mode Software Interrupt?
-          HAVE_MSI : boolean;
-          -- Use watchdog?
-          HAVE_WDT : boolean;
-          -- UART1 BREAK triggers system reset
-          UART1_BREAK_RESETS : boolean
-         );             
-    port (I_clk : in std_logic;
-          I_areset : in std_logic;
-          -- From address decoder
-          I_mem_request : in mem_request_type;
-          -- To address decoder
-          O_mem_response : out mem_response_type;
-          -- Connection with outside world
-          -- GPIOA
-          I_gpioapin : in data_type;
-          O_gpioapout : out data_type;
-          -- UART1
-          I_uart1rxd : in std_logic;
-          O_uart1txd : out std_logic;
-          -- I2C1
-          IO_i2c1scl : inout std_logic;
-          IO_i2c1sda : inout std_logic;
-          -- I2C2
-          IO_i2c2scl : inout std_logic;
-          IO_i2c2sda : inout std_logic;
-          -- SPI1
-          O_spi1sck : out std_logic;
-          O_spi1mosi : out std_logic;
-          I_spi1miso : in std_logic;
-          -- SPI2
-          O_spi2sck : out std_logic;
-          O_spi2mosi : out std_logic;
-          I_spi2miso : in std_logic;
-          -- TIMER2
-          O_timer2oct : out std_logic;
-          IO_timer2icoca : inout std_logic;
-          IO_timer2icocb : inout std_logic;
-          IO_timer2icocc : inout std_logic;
-          -- TIME and TIMEH
-          O_mtime : out data_type;
-          O_mtimeh : out data_type;
-          -- Hardware interrupt request
-          O_intrio : out data_type;
-          -- Break on UART1 received
-          O_break_received : out std_logic;
-          -- Reset from WDT
-          O_reset_from_wdt : out std_logic
-         );
-end component io;
+end component bootrom;
 -- Reused from NEORV32 bu S.T. Nolting <www.neorv32.org>
+-- Debug Transport Module
 component dtm is
     generic (
           IDCODE_VERSION : std_logic_vector(03 downto 0); -- version
@@ -435,11 +369,218 @@ component dm is
           I_dm_core_data_response : in dm_core_data_response_type
          );
 end component dm;
+--
+-- From here on: components for the I/O
+--
+-- I/O switch between Address_decode and I/O devices
+-- Currently 16 devices max
+component io_bus_switch is
+    generic (
+          -- Buffer the response (adds one clock latency)
+          BUFFER_IO_RESPONSE : boolean
+         );
+    port (
+          I_clk : in std_logic;
+          I_areset : in std_logic;
+          --
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          O_dev0_request : out mem_request_type;
+          I_dev0_response : in mem_response_type;
+          --
+          O_dev1_request : out mem_request_type;
+          I_dev1_response : in mem_response_type;
+          --
+          O_dev2_request : out mem_request_type;
+          I_dev2_response : in mem_response_type;
+          --
+          O_dev3_request : out mem_request_type;
+          I_dev3_response : in mem_response_type;
+          --
+          O_dev4_request : out mem_request_type;
+          I_dev4_response : in mem_response_type;
+          --
+          O_dev5_request : out mem_request_type;
+          I_dev5_response : in mem_response_type;
+          --
+          O_dev6_request : out mem_request_type;
+          I_dev6_response : in mem_response_type;
+          --
+          O_dev7_request : out mem_request_type;
+          I_dev7_response : in mem_response_type;
+          --
+          O_dev8_request : out mem_request_type;
+          I_dev8_response : in mem_response_type;
+          --
+          O_dev9_request : out mem_request_type;
+          I_dev9_response : in mem_response_type;
+          --
+          O_dev10_request : out mem_request_type;
+          I_dev10_response : in mem_response_type;
+          --
+          O_dev11_request : out mem_request_type;
+          I_dev11_response : in mem_response_type;
+          --
+          O_dev12_request : out mem_request_type;
+          I_dev12_response : in mem_response_type;
+          --
+          O_dev13_request : out mem_request_type;
+          I_dev13_response : in mem_response_type;
+          --
+          O_dev14_request : out mem_request_type;
+          I_dev14_response : in mem_response_type;
+          --
+          O_dev15_request : out mem_request_type;
+          I_dev15_response : in mem_response_type
+         );
+end component io_bus_switch;
 
+-- General Purpose I/O with one external interrupt
+component gpio is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          I_pin : in data_type;
+          O_pout: out data_type;
+          O_irq : out std_logic
+         );
+end component gpio;
+
+-- RISC-V External System Timer
+component mtime is
+    generic (
+          SYSTEM_FREQUENCY : integer;
+          CLOCK_FREQUENCY : integer
+         );
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          O_mtime : out data_type;
+          O_mtimeh : out data_type;
+          O_irq : out std_logic
+         );
+end component mtime;
+
+-- Watchdog timer
+component wdt is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          O_reset : out std_logic;
+          O_irq : out std_logic
+         );
+end component wdt;
+
+-- Machine mode Software Interrupt
+component msi is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          O_irq : out std_logic
+         );
+end component msi;
+
+-- Simple timer
+component timera is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          O_irq : out std_logic
+         );
+end component timera;
+
+-- Universal Asynchronous Receiver/Transmitter
+component uart is
+    generic (
+          UART_BREAK_RESETS : boolean
+         );
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          I_rxd : in std_logic;
+          O_txd: out std_logic;
+          O_break_received : out std_logic;
+          O_irq : out std_logic
+         );
+end component uart;    
+
+-- I2C
+component i2c is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          IO_scl : inout std_logic;
+          IO_sda : inout std_logic;
+          O_irq : out std_logic
+         );
+end component i2c;
+
+-- SPI
+component spi is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          O_sck : out std_logic;
+          O_mosi : out std_logic;
+          I_miso : in std_logic;
+          O_irq : out std_logic
+         );
+end component spi;
+
+-- A more elaborate timer
+component timerb is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          O_timeroct : out std_logic;
+          IO_timericoca : inout std_logic;
+          IO_timericocb : inout std_logic;
+          IO_timericocc : inout std_logic;
+          
+          O_irq : out std_logic
+         );
+end component timerb;
+
+--Generic stub for I/O
+component stub is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type
+         );
+end component stub;
 
 -- The clock and the external reset
 signal clk_int : std_logic;
-signal areset_int : std_logic;
 
 -- Instruction fetch from ROM and boot ROM
 signal instr_request_int : instr_request_type;
@@ -474,37 +615,82 @@ signal areset_sys_sync_int : std_logic_vector(3 downto 0);
 signal areset_sys_int : std_logic;
 signal break_from_uart1_int : std_logic;
 signal reset_from_wdt_int : std_logic;
+signal areset_debug_sync_int : std_logic_vector(1 downto 0);
+signal areset_debug_int : std_logic;
 
 -- Signals between DTM and DM
 signal dmi_request_int : dmi_request_type;
 signal dmi_response_int : dmi_response_type;
---
+-- Run/Halt signals from DM to core
 signal halt_req_int, halt_ack_int : std_logic;
 signal resume_req_int, resume_ack_int : std_logic;
 signal reset_req_int, reset_ack_int : std_logic;
 signal ackhavereset_int : std_logic;
---
+-- DM to core data signals
 signal dm_core_data_request_int : dm_core_data_request_type;
 signal dm_core_data_response_int : dm_core_data_response_type;
 
+-- Buses between I/O bus switch and I/O modules
+signal gpioa_request_int : mem_request_type;
+signal gpioa_response_int : mem_response_type;
+signal uart1_request_int : mem_request_type;
+signal uart1_response_int : mem_response_type;
+signal i2c1_request_int : mem_request_type;
+signal i2c1_response_int : mem_response_type;
+signal i2c2_request_int : mem_request_type;
+signal i2c2_response_int : mem_response_type;
+signal spi1_request_int : mem_request_type;
+signal spi1_response_int : mem_response_type;
+signal spi2_request_int : mem_request_type;
+signal spi2_response_int : mem_response_type;
+signal timer1_request_int : mem_request_type;
+signal timer1_response_int : mem_response_type;
+signal timer2_request_int : mem_request_type;
+signal timer2_response_int : mem_response_type;
+signal wdt_request_int : mem_request_type;
+signal wdt_response_int : mem_response_type;
+signal msi_request_int : mem_request_type;
+signal msi_response_int : mem_response_type;
+signal mtime_request_int : mem_request_type;
+signal mtime_response_int : mem_response_type;
+signal uart2_request_int : mem_request_type;
+signal uart2_response_int : mem_response_type;
+
+-- IRQ signals
+signal irq_gpioa_int : std_logic;
+signal irq_uart1_int : std_logic;
+signal irq_mtime_int : std_logic;
+signal irq_wdt_int : std_logic;
+signal irq_msi_int : std_logic;
+signal irq_i2c1_int : std_logic;
+signal irq_i2c2_int : std_logic;
+signal irq_spi1_int : std_logic;
+signal irq_spi2_int : std_logic;
+signal irq_timer1_int : std_logic;
+signal irq_timer2_int : std_logic;
+signal irq_uart2_int : std_logic;
 
 
 begin
 
     -- Just pass on the clock
     clk_int <= I_clk;
-    -- Reset from reset synchronizer
-    areset_int <= areset_sys_int;
+
     
     -- Synchronize the asynchronous reset.
-    -- Also: reset the system if an UART1 BREAK is detected
-    -- or watchdog reset or debug reset.
+    -- Implements global reset (all modules)
+    -- Implements system reset (all modules except DM and DTM)
     process (I_clk, I_areset) is
     begin
         if I_areset = '1' then
-            areset_sys_sync_int <= (others => '0');
-            areset_sys_int      <= '1';
+            areset_sys_sync_int   <= (others => '0');
+            areset_sys_int        <= '1';
+            areset_debug_sync_int <= (others => '0');
+            areset_debug_int      <= '1';
         elsif rising_edge(I_clk) then
+            -- Reset for the debug units
+            areset_debug_sync_int <= areset_debug_sync_int(areset_debug_sync_int'left-1 downto 0) & '1';
+            areset_debug_int <= not and_reduce(areset_debug_sync_int);
             -- If a UART1 BREAK is detected or watchdog reset or debug reset, reset the system
             if break_from_uart1_int = '1' or reset_from_wdt_int = '1' or reset_req_int = '1' then
                 areset_sys_sync_int <= (others => '0');
@@ -533,8 +719,9 @@ begin
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
               BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE,
-              HAVE_FAST_STORE => HAVE_FAST_STORE,
+              BUFFER_IO_RESPONSE => BUFFER_IO_RESPONSE,
               HAVE_UART1 => HAVE_UART1,
+              HAVE_UART2 => HAVE_UART2,
               HAVE_SPI1 => HAVE_SPI1,
               HAVE_SPI2 => HAVE_SPI2,
               HAVE_I2C1 => HAVE_I2C1,
@@ -546,7 +733,7 @@ begin
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               -- Instruction fetch
               O_instr_request => instr_request_int,
               I_instr_response => instr_response_int,
@@ -577,7 +764,7 @@ begin
               IO_HIGH_NIBBLE => IO_HIGH_NIBBLE
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               --
               I_bus_request => bus_request_int,
               O_bus_response => bus_response_int,
@@ -613,11 +800,10 @@ begin
     generic map (
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               HAVE_OCD => HAVE_OCD,
-              ROM_ADDRESS_BITS => ROM_ADDRESS_BITS,
-              HAVE_FAST_STORE => HAVE_FAST_STORE
+              ROM_ADDRESS_BITS => ROM_ADDRESS_BITS
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               -- fetch instruction
               I_instr_request => instr_request_rom_int,
               O_instr_response => instr_response_rom_int,
@@ -625,12 +811,12 @@ begin
               O_mem_response => mem_response_rom_int
              );
 
-    bootloader0: bootloader
+    bootrom0: bootrom
     generic map (
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               --
               I_instr_request => instr_request_boot_int,
               O_instr_response => instr_response_boot_int,
@@ -641,71 +827,13 @@ begin
         
     ram0: ram
     generic map (
-              RAM_ADDRESS_BITS => RAM_ADDRESS_BITS,
-              HAVE_FAST_STORE => HAVE_FAST_STORE
+              RAM_ADDRESS_BITS => RAM_ADDRESS_BITS
              )
     port map (I_clk => clk_int,
-              I_areset => areset_int,
+              I_areset => areset_sys_int,
               --
               I_mem_request => mem_request_ram_int,
               O_mem_response => mem_response_ram_int
-             );
-
-    io0: io
-    generic map (
-              SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
-              CLOCK_FREQUENCY => CLOCK_FREQUENCY,
-              HAVE_FAST_STORE => HAVE_FAST_STORE,
-              HAVE_UART1 => HAVE_UART1,
-              HAVE_SPI1 => HAVE_SPI1,
-              HAVE_SPI2 => HAVE_SPI2,
-              HAVE_I2C1 => HAVE_I2C1,
-              HAVE_I2C2 => HAVE_I2C2,
-              HAVE_TIMER1 => HAVE_TIMER1,
-              HAVE_TIMER2 => HAVE_TIMER2,
-              HAVE_MSI => HAVE_MSI,
-              HAVE_WDT => HAVE_WDT,
-              UART1_BREAK_RESETS => UART1_BREAK_RESETS
-             )
-    port map (I_clk => clk_int,
-              I_areset => areset_int,
-              --
-              I_mem_request => mem_request_io_int,
-              O_mem_response => mem_response_io_int,
-              -- GPIOA
-              I_gpioapin => I_gpioapin,
-              O_gpioapout => O_gpioapout,
-              -- UART1
-              I_uart1rxd => I_uart1rxd,
-              O_uart1txd => O_uart1txd,
-              -- I2C1
-              IO_i2c1scl => IO_i2c1scl,
-              IO_i2c1sda => IO_i2c1sda,
-              -- I2C2
-              IO_i2c2scl => IO_i2c2scl,
-              IO_i2c2sda => IO_i2c2sda,
-              -- SPI1
-              O_spi1sck => O_spi1sck,
-              O_spi1mosi => O_spi1mosi,
-              I_spi1miso => I_spi1miso,
-              -- SPI2
-              O_spi2sck => O_spi2sck,
-              O_spi2mosi => O_spi2mosi,
-              I_spi2miso => I_spi2miso,
-              -- TIMER2
-              O_timer2oct => O_timer2oct,
-              IO_timer2icoca => IO_timer2icoca,
-              IO_timer2icocb => IO_timer2icocb,
-              IO_timer2icocc => IO_timer2icocc,
-              -- TIME/TIMEH
-              O_mtime => mtime_int,
-              O_mtimeh => mtimeh_int,
-              -- Interrupt requests
-              O_intrio => intrio_int,
-              -- BREAK received on UART1
-              O_break_received => break_from_uart1_int,
-              -- Reset from WDT
-              O_reset_from_wdt => reset_from_wdt_int
              );
 
     debuggen : if HAVE_OCD generate
@@ -717,7 +845,7 @@ begin
                   IDCODE_MANID   => "00000000000"
                  )
         port map (I_clk => I_clk,
-                  I_areset => I_areset,
+                  I_areset => areset_debug_int,
                   I_trst => I_trst,
                   I_tck => I_tck,
                   I_tms => I_tms,
@@ -734,7 +862,7 @@ begin
                   OCD_AAMPOSTINCREMENT => OCD_AAMPOSTINCREMENT
                  )
         port map (I_clk => I_clk,
-                  I_areset => I_areset,
+                  I_areset => areset_debug_int,
                   --
                   I_dmi_request => dmi_request_int,
                   O_dmi_response => dmi_response_int,
@@ -770,5 +898,448 @@ begin
         dm_core_data_request_int.writegpr <= '0';
         dm_core_data_request_int.writemem <= '0';
     end generate notdebuggen;
+
+    -- I/O bus switch
+    io_bus_switch0: io_bus_switch
+    generic map (
+              -- Extra buffer for I/O response
+              BUFFER_IO_RESPONSE  => BUFFER_IO_RESPONSE
+             )
+    port map (
+              I_clk => clk_int,
+              I_areset => areset_sys_int,
+              -- The request
+              I_mem_request => mem_request_io_int,
+              O_mem_response => mem_response_io_int,
+              -- 0x000 - GPIO
+              O_dev0_request => gpioa_request_int,
+              I_dev0_response => gpioa_response_int,
+              -- 0x100 - UARt1
+              O_dev1_request => uart1_request_int,
+              I_dev1_response => uart1_response_int,
+              -- 0x200 - I2C1
+              O_dev2_request => i2c1_request_int,
+              I_dev2_response => i2c1_response_int,
+              -- 0x300 - I2C2
+              O_dev3_request => i2c2_request_int,
+              I_dev3_response => i2c2_response_int,
+              -- 0x400 - SPI1
+              O_dev4_request => spi1_request_int,
+              I_dev4_response => spi1_response_int,
+              -- 0x500 - SPI2
+              O_dev5_request => spi2_request_int,
+              I_dev5_response => spi2_response_int,
+              -- 0x600 - TIMER1
+              O_dev6_request => timer1_request_int,
+              I_dev6_response => timer1_response_int,
+              -- 0x700 - TIMER2
+              O_dev7_request => timer2_request_int,
+              I_dev7_response => timer2_response_int,
+              -- 0x800 - WDT
+              O_dev8_request => wdt_request_int,
+              I_dev8_response => wdt_response_int,
+              -- 0x900 - MSI
+              O_dev9_request => msi_request_int,
+              I_dev9_response => msi_response_int,
+              -- 0xa00 - MTIME
+              O_dev10_request => mtime_request_int,
+              I_dev10_response => mtime_response_int,
+              -- 0xb00 - UART2
+              O_dev11_request => uart2_request_int,
+              I_dev11_response => uart2_response_int,
+              -- 0xc00 - free
+              O_dev12_request => open,
+              I_dev12_response => mem_response_terminate_c,
+              -- 0xd00 - free
+              O_dev13_request => open,
+              I_dev13_response => mem_response_terminate_c,
+              -- 0xe00 - free
+              O_dev14_request => open,
+              I_dev14_response => mem_response_terminate_c,
+              -- 0xf00 - free
+              O_dev15_request => open,
+              I_dev15_response => mem_response_terminate_c
+             );
+
+    -- Always have GPIOA
+    gpioa: gpio
+    port map (
+              I_clk => clk_int,
+              I_areset => areset_sys_int,
+              --
+              I_mem_request => gpioa_request_int,
+              O_mem_response => gpioa_response_int,
+              --
+              I_pin => I_gpioapin,
+              O_pout => O_gpioapout,
+              O_irq => irq_gpioa_int
+             );
+
+    -- Always have MTIME
+    mtime1 : mtime
+    generic map (
+              SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
+              CLOCK_FREQUENCY => CLOCK_FREQUENCY
+             )
+    port map (
+              I_clk => clk_int,
+              I_areset => areset_sys_int,
+              --
+              I_mem_request => mtime_request_int,
+              O_mem_response => mtime_response_int,
+              --
+              O_mtime => mtime_int,
+              O_mtimeh => mtimeh_int,
+              O_irq => irq_mtime_int
+             );
+
+    -- WDT - watchdog timer
+    wdt1gen : if HAVE_WDT generate
+        wdt1 : wdt
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => wdt_request_int,
+                  O_mem_response => wdt_response_int,
+                  --
+                  O_reset => reset_from_wdt_int,
+                  O_irq => irq_wdt_int
+                 );
+    end generate;
+    wdt1gen_not : if not HAVE_WDT generate
+        wdt1 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => wdt_request_int,
+                  O_mem_response => wdt_response_int
+                 );
+        irq_wdt_int <= '0';
+        reset_from_wdt_int <= '0';
+    end generate;
+
+    -- MSI - Machine-mode software interruot
+    msi1gen : if HAVE_MSI generate
+        msi1 : msi
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => msi_request_int,
+                  O_mem_response => msi_response_int,
+                  --
+                  O_irq => irq_msi_int
+                 );
+    end generate;
+    msi1gen_not : if not HAVE_MSI generate
+        msi1 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => msi_request_int,
+                  O_mem_response => msi_response_int
+                 );
+        irq_msi_int <= '0';
+    end generate;
+
+    -- TIMER1 - a simple 32-bit timer
+    timer1gen : if HAVE_TIMER1 generate
+        timer1: timera
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => timer1_request_int,
+                  O_mem_response => timer1_response_int,
+                  --
+                  O_irq => irq_timer1_int
+                 );
+    end generate;
+    timer1gen_not : if not HAVE_TIMER1 generate
+        timer1: stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => timer1_request_int,
+                  O_mem_response => timer1_response_int
+                 );
+        irq_timer1_int <= '0';
+    end generate;
+
+    -- UART1 - an UART for ASCII communication
+    uart1gen : if HAVE_UART1 generate
+        uart1 : uart
+        generic map (
+                  UART_BREAK_RESETS => UART1_BREAK_RESETS
+                 )
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => uart1_request_int,
+                  O_mem_response => uart1_response_int,
+                  --
+                  I_rxd => I_uart1rxd,
+                  O_txd => O_uart1txd,
+                  O_break_received => break_from_uart1_int,
+                  O_irq => irq_uart1_int
+                 );
+    end generate;
+    uart1gen_not : if not HAVE_UART1 generate
+        uart1 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => uart1_request_int,
+                  O_mem_response => uart1_response_int
+                 );
+        O_uart1txd <= '0';
+        break_from_uart1_int <= '0';
+        irq_uart1_int <= '0';
+    end generate;
+
+    -- I2C1 - A master-only I2C device
+    i2c1gen : if HAVE_I2C1 generate
+        i2c1 : i2c
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => i2c1_request_int,
+                  O_mem_response => i2c1_response_int,
+                  --
+                  IO_scl => IO_i2c1scl,
+                  IO_sda => IO_i2c1sda,
+                  O_irq => irq_i2c1_int
+                 );
+    end generate;
+    i2c1gen_not : if not HAVE_I2C1 generate
+        i2c1 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => i2c1_request_int,
+                  O_mem_response => i2c1_response_int
+                 );
+        IO_i2c1scl <= 'Z';
+        IO_i2c1sda <= 'Z';
+        irq_i2c1_int <= '0';
+    end generate;
+
+    -- I2C2 - A master-only I2C device
+    i2c2gen : if HAVE_I2C2 generate
+        i2c2 : i2c
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => i2c2_request_int,
+                  O_mem_response => i2c2_response_int,
+                  --
+                  IO_scl => IO_i2c2scl,
+                  IO_sda => IO_i2c2sda,
+                  O_irq => irq_i2c2_int
+                 );
+    end generate;
+    i2c2gen_not : if not HAVE_I2C2 generate
+        i2c2 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => i2c2_request_int,
+                  O_mem_response => i2c2_response_int
+                 );
+        IO_i2c2scl <= 'Z';
+        IO_i2c2sda <= 'Z';
+        irq_i2c2_int <= '0';
+    end generate;
+
+    -- SPI1 - A master-only SPI device
+    spi1gen : if HAVE_SPI1 generate
+        spi1 : spi
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => spi1_request_int,
+                  O_mem_response => spi1_response_int,
+                  --
+                  O_sck => O_spi1sck,
+                  O_mosi => O_spi1mosi,
+                  I_miso => I_spi1miso,
+                  O_irq => irq_spi1_int
+                 );
+    end generate;
+    spi1gen_not : if not HAVE_SPI1 generate
+        spi1 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => spi1_request_int,
+                  O_mem_response => spi1_response_int
+                 );
+        O_spi1sck <= '0';
+        O_spi1mosi <= '0';
+        irq_spi1_int <= '0';
+    end generate;
+
+    -- SPI2 - A master-only SPI device
+    spi2gen : if HAVE_SPI2 generate
+        spi2 : spi
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => spi2_request_int,
+                  O_mem_response => spi2_response_int,
+                  --
+                  O_sck => O_spi2sck,
+                  O_mosi => O_spi2mosi,
+                  I_miso => I_spi2miso,
+                  O_irq => irq_spi2_int
+                 );
+    end generate;
+    spi2gen_not : if not HAVE_SPI2 generate
+        spi2 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => spi2_request_int,
+                  O_mem_response => spi2_response_int
+                 );
+        O_spi2sck <= '0';
+        O_spi2mosi <= '0';
+        irq_spi2_int <= '0';
+    end generate;
+
+    -- TIMER2 - A 16-bit timer, with PWM/OC/IC capabilities
+    timer2gen : if HAVE_TIMER2 generate
+        timer2 : timerb
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  -- 
+                  I_mem_request => timer2_request_int,
+                  O_mem_response => timer2_response_int,
+                  --
+                  O_timeroct => O_timer2oct,
+                  IO_timericoca => IO_timer2icoca,
+                  IO_timericocb => IO_timer2icocb,
+                  IO_timericocc => IO_timer2icocc,
+                  O_irq => irq_timer2_int
+              );             
+    end generate;
+    timer2gen_not : if not HAVE_TIMER2 generate
+        timer2 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  -- 
+                  I_mem_request => timer2_request_int,
+                  O_mem_response => timer2_response_int
+                 );
+        O_timer2oct <= '0';
+        IO_timer2icoca <= 'Z';
+        IO_timer2icocb <= 'Z';
+        IO_timer2icocc <= 'Z';
+        irq_timer2_int <= '0';
+    end generate;
+
+    -- UART2 - an UART for ASCII communication
+    uart2gen : if HAVE_UART2 generate
+        uart2 : uart
+        generic map (
+                  UART_BREAK_RESETS => false
+                 )
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => uart2_request_int,
+                  O_mem_response => uart2_response_int,
+                  --
+                  I_rxd => I_uart2rxd,
+                  O_txd => O_uart2txd,
+                  O_break_received => open,
+                  O_irq => irq_uart2_int
+                 );
+    end generate;
+    uart2gen_not : if not HAVE_UART2 generate
+        uart2 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => uart2_request_int,
+                  O_mem_response => uart2_response_int
+                 );
+        O_uart2txd <= '0';
+        irq_uart2_int <= '0';
+    end generate;
     
+--    stub12geb: stub
+--    port map (
+--              I_clk => clk_int,
+--              I_areset => areset_sys_int,
+--              --
+--              I_mem_request => stub12_request_int,
+--              O_mem_response => stub12_response_int
+--             );
+--
+--    stub13geb: stub
+--    port map (
+--              I_clk => clk_int,
+--              I_areset => areset_sys_int,
+--              --
+--              I_mem_request => stub13_request_int,
+--              O_mem_response => stub13_response_int
+--             );
+--    stub14geb: stub
+--    port map (
+--              I_clk => clk_int,
+--              I_areset => areset_sys_int,
+--              --
+--              I_mem_request => stub14_request_int,
+--              O_mem_response => stub14_response_int
+--             );
+--    stub15geb: stub
+--    port map (
+--              I_clk => clk_int,
+--              I_areset => areset_sys_int,
+--              --
+--              I_mem_request => stub15_request_int,
+--              O_mem_response => stub15_response_int
+--             );
+
+
+    -- Bundle all interrupt lines together
+    process (irq_gpioa_int, irq_uart1_int, irq_mtime_int, irq_wdt_int,
+             irq_msi_int, irq_i2c1_int, irq_i2c2_int, irq_spi1_int,
+             irq_spi2_int, irq_timer1_int, irq_timer2_int, irq_uart2_int) is
+    begin
+        intrio_int <= all_zeros_c;
+        
+        intrio_int(INTR_PRIO_WDT) <= irq_wdt_int;
+        intrio_int(INTR_PRIO_SPI1) <= irq_spi1_int;
+        intrio_int(INTR_PRIO_I2C1) <= irq_i2c1_int;
+        intrio_int(INTR_PRIO_SPI2) <= irq_spi2_int;
+        intrio_int(INTR_PRIO_I2C2) <= irq_i2c2_int;
+        intrio_int(INTR_PRIO_UART1) <= irq_uart1_int;
+        intrio_int(INTR_PRIO_TIMER1) <= irq_timer1_int;
+        intrio_int(INTR_PRIO_TIMER2) <= irq_timer2_int;
+        intrio_int(INTR_PRIO_EXTI) <= irq_gpioa_int;
+        intrio_int(INTR_PRIO_MTIME) <= irq_mtime_int;
+        intrio_int(INTR_PRIO_MSI) <= irq_msi_int;
+        intrio_int(INTR_PRIO_UART2) <= irq_uart2_int;
+    end process;
+ 
 end architecture rtl;

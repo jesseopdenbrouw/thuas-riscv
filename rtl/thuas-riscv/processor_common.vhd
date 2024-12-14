@@ -45,6 +45,7 @@ package processor_common is
 
     -- Hardware version, BCD encoded
     constant HW_VERSION : integer := 16#01_01_00_00#;
+
     
     -- Used data types
     -- The common data type is 32 bits wide

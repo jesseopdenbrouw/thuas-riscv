@@ -11,7 +11,7 @@
 #endif
 /* Transmission speed */
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 /* Interrupt frequency TIMER1 */
@@ -41,7 +41,7 @@ int main(void)
 	while(1);
 }
 
-/* Trap handler, just invert POUT2
+/* Trap handler, just invert POUT bits 2 and 15
  * and clear interrupt flag */
 __attribute__((interrupt, used))
 void trap_handler(void)

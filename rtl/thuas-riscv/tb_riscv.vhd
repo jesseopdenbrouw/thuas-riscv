@@ -58,6 +58,7 @@ signal tdo : std_logic;
 signal gpioapin : data_type;
 signal gpioapout : data_type;
 signal uart1txd, uart1rxd : std_logic;
+signal uart2txd, uart2rxd : std_logic;
 signal timer2oct : std_logic;
 signal timer2icoca : std_logic;
 signal timer2icocb : std_logic;
@@ -126,10 +127,12 @@ begin
               RAM_HIGH_NIBBLE => x"2",
               -- 4 high bits of I/O address
               IO_HIGH_NIBBLE => x"F",
-              -- Do we have fast store?
-              HAVE_FAST_STORE => false,
+              -- Buffer I/O response
+              BUFFER_IO_RESPONSE => false,
               -- Use UART1?
               HAVE_UART1 => TRUE,
+              -- Use UART2?
+              HAVE_UART2 => TRUE,
               -- Use SPI1?
               HAVE_SPI1 => TRUE,
               -- Use SPI2?
@@ -163,6 +166,9 @@ begin
               -- UART1
               I_uart1rxd => uart1rxd,
               O_uart1txd => uart1txd,
+              -- UART2
+              I_uart2rxd => uart2rxd,
+              O_uart2txd => uart2txd,
               -- I2C1
               IO_i2c1scl => i2c1scl,
               IO_i2c1sda => i2c1sda,

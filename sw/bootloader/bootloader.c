@@ -65,7 +65,7 @@ int main(int argc, char *argv[], char *envp[]) {
 			uart1_putc('*');
 			GPIOA->POUT >>= 1;
 		}
-		if (uart1_available()) {
+		if (uart1_hasreceived()) {
 			keyhit = 1;
 			break;
 		}

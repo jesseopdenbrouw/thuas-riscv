@@ -30,8 +30,6 @@ All dates are in dd.mm.yyyy format.
 | 30.10.2024 | 1.0.3.0  | New release (has wrong version number) | |
 | 11.11.2024 | 1.0.4.0  | New release. [io] Removed hardware CS (NSS) from SPI1 because of limited usability. SPI2 now has interrupt (SPI1 and SPI2 are identical), fixed parity issues in UART1, minor edits. | |
 | 14.11.2024 | 1.0.4.1  | [io] Removed unused flipflops in I2C1 and I2C2 | |
-| 08.12.2024 | 1.0.5.0  | New release. [docs] new schematic of SoC | |
-| 14.12.2024 | 1.1.0.0  | New version. Complete rewrite of the I/O sub-system | |
 | 23.11.2924 | 1.0.4.2  | [riscv] Added synchronized reset for DM and DTM, [io] removed some unused memory. | |
 | 08.12.2024 | 1.0.5.0  | New release. [docs] new schematic of SoC | |
 | 14.12.2024 | 1.1.0.0  | New release. Completely new I/O sub-system | |

@@ -20,21 +20,39 @@ This is work in progress. Things will certainly change in the future.
 :sectnums:
 
 == Introduction
+
 This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and Sdtrig extensions are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
 
 The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests showed an average CPI of 1.73 with a throughput of 1.93 coremark/MHz (4000 runs). An overview of the processor is given in <<fig_soc>>.
+The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests showed an average CPI of 1.73 with a throughput of 1.93 coremark/MHz (4000 runs).
+
+== The processor
+
+An overview of the processor is given in <<fig_soc>>
 
 .Block diagram of the processor.
 [[fig_soc]]
 image::images/soc.svg[Image of SoC]
-    
 
-== The processor
 The RISC-V processor consists of one core and some building blocks:
 
-The core:
+* The core handles program execution.
+* The ROM contains the program instructions and constant data. When the bootloader is implemented, the ROM may be written.
+* The bootloader ROM contains the bootloader program instructions and constant (read-only) data. The bootloader ROM may be excluded from the design
+* The RAM contains read-write data (mutable data).
+* The I/O (multiple files) is an interface with the outside world.
+* The Address Decoder and Data Router is an interface between the memory (ROM, boot ROM, RAM, I/O) and the core
+* The instruction router routes instructions from the ROM and the boot ROM (if enabled).
+* The debug module (DM) is an interface between the core and the debug module interface (DMI).
+* The debug transport module (DTM) is an interface between the DMI and the external debug hardware.
+
+
+A simplified block diagram of the core is given in <<fig_core>>
+
+.Block diagram of the core.
+[[fig_core]]
+image::images/core.svg[Image of the core]
 
 * The registers contain intermediate data for calculations. The registers may be placed in onboard RAM or cell flip-flops.
 * The ALU is responsible for almost all computations in the processor.
@@ -47,25 +65,8 @@ The core:
 * The memory unit interfaces with memory.
 * The debug unit, including Trigger Module, regulates on-chip debugging.
 
-A simplified block diagram of the core is given in <<fig_core>>.
-
-.Block diagram of the core.
-[[fig_core]]
-image::images/core.svg[FSM]
-
-
-The remaining building blocks:
-
-* The ROM contains the program instructions and constant data. When the bootloader is implemented, the ROM may be written.
-* The bootloader ROM contains the bootloader program instructions and constant (read-only) data. The bootloader ROM may be excluded from the design
-* The RAM contains read-write data (mutable data).
-* The I/O (multiple files) is an interface with the outside world.
-* The Address Decoder and Data Router is an interface between the memory (ROM, boot ROM, RAM, I/O) and the core
-* The instruction router routes instructions from the ROM and the boot ROM (if enabled).
-* The debug module (DM) is an interface between the core and the debug module interface (DMI).
-* The debug transport module (DTM) is an interface between the DMI and the external debug hardware.
-
 === Registers
+
 The register file consists of thirty-two 32-bit registers denoted by `x0` to `x31`. Internally, the registers use Big Endian format. Register `x0` (alias `zero`) is hardwired to all zeros. Writing this register has no effect. Reading this register returns all zero bits. Normally, the `x` names are not used but may be handy when simulating the designs. See <<tab_reg>>.
 A register can be written to, and two register can be selected for data and/or base address.
 
@@ -107,23 +108,24 @@ The Program Counter contains the address of the currently fetched instruction. T
 The instruction decoder decodes the instruction supplied by the ROM or boot ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit.
 
 === Control Unit
+
 The processor uses a eighteen-state FSM, see <<fig_fsm>>. Upon reset, the processor starts in state `boot0`. In this state, the processor is executing a hardware no-operation, i.e. no computations are performed, but register `x0` (alias `zero`) is written with all-zero bits. This is because onboard RAM-blocks (where the registers are placed), cannot have a reset signal. After this initial state, `zero` is never written. In state `boot1` the processor performs a hardware no-operation (but the first instruction is being decoded). In the `exec` state, the processor is executing decoded instructions. If a trap request is being asserted, the processor executes the trap initiate sequence (saving the PC, fetching the handler start address, pipeline is flushed). If a memory access is requested, the processor initiates the memory access sequence (state `mem`). The processor waits in this state until the memory access is acknowledged. A jump (JAL, JALR) or a branch taken causes the processor to flush the pipeline and start fetching instruction from the target address (states `flush` and `flush2`). When the processor executes an integer multiply/divide instruction, the processor starts the MD sequence (states `md` and `md2`), and stalls until the operation is completed. When the processor executes an `mret` instruction, the processor executes the return sequence (fetching the saved PC, flushing the pipeline).
 
 .The state diagram of the controller, without the debug states.
 [[fig_fsm]]
-image::images/fsm.svg[FSM]
+image::images/fsm.svg[Image of the FSM]
 
-Note that a trap (interrupts and exceptions) can be initiated in the `exec` state and has priority over the others signals. Note that a trap (exceptions only) can be initiated in the `mem` state. Tn the `wfi` state, only an interrupt can be initiated. In all other states, a trap can never be initiated (interrupts are postponed until the processor is in the `exec` state).
+Note that a trap (interrupts and exceptions) can be initiated in the `exec` state and has priority over the others signals. Note that a trap (exceptions only) can be initiated in the `mem` state. In the `wfi` state, only an interrupt can be initiated. In all other states, a trap can never be initiated (interrupts are postponed until the processor is in the `exec` state).
 
 The PC points to +8 of the currently executing instruction, in a sequential instruction stream. If a jump or branch taken occurs, the FSM inserts a penalty because the PC has to be loaded with the correct value and a new instruction must be fetched (see <<fig_one>>). Reading from memory requires three clock cycles (see <<fig_load>>), a write requires two clock cycles, except for I/O, where a write takes three clock cycles. When a multiply, divide or remainder instruction is encountered, the FSM enters the `md` state and waits for the md-unit to complete (32+2 or 16+2 clock cycles). Note that `penalty`, `mem`, `mdstart` and `mret` cannot occur at the same time.
 
 .Execution of one instruction.
 [[fig_one]]
-image::images/one_instr.svg[FSM]
+image::images/one_instr.svg[Execution of one instruction]
 
 .Execution of a load instruction.
 [[fig_load]]
-image::images/load.svg[FSM]
+image::images/load.svg[Execution of a load instruction]
 
 === Trap handling
 
@@ -161,7 +163,7 @@ When data is read, the data is collected from the accessed memory and put on a b
 
 Note that instructions can only be fetched from ROM and boot ROM.
 
-Note that _all_ memory accesses are/must be acknowledged, even when this triggers an exception, otherwise the core hangs.
+Note that _all_ memory accesses are/must be acknowledged, even when this triggers an exception, otherwise the core stalls.
 
 === Instruction Router
 
@@ -206,7 +208,7 @@ For counting purposes, the following registers are implemented:
 * `mhpmcounter3h` to `mhpmcounter9h` -- high order event counter registers.
 * `mhpmevent3` to `mhpmevent9` -- counter event select registers.
 
-The registers `mhpmcounter10` to `mhpmcounter31`, `mhpmcounter10h` to `mhpmcounter31h` and `mhpmevent10` to `mhpmeventcw319` are hardwires to all-zero bits.
+The registers `mhpmcounter10` to `mhpmcounter31`, `mhpmcounter10h` to `mhpmcounter31h` and `mhpmevent10` to `mhpmevent31` are hardwires to all-zero bits.
 
 The event counter registers are currently 40 bits wide. Currently, there are 7 events that can be counted:
 
@@ -327,6 +329,7 @@ The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Wh
 Note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
 
 == The FPGA
+
 For this project, we use the https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyclone V] FPGA from Intel (formerly Altera). 
 The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 2900 ALMs (about 16%) and 1,378,304 bits of internal memory (44%). The clock frequency is approximately 85 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 85 MHz. This FPGA is mounted on a http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[Terasic DE0-CV board] (see <<fig_de0cv>>). The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. For downloading the bitstream file, the onboard USB-Blaster is used.
 
@@ -368,6 +371,7 @@ Performance options: balanced, Advanced Fitter Settings:
 * Power Optimization During Fitting = Off
 
 === Other boards
+
 We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../boards[here]. The fabric of these FPGAs is faster that of the Cyclone V and speeds of 100+ MHz may be obtained.
 
 We find good speed results when the implementation is set to Default and the implementation is set to Performance+Explore.
@@ -517,6 +521,7 @@ end entity riscv;
 ----
 
 === Pin assignments
+
 The pin assignments for the DE0-CV board are as follows. Note that not all signals are assigned to a pin, in which case the fitter will assign a suitable pin.
 
 .Pin assignments for the DE0-CV board.
@@ -622,9 +627,11 @@ Some pins are connected to the onboard GPIO headers. The DE0-CV board has two he
 image::images/de0-cv-gpio.svg[DE0-CV GPIO pin layout]
 
 === Simulation
+
 The design can be simulated fully, using QuestaSim Intel Starter or ModelSim Intel Starter. You need a (free) license for QuestaSim. During simulation, all essential signals can be viewed, as is the RAM. The RAM is viewed as 32-bit entries, so we need to do some manual calculations to correctly find byte, half word and word accesses. Simulation can be started from Quartus. Please note that the bootloader is normally disabled when simulating.
 
 === Customizing the design
+
 Using VHDL generics, the design can be customized.
 
 .Customization options for the design.
@@ -673,6 +680,7 @@ When OCD_CSR_CHECK_DISABLE is set to true, accessing unimplemented CSRs does not
 When BUFFER_IO_RESPONSE is set to true, reading data from the I/O takes another clock cycle. This may have a positive effect on the $f_{max}$.
 
 == Cloning the RISC-V project
+
 Now we have to clone the RISC-V project. It incorporates the full Quartus Prime Lite project with the processor written in VHDL. It also incorporates many C program examples and a taylor-made program to convert a RISC-V executable to a VHDL table suitable for the ROM. Create a working directory (and change to that directory) and issue the command:
 
 [source,subs=attributes+]
@@ -783,6 +791,7 @@ gcc version 14.2.0 ()
 When using Windows, best is to use precompiled binaries. See <<sec_win>>.
 
 === Register subset
+
 It is possible to compile the toolchain to only use register `x0` to `x15`. This is called the RISC-V E extension. As a positive side effect, the register file can be cut down from 32 registers to 16 registers, saving 512 memory element. This will lower the ALM count (if placed in ALM flip-flops) and possible speed up the device. A negative side effect is that the pressure on register allocation is higher, possibly increasing instruction count when saving registers on the stack.
 
 Using the above recipe, the toolchain is set up for both RV32IM and RV32E (without hardware integer multiply/divide). You need the specify the architecture and ABI during compile time of the RISC-V programs.
@@ -798,9 +807,12 @@ Make sure to use `-march=rv32e` and `-mabi=ilp32e`.
 
 
 == Implemented system calls
+
 The `sbrk` system call, used for allocating RAM memory, is implemented. Note that there is a limited amount of RAM. Note that `sbrk` is not called by the user. Use `malloc` et al.
 
-The `gettimeofday` system call is implemented. It returns the seconds and microseconds since the last reset of the processor. You need to call the `gettimeofday` C function for proper handling.
+The `gettimeofday` system call is implemented. It returns the seconds and microseconds since the last reset of the processor. You need to call the `gettimeofday` C function for proper handling. This system call is used with older versions of `newlib`.
+
+The `clock_gettim64` system call is implemented. It returns the seconds and microseconds since the last reset of the processor. You need to call the `gettimeofday` C function for proper handling. This system call is used with newer versions of `newlib`.
 
 The `times` system call is implemented, but only for non-trap system calls. When using trapped systems calls (using ECALL), `gettimeofday` is used.
 
@@ -924,6 +936,7 @@ void timer1_handler(void)
 
 
 == Software programs
+
 The `sw` directory contains programs that run on this RISC-V processor. Under Linux, change to the `sw` directory, customize the file `common.make` and issue the `make` command. Now all programs are compiled as is a THUAS-specific library. To upload a program to the RISC-V processor, change to one of the program directories, reset the processor and issue the command `make upload`. This will upload the corresponding S-record file to the processor using UART1. Make sure no terminal program (e.g. PuTTY) is connected. The bootloader hardware must be installed.
 
 After `make` is run, a static library called `libthuasrv32.a` is available with functions to use the I/O and trap related functions. You need to supply the library to the linker. Also, two `specs` files are available. Use `--specs=<path-to>/thuas.specs` for including the THUAS library and use `--specs=<path-to>/nano.specs` for including the `nano` library *without* the `gloss` library (used for ECALL-driven system calls). If you need ECALL-driven system calls, use `--specs=nano.specs` (without a path name) to use the RISC-V specific `nano` library *with* the `gloss` library.
@@ -969,7 +982,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `i2c1ssd1315` -- program to test the SSD1315 OLED display driver. Uses I2C1 and UART1. Works on the board.
 * `i2c1tmp102` -- program that uses the I2C1 peripheral to fetch the temperature data of a TMP102 temperature sensor and displays the raw data on the terminal. Works on the board.
 * `interrupt_direct` -- program to test the interrupt handling using direct mode and prints out the elapsed time. Uses UART1. Works on the board.
-* `interrupt_vectored` -- program to test the interrupt handling using vectored mode.and prints out the elapsed time. Uses UART1. Works on the board.
+* `interrupt_vectored` -- program to test the interrupt handling using vectored mode and prints out the elapsed time. Uses UART1. Works on the board.
 * `interval` -- program that uses the `clock` C library function to time 5 seconds since last read. Uses UART1. Works on the board.
 * `ioadd` -- adds the lower 5 switches to the upper 5 switches and displays the result on the leds. Tests addition, shifting and I/O. Works on the board.
 * `linked_list` -- example on how to use linked lists. This program soups up all available dynamic RAM but does not penetrate the reserved stack space. Uses UART1. Works on the board.
@@ -1013,6 +1026,7 @@ Note that `sprintf`/`printf` do not print 64-bit integers (a.k.a. `long long`) b
 
 
 === srec2vhdl
+
 This is a homebrew utility to convert a Motorola S-record file into a VHDL file suitable for inclusion of the processor. The program is called with:
 
 [source,c,subs=attributes+]
@@ -1038,9 +1052,11 @@ Note: unused ROM addresses are not output, except when the `-0` or `-x` options 
 
 
 === upload
+
 See Section <<sec_boot>>.
 
 == Address ranges and memory sizes
+
 The processor uses a 32-bit linear address space (4 GB) and is divided in 16 blocks of 256 MB each. The top four bits (31 to 28) select a block while the remaining bits select the address within a block.
 By default, the ROM starts at address 0x00000000 and and has a size of 64 kB (16 k words). The Program Counter then starts at 0x00000000. The bootloader ROM starts at address 0x10000000 and has a size of 4 kB (1 k words). The Program Counter then starts at address 0x10000000. The RAM starts at address 0x20000000 and has a size of 32 kB (8 k words). The stack pointer is set to one address above the last RAM byte, by default at 0x20008000. The I/O starts at address 0xF0000000 and has a size of 4 kB (1 k words).
 
@@ -1110,6 +1126,7 @@ To upload an S-record file, reset the FPGA or program the FPGA design in the FPG
 
 
 === Using the monitor
+
 If within the 5 seconds grace period a character is received by the bootloader, the bootloader falls to a simple monitor program. The monitor recognized some simple commands. Each command is terminated by an enter key.
 
 `r`
@@ -1138,21 +1155,24 @@ A simple help menu is presented.
 
 
 === Upload protocol
+
 (When not using the `-n` option) Uploading an S-record file uses a simple handshake protocol. The `upload` program sends a single exclamation mark (`!`). The bootloader responds with an question mark (`?`) and a newline (`\n`). Now each S-record line is transmitted character by character, including the end-of-line termination character (`\r` and/or `\n`). After a line is processed, the bootloader responds with a question mark and a newline. After all S-record lines are transmitted, the `upload` program either sends a `J` to start the application, or a `#` to start the monitor.
 
 (When using the `-n` option) The `upload` program transmits a dollar sign (`$`) to inform the bootloader that handshake is turned off. The `upload` program then transmits the S-record file and doesn't wait for acknowledge (the bootloader will not send an acknowledge). This provides a fast upload scenario (about 4 times faster then when using acknowledge). Also, the terminal program (e.g. Putty) can be left open on Linux. On Windows, a serial port can only be opened exclusively by one program.
 
 === Updating the bootloader
+
 The ROM contents of the bootloader is created as part of the `make` process and is available in the `sw/bootloader` directory. The file `bootloader.vhd` holds a copy of the program. When modifying the bootloader, the `make` process has to be run again and the file `bootloader.vhd` must be copied to the RTL directory with the name `bootrom_image.vhd`.
 
 === Implications on the hardware design
+
 The design has a separate ROM that incorporates the bootloader. The original ROM, at address 0x00000000 is extended with a write port, together with the instruction read port and the data read port. In fact, the ROM has become a (program) RAM. Because the Cyclone FPGA ROMs (and RAMs) can only have two ports (out/out or in/out), the original ROM hardware is duplicated (by the synthesizer). This takes up onboard RAM blocks, but very few ALMs (cells).
 
 Note that the ROM can only be (over)written with words on a 4-byte boundary.
 
 
 == Using the on-chip debugger
-*note: experimental* +
+
 The on-chip debugger (OCD) follows the guidelines of the RISC-V debug specification version 1.0.0-rc3 (https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf). The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module +(TM)+. The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
 
 * Standard JTAG access port.
@@ -1348,6 +1368,7 @@ and run the code on the target:
 
 
 === Implications on the hardware design
+
 The OCD takes up a fair amount of ALMs (500 - 700) and lowers the $f_{max}$ with about 5 MHz.
 
 
@@ -1363,6 +1384,7 @@ Take a short tour on xref:xpack.adoc[Installing xPacks on Windows 11]. Current G
 
 
 == Future plans (or not) and issues
+
 Some future plans:
 
 * We are *not* planning the C standard.
@@ -1376,7 +1398,9 @@ Some future plans:
 
 
 [appendix]
+
 == C Runtime startup code
+
 Before `main` is called, the C Runtime startup code (file `startup.c` in the `crt` directory) does some initialization:
 
 * Set up the trap vector address to catch early traps.
@@ -1527,6 +1551,7 @@ void pre_init_trap_handler(void)
 
 
 [appendix]
+
 == The I/O at a glance
 
 The I/O registers are directly addressable or by a struct. See the listing below.
@@ -1573,7 +1598,7 @@ typedef struct {
 
 
 /*
- * UART1
+ * UART1, UART2
  */
 typedef struct {
     volatile uint32_t CTRL;
@@ -1743,6 +1768,7 @@ typedef struct {
 
 
 === Port I/O
+
 The processor is equipped with a single 32-bit input and 32-bit output port. There is no data direction register. This may be changed to using bi-direction port pins. Note that all accesses on the I/O are in Big Endian. This means that bit 31 of the input will be placed in bit 31 of the used variable.
 
 To set the outputs, use:
@@ -1908,6 +1934,7 @@ image::images/usb-usart-ttl.jpg[width=200]
 Note: if you are using the https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE], there is a second channel available for UART connection.
 
 === I2C code
+
 The baud rate prescaler must be loaded with the number of system clock cycles for *one-half* bit time minus 1 for Standard mode, and *one-third* bit time minus 1 for Fast mode. Note that the prescaler is in the CTRL register and must be preserved:
 
 [source,c,subs=attributes+]
@@ -1999,6 +2026,7 @@ if (I2C1->STAT & (1 << 5)) {
 
 
 === TIMER1 code
+
 Based on a frequency of 50 MHz, the following code will set TIMER1 interrupt on 0.5 s intervals:
 
 [source,c,subs=attributes+]
@@ -2011,6 +2039,7 @@ TIMER1->CTRL = (1<<4)|(1<<0);
 ----
 
 === The external `time` registers
+
 The `time` registers (MTIME, MTIMEH, MTIMEMCP and MTIMECMPH) can be accessed via the I/O and are therefore memory mapped. These registers are shadowed by the CSR. The following code reads in the current time and increments the compare registers with a certain _delta_. Whenever TIMEH:TIME is greater than or equal to TIMEH:TIME, an interrupt request is asserted. Negating the interrupt request is accomplished by writing a value greater than the time registers to the compare registers.
 
 [source,c,subs=attributes+]
@@ -2046,6 +2075,7 @@ void external_timer_handler(void)
 Normally, this code is placed in the interrupt handler. MTIME and MTIMEH are read-only shadowed in the CSR `time` abd `timeh` registers.
 
 [appendix]
+
 == I/O registers
 
 link:registers.pdf[Read the documentation on the I/O registers]

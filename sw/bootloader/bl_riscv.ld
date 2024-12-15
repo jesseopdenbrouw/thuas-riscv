@@ -8,7 +8,7 @@ MEMORY
 {
    ROM (rx)   : ORIGIN = 0x10000000, LENGTH = 4K
    RAM (rw)	  : ORIGIN = 0x20000000, LENGTH = 32K
-   IO (rw)    : ORIGIN = 0xf0000000, LENGTH = 16K
+   IO (rw)    : ORIGIN = 0xf0000000, LENGTH = 4K
 }
 
 __stack_pointer$ = ORIGIN(RAM) + LENGTH(RAM);

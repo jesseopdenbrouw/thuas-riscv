@@ -33,3 +33,5 @@ All dates are in dd.mm.yyyy format.
 | 23.11.2924 | 1.0.4.2  | [riscv] Added synchronized reset for DM and DTM, [io] removed some unused memory. | |
 | 08.12.2024 | 1.0.5.0  | New release. [docs] new schematic of SoC | |
 | 14.12.2024 | 1.1.0.0  | New release. Completely new I/O sub-system | |
+| 17.12.2023 | 1.1.0.1  | [rom_image] New ROM image | |
+

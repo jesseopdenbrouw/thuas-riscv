@@ -21,7 +21,7 @@ int main(void)
 	set_mtvec(trap_handler, TRAP_DIRECT_MODE);
 
 	/* Set external interrupt to pin 15, rising edge */
-	GPIOA->EXTC = (15 << 3) | (2 << 1);
+	gpioa_set_extc(15, GPIO_EXTC_EDGE_RISING);
 
 	enable_irq();
 

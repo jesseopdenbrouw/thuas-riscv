@@ -30,7 +30,7 @@ typedef struct {
                       "li    t0, (1<<3)|(3<<11);" \
                       "csrw  mstatus,t0;" \
                       ".option pop" \
-                      ::: "t0");
+                      ::: "t0")
 
 /* Disable the global IRQ */
 #define disable_irq() \
@@ -39,7 +39,7 @@ typedef struct {
                       "li    t0, (3<<11);" \
                       "csrw  mstatus,t0;" \
                       ".option pop" \
-                      ::: "t0");
+                      ::: "t0")
 
 /* Get start address of jump table (vectored) or handler (direct) */
 #define get_mtvec() ({ uint32_t __tmp; \
@@ -69,7 +69,7 @@ typedef struct {
                       "ori   t0, t0, (1<<7);" \
                       "csrw  mie,t0;" \
                       ".option pop" \
-                      ::: "t0");
+                      ::: "t0")
 
 #define disable_external_timer_irq() \
     __asm__ volatile (".option push;" \
@@ -78,7 +78,7 @@ typedef struct {
                       "andi  t0, t0, ~(1<<7);" \
                       "csrw  mie,t0;" \
                       ".option pop" \
-                      ::: "t0");
+                      ::: "t0")
 
 #define enable_external_software_irq() \
     __asm__ volatile (".option push;" \
@@ -87,7 +87,7 @@ typedef struct {
                       "ori   t0, t0, (1<<3);" \
                       "csrw  mie,t0;" \
                       ".option pop" \
-                      ::: "t0");
+                      ::: "t0")
 
 #define disable_external_software_irq() \
     __asm__ volatile (".option push;" \
@@ -96,5 +96,5 @@ typedef struct {
                       "andi  t0, t0, ~(1<<3);" \
                       "csrw  mie,t0;" \
                       ".option pop" \
-                      ::: "t0");
+                      ::: "t0")
 #endif

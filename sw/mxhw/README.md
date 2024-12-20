@@ -15,7 +15,7 @@ custom CS register `mxhw`. The register is located at address
 | 2    | Reserved                |
 | 3    | Reserved                |
 | 4    | UART1 enabled           |
-| 5    | Reserved                |
+| 5    | UART2 enabled           |
 | 6    | I2C1 enabled            |
 | 7    | I2C2 enabled            |
 | 8    | SPI1 enabled            |
@@ -31,13 +31,15 @@ custom CS register `mxhw`. The register is located at address
 | 18   | Bootloader enabled      |
 | 19   | Registers in RAM        |
 | 20   | Zba extension           |
-| 21   | Fast store              |
+| 21   | Reseved                 |
 | 22   | Zicond extension        |
 | 23   | Zbs extension           |
 | 24   | UART1 break detect resets processor |
 | 25   | Watchdog enabled        |
 | 26   | HPM counters enabled    |
 | 27   | On-chip debugging enabled |
+| 28   | Machine Software Interrupt enabled |
+| 29   | Buffer I/O Response     |
 | rest | Reserved                |
 
 It also prints the synthesized clock frequency and the hardware version.

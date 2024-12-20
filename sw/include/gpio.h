@@ -53,6 +53,12 @@ void gpioa_togglepin(uint32_t pins);
 
 #define GPIO_PIN_ALL (0xffffffffUL)
 
+#define GPIO_EXTC_EDGE_RISING (1 << 1)
+#define GPIO_EXTC_EDGE_FALLING (2 << 1)
+#define GPIO_EXTC_EDGE_BOTH (3 << 1)
+#define gpioa_set_extc(A, B) \
+	GPIOA->EXTC = (((A & 0x1f) << 3) | B)
+
 #ifdef __cplusplus
 }
 #endif

@@ -11,10 +11,10 @@ Channel A. You need a signal generator to
 apply a square wave signal. Please note that
 the voltage levels must be within 0V to 3.3V.
 
-Channel T is off
-Channel A is set as rising edge input capture
-Channel B is off
-Channel C is off
+* Channel T is off.
+* Channel A is set as rising edge input capture.
+* Channel B is off.
+* Channel C is off.
 
 ## Note
 

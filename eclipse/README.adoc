@@ -15,7 +15,7 @@ the Windows build tools and OpenOCD installed:
 * https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)].
 * https://xpack-dev-tools.github.io/openocd-xpack/[xPack OpenOCD].
 
-Take a short tour on xref:docs/xpack.adoc[Installing xPacks on Windows 11].
+Take a short tour on xref:../docs/xpack.adoc[Installing xPacks on Windows 11].
 
 You might need to set the path to the GDB executable. Most of the time, the path to `gcc`, `gdb`  and `openocd` is correct.
 

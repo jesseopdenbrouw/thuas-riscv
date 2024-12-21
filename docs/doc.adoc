@@ -156,7 +156,7 @@ When the on-chip debugger is used, `ebreak` is used by the debugger software (Op
 The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this timer times out, an NMI can be generated (the other option is to reset the processor). The NMI is interrupt with the highest priority and cannot be disabled.
 
 
-== Memory Interface
+=== Memory Interface
 
 The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (writes), the data size and the read/write flag on the bus. These signals are held stable until a acknowledge from the memory is sampled, or an exception is generated. If there is no acknoledge nor exception generated, the core will stall permanently. Currenlty a memeory access must at least take two clock cycles.
 

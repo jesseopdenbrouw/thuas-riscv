@@ -156,6 +156,11 @@ When the on-chip debugger is used, `ebreak` is used by the debugger software (Op
 The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this timer times out, an NMI can be generated (the other option is to reset the processor). The NMI is interrupt with the highest priority and cannot be disabled.
 
 
+== Memory Interface
+
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (writes), the data size and the read/write flag on the bus. These signals are held stable until a acknowledge from the memory is sampled, or an exception is generated. If there is no acknoledge nor exception generated, the core will stall permanently. Currenlty a memeory access must at least take two clock cycles.
+
+
 === Control and Status registers
 
 The RISC-V specification describes a set of 4096 control and status register in a separate address space. CSR operations require one clock cycle. Basic event counters are implemented:
@@ -243,19 +248,17 @@ Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction S
 The processor is equipped with a hardware integer multiply/divide unit. All multiply/divide instructions are supported (`mul`, `mulh`, `mulhsu`, `mulhu`, `div`, `divu`, `rem`, `remu`) and the result is fed to the ALU. A multiplication takes three clock cycles (one clock-in, one multiply, one clock-out). For division, two versions are available. By default, the divider needs 34 clocks (one clock-in, 32 divide, one clock-out) for a division using a radix-2 division. As an alternative, a poor mans radix-4 division unit can be selected taking 18 clock cycles (one clock-in, 16 divide, one clock-out) to do the division. Thus, the radix-4 divider unit is faster, but needs more cells. The radix-2 divider unit is slower, but needs less cells. You have to enable the M standard support in the compiler. The multiplier uses special DSP units in the Cyclone V. Most regular FPGAs have onboard multipliers. Note that when executing an operation, the pipeline is stalled. Note that a trap request is postponed until the operation is completed and the result is saved in the register file.
 
 
-=== Debug Module and Debug Transport Module
+=== Trigger Module
 
-The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up a hardware breakpoint, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
-
-The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd).
-
-=== Reset
-
-The asynchronous reset is active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition. It is also possible to reset the processor when the watchdog (WDT) times out or a reset from the on-chip debugger.
+The core is equipped with a trigger module +(TM)+ that can be used with on-chip debugging. The TM makes it possipble the halt, reset and resume the core. The TM implements one hardware breakpoint. Also, the TM is used to access the registers, including CSRs.
 
 === Implemented instructions
 
 For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
+
+== Reset
+
+There are two types resets. A system wide reset resets the complete processor, including I/O and debug units. The debug reset resets the core and the I/O. The asynchronous reset is active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition. It is also possible to reset the processor when the watchdog (WDT) times out.
 
 
 == Memories
@@ -330,10 +333,16 @@ The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Wh
 
 Note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
 
+== Debug Module and Debug Transport Module
+
+The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up a hardware breakpoint, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
+
+The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd).
+
 == The FPGA
 
 For this project, we use the https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyclone V] FPGA from Intel (formerly Altera). 
-The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 2900 ALMs (about 16%) and 1,378,304 bits of internal memory (44%). The clock frequency is approximately 85 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 85 MHz. This FPGA is mounted on a http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[Terasic DE0-CV board] (see <<fig_de0cv>>). The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. For downloading the bitstream file, the onboard USB-Blaster is used.
+The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 3200 ALMs (about 17%) and 1,313,792 bits of internal memory (43%). The clock frequency is approximately 85 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 85 MHz. This FPGA is mounted on a http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[Terasic DE0-CV board] (see <<fig_de0cv>>). The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. For downloading the bitstream file, the onboard USB-Blaster is used.
 
 .The DE0-CV board.
 [[fig_de0cv]]

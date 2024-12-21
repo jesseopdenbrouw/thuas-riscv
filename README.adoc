@@ -18,7 +18,7 @@ Version 20240411", RV32, are supported. The instructions
 from the M standard (hardware multiply/divide), RV32, are
 supported. From the "The RISC-V Instruction Set Manual:
 Volume II Privileged Architecture, Version 20240411", RV32,
-`ECALL`, `EBREAK`, `MRET` and `WFI` are supported. The
+`ecall`, `ebreak`, `mret` and `wfi` are supported. The
 microcontroller supports Machine mode only. Traps (interrupts
 and exceptions) are supported.
 
@@ -92,7 +92,7 @@ https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[DE0-C
 by Terasic and Intel Quartus Prime
 Lite 23.1. Simulation is possible with QuestaSim Intel Starter Edition.
 You need a (free) license for that. The processor uses about
-2900 ALM (cells) of 18480, depending on the settings. In the default
+3200 ALMs of 18480, depending on the settings. In the default
 settings, ROM, BOOT, RAM and registers uses 43% of the available RAM blocks.
 
 The design is also tested on a
@@ -120,7 +120,8 @@ is needed.
 == On-chip debugger
 
 The processor is equipped with an on-chip debugger that complies to the
-RISC-V Debug Specification v1.0.0-rc3. It is an all-hardware solution,
+https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[RISC-V Debug Specification v1.0.0-rc3].
+It is an all-hardware solution,
 there is no program buffer involved. All processor registers (including
 CSRs) can be read and written (when possible). Memory can be read and
 written. There is one hardware breakpoint available. De on-chip debugger

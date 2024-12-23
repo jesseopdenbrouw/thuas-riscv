@@ -1,5 +1,5 @@
 -- #################################################################################################
--- # i2c.vhd - minimal I2C device                                                                  #
+-- # i2c.vhd - Minimal I2C device, master only                                                     #
 -- # ********************************************************************************************* #
 -- # This file is part of the THUAS RISCV RV32 Project                                             #
 -- # ********************************************************************************************* #
@@ -76,7 +76,7 @@ type i2c_type is record
     state : i2cstate_type;
     bittimer : integer range 0 to 2**17-1;
     shiftcounter : integer range 0 to 9;
-    startstransmission : std_logic;
+    starttransmission : std_logic;
     txbuffer : std_logic_vector(8 downto 0);
     rxbuffer : std_logic_vector(8 downto 0);
     sda_out : std_logic;
@@ -118,7 +118,7 @@ begin
             i2c.shiftcounter <= 0;
             i2c.txbuffer <= (others => '0');
             i2c.rxbuffer <= (others => '0');
-            i2c.startstransmission <= '0';
+            i2c.starttransmission <= '0';
             i2c.sclsync <= (others => '1');
             i2c.sdasync <= (others => '1');
             --
@@ -128,7 +128,7 @@ begin
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            i2c.startstransmission <= '0';
+            i2c.starttransmission <= '0';
             cs_sync <= I_mem_request.cs;
             -- Common register writes
             if I_mem_request.cs = '1' and cs_sync = '0' and isword then
@@ -152,7 +152,7 @@ begin
                         -- Latch data, if startbit set, end with master Nack
                         i2c.txbuffer <= I_mem_request.data(7 downto 0) & (i2c.start or i2c.stop or not i2c.mack);
                         -- Signal that we are sending data
-                        i2c.startstransmission <= '1';
+                        i2c.starttransmission <= '1';
                         -- Reset both Transmission Complete and Ack Failed
                         i2c.tc <= '0';
                         i2c.af <= '0';
@@ -218,7 +218,7 @@ begin
                     end if;
                     i2c.shiftcounter <= 8;
                     -- Is data register written?
-                    if i2c.startstransmission = '1' then
+                    if i2c.starttransmission = '1' then
                         -- Register that we are transmitting
                         i2c.trans <= '1';
                         -- Data written to data register, check for start condition
@@ -306,7 +306,7 @@ begin
                         --i2cbittimer <= to_integer(unsigned(i2cctrl_int(31 downto 16)));
                         i2c.state <= idle;
                         i2c.tc <= '1';
-                        i2c.data(7 downto 0) <= i2c.rxbuffer(8 downto 1);
+                        i2c.data <= i2c.rxbuffer(8 downto 1);
                         i2c.af <= i2c.rxbuffer(0);
                     end if;
                 when send_stopbit_first =>
@@ -351,7 +351,7 @@ begin
                         -- and goto IDLE
                         i2c.state <= idle;
                         -- Copy data to data register and flag ACK
-                        i2c.data(7 downto 0) <= i2c.rxbuffer(8 downto 1);
+                        i2c.data <= i2c.rxbuffer(8 downto 1);
                         i2c.af <= i2c.rxbuffer(0);
                         -- Clear hard stop
                         i2c.hardstop <= '0';

@@ -641,8 +641,7 @@ begin
     end process;
     
 
-    -- Data forwarder. Forward RS1/RS2 if they are used in current instruction,
-    -- and were written in the previous instruction.
+    -- Data forwarder detectrion. Signals if RS1/RS2 must be forwarded.
     process (id_ex, ex_wb) is
     begin
         if ex_wb.rd_en = '1' and ex_wb.rd = id_ex.rs1 then
@@ -703,7 +702,7 @@ begin
                             pc <= std_logic_vector(unsigned(id_ex.imm) + unsigned(id_ex.rs1data));
                         end if;
                         -- As per RISC-V unpriv spec
-                        --pc(0) <= '0';
+                        pc(0) <= '0';
                     -- Branch
                     when pc_branch =>
                         -- Must we branch?

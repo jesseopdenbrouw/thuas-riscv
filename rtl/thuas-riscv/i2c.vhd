@@ -34,6 +34,9 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
+-- Description of the I2C master-only device. The device supports Standard Mode and Fast Mode.
+-- It supports clock stretching. It does not support clock synchronization and arbitration lost.
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -42,6 +45,9 @@ library work;
 use work.processor_common.all;
 
 entity i2c is
+    generic (
+          SYSTEM_FREQUENCY : integer
+         );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- 
@@ -56,8 +62,14 @@ end entity i2c;
 
 architecture rtl of i2c is
 
+-- Calculate maximum rise time for Sm and Fm, add +2 to compensate for synchronizer delay
+constant crise_sm_c : integer := SYSTEM_FREQUENCY / 1000000 + 2;
+constant crise_fm_c : integer := 300 * (SYSTEM_FREQUENCY / 1000000) / 1000 + 2;
+
+-- States for the state machine
 type i2cstate_type is (idle, send_startbit, send_data_first, send_data_second, leadout,
-                        send_stopbit_first, send_stopbit_second, send_stopbit_third);
+                       send_stopbit_first, send_stopbit_second, send_stopbit_third,
+                       stretch);
                         
 type i2c_type is record
     fm : std_logic;
@@ -83,6 +95,7 @@ type i2c_type is record
     scl_out : std_logic;
     sdasync : std_logic_vector(1 downto 0);
     sclsync : std_logic_vector(1 downto 0);
+    trise : integer range 0 to crise_sm_c;
 end record;
 
 signal i2c : i2c_type;
@@ -121,6 +134,7 @@ begin
             i2c.starttransmission <= '0';
             i2c.sclsync <= (others => '1');
             i2c.sdasync <= (others => '1');
+            i2c.trise <= 0;
             --
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
@@ -260,12 +274,28 @@ begin
                     else
                         i2c.bittimer <= to_integer(unsigned(i2c.baud));
                         i2c.state <= send_data_second;
+                        -- Set the rise time of SCL in clock pulses
+                        if i2c.fm = '1' then
+                            i2c.trise <= crise_fm_c;
+                        else
+                            i2c.trise <= crise_sm_c;
+                        end if;
                     end if;
                 when send_data_second =>
                     -- SCL High-Z == 1, SDA 0 or High-Z (== 1)
                     i2c.scl_out <= '1';
                     i2c.sda_out <= i2c.txbuffer(8);
 
+                    -- Count down rise time
+                    if i2c.trise  > 0 then
+                        i2c.trise  <= i2c.trise - 1;
+                    else
+                        -- Check for SCL low == clock stretched
+                        if i2c.sclsync(1) = '0' then
+                            i2c.state <= stretch;
+                        end if;
+                    end if;
+                    
                     -- Count bit time
                     if i2c.bittimer > 0 then
                         i2c.bittimer <= i2c.bittimer - 1;
@@ -336,8 +366,7 @@ begin
                         i2c.state <= send_stopbit_third;
                     end if;
                 when send_stopbit_third =>
-                    -- SCL high, SCL low, will be set high in idle,
-                    -- so there is no need to set SDA high here.
+                    -- SCL high, SDA high
                     i2c.scl_out <= '1';
                     i2c.sda_out <= '1';
                     -- Count bit timer
@@ -357,6 +386,25 @@ begin
                         i2c.hardstop <= '0';
                         -- Unregister that we are transmitting
                         i2c.trans <= '0';
+                    end if;
+                when stretch =>
+                    -- Clock is stretched
+                    -- Load bit time for high perriod
+                    i2c.bittimer <= to_integer(unsigned(i2c.baud));
+                    -- Set the rise time of SCL in clock pulses
+                    if i2c.fm = '1' then
+                        i2c.trise <= crise_fm_c;
+                    else
+                        i2c.trise <= crise_sm_c;
+                    end if;
+                    -- Check if SCL is released...
+                    if i2c.sclsync(1) /= '0' then
+                        -- Resume transmission
+                        i2c.state <= send_data_second;
+                    end if;
+                    -- If detected rising edge on external SCL, clock in SDA.
+                    if i2c.sclsync(1) = '0' and i2c.sclsync(0) /= '0' then
+                        i2c.rxbuffer <= i2c.rxbuffer(7 downto 0) & i2c.sdasync(1);
                     end if;
                 when others =>
                     i2c.state <= idle;

@@ -525,6 +525,9 @@ end component uart;
 
 -- I2C
 component i2c is
+    generic (
+          SYSTEM_FREQUENCY : integer
+         );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- 
@@ -1106,6 +1109,9 @@ begin
     -- I2C1 - A master-only I2C device
     i2c1gen : if HAVE_I2C1 generate
         i2c1 : i2c
+        generic map (
+                  SYSTEM_FREQUENCY => SYSTEM_FREQUENCY
+                 )
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
@@ -1135,6 +1141,9 @@ begin
     -- I2C2 - A master-only I2C device
     i2c2gen : if HAVE_I2C2 generate
         i2c2 : i2c
+        generic map (
+                  SYSTEM_FREQUENCY => SYSTEM_FREQUENCY
+                 )
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,

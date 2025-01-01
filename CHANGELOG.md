@@ -35,4 +35,5 @@ All dates are in dd.mm.yyyy format.
 | 14.12.2024 | 1.1.0.0  | New release. Completely new I/O sub-system | |
 | 17.12.2024 | 1.1.0.1  | [rom_image] New ROM image | |
 | 22.12.2024 | 1.1.0.2  | [core] PC bit 0 is now always 0 on JALR, [i2c] removed some redundancies | |
+| 01.01.2025 | 1.1.0.3  | [i2c] Added clock stretching support | |
 

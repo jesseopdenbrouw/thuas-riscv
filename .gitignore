@@ -3,6 +3,7 @@ docs/*.synctex.gz
 sw-test/*
 rtl/thuas-riscv-test/*
 rtl/io/*
+rtl/mem/*
 #eclipse/*
 rtl/thuas-riscv/db
 rtl/thuas-riscv/rtl_work

@@ -67,7 +67,7 @@ constant crise_sm_c : integer := SYSTEM_FREQUENCY / 1000000 + 2;
 constant crise_fm_c : integer := 300 * (SYSTEM_FREQUENCY / 1000000) / 1000 + 2;
 
 -- States for the state machine
-type i2cstate_type is (idle, send_startbit, send_data_first, send_data_second, leadout,
+type i2cstate_type is (idle, send_startbit, send_data_first, send_data_second,
                        send_stopbit_first, send_stopbit_second, send_stopbit_third,
                        stretch);
                         
@@ -317,27 +317,17 @@ begin
                             if i2c.stop = '1' then
                                 i2c.state <= send_stopbit_first;
                             else
-                                i2c.state <= leadout;
+                                i2c.state <= idle;
+                                i2c.tc <= '1';
+                                i2c.data <= i2c.rxbuffer(8 downto 1);
+                                i2c.af <= i2c.rxbuffer(0);
+                                --i2c.state <= leadout;
                             end if;
                         end if;
                     end if;
                     -- If detected rising edge on external SCL, clock in SDA.
                     if i2c.sclsync(1) = '0' and i2c.sclsync(0) /= '0' then
                         i2c.rxbuffer <= i2c.rxbuffer(7 downto 0) & i2c.sdasync(1);
-                    end if;
-                when leadout =>
-                    -- SCL low, SDA high
-                    i2c.scl_out <= '0';
-                    i2c.sda_out <= '1';
-                    -- Count bit time
-                    if i2c.bittimer > 0 then
-                        i2c.bittimer <= i2c.bittimer - 1;
-                    else
-                        --i2cbittimer <= to_integer(unsigned(i2cctrl_int(31 downto 16)));
-                        i2c.state <= idle;
-                        i2c.tc <= '1';
-                        i2c.data <= i2c.rxbuffer(8 downto 1);
-                        i2c.af <= i2c.rxbuffer(0);
                     end if;
                 when send_stopbit_first =>
                     -- SCL low, SDA low

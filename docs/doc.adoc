@@ -38,7 +38,7 @@ image::images/soc.svg[Image of SoC]
 The RISC-V processor consists of one core and some building blocks:
 
 * The core handles program execution.
-* The ROM contains the program instructions and constant data. When the bootloader is implemented, the ROM may be written.
+* The ROM contains the program instructions and constant data. When the bootloader or the on-chip debugger is implemented, the ROM may be written.
 * The bootloader ROM contains the bootloader program instructions and constant (read-only) data. The bootloader ROM may be excluded from the design
 * The RAM contains read-write data (mutable data).
 * The I/O (multiple files) is an interface with the outside world.
@@ -135,7 +135,7 @@ Exceptions are synchronous to the executing of instructions. When an exception o
 
 An ongoing memory access can only be interrupted by an exception (`mem` state). An ongoing hardware multiply/divide operation is *not* interrupted, the operation completes and writes back the result in a register.
 
-When a trap request is asserted, the trap vector from the `mtvec` CSR is loaded in the next clock cycle. Then, in the second clock cycle, the instruction is fetched and in the third clock cycle the instruction is decoded and in the fourth cycle the instruction is executed. On return from a trap handler, using `mret`, the original contents of the PC is fetched from the `mepc` CSR and then instructions are fetched. A return flushes the pipeline.
+When a trap request is asserted, the trap vector from the `mtvec` CSR is loaded in the next clock cycle. Then, in the second clock cycle, the instruction is fetched and in the third clock cycle the instruction is decoded and in the fourth cycle the instruction is executed. On return from a trap handler, using `mret`, the original contents of the PC is fetched from the `mepc` CSRi, the pipeline is flushed and new instructions are fetched. A return takes 3 clock cycles.
 
 The following exceptions are implemented:
 
@@ -823,7 +823,7 @@ The `sbrk` system call, used for allocating RAM memory, is implemented. Note tha
 
 The `gettimeofday` system call is implemented. It returns the seconds and microseconds since the last reset of the processor. You need to call the `gettimeofday` C function for proper handling. This system call is used with older versions of `newlib`.
 
-The `clock_gettim64` system call is implemented. It returns the seconds and microseconds since the last reset of the processor. You need to call the `gettimeofday` C function for proper handling. This system call is used with newer versions of `newlib`.
+The `clock_gettime64` system call is implemented. It returns the seconds and microseconds since the last reset of the processor. You need to call the `gettimeofday` C function for proper handling. This system call is used with newer versions of `newlib`.
 
 The `times` system call is implemented, but only for non-trap system calls. When using trapped systems calls (using ECALL), `gettimeofday` is used.
 

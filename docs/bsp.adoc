@@ -1,6 +1,4 @@
-
 = Board Support Package
-
 :toc:
 
 == CSR

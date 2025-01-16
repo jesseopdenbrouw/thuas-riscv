@@ -9,5 +9,5 @@ These functions concern the CSR
 
 `uint64_t csr_get_cycle(void)`
 
-Get the current cycle count since last reset as a 64-bit unsigned number.
+	Get the current cycle count since last reset as a 64-bit unsigned number.
 

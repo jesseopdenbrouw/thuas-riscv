@@ -1,6 +1,8 @@
 = Board Support Package
 :toc:
 
+:sectnums:
+
 == CSR
 
 These functions concern the CSR

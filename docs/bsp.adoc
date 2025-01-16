@@ -5,9 +5,26 @@
 
 == CSR
 
-These functions concern the CSR
+These functions concern the CSR:
 
 `uint64_t csr_get_cycle(void)`
 
 * Get the current cycle count since last reset as a 64-bit unsigned number.
 
+`uint64_t csr_get_instret(void)`
+
+* Get the number of retired instructions since last reset as a 64-bit unsigned number.
+
+`uint64_t csr_get_time(void)`
+
+* Get the number of microseconds since last reset as a 64-bit unsigned number.
+
+`uint64_t csr_get_mhpmcounter3(void)` +
+`uint64_t csr_get_mhpmcounter4(void)` +
+`uint64_t csr_get_mhpmcounter5(void)` +
+`uint64_t csr_get_mhpmcounter6(void)` +
+`uint64_t csr_get_mhpmcounter7(void)` +
+`uint64_t csr_get_mhpmcounter8(void)` +
+`uint64_t csr_get_mhpmcounter9(void)`
+
+* Get the number of counter events since last reset as a 64-bit unsigned number. Note: Zihpm extenion must be enabled in the hardware.

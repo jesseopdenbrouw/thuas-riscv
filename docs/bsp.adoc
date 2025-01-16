@@ -28,3 +28,25 @@ These functions concern the CSR:
 `uint64_t csr_get_mhpmcounter9(void)`
 
 * Get the number of counter events since last reset as a 64-bit unsigned number. Note: Zihpm extenion must be enabled in the hardware.
+
+These macros concern the CSR:
+
+`csr_read(csr)`
+
+* Returns the 32-bit unsigned contents of a CSR register.
+
+`csr_write(csr, val)`
+
+* Writes the 32-bits value in `val` to the given CSR register.
+
+`csr_set(csr, val)`
+
+* Set bits in named CSR register
+
+`csr_clear(csr, val)`
+
+* Clear bits in named CSR register
+
+
+More to be added.
+

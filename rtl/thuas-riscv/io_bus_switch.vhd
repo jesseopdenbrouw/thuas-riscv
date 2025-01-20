@@ -233,7 +233,7 @@ begin
     end process;
 
     -- Generate the I/O response WITH buffering
-    -- I/O read/write takes 1 clock latancy now
+    -- I/O read/write takes 1 clock latency now
     bufferresponsegen: if BUFFER_IO_RESPONSE generate
         process (I_clk, I_areset) is
         begin

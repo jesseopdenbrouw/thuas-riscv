@@ -37,4 +37,6 @@ All dates are in dd.mm.yyyy format.
 | 22.12.2024 | 1.1.0.2  | [core] PC bit 0 is now always 0 on JALR, [i2c] removed some redundancies | |
 | 01.01.2025 | 1.1.0.3  | [i2c] Added clock stretching support | |
 | 03.01.2025 | 1.1.0.4  | [i2c] Removed `leadout` state, it is not needed | |
+| 20.01.2025 | 1.1.0.5  | [gpio] Added Port Set and Clear registers | |
+
 

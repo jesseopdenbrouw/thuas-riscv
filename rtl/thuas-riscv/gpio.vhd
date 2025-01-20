@@ -104,6 +104,12 @@ begin
                     -- Write on GPIO outputs (0x04)
                     elsif I_mem_request.addr(4 downto 2) = "001" then
                         gpio.pout <= I_mem_request.data;
+                    -- Bit set (0x08)
+                    elsif I_mem_request.addr(4 downto 2) = "010" then
+                        gpio.pout <= gpio.pout or I_mem_request.data;
+                    -- Bit clear (0x0c)
+                    elsif I_mem_request.addr(4 downto 2) = "011" then
+                        gpio.pout <= gpio.pout and not I_mem_request.data;
                     -- Write GPIO external ctrl register (0x18)
                     elsif I_mem_request.addr(4 downto 2) = "110" then
                         gpio.pinnr <= I_mem_request.data(7 downto 3);

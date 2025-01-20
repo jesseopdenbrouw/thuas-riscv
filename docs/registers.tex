@@ -1,7 +1,7 @@
 %
 % THUAS RISC-V RV32: Register layout of the I/O
 %
-% (c)2024, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+% (c)2025, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
 %
 
 \documentclass[12pt]{article}
@@ -80,7 +80,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \regfield{PIN}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
-\begin{regdesc}[0.6\textwidth]\begin{reglist}[000000]
+\begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
 \item[PIN] Port pin input values.
 \end{reglist}\end{regdesc}
@@ -91,9 +91,29 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \regfield{POUT}{32}{0}{{0}}
 \reglabel{Reset}\regnewline%
 \end{register}
-\begin{regdesc}[0.6\textwidth]\begin{reglist}[000000]
+\begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
 \item[POUT] Port pin output values. Write: The data is written to the output pins. Read: The last entered data is read back.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{Port A output set register GPIOA\_PSET}{0x008}%
+\label{pset}%
+\regfield{PSET}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
+\itemsep-1.5ex
+\item[PSET] Set atomically bits in the GPIOA output register. If a bit is 1, the corresponding bit in GPIOA\_POUT register is set. If a bit is 0, there is no change to the corrensponding GPIOA\_POUT bit.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{Port A output clear register GPIOA\_PCLK}{0x00c}%
+\label{pclr}%
+\regfield{PCLR}{32}{0}{{0}}
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
+\itemsep-1.5ex
+\item[PCLR] Clear atomically bits in the GPIOA output register. If a bit is 1, the corresponding bit in GPIOA\_POUT register is cleared. If a bit is 0, there is no change to the corrensponding GPIOA\_POUT bit.
 \end{reglist}\end{regdesc}
 
 \begin{register}{H}{External input interrupt control register GPIOA\_EXTC}{0x018}%
@@ -267,7 +287,7 @@ Size depends on the SIZE field in the UART2 Control Register.
 
 
 \subsection{I2C1 -- Inter-Integrated Circuit master-only controller}
-General purpose I\textsuperscript{2}C peripheral, with programmable baud rate prescaler, start- and stopbit generation, no clock stretching, no arbitration, Standard mode (Sm) and Fast mode (Fm) only.
+General purpose I\textsuperscript{2}C peripheral, with programmable baud rate prescaler, start- and stopbit generation, support for clock stretching, no arbitration, Standard mode (Sm) and Fast mode (Fm) only.
 
 \begin{register}{H}{I2C1 control register I2C1\_CTRL}{0x200}
 \label{i2c1ctrl}
@@ -330,7 +350,7 @@ Read: The last received data is read.
 
 
 \subsection{I2C2 -- Inter-Integrated Circuit master-only controller}
-General purpose I\textsuperscript{2}C peripheral, with programmable baud rate prescaler, start- and stopbit generation, no clock stretching, no arbitration, Standard mode (Sm) and Fast mode (Fm) only.
+General purpose I\textsuperscript{2}C peripheral, with programmable baud rate prescaler, start- and stopbit generation, support for clock stretching, no arbitration, Standard mode (Sm) and Fast mode (Fm) only.
 
 \begin{register}{H}{I2C2 control register I2C2\_CTRL}{0x300}
 \label{i2c2ctrl}

@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2024, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -1421,7 +1421,7 @@ begin
         -- Register: exec & retire
         -- Registers in ALM flip-flops, x0 (zero) hardwired to all 0.
         -- Registers are cleared on reset
-        process (I_clk, I_areset, id_ex.rd, I_instr_response.instr, I_dm_core_data_request.address) is
+        process (I_clk, I_areset, control.indebug, id_ex.rd, I_instr_response.instr, I_dm_core_data_request.address) is
         variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
         begin
             if control.indebug = '1' then
@@ -2094,7 +2094,6 @@ begin
     end process;
     -- Address of the memory operation, this is a simple copy
     -- outside the rising edge to make 1 register instead of 2
---    O_bus_request.addr <= I_dm_core_data_request.address when control.indebug = '1' else csr_transfer.address_to_mtval;
     O_bus_request.addr <= csr_transfer.address_to_mtval;
     
     

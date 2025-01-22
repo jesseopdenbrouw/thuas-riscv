@@ -103,7 +103,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \end{register}
 \begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
-\item[PSET] Set atomically bits in the GPIOA output register. If a bit is 1, the corresponding bit in GPIOA\_POUT register is set. If a bit is 0, there is no change to the corrensponding GPIOA\_POUT bit.
+\item[PSET] Set atomically bits in the GPIOA output register. If a bit is 1, the corresponding bit in GPIOA\_POUT register is set. If a bit is 0, there is no change to the corrensponding GPIOA\_POUT bit. This register is write-only. Reads return all-zero bits.
 \end{reglist}\end{regdesc}
 
 \begin{register}{H}{Port A output clear register GPIOA\_PCLR}{0x00c}%
@@ -113,7 +113,7 @@ The default start address is 0xF0000000. The offset is given in bytes. Note that
 \end{register}
 \begin{regdesc}[0.7\textwidth]\begin{reglist}[000000]
 \itemsep-1.5ex
-\item[PCLR] Clear atomically bits in the GPIOA output register. If a bit is 1, the corresponding bit in GPIOA\_POUT register is cleared. If a bit is 0, there is no change to the corrensponding GPIOA\_POUT bit.
+\item[PCLR] Clear atomically bits in the GPIOA output register. If a bit is 1, the corresponding bit in GPIOA\_POUT register is cleared. If a bit is 0, there is no change to the corrensponding GPIOA\_POUT bit. This register is write-only. Reads return all-zero bits.
 \end{reglist}\end{regdesc}
 
 \begin{register}{H}{External input interrupt control register GPIOA\_EXTC}{0x018}%

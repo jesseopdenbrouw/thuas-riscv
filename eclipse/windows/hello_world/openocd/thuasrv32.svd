@@ -4,7 +4,7 @@
   <vendor>jesseopdenbrouw</vendor>
   <name>thuasrv32</name>
   <series>RISC-V</series>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <description>The THUAS RV32 RISC-V Processor</description>
 
   <!-- CPU core -->
@@ -104,6 +104,18 @@
           <addressOffset>0x04</addressOffset>
         </register>
         <register>
+          <name>PSET</name>
+          <description>Bit set register</description>
+          <addressOffset>0x08</addressOffset>
+          <access>write-only</access>
+        </register>
+        <register>
+          <name>PCLR</name>
+          <description>Bit clear register</description>
+          <addressOffset>0x0c</addressOffset>
+          <access>write-only</access>
+        </register>
+        <register>
           <name>EXTC</name>
           <description>External input interrupt control register</description>
           <addressOffset>0x18</addressOffset>
@@ -114,7 +126,7 @@
               <description>Select Edge</description>
             </field>
             <field>
-              <name>PIN</name>
+              <name>PINNR</name>
               <bitRange>[7:3]</bitRange>
               <description>GPIO Pin input Select</description>
             </field>

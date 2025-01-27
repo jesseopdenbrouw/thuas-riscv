@@ -105,6 +105,8 @@ begin
               FAST_DIVIDE => TRUE,
               -- Do we have the Zba extension?
               HAVE_ZBA => false,
+              -- Do we have Zbb (bit instructions)?
+              HAVE_ZBB => TRUE,
               -- Do we have Zbs (bit instructions)?
               HAVE_ZBS => false,
               -- Do we have Zicond (czero.{eqz|nez})?

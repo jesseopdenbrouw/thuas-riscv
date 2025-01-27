@@ -38,5 +38,5 @@ All dates are in dd.mm.yyyy format.
 | 01.01.2025 | 1.1.0.3  | [i2c] Added clock stretching support | |
 | 03.01.2025 | 1.1.0.4  | [i2c] Removed `leadout` state, it is not needed | |
 | 20.01.2025 | 1.1.0.5  | [gpio] Added Port Set and Clear registers | |
-
+| 27.01.2024 | 1.1.0.6  | [core] Added Zbb extensioni, [common] added functions for use with Zbb | |
 

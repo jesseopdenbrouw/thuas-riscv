@@ -68,6 +68,8 @@ entity riscv is
           FAST_DIVIDE : boolean;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean;
+          -- Do we have Zbb (bit instructions)?
+          HAVE_ZBB : boolean;
           -- Do we have Zbs (bit instructions)?
           HAVE_ZBS : boolean;
           -- Do we have Zicond (czero.{eqz|nez})?
@@ -173,6 +175,8 @@ component core is
           FAST_DIVIDE : boolean;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean;
+          -- Do we have Zbb (bit instructions)?
+          HAVE_ZBB : boolean;
           -- Do we have Zbs (bit instructions)?
           HAVE_ZBS : boolean;
           -- Do we have Zicnd (czero.{eqz|nez})?
@@ -714,6 +718,7 @@ begin
               HAVE_MULDIV => HAVE_MULDIV,
               FAST_DIVIDE => FAST_DIVIDE,
               HAVE_ZBA => HAVE_ZBA,
+              HAVE_ZBB => HAVE_ZBB,
               HAVE_ZBS => HAVE_ZBS,
               HAVE_ZICOND => HAVE_ZICOND,
               HAVE_ZIHPM => HAVE_ZIHPM,

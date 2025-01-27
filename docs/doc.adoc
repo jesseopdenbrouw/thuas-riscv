@@ -11,7 +11,7 @@ J.E.J.opdenBrouw@hhs.nl
 
 == Abstract
 
-This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba and Zbs (bit operations), Zihpm (extra counters) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 23.1 and QuestaSim Intel Starter Edition 2023.3. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
+This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba, Zbb and Zbs (bit operations), Zihpm (extra counters) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 23.1 and QuestaSim Intel Starter Edition 2023.3. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
 
 The processor has a three-stage pipeline and executes each instruction in three clock cycles, but the next instructions are fetched and decoded while the current instruction is executed. Jump/branches taken require three clock cycles. Memory reads need three clock cycles, writes take two clock cycles, except for I/O where writes take three clock cycles. This processor also has a basic Control and Status Registers (CSR) set, suitable to handle traps, and a hardware integer multiplier/divider.
 
@@ -21,7 +21,7 @@ This is work in progress. Things will certainly change in the future.
 
 == Introduction
 
-This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and Sdtrig extensions are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
+This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbb, Zbs, Sdext and Sdtrig extensions are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
 
 The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings.
 
@@ -178,7 +178,7 @@ Generic registers:
 * `mimpid` -- this register is hardwired to the current version of the hardware.
 * `mhartid` -- this register is hardwired to all zero bits.
 * `mconfigptr` -- this register is hardwired to all zero bits.
-* `misa` -- hardwired to value 0x40001100, indicating 32-bit processing, RV32I base ISA and Integer Multiply/Divide extension, or hardwired to 0x40001010 for E extension. If the MD unit is excluded from the design, bit 12 of `misa` is 0.
+* `misa` -- hardwired to value 0x40001100, indicating 32-bit processing, RV32I base ISA and Integer Multiply/Divide extension, or hardwired to 0x40001010 for E extension. If the MD unit is excluded from the design, bit 12 of `misa` is 0. If the Zba, Zbb and Zbs extensions are all enabled, bit 1 of `misa` (B extension) is set.
 
 For trap handling, the following registers are implemented:
 
@@ -254,7 +254,7 @@ The core is equipped with a trigger module +(TM)+ that can be used with on-chip 
 
 === Implemented instructions
 
-For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. Also, the Zicsr, Zba, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
+For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. Also, the Zicsr, Zba, Zbb, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
 
 == Reset
 
@@ -394,7 +394,7 @@ The processor hardware is composed of the following VHDL files:
 
 * `processor_common.vhd` -- Common types and constants.
 * `address_decode.vhd` -- The address decoder and data router to the memory
-* `core.vhd` -- The core contains the PC, the registers, the ALU, the MD unit, the control state machine, the memory interface, the CSR, the LIC and debug hardware.
+* `core.vhd` -- The core contains the PC, the registers, the instruction decoder, the ALU, the MD unit, the control state machine, the memory interface, the CSR, the LIC and debug hardware.
 * `instr_router.vhd` -- Description of the instruction router.
 * `rom.vhd` -- Description of the ROM. Will be placed in onboard, initialized RAM blocks. 
 * `rom_image.vhd` -- Description of the ROM contents.
@@ -444,6 +444,8 @@ entity riscv is
           FAST_DIVIDE : boolean;
           -- Do we have Zba (sh?add)
           HAVE_ZBA : boolean;
+          -- Do we have Zbb (bit instructions)?
+          HAVE_ZBB : boolean;
           -- Do we have Zbs (bit instructions)?
           HAVE_ZBS : boolean;
           -- Do we have Zicond (czero.{eqz|nez})?
@@ -659,6 +661,7 @@ Using VHDL generics, the design can be customized.
 |HAVE_MULDIV           | boolean   | TRUE     | Hardware multiply/divide
 |FAST_DIVIDE           | boolean   | false    | Use fast divider
 |HAVE_ZBA              | boolean   | false    | Use Zba extension 
+|HAVE_ZBB              | boolean   | false    | Use Zbb extension 
 |HAVE_ZBS              | boolean   | false    | Use Zbs extension
 |HAVE_ZICOND           | boolean   | false    | Use Zicond extension
 |HAVE_ZIHPM            | boolean   | false    | Use Zihpm extension
@@ -767,7 +770,7 @@ The toolchain is currently configured for 64-bit RISC-V. That is not what we wan
 Enter:
 [source,subs=attributes+]
 ----
-../configure --prefix=/opt/riscv32 --with-arch=rv32im --with-abi=ilp32 --with-multilib-generator="rv32im_zicsr_zba_zbs_zicond-ilp32--;rv32e-ilp32e--"
+../configure --prefix=/opt/riscv32 --with-arch=rv32im --with-abi=ilp32 --with-multilib-generator="rv32im_zicsr_zba_zbb_zbs_zicond-ilp32--;rv32e-ilp32e--"
 ----
 Now enter the `make` command:
 [source,subs=attributes+]
@@ -1035,6 +1038,8 @@ When using floats and doubles in `sprintf`/`printf`, you need to supply the link
 
 Note that `sprintf`/`printf` do not print 64-bit integers (a.k.a. `long long`) because of lack of support in the `nano` library.
 
+Note that enabling the Zba, Zbb and Zbs extensions (B extension), the floating point operations perform around 20% better, but has a severe impact on the $f_{max}$.
+
 
 === srec2vhdl
 
@@ -1235,7 +1240,7 @@ The hart can be in five "states": resetting, running, halting, halted and resumi
 
 To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while it isn't. If the VHDL generic `OCD_AAMPOSTINCREMENT` is set to true, bulk memory accesses will use the auto post-increment feature for the address register, e.g. when uploading a binary executable with GDB. When using OCD, the bootloader is usually disabled.
 
-Note: the OCD is highly experimental. We tested the OCD with OpenOCD, GDB and Eclipse-CDT. When there are issues, please report them to J.E.J.opdenBrouw@hhs.nl.
+Note: the OCD is still considered experimental although we used it a lot. We tested the OCD with OpenOCD, GDB and Eclipse-CDT. When there are issues, please report them to J.E.J.opdenBrouw@hhs.nl.
 
 Tests with the OCD were conducted with an https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE]. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB and Eclipse-CDT.
 
@@ -1403,7 +1408,6 @@ Some future plans:
 * Implement an I/O input/output multiplexer for GPIOA PIN and POUT. This will enable I/O functions to be multiplexed with normal port I/O.
 * Test more functions of the standard and mathematical libraries.
 * It is not possible to print `long long` (i.e. 64-bit) using `printf` et al. When using the format specifier `%lld`, `printf` just prints `ld`. This due to lack of support in the `nano` library.
-* Adding Zbb extension.
 * To start the pre-programmed bootloader, make sure the UART1 RxD pin is connected to a serial device OR make sure this pin is pulled high (DE0-CV board).
 
 
@@ -1593,7 +1597,9 @@ extern "C" {
 typedef struct {
     volatile uint32_t PIN;         /** Port input */
     volatile uint32_t POUT;        /** Port output */
-    volatile uint32_t reserved[4];
+    volatile uint32_t PSET;        /** Port pin set */
+    volatile uint32_t PCLR;        /** Port pin clear */
+    volatile uint32_t reserved[2];
     volatile uint32_t EXTC;        /** External interrupt control */
     volatile uint32_t EXTS;        /** External interrupt status */
 } GPIO_struct_t;

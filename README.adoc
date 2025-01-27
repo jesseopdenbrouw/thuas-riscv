@@ -8,7 +8,7 @@ for an FPGA.
 == Quick info
 
 This RISC-V microcontroller uses the RV32IM instruction set
-and the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbs, Sdext and
+and the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbb, Zbs, Sdext and
 Sdtrig extensions. The microcontroller is build around a
 three-stage pipelined core.
 
@@ -38,7 +38,7 @@ compiler.
 
 == Current flavor
 
-The design is equipped with bootloader and on-chip debugger
+The design can be equipped with bootloader and on-chip debugger
 hardware (both can be switched off). The bootloader can
 be used without the on-chip debugger to upload executables
 to the processor. The on-chip debugger can be used with
@@ -160,7 +160,6 @@ Take a short tour on xref:docs/xpack.adoc[Installing xPacks on Windows 11].
 * Implement an I/O input/output multiplexer for GPIOA PIN and POUT. This will enable I/O functions to be multiplexed with normal port I/O.
 * Test more functions of the standard and mathematical libraries.
 * It is not possible to print `long long` (i.e. 64-bit) using `printf` et al. When using the format specifier `%lld`, `printf` just prints `ld`. This due to lack of support in the `nano` library.
-* Adding Zbb extension.
 * To start the pre-programmed bootloader, make sure the UART1 RxD pin is connected to a serial device OR make sure this pin is pulled high (DE0-CV board).
 
 == Disclaimer

@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_00_05#;
+    constant HW_VERSION : integer := 16#01_01_00_06#;
 
     
     -- Used data types
@@ -99,7 +99,13 @@ package processor_common is
                          alu_sh1add, alu_sh2add, alu_sh3add,       -- Zba
                          alu_bclr, alu_bclri, alu_bext, alu_bexti, -- Zbs
                          alu_binv, alu_binvi, alu_bset, alu_bseti, -- Zbs
-                         alu_czeroeqz, alu_czeronez                -- Zicond
+                         alu_czeroeqz, alu_czeronez,               -- Zicond
+                         alu_andn, alu_orn, alu_xnor,              -- Zbb
+                         alu_clz, alu_ctz, alu_cpop,               -- Zbb
+                         alu_max, alu_maxu, alu_min, alu_minu,     -- Zbb
+                         alu_sextb, alu_sexth, alu_zexth,          -- Zbb
+                         alu_rol, alu_ror, alu_rori,               -- Zbb
+                         alu_orcb, alu_rev8                        -- Zbb
                         );
                         
     -- Control and State register operations
@@ -453,6 +459,8 @@ package processor_common is
                   FAST_DIVIDE : boolean;
                   -- Do we have Zba (sh?add)
                   HAVE_ZBA : boolean;
+                  -- Do we have Zbb (bit instructions)?
+                  HAVE_ZBB : boolean;
                   -- Do we have Zbs (bit instructions)?
                   HAVE_ZBS : boolean;
                   -- Do we have Zicond (czero.{eqz|nez})?
@@ -562,6 +570,15 @@ package processor_common is
     -- Function to reduce an EXOR of std_logic_vector bits
     function xor_reduce(input : std_logic_vector) return std_logic;
 
+    -- Function to count ones in input
+    function count_ones(input : data_type) return data_type;
+    
+    -- Count leading zeros
+    function count_leading_zeros(input : data_type) return data_type;
+
+    -- Count trailing zeros
+    function count_trailing_zeros(input : data_type) return data_type;
+
     end package processor_common;
 
 package body processor_common is
@@ -640,5 +657,83 @@ package body processor_common is
         end loop;
         return xor_v;
     end function xor_reduce;
+    
+    -- Function to count ones in input (popcount)
+    function count_ones(input : data_type) return data_type is
+    variable count_v : integer range 0 to input'length-1;
+    begin
+        count_v := 0;
+        if input = all_ones_c then
+            return std_logic_vector(to_unsigned(32, 32));
+        end if;
+        for i in input'range loop
+            if input(i) = '1' then count_v := count_v + 1; end if;
+        end loop;
+        return std_logic_vector(to_unsigned(count_v, 32));
+    end function count_ones;
+
+    -- Count leading zeros
+    function count_leading_zeros(input : data_type) return data_type is
+    variable n_v : integer range 0 to 31;
+    variable a_v : data_type;
+    begin
+        n_v := 0;
+        a_v := input;
+        if a_v = all_zeros_c then
+            return std_logic_vector(to_unsigned(32, 32));
+        end if;
+        if a_v(31 downto 16) = x"0000" then
+            n_v := n_v + 16;
+            a_v := a_v(15 downto 0) & x"0000";
+        end if;
+        if a_v(31 downto 24) = x"00" then
+            n_v := n_v + 8;
+            a_v := a_v(23 downto 0) & x"00";
+        end if;
+        if a_v(31 downto 28) = x"0" then
+            n_v := n_v + 4;
+            a_v := a_v(27 downto 0) & x"0";
+        end if;
+        if a_v(31 downto 30) = "00" then
+            n_v := n_v + 2;
+            a_v := a_v(29 downto 0) & "00";
+        end if;
+        if a_v(31) = '0' then
+            n_v := n_v + 1;
+        end if;
+        return std_logic_vector(to_unsigned(n_v, 32));
+    end function count_leading_zeros;
+    
+    -- Count trailing zeros
+    function count_trailing_zeros(input : data_type) return data_type is
+    variable n_v : integer range 0 to 31;
+    variable a_v : data_type;
+    begin
+        n_v := 0;
+        a_v := input;
+        if a_v = all_zeros_c then
+            return std_logic_vector(to_unsigned(32, 32));
+        end if;
+        if a_v(15 downto 0) = x"0000" then
+            n_v := n_v + 16;
+            a_v := x"0000" & a_v(31 downto 16);
+        end if;
+        if a_v(7 downto 0) = x"00" then
+            n_v := n_v + 8;
+            a_v := x"00" & a_v(31 downto 8);
+        end if;
+        if a_v(3 downto 0) = x"0" then
+            n_v := n_v + 4;
+            a_v := x"0" & a_v(31 downto 4);
+        end if;
+        if a_v(1 downto 0) = "00" then
+            n_v := n_v + 2;
+            a_v := "00" & a_v(31 downto 2);
+        end if;
+        if a_v(0) = '0' then
+            n_v := n_v + 1;
+        end if;
+        return std_logic_vector(to_unsigned(n_v, 32));
+    end function count_trailing_zeros;
     
 end package body processor_common;

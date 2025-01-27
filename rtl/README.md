@@ -1,7 +1,7 @@
 # Hardware
 
 This directory contains the hardware description of the
-THUAS RISC-V RV32IM Zicsr Zicntr Zicond Zihpm Zba Zbs
+THUAS RISC-V RV32IM Zicsr Zicntr Zicond Zihpm Zba Zbb Zbs
 Sdext Sdtrig 32-bit processor.
 
 
@@ -11,8 +11,15 @@ This is a version of the three-stage pipelined processor
 and incorporates a hardcoded bootloader and on-chip debugger.
 The bootloader is located at address 0x10000000. The bootloader
 is able to load an S-record file into the ROM at address
-0x00000000 using the `upload` program. The on-chip debugger
-is compatible with OpenOCD and GDB.
+0x00000000 using the `upload` program. By default, the
+bootloader is disabled. The on-chip debugger is compatible
+with OpenOCD and GDB. By default, the on-chip debugger is enabled.
+
+## On-chip Debugger
+
+The on-chip debugger is compatible with the RISC-V Debug
+Specification 1.0.0-rc3. It supports OpenOCD and GDB.
+Eclipse-CDT is supported.
 
 ## Bootloader
 
@@ -27,16 +34,6 @@ If `upload` contacts the bootloader within the 5 second
 delay, the S-record file is transmitted to the processor
 and the instructions are placed in the ROM. Make
 sure that NO terminal connection (e.g. Putty) is active.
-
-The registers may be optionally placed in FPGA flip-flops.
-This will speed up the design a little bit but also uses
-about 1000 extra flip-flops.
-
-## On-chip Debugger
-The on-chip debugger is compatible with the RISC-V Debug
-Specification 1.0.0-rc3. It supports OpenOCD and GDB.
-Eclipse-CDT is supported.
-
 
 ## Status
 This version runs without any modification directly on

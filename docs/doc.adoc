@@ -221,7 +221,7 @@ For on-chip debugging purposes, there are six CSRs:
 * `dcsr` -- this register holds information between the DM and the hart.
 * `dpc` -- this register hold the PC value of the instruction to be executed when the core enters debug mode.
 * `tselect` -- this register is used to select a hardware breakpoint, since there is only one hardware breakpoint available this register is hardwired to all-zero bits.
-* `tdata1` -- this register selects the trigger type for hardware triggering, only type 6 is supported, and only instruction address breakpoint is available.
+* `tdata1` -- this register selects the trigger type for hardware triggering, only type 6 is supported, and only instruction address breakpoint, word aligned, is available.
 * `tdata2` -- this register holds the instruction address of the breakpoint.
 * `tinfo` -- this register holds additional trigger information.
 
@@ -358,17 +358,17 @@ To find the best compilation result for speed and/or area, we have to tweak the 
 
 Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed is set to 1 and the optimization is set to balanced. The total amount of ALMs is 18480. The total amount of RAM bits is 3153920.
 
-.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.1.0.0).
+.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.1.1.0).
 [[tab_metrics]]
 [cols="1,1,1,1]
 |===
 | Setup | $f_{max}$ | ALMs | FFs | RAM
 
-| Default OCD (all I/O, MD, no extensions, no boot)  | 89 | 3183 | 3130 | 1,313,792
-| Default OCD + perf. options                        | 92 | 3183 | 3161 | 1,313,792
-| Full OCD (all extensions, fast divider, no boot)   | 86 | 4366 | 3594 | 1,313,792
-| Default bootloader (no OCD)                        | 92 | 2633 | 2569 | 1,345,536
-| Small (UART1, no boot, no MD, no OCD)              | 93 | 1720 | 1249 | 788,480 
+| Default OCD (all I/O, MD, no extensions, no boot)  | 87 | 3244 | 3144 | 1,313,792
+| Default OCD + perf. options                        | 93 | 3244 | 3153 | 1,313,792
+| Full OCD (all extensions, fast divider, no boot)   | 78 | 4601 | 3634 | 1,313,792
+| Default bootloader (no OCD)                        | 89 | 2623 | 2552 | 1,345,536
+| Small (UART1, no boot, no MD, no OCD)              | 90 | 1735 | 1254 | 788,480 
 |===
 
 Note: UART2 is never included. +
@@ -626,11 +626,11 @@ The pin assignments for the DE0-CV board are as follows. Note that not all signa
 |i2c1sda       | C16      | GPIO_0_D3, I2C1 SDA
 |i2c2scl       | K20      | GPIO_0_D5, I2C2 SCL
 |i2c2sda       | K22      | GPIO_0_D7, I2C2 SDA
-|tck           | P18      | GPIO_0_27 , JTAG clock
-|tdi           | R17      | GPIO_0_29 , JTAG data in
-|tdo           | T20      | GPIO_0_31 , JTAG data out
-|tms           | T18      | GPIO_0_33 , JTAG select
-|trst          | T15      | GPIO_0_35 , JTAG reset
+|tck           | P18      | GPIO_0_27, JTAG clock
+|tdi           | R17      | GPIO_0_29, JTAG data in
+|tdo           | T20      | GPIO_0_31, JTAG data out
+|tms           | T18      | GPIO_0_33, JTAG select
+|trst          | T15      | GPIO_0_35, JTAG reset
 |===
 
 Some pins are connected to the onboard GPIO headers. The DE0-CV board has two headers but currently only GPIO 0 is used.
@@ -839,7 +839,7 @@ Note: when using traps, the system calls are handled by a trap handler (by using
 
 == Using trap handlers in software
 
-We provide (see software examples `interrupt_direct` and `interrupt_vectored`) a basic implementation of trap handlers. In direct mode, the trap handler handles all traps (interrupts and exceptions). The entry point (the address loaded in the `mtvec` CSR) must be set in the `main` function on a 4-byte boundary, as is enabling traps. In vectored mode, interrupts are redirected to their own handlers via a jump table. The start address of the jump table must be set in the `main` function on a 4-byte boundary *and* bit 0 of `mtvec` must be set to 1, and traps must be enabled. The first entry of the jump table points the trap handler that only handles exceptions. The external timer has its own handler called `external_timer_handler`. The Machine Software Interrupt (MSI) has its own handler calles `external_msi_handler`. I2C1 has its own handler called `i2c1_handler`. I2C2 has its own handler called `i2c2_handler`. TIMER1 has its own handler called `timer1_handler`. TIMER2 has its own handler called `timer2_handler`. Note that there is only one handler for all four interrupt sources. SPI1 has it own handler called `spi1_handler`. UART1 has its own handler called `uart1_handler`. This handler is used for both receive and transmit interrupts. Note that negating an interrupt request must be done by software in the respective handlers. The interrupt requests are *not* negated by hardware. Note: the external timer interrupt has to be enabled by writing a 1 to `mie.MTIE`. Both software examples implement the available interrupts: SPI1, I2C1, SPI2, I2C2, TIMER2, UART1, TIMER1, MSI and external system timer. When using traps, you need to set up the trap handler and interrupt service routines.
+We provide (see software examples `interrupt_direct` and `interrupt_vectored`) a basic implementation of trap handlers. In direct mode, the trap handler handles all traps (interrupts and exceptions). The entry point (the address loaded in the `mtvec` CSR) must be set in the `main` function on a 4-byte boundary, as is enabling traps. In vectored mode, interrupts are redirected to their own handlers via a jump table. The start address of the jump table must be set in the `main` function on a 4-byte boundary *and* bit 0 of `mtvec` must be set to 1, and traps must be enabled. The first entry of the jump table points the trap handler that only handles exceptions. The external timer has its own handler called `external_timer_handler`. The Machine Software Interrupt (MSI) has its own handler calles `external_msi_handler`. I2C1 has its own handler called `i2c1_handler`. I2C2 has its own handler called `i2c2_handler`. TIMER1 has its own handler called `timer1_handler`. TIMER2 has its own handler called `timer2_handler`. Note that there is only one handler for all four interrupt sources. SPI1 has it own handler called `spi1_handler`. UART1 has its own handler called `uart1_handler`. This handler is used for both receive and transmit interrupts. Note that negating an interrupt request must be done by software in the respective handlers. The interrupt requests are *not* negated by hardware. Note: the external timer interrupt has to be enabled by writing a 1 to `mie.MTIE`. Both software examples implement the available interrupts: NMI, SPI1, I2C1, SPI2, I2C2, UART1, TIMER2, TIMER1, UART2, EXTI, MSI and external system timer. When using traps, you need to set up the trap handler and interrupt service routines.
 
 *Set up traps in direct mode.* +
 The trap handler's entry address must be set up using `set_mtvec`. Next, set up the I/O. Then, enable interrupts. The trap handler will be called for both interrupts and exceptions.

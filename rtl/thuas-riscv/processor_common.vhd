@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2024, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_00_06#;
+    constant HW_VERSION : integer := 16#01_01_01_00#;
 
     
     -- Used data types
@@ -428,7 +428,7 @@ package processor_common is
     constant INTR_PRIO_TIMER2 : integer := 21;
     constant INTR_PRIO_TIMER1 : integer := 20;
     constant INTR_PRIO_UART2  : integer := 19;
-    constant INTR_PRIO_EXTI   : integer := 18;
+    constant INTR_PRIO_EXTI   : integer := 18; -- input pin external interrupt
     constant INTR_PRIO_FREE17 : integer := 17;
     constant INTR_PRIO_FREE16 : integer := 16;
     -- System Timer fixed to 7, do not change

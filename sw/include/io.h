@@ -42,7 +42,7 @@ typedef struct {
 
 
 /*
- * UART1
+ * UART1, UART2
  */
 typedef struct {
     volatile uint32_t CTRL;
@@ -191,16 +191,6 @@ typedef struct {
 #define MTIMEH    (*(volatile uint32_t*)(IO_BASE+0x00000a04UL))
 #define MTIMECMP  (*(volatile uint32_t*)(IO_BASE+0x00000a08UL))
 #define MTIMECMPH (*(volatile uint32_t*)(IO_BASE+0x00000a0cUL))
-
-typedef struct {
-    volatile uint32_t time;
-    volatile uint32_t timeh;
-} MTIME_struct_t;
-
-typedef struct {
-    volatile uint32_t timecmp;
-    volatile uint32_t timecmph;
-} MTIMECMP_struct_t;
 
 #ifdef __cplusplus
 }

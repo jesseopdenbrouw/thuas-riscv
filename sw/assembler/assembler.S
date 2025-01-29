@@ -22,20 +22,268 @@
 		li t0, 0x8 | (0x3<<11)
 		csrw mstatus,t0
 
-		la	t0, 0x20000000
 		nop
 		nop
 		nop
 		nop
+/*
+		li t0,0x12345678
+		rev8	t0,t0
 
-		lw	t1, 0(t0)
+		li	t0, 0xffffffff
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
+		srl t0, t0, 1
+		clz	t1, t0
 
-		nop
-		nop
-		nop
-		nop
+		li	t0, 0xffffffff
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
+		ctz	t1, t0
+		sll t0, t0, 1
 
-		sw	zero, 0(t0)
+		li	t0, 0xffffffff
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+		sll t0, t0, 1
+		cpop	t1, t0
+
+		li	t0, 0x11001100
+		orc.b t1, t0
+
+		li	t0, 0xffffffff
+		li	t1, 0x00000001
+		min	t2, t1, t0
+		minu	t2, t1, t0
+		max	t2, t1, t0
+		maxu	t2, t1, t0
+
+		li	t0, 0x0000f000
+		sext.h	t0, t0
+
+		li	t0, 0xff
+		sext.b	t0, t0
+
+		li t0, 0xf0000001
+		li t1, 1
+		rol t2, t0, t1
+		addi t1, t1, 1
+		rol t2, t0, t1
+		li t1, 31
+		rol t2, t0, t1
+
+
+		li t0, 0xf0000001
+		li t1, 1
+		ror t2, t0, t1
+		li t1, 2
+		ror t2, t0, t1
+		li t1, 3
+		ror t2, t0, t1
+		rori t2, t0, 4
+		rori t2, t0, 5
+		rori t2, t0, 6
+		rori t2, t0, 7
+		rori t2, t0, 8
+		rori t2, t0, 9
+		rori t2, t0, 10
+		rori t2, t0, 11
+		rori t2, t0, 12
+		rori t2, t0, 13
+		rori t2, t0, 14
+		rori t2, t0, 15
+		rori t2, t0, 16
+		rori t2, t0, 17
+		rori t2, t0, 18
+		rori t2, t0, 19
+		rori t2, t0, 20
+*/
 
 	einde:
 		nop

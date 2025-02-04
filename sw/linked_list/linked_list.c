@@ -12,7 +12,7 @@
 #endif
 /* Transmission speed */
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 /* The stucture of the node */

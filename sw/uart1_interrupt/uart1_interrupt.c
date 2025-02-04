@@ -1,11 +1,18 @@
 /*
- * uart1_interrupt.c
+ * uart1_interrupt.c - showcase of UART1 interrupts
  *
  */
 
 #include <stdio.h>
 
 #include <thuasrv32.h>
+
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
 
 /* Code in mcause */
 #define MCAUSE_IS_UART1 ((1<<31)+23)
@@ -33,7 +40,7 @@ int main(void)
     char buffer[6];
 
     /* Initialize UART1 */
-    uart1_init(115200, UART_CTRL_EN);
+    uart1_init(BAUD_RATE, UART_CTRL_EN);
 
     /* Register trap handler */
 	set_mtvec(trap_handler, TRAP_DIRECT_MODE);

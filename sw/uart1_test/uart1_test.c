@@ -1,3 +1,8 @@
+/*
+ * uart1_test.c - low level UART1 functionality
+ *
+ */
+
 #include <thuasrv32.h>
 
 /* Frequency of the DE0-CV board */
@@ -6,7 +11,7 @@
 #endif
 /* Transmission speed */
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 int main(void)

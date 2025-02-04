@@ -1,3 +1,8 @@
+/*
+ * interval.c - make intervals of 5 seconds using the clock() function
+ *
+ */
+
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
@@ -12,7 +17,7 @@
 #endif
 /* Transmission speed */
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 int main(void)

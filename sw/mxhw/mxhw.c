@@ -9,7 +9,7 @@
 #define F_CPU (50000000UL)
 #endif
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 int main(void)
@@ -55,6 +55,7 @@ int main(void)
 	uart1_printf("has on-chip debugger: %s\r\n", (hw & CSR_MXHW_OCD) ? "yes" : "no");
 	uart1_printf("has MSI: %s\r\n", (hw & CSR_MXHW_MSI) ? "yes" : "no");
 	uart1_printf("has Buffer I/O reponse: %s\r\n", (hw & CSR_MXHW_BUFFER) ? "yes" : "no");
+	uart1_printf("has Zbb extension: %s\r\n", (hw & CSR_MXHW_ZBB) ? "yes" : "no");
 
 	/* Are HPM counters enabled... */
 	if (hw & CSR_MXHW_ZIHPM) {

@@ -20,6 +20,12 @@
 
 /* For this design */
 #include <thuasrv32.h>
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
 
 #include "dhry.h"
 

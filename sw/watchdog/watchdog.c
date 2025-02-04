@@ -8,7 +8,7 @@
 #define F_CPU (50000000UL)
 #endif
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 //#define DO_WDT_NORESET

@@ -2,6 +2,13 @@
  * ctors.c - Test to see if constructors and destructors work
  */
 
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
+
 #include <thuasrv32.h>
 
 __attribute__ ((constructor)) void foo(void)

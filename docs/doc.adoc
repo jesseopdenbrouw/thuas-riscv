@@ -385,7 +385,7 @@ Performance options: balanced, Advanced Fitter Settings:
 
 We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../boards[here]. The fabric of these FPGAs is faster that of the Cyclone V and speeds of 100+ MHz may be obtained.
 
-We find good speed results when the implementation is set to Default and the implementation is set to Performance+Explore.
+We find good speed results when the synthesis is set to Default and the implementation is set to Performance+Explore.
 
 
 == Processor hardware

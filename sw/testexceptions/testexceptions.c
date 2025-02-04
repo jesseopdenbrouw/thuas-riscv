@@ -91,7 +91,7 @@ int main(void) {
 	/* Instruction misaligned error */
 	/* `here2` marks the spot to return to after the trap */
 	asm volatile (".global here2;"
-                  "li t0,0x00000001;"
+                  "li t0,0x00000002;"
 				  "jr 0(t0);"
 				  "here2: nop;"
                   ::: "t0");

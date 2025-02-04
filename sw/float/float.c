@@ -8,6 +8,13 @@
  *
  */
 
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
+
 int main(void)
 {
 	/* Creates a variable on the stack */

@@ -1,7 +1,14 @@
 #include <stdio.h>
 
 #include "ff.h"
-#include "uart.h"
+#include <thuasrv32.h>
+
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
 
 /* Set to 1 for write test on the SD card */
 #define WRITE_TEST (1)

@@ -60,6 +60,7 @@ MARCHABISTRING = -march=rv32im_zicsr -mabi=ilp32
 
 # Linker specs files
 SPECSSTRING = --specs=../lib/thuas.specs --specs=../lib/nano.specs
+#SPECSSTRING = --specs=../lib/thuas.specs --specs=nano.specs
 
 # Options for the UPLOAD program
 ifeq ($(OS),Windows_NT)

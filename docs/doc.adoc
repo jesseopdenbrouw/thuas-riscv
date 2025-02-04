@@ -1182,7 +1182,7 @@ The ROM contents of the bootloader is created as part of the `make` process and 
 
 === Implications on the hardware design
 
-The design has a separate ROM that incorporates the bootloader. The original ROM, at address 0x00000000 is extended with a write port, together with the instruction read port and the data read port. In fact, the ROM has become a (program) RAM. Because the Cyclone FPGA ROMs (and RAMs) can only have two ports (out/out or in/out), the original ROM hardware is duplicated (by the synthesizer). This takes up onboard RAM blocks, but very few ALMs (cells).
+The design has a separate ROM that incorporates the bootloader. The original ROM, at address 0x00000000 is extended with a write port, together with the instruction read port and the data read port. In fact, the ROM has become a (program) RAM. Because Quartus is not able to deduce a multiport I/O synchronous RAM (2 out and 1 in), the original ROM hardware is duplicated (by the synthesizer) so there are two identical out/in RAM blocks. This takes up onboard RAM blocks, but very few ALMs (cells).
 
 Note that the ROM can only be (over)written with words on a 4-byte boundary.
 
@@ -1434,7 +1434,7 @@ Although this is a bare metal processor, without an operating system, it is poss
 /*
  * Startup file for THUAS RISC-V bare metal processor
  *
- * (c) 2024, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c) 2025, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  * */
 

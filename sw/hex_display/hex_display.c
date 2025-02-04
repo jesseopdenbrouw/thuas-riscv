@@ -1,6 +1,18 @@
-#include <stdint.h>
+/*
+ * hex_display.c - displays hex numbers on the 7-segment displays
+ *
+ */
 
 #include <thuasrv32.h>
+
+/* Frequency of the DE0-CV board */
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+/* Transmission speed */
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
 
 int main(void) {
 

@@ -1,3 +1,8 @@
+/*
+ * clock.c - print out the elapsed time since reset
+ *
+ */
+
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>

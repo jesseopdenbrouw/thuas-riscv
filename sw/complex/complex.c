@@ -1,10 +1,20 @@
+/*
+ * complex.c - check that exp(i * pi) == -1
+ *
+ */
 
-/* check that exp(i * pi) == -1 */
-#include <math.h>        /* for atan */
+#include <math.h>        /* for atan, cexp */
 #include <stdio.h>
 #include <complex.h>
 
 #include <thuasrv32.h>
+
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
 
 int main(void)
 {

@@ -1,3 +1,8 @@
+/*
+ * double.c - do calculations on doubles.
+ *            for use in the simulator
+ */
+
 int main(void) {
 
 	volatile double x = 1.0;

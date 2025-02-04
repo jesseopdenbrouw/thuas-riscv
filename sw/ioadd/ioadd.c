@@ -1,6 +1,18 @@
-#include <stdint.h>
+/*
+ * ioadd.c - read on the switches as binary numbers, add them and display on the leds
+ *
+ */
 
 #include <thuasrv32.h>
+
+/* Frequency of the DE0-CV board */
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+/* Transmission speed */
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
 
 int main(void) {
 

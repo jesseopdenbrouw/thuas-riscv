@@ -2,7 +2,7 @@
 /*
  * Inline routines for interrupt handling
  *
- * (c) 2022, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c) 2025, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  */
 

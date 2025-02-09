@@ -95,50 +95,32 @@ begin
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
             cs_sync <= I_mem_request.cs;
-            if I_mem_request.cs = '1' and cs_sync = '0' and isword then
-                if I_mem_request.wren = '1' then
-                    -- Store time (low 32 bits)
-                    if I_mem_request.addr(3 downto 2) = "00" then
-                        mtime_v(31 downto 0) := unsigned(I_mem_request.data);
-                    end if;
-                    -- Store timeh (high 32 bits)
-                    if I_mem_request.addr(3 downto 2) = "01" then
-                        mtime_v(63 downto 32) := unsigned(I_mem_request.data);
-                    end if;
-                    -- Store compare register (low 32 bits)
-                    if I_mem_request.addr(3 downto 2) = "10" then
-                        mtimecmp_v(31 downto 0) := unsigned(I_mem_request.data);
-                    end if;
-                    -- Store compare register (high 32 bits)
-                    if I_mem_request.addr(3 downto 2) = "11" then
-                        mtimecmp_v(63 downto 32) := unsigned(I_mem_request.data);
-                    end if;
-                else
-                    -- Load time (low 32 bits)
-                    if I_mem_request.addr(3 downto 2) = "00" then
-                        O_mem_response.data <= mtime.mtime;
-                    end if;
-                    -- Load timeh (high 32 bits)
-                    if I_mem_request.addr(3 downto 2) = "01" then
-                        O_mem_response.data <= mtime.mtimeh;
-                    end if;
-                    -- Load compare register (low 32 bits)
-                    if I_mem_request.addr(3 downto 2) = "10" then
-                        O_mem_response.data <= mtime.mtimecmp;
-                    end if;
-                    -- Load compare register (high 32 bits)
-                    if I_mem_request.addr(3 downto 2) = "11" then
-                        O_mem_response.data <= mtime.mtimecmph;
-                    end if;
-                end if;
-                O_mem_response.ready <= '1';
-            end if;
             -- Update system timer
             if prescaler_v = SYSTEM_FREQUENCY/CLOCK_FREQUENCY-1 then
                 prescaler_v := 0;
                 mtime_v := mtime_v + 1;
             else
                 prescaler_v := prescaler_v + 1;
+            end if;
+            if I_mem_request.cs = '1' and cs_sync = '0' and isword then
+                if I_mem_request.wren = '1' then
+                    case I_mem_request.addr(3 downto 2) is
+                        when "00" => mtime_v(31 downto 00) := unsigned(I_mem_request.data);     -- Store time (low 32 bits)
+                        when "01" => mtime_v(63 downto 32) := unsigned(I_mem_request.data);     -- Store timeh (high 32 bits)
+                        when "10" => mtimecmp_v(31 downto 00) := unsigned(I_mem_request.data);  -- Store compare register (low 32 bits)
+                        when "11" => mtimecmp_v(63 downto 32) := unsigned(I_mem_request.data);  -- Store compare register (high 32 bits)
+                        when others => null;
+                    end case;
+                else
+                    case I_mem_request.addr(3 downto 2) is
+                        when "00" => O_mem_response.data <= mtime.mtime;      -- Load time (low 32 bits)
+                        when "01" => O_mem_response.data <= mtime.mtimeh;     -- Load timeh (high 32 bits)
+                        when "10" => O_mem_response.data <= mtime.mtimecmp;   -- Load compare register (low 32 bits)
+                        when "11" => O_mem_response.data <= mtime.mtimecmph;  -- Load compare register (high 32 bits)
+                        when others => null;
+                    end case;
+                end if;
+                O_mem_response.ready <= '1';
             end if;
         end if;
         mtime.mtime <= std_logic_vector(mtime_v(31 downto 0));

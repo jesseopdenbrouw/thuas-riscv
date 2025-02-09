@@ -3086,7 +3086,9 @@ begin
                     csr_reg.mtval <= csr_transfer.address_to_mtval;
                 end if;
                 -- Lock out further NMI interrupts
-                control.nmi_lockout <= '1';
+                if I_intrio(31) = '1' then
+                    control.nmi_lockout <= '1';
+                end if;
             elsif control.trap_release = '1' then
                 -- Copy mpie to mie
                 csr_reg.mstatus(3) <= csr_reg.mstatus(7);

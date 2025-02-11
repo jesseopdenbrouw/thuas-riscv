@@ -1,5 +1,5 @@
 /*
- * spi1_transmit_receive.c -- send and receive buffers via I2C1
+ * spi1_transmit_receive.c -- send and receive buffers via SPI1
  *
  */
 

@@ -1,5 +1,5 @@
 /*
- * spi1_transmit.c -- send a buffer via I2C1
+ * spi1_transmit.c -- send a buffer via SPI1
  *
  */
 

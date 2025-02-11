@@ -37,7 +37,7 @@ These macros concern the CSR:
 
 `csr_write(csr, val)`
 
-* Writes the 32-bits value in `val` to the given CSR register.
+* Writes the unsigned 32-bits value in `val` to the given CSR register.
 
 `csr_set(csr, val)`
 
@@ -62,6 +62,9 @@ These macros concern the CSR:
 `void gpioa_togglepin(uint32_t pin)`
 
 * Toggle the state of a output pin. More than one pin may be toggled in one call.
+
+Note: `pin` is a pin list. Each bit in the 32-bit `pin` is one pin with the same index number.
+`
 
 == I2C
 
@@ -101,6 +104,43 @@ These macros concern the CSR:
 * Transmit a buffer pointed by `buf` with length `len` to the target with address `address`, including START and STOP conditions.
 
 
+== SPI
+
+`void spi1_init(uint32_t value)` +
+`void spi2_init(uint32_t value)`
+
+* Initialize the SPI device.
+
+`void spi1_receive(uint8_t *buf, uint32_t len, uint32_t dummy)` +
+`void spi2_receive(uint8_t *buf, uint32_t len, uint32_t dummy)`
+
+* Receive `len` bytes of data and store them in a buffer pointed by `buf`, while sending bytes with value `dummy`.
+
+`void spi1_transmit(uint8_t *buf, uint32_t len)` +
+`void spi2_transmit(uint8_t *buf, uint32_t len)`
+
+* Transmit `len` bytes of data pointed by `buf`, ignore received data.
+
+`void spi1_transmit_receive(uint8_t *buft, uint8_t *bufr, uint32_t len)` +
+`void spi2_transmit_receive(uint8_t *buft, uint8_t *bufr, uint32_t len)`
+
+* Transmit and receive `len` bytes of data, `buft` for transmitting and `bufr` for receiving.
+
+`uint32_t spi1_transfer(uint32_t data)` +
+`uint32_t spi2_transfer(uint32_t data)`
+
+* Transmit a datum `data`, which may be any supported size and return the received datum.
+
+`__attribute__((weak)) void spi1_csenable(void)` +
+`__attribute__((weak)) void spi2_csenable(void)`
+
+
+* Weak placeholders for activating the Chip Select signals. The user must override these functions with own functions. These weak functions do nothing.
+
+`__attribute__((weak)) void spi1_csdisable(void)` +
+`__attribute__((weak)) void spi2_csdisable(void)`
+
+* Weak placeholders for disabling the Chip Select signals. The user must override these functions with own functions. These weak functions do nothing.
 
 More to be added.
 

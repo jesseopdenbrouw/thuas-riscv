@@ -4,7 +4,7 @@ This is the parent directory of the THUAS RV32 library files.
 
 ## Libraries
 
-* `csr` - functions for manipulating CSRs, including setting up trap handlers and reading TIME, CYCLE and INSTRET as 64-bit numbers.
+* `csr` - functions for counter CSRs.
 * `i2c` - functions for handling I2C setup and transmissions.
 * `spi` - functions for handling SPI setup and transmissions.
 * `syscalls` - functions for imitating system calls, when not using traps. See below.

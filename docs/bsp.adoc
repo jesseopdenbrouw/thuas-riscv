@@ -71,7 +71,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` is one pin with the same
 `void i2c1_init(uint32_t val)` +
 `void i2c2_init(uint32_t val)`
 
-* Initialize the I2C1/I2C2 peripherals.
+* Initialize the I2C1/I2C2 peripherals. `val` is copied one-to-one to the CTRL register.
 
 `uint8_t i2c1_receive_byte(void)` +
 `uint8_t i2c2_receive_byte(void)`
@@ -109,7 +109,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` is one pin with the same
 `void spi1_init(uint32_t value)` +
 `void spi2_init(uint32_t value)`
 
-* Initialize the SPI device.
+* Initialize the SPI device. `value` is copied one-to-one to the CTRL register.
 
 `void spi1_receive(uint8_t *buf, uint32_t len, uint32_t dummy)` +
 `void spi2_receive(uint8_t *buf, uint32_t len, uint32_t dummy)`
@@ -141,6 +141,43 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` is one pin with the same
 `__attribute__((weak)) void spi2_csdisable(void)`
 
 * Weak placeholders for disabling the Chip Select signals. The user must override these functions with own functions. These weak functions do nothing.
+
+
+== TIMER1
+
+`void inline timer1_enable(void)`
+
+* Enable TIMER1.
+
+`void inline timer1_disable(void)`
+
+* Disable TIMER1.
+
+`uint32_t inline timer1_getcounter(void)`
+
+* Get the current TIMER1 counter value as a unsigned 32-bit number.
+
+`void inline timer1_setcounter(uint32_t cntr)`
+
+* Set the TIMER1 counter value to the unsigned 32-bit number `cntr`.
+
+`void inline timer1_setcompare(uint32_t cmpt)`
+
+* Set TIMER1 compare T register (CMPT) to the unsigned 32-bit number `cmpt`.
+
+`void inline timer1_enable_interrupt(void)`
+
+* Enable TIMER1 interrupt.
+
+`void inline timer1_disable_interrupt(void)`
+
+* Disable TIMER1 interrupt.
+
+`void inline timer1_clear_interrupt(void)`
+
+* Clear TIMER1 overflow flags, this clears interrupt pending.
+
+
 
 More to be added.
 

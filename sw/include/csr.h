@@ -64,7 +64,7 @@ uint64_t csr_get_mhpmcounter9(void);
 
 #define csr_set(csr, val)						\
 ({												\
-	uint32_t __v = (uint32_t)(val);i			\
+	uint32_t __v = (uint32_t)(val);				\
 	__asm__ __volatile__ ("csrs " #csr ", %0"	\
 			      : : "rK" (__v)				\
 			      : "memory");					\

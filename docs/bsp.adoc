@@ -305,6 +305,9 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 == TIMER1
 
+=== Functions
+
+
 `void inline timer1_enable(void)`
 
 * Enable TIMER1.
@@ -337,6 +340,19 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 * Clear TIMER1 overflow flags, this clears a pending interrupt.
 
+=== Macros
+
+`TIMER1_EN`
+
+* When setting CTRL, this macro enables the timer.
+
+`TIMER1_TCIE`
+
+* When setting CTRL, this macro selects Interrupt Enable.
+
+`TIMER1_TC`
+
+* When reading STAT, this macro indicates Timer Complete (overflow)
 
 == UART
 

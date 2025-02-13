@@ -5,6 +5,8 @@
 
 == CSR
 
+=== Functions
+
 These functions concern the CSR:
 
 `uint64_t csr_get_cycle(void)`
@@ -29,6 +31,8 @@ These functions concern the CSR:
 
 * Get the number of counter events since last reset as a 64-bit unsigned number. Note: Zihpm extenion must be enabled in the hardware.
 
+=== Macros
+
 These macros concern the CSR:
 
 `csr_read(csr)`
@@ -47,8 +51,14 @@ These macros concern the CSR:
 
 * Clear bits in named CSR register
 
+`csr_swap(csr, val)`
+
+* Reads the named CSR (the return value) and places `val` in the named CSR.
+
 
 == GPIO
+
+=== Functions
 
 `uint32_t gpioa_readpin(uint32_t pin)`
 
@@ -65,8 +75,63 @@ These macros concern the CSR:
 
 Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with the same index number.
 
+=== Macros
+
+`GPIO_PIN_SET` +
+`GPIO_PIN_RESET`
+
+* The values for setting and resetting pins.
+
+`GPIO_PIN_0` +
+`GPIO_PIN_1` +
+`GPIO_PIN_2` +
+`GPIO_PIN_3` +
+`GPIO_PIN_4` +
+`GPIO_PIN_5` +
+`GPIO_PIN_6` +
+`GPIO_PIN_7` +
+`GPIO_PIN_8` +
+`GPIO_PIN_9` +
+`GPIO_PIN_10` +
+`GPIO_PIN_11` +
+`GPIO_PIN_12` +
+`GPIO_PIN_13` +
+`GPIO_PIN_14` +
+`GPIO_PIN_15` +
+`GPIO_PIN_16` +
+`GPIO_PIN_17` +
+`GPIO_PIN_18` +
+`GPIO_PIN_19` +
+`GPIO_PIN_20` +
+`GPIO_PIN_21` +
+`GPIO_PIN_22` +
+`GPIO_PIN_23` +
+`GPIO_PIN_24` +
+`GPIO_PIN_25` +
+`GPIO_PIN_26` +
+`GPIO_PIN_27` +
+`GPIO_PIN_28` +
+`GPIO_PIN_29` +
+`GPIO_PIN_30` +
+`GPIO_PIN_31` +
+`PIO_PIN_ALL`
+
+* These macros define pins in a pin list. The macros may be OR-ed to make a pin list.
+
+`GPIO_EXTC_EDGE_RISING$` +
+`GPIO_EXTC_EDGE_FALLING$` +
+`GPIO_EXTC_EDGE_BOTH$`
+
+* Selecting the edge(s) for the external input pin interrupt
+
+`gpioa_set_extc(pinnr, edge)`
+
+* Select pin `pinnr` with edge(s) `edge`. `pinnr` is a 5-bit number between 0 and 31.
+
 
 == I2C
+
+=== Functions
 
 `void i2c1_init(uint32_t val)` +
 `void i2c2_init(uint32_t val)`
@@ -76,7 +141,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `uint8_t i2c1_receive_byte(void)` +
 `uint8_t i2c2_receive_byte(void)`
 
-* Receive one byte from the I2C1/I2C2 peripherals. These functions are blocking.
+* Receive one byte from the I2C1/I2C2 peripherals.
 
 `uint32_t i2c1_receive(uint8_t address, uint8_t *buf, uint32_t len)` +
 `uint32_t i2c2_receive(uint8_t address, uint8_t *buf, uint32_t len)`
@@ -103,8 +168,68 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 * Transmit a buffer pointed by `buf` with length `len` to the target with address `address`, including START and STOP conditions.
 
+=== Macros
+
+`I2C_PRESCALER_FM(A)` +
+`I2C_PRESCALER_SM(A)` +
+
+* iWhen used to set CTRL, these macros calculate the (shifted) precaler value for system frequecy `A`.
+
+`I2C_FAST_MODE` +
+
+* When used to set CTRL, this macro selects Fast Mode.
+
+`I2C_STANDARD_MODE` +
+
+* When used to set CTRL, this macro selects Standard Mode.
+
+`I2C_TCIE` +
+
+* When used to set CTRL, this macro set transmit complete interrupt enable.
+
+`I2C_MACK` +
+
+* When used to set CTRL, this macro sets Master Acknowledge.
+
+`I2C_HARDSTOP` +
+
+* When used to set CTRL, this macro generates a STOP condition on the bus *without* any transmission.
+
+`I2C_START` +
+
+* When used to set CTRL, this macro generates a START condition on bus on the next transmission.
+
+`I2C_STOP` +
+
+* When used to set CTRL, this macro generates a STOP condition on bus on the next transmission.
+
+`I2C_BUSY` +
+
+* When used when reading STAT, this macro indicated that the bus is busy.
+
+`I2C_AF` +
+
+* When used when reading STAT, this macro filters the Acknowledge Failed bit.
+
+`I2C_TC` +
+
+* When used when reading STAT, this macro filters the Transmission Complete bit.
+
+`I2C_TRANS` +
+
+* When used when reading STAT, this macro indicates that the device is transmitting.
+
+`I2C_READ` +
+
+* Used to indicate read, when transmitting the address.
+
+`I2C_WRITE`
+
+* Used to indicate write, when transmitting the address.
 
 == SPI
+
+=== Functions
 
 `void spi1_init(uint32_t value)` +
 `void spi2_init(uint32_t value)`
@@ -141,6 +266,41 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `__attribute__((weak)) void spi2_csdisable(void)`
 
 * Weak placeholders for disabling the Chip Select signals. The user must override these functions with own functions. These weak functions do nothing.
+
+=== Macros
+
+`SPI_MODE0` +
+`SPI_MODE1` +
+`SPI_MODE2` +
+`SPI_MODE3`
+
+* When used to set CTRL, this macro selects the clocking mode.
+
+`SPI_SIZE8` +
+`SPI_SIZE16` +
+`SPI_SIZE24` +
+`SPI_SIZE32`
+
+* When used to set CTRL, this macro selects the transmission size.
+
+`SPI_PRESCALER0` +
+`SPI_PRESCALER1` +
+`SPI_PRESCALER2` +
+`SPI_PRESCALER3` +
+`SPI_PRESCALER4` +
+`SPI_PRESCALER5` +
+`SPI_PRESCALER6` +
+`SPI_PRESCALER7`
+
+* When used to set CTRL, these macros select the prescaler (2^(_number_ - 1)^)
+
+`SPI_TCIE`
+
+* When used to set CTRL, this macro enables interrupt generation.
+
+`SPI_TC`
+
+* When reading STAT, this macro filters the tranmission complete bit.
 
 
 == TIMER1

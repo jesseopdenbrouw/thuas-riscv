@@ -118,9 +118,9 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 * These macros define pins in a pin list. The macros may be OR-ed to make a pin list.
 
-`GPIO_EXTC_EDGE_RISING$` +
-`GPIO_EXTC_EDGE_FALLING$` +
-`GPIO_EXTC_EDGE_BOTH$`
+`GPIO_EXTC_EDGE_RISING` +
+`GPIO_EXTC_EDGE_FALLING` +
+`GPIO_EXTC_EDGE_BOTH`
 
 * Selecting the edge(s) for the external input pin interrupt
 
@@ -173,7 +173,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `I2C_PRESCALER_FM(A)` +
 `I2C_PRESCALER_SM(A)` +
 
-* iWhen used to set CTRL, these macros calculate the (shifted) precaler value for system frequecy `A`.
+* When used to set CTRL, these macros calculate the (shifted) precaler value for system frequecy `A`.
 
 `I2C_FAST_MODE` +
 
@@ -292,7 +292,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `SPI_PRESCALER6` +
 `SPI_PRESCALER7`
 
-* When used to set CTRL, these macros select the prescaler (2^(_number_ - 1)^)
+* When used to set CTRL, these macros select the prescaler (2^{_number_ + 1}^)
 
 `SPI_TCIE`
 

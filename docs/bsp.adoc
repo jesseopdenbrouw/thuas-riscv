@@ -415,23 +415,23 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 === Macros
 
-'WDT_EN`
+`WDT_EN`
 
 * When writing CTRL, this macro enables counting of the watchdog.
 
-'WDT_NMI`
+`WDT_NMI`
 
 * When writing CTRL, this macro selects generating an NMI when the watchdog times out. If not set, a watchog timeout triggers a system wide reset.
 
-'WDT_LOCK`
+`WDT_LOCK`
 
 * When writing CTRL, this macro inhibits further manipulation of the watchdog. If this bit is set in CTRL, any further writes to CTRL triggers an NMI or a system wide reset.
 
-'WDT_PRESCALER(A)`
+`WDT_PRESCALER(A)`
 
-* This macro calculates the (shifted) watchdog counter reset value.
+* This macro calculates the (shifted) watchdog counter reset value. The value is a 24-bit unsigned number.
 
-'WDT_PASSWORD`
+`WDT_PASSWORD`
 
 * This macro expand to the watchdog password.
 

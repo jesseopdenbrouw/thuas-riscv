@@ -57,14 +57,14 @@ These macros concern the CSR:
 
 `void gpioa_writepin(uint32_t pin, uint32_t value)`
 
-* Set the state of an output pin. More than one pin may be set in one call. The state is ieither `GPIO_PIN_RESET` or `GPIO_PIN_SET`.
+* Set the state of an output pin. More than one pin may be set in one call. The state is either `GPIO_PIN_RESET` or `GPIO_PIN_SET`.
 
 `void gpioa_togglepin(uint32_t pin)`
 
 * Toggle the state of a output pin. More than one pin may be toggled in one call.
 
 Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with the same index number.
-`
+
 
 == I2C
 
@@ -215,6 +215,27 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `int uart1_hasreceived(void)`
 
 * Returns != 0 if a character has been received via UART1.
+
+
+== Watchdog (WDT)
+
+`void wdt_init(uint32_t val)`
+
+* Initialize the watchdog. `val` is copied to the CTRL register.
+
+`void wdt_reset(void)`
+
+* Resets the watchdog.
+
+`void wdt_start(void)`
+
+* Start the watchdog.
+
+`void wdt_stop(void)`
+
+* Stops the watchdog.
+
+
 
 More to be added.
 

@@ -44,7 +44,7 @@ __attribute__((weak)) void spi2_csdisable(void);
 #define SPI_MODE1  (1 << 1)
 #define SPI_MODE2  (2 << 1)
 #define SPI_MODE3  (3 << 1)
-#define SPI_TC     (1 << 3)
+
 #define SPI_SIZE8  (0 << 4)
 #define SPI_SIZE16 (1 << 4)
 #define SPI_SIZE24 (2 << 4)
@@ -60,6 +60,8 @@ __attribute__((weak)) void spi2_csdisable(void);
 #define SPI_PRESCALER7 (7 << 8)
 
 #define SPI_TCIE    (1 << 3)
+
+#define SPI_TC     (1 << 3)
 
 #ifdef __cplusplus
 }

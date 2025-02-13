@@ -63,7 +63,7 @@ These macros concern the CSR:
 
 * Toggle the state of a output pin. More than one pin may be toggled in one call.
 
-Note: `pin` is a pin list. Each bit in the 32-bit `pin` is one pin with the same index number.
+Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with the same index number.
 `
 
 == I2C
@@ -175,9 +175,46 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` is one pin with the same
 
 `void inline timer1_clear_interrupt(void)`
 
-* Clear TIMER1 overflow flags, this clears interrupt pending.
+* Clear TIMER1 overflow flags, this clears a pending interrupt.
 
 
+== UART
+
+`void uart1_init(uint32_t baudrate, uint32_t ctrl)`
+
+* Initialize UART1. `baudrate` is the baud rate in bits per second. `ctrl` is copied to the CTRL register.
+
+`void uart1_putc(int ch)`
+
+* Write one character via UART1.
+
+`void uart1_puts(char *s)`
+
+* Write a null-terminated string via UART1.
+
+`int uart1_getc(void)`
+
+* Read one character via UART1.
+
+`int uart1_gets(char buffer[], int size)`
+
+* Read at most `size` minus 1 characters from UART1 into `buffer`, and null-terminate buffer. Returns characters received. Simple line-editing is supported: backspace and delete are supported. Return/enter terminates reading characters. Return/enter is not part of the returned buffer.
+
+`int uart1_printf(const char *format, ...)`
+
+* Print formatted string via UART1, at most 255 characters. Parameters are the same as `printf`. Returns the number of printed characters. Note: to print floating point numbers, supply the linker with `-u _printf_float`. Note: `long long` integers (a.k.a 64-bit) are not supported due to lack of the `nano` library.
+
+`void uart1_printlonglong(int64_t v)`
+
+* Print a signed long long integer (a.k.a. `int64_t`) via UART1.
+
+`void uart1_printulonglong(uint64_t v)`
+
+* Print an unsigned long long integer (a.k.a. `uint64_t`) via UART1.
+
+`int uart1_hasreceived(void)`
+
+* Returns != 0 if a character has been received via UART1.
 
 More to be added.
 

@@ -374,7 +374,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 `int uart1_gets(char buffer[], int size)`
 
-* Read at most `size` minus 1 characters from UART1 into `buffer`, and null-terminate buffer. Returns characters received. Simple line-editing is supported: backspace and delete are supported. Return/enter terminates reading characters. Return/enter is not part of the returned buffer.
+* Read at most `size` minus 1 characters from UART1 into `buffer`, and null-terminate buffer. Returns the number of characters received. Simple line-editing is supported: backspace and delete are supported. Return/enter terminates reading characters. Return/enter is not part of the returned buffer.
 
 `int uart1_printf(const char *format, ...)`
 
@@ -395,13 +395,15 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 == Watchdog (WDT)
 
+=== Functions
+
 `void wdt_init(uint32_t val)`
 
 * Initialize the watchdog. `val` is copied to the CTRL register.
 
 `void wdt_reset(void)`
 
-* Resets the watchdog.
+* Reset the watchdog.
 
 `void wdt_start(void)`
 
@@ -409,8 +411,29 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 `void wdt_stop(void)`
 
-* Stops the watchdog.
+* Stop the watchdog.
 
+=== Macros
+
+'WDT_EN`
+
+* When writing CTRL, this macro enables counting of the watchdog.
+
+'WDT_NMI`
+
+* When writing CTRL, this macro selects generating an NMI when the watchdog times out. If not set, a watchog timeout triggers a system wide reset.
+
+'WDT_LOCK`
+
+* When writing CTRL, this macro inhibits further manipulation of the watchdog. If this bit is set in CTRL, any further writes to CTRL triggers an NMI or a system wide reset.
+
+'WDT_PRESCALER(A)`
+
+* This macro calculates the (shifted) watchdog counter reset value.
+
+'WDT_PASSWORD`
+
+* This macro expand to the watchdog password.
 
 
 More to be added.

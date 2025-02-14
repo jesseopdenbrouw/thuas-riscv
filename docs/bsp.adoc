@@ -114,7 +114,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `GPIO_PIN_29` +
 `GPIO_PIN_30` +
 `GPIO_PIN_31` +
-`PIO_PIN_ALL`
+`GPIO_PIN_ALL`
 
 * These macros define pins in a pin list. The macros may be OR-ed to make a pin list.
 
@@ -146,17 +146,17 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `uint32_t i2c1_receive(uint8_t address, uint8_t *buf, uint32_t len)` +
 `uint32_t i2c2_receive(uint8_t address, uint8_t *buf, uint32_t len)`
 
-* Receive `len` bytes from target with address `address` and store the bytes in the buffer pointed by `buf`. A return value of 0 indicates success. Includes START and STOP conditions.
+* Receive `len` bytes from target with address `address` and store the bytes in the buffer pointed by `buf`. A return value of 0 indicates success. Includes START and STOP conditions. Note: `address` must be shifted to the left by one bit.
 
 `uint32_t i2c1_transmit_address(uint8_t address)` +
 `uint32_t i2c2_transmit_address(uint8_t address)`
 
-* Transmit an address on the I2C bus, including a START condition. A return value of 0 indicates success (target acknowledged).
+* Transmit an address on the I2C bus, including a START condition. A return value of 0 indicates success (target acknowledged). Note: `address` must be shifted to the left by one bit.
 
 `uint32_t i2c1_transmit_address_only(uint8_t address)` +
 `uint32_t i2c2_transmit_address_only(uint8_t address)`
 
-* Transmit an addess on the  I2C bus, including START and STOP conditions. Can be used to detect targets. A return value of 0 indicates success (target acknowledged).
+* Transmit an addess on the  I2C bus, including START and STOP conditions. Can be used to detect targets. A return value of 0 indicates success (target acknowledged). Note: `address` must be shifted to the left by one bit.
 
 `uint32_t i2c1_transmit_byte(uint8_t data)` +
 `uint32_t i2c2_transmit_byte(uint8_t data)`
@@ -166,7 +166,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `int32_t i2c1_transmit(uint8_t address, uint8_t *buf, uint32_t len)` +
 `int32_t i2c2_transmit(uint8_t address, uint8_t *buf, uint32_t len)`
 
-* Transmit a buffer pointed by `buf` with length `len` to the target with address `address`, including START and STOP conditions.
+* Transmit a buffer pointed by `buf` with length `len` to the target with address `address`, including START and STOP conditions. Note: `address` must be shifted to the left by one bit.
 
 === Macros
 
@@ -370,11 +370,11 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 `int uart1_getc(void)`
 
-* Read one character via UART1.
+* Read one character via UART1. This is a blocking function.
 
 `int uart1_gets(char buffer[], int size)`
 
-* Read at most `size` minus 1 characters from UART1 into `buffer`, and null-terminate buffer. Returns the number of characters received. Simple line-editing is supported: backspace and delete are supported. Return/enter terminates reading characters. Return/enter is not part of the returned buffer.
+* Read at most `size` minus 1 characters from UART1 into `buffer`, and null-terminate buffer. Returns the number of characters received. Simple line-editing is supported: backspace and delete are supported. Return/enter terminates reading characters. Return/enter is not part of the returned buffer. This is a blocking function.
 
 `int uart1_printf(const char *format, ...)`
 
@@ -390,7 +390,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 `int uart1_hasreceived(void)`
 
-* Returns != 0 if a character has been received via UART1.
+* Returns != 0 if a character has been received but not yet read via UART1.
 
 
 == Watchdog (WDT)
@@ -434,6 +434,39 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `WDT_PASSWORD`
 
 * This macro expand to the watchdog password.
+
+
+== Utitlities
+
+=== Functions
+
+`void delayms(uint32_t delay)`
+
+* Create a delay for `delay` milli seconds.
+
+`uint32_t gethex(int n)`
+
+* Get the value of an `n`-character hexadecimal number from UART1. This is a blocking function.
+
+`uint32_t parsehex(char *s, char **ppchar)`
+
+* Parse a hexadecimal number from a null-terminated string. If `ppchar` is not NULL, then `ppchar` contains the address of a pointer, that will point to the first character after the hexadecimal number in the string.
+
+`void printdec(int32_t v)`
+
+* Print a signed 32-bit number via UART1 via UART1.
+
+`void printhex(uint32_t v, int n)`
+
+* Print an `n`-digit hexadecimal number via UART1.
+
+`void printhwversion(void)`
+
+* Print the hardware version of the processor via UART1.
+
+`void printlogo(void)`
+
+* Print the THUAS RV32 logo via UART1.
 
 
 More to be added.

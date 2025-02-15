@@ -1071,6 +1071,11 @@ Note: unused ROM addresses are not output, except when the `-0` or `-x` options 
 
 See Section <<sec_boot>>.
 
+===  Board Support Package
+
+See xref:bsp.doc[Board Support Package].
+
+
 == Address ranges and memory sizes
 
 The processor uses a 32-bit linear address space (4 GB) and is divided in 16 blocks of 256 MB each. The top four bits (31 to 28) select a block while the remaining bits select the address within a block.

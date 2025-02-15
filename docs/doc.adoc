@@ -1073,7 +1073,7 @@ See Section <<sec_boot>>.
 
 ===  Board Support Package
 
-See xref:bsp.doc[Board Support Package].
+See xref:bsp.adoc[Board Support Package].
 
 
 == Address ranges and memory sizes

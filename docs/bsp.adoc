@@ -356,6 +356,8 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 == UART
 
+=== Functions
+
 `void uart1_init(uint32_t baudrate, uint32_t ctrl)`
 
 * Initialize UART1. `baudrate` is the baud rate in bits per second. `ctrl` is copied to the CTRL register.
@@ -391,6 +393,69 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `int uart1_hasreceived(void)`
 
 * Returns != 0 if a character has been received but not yet read via UART1.
+
+=== Macros
+
+`UART_CTRL_PARITY_NONE` +
+`UART_CTRL_PARITY_EVEN` +
+`UART_CTRL_PARITY_ODD`
+
+* When used with CTRL, these macros select the parity.
+
+`UART_CTRL_STOP1` +
+`UART_CTRL_STOP2`
+
+* When used with CTRL, these macros select one or two stop bits.
+
+`UART_CTRL_BRIE`
+
+* When used with CTRL, this macro selects BREAK condition received interrupt enable.
+
+`UART_CTRL_TCIE`
+
+* When used with CTRL, this macro selects Transmission Complete interrupt enable.
+
+`UART_CTRL_RCIE`
+
+* When used with CTRL, this macro selects Reception Complete interrupt enable.
+
+`UART_CTRL_SIZE7` +
+`UART_CTRL_SIZE8` +
+`UART_CTRL_SIZE9`
+
+* When used with CTRL, these macros select the data size.
+
+`UART_CTRL_NONE`
+
+* Used as a place holder when using the `uart1_init` function.
+
+`UART_CTRL_EN`
+
+* When used with CTRL, this macro enables the device.
+
+`UART_STAT_FE`
+
+* When used with STAT, this macro filters the Frame Error bit.
+
+`UART_STAT_RF`
+
+* When used with STAT, this macro filters the Receive Failed bit (i.e. false start bit).
+
+`UART_STAT_PE`
+
+* When used with STAT, this macro filters the Parity Error bit.
+
+`UART_STAT_RC`
+
+* When used with STAT, this macro filters the Reception Complete bit.
+
+`UART_STAT_TC`
+
+* When used with STAT, this macro filters the Tranmission Complete bit.
+
+`UART_STAT_BR`
+
+* When used with STAT, this macro filters the BREAK condition received bit.
 
 
 == Watchdog (WDT)

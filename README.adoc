@@ -14,11 +14,12 @@ three-stage pipelined core.
 
 All instructions from the "The RISC-V
 Instruction Set Manual Volume I, Unprivileged Architecture,
-Version 20240411", RV32, are supported. The instructions
+Version 20240411", RV32, are supported, so including `ecall`
+and `ebreak`. The instructions
 from the M standard (hardware multiply/divide), RV32, are
 supported. From the "The RISC-V Instruction Set Manual:
 Volume II Privileged Architecture, Version 20240411", RV32,
-`ecall`, `ebreak`, `mret` and `wfi` are supported. The
+`mret` and `wfi` are supported. The
 microcontroller supports Machine mode only. Traps (interrupts
 and exceptions) are supported.
 

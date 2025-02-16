@@ -1073,8 +1073,7 @@ See Section <<sec_boot>>.
 
 ===  Board Support Package
 
-See xref:bsp.adoc[Board Support Package].
-
+For using the I/O, see xref:bsp.adoc[Board Support Package]. It contains functions for easy use of the I/O.
 
 == Address ranges and memory sizes
 

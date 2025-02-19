@@ -63,7 +63,7 @@ static struct {
 /* Set transmissio speed */
 void SPI2_init(uint32_t speed)
 {
-	/* /256, 8 bits, mode 0 */
+	/* Set speed, also sets 8-bit transfers and clocking mode 0 */
 	SPI2->CTRL = speed<<8;
 }
 

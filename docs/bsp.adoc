@@ -67,11 +67,11 @@ These macros concern the CSR:
 
 `void gpioa_writepin(uint32_t pin, uint32_t value)`
 
-* Set the state of an output pin. More than one pin may be set in one call. The state is either `GPIO_PIN_RESET` or `GPIO_PIN_SET`.
+* Set the state of an output pin. More than one pin may be set in one call. The state is either `GPIO_PIN_RESET` or `GPIO_PIN_SET`. Note: pin update is not atomic.
 
 `void gpioa_togglepin(uint32_t pin)`
 
-* Toggle the state of a output pin. More than one pin may be toggled in one call.
+* Toggle the state of a output pin. More than one pin may be toggled in one call. Note: pin update is not atomic.
 
 Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with the same index number.
 

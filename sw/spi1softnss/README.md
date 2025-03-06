@@ -13,7 +13,7 @@ POUTA pin 15. First, an 8-bit EEPROMREAD code is send. Data is received,
 but is discarded. Then an 8-bit address is send, and the received data
 is discarded. Last, an 8-bit dummy (0x00) is send. During the
 sending of the dummy, the 25AA010A transmits the contents of the
-address, and this value is printed to the USART.
+address, and this value is printed to UART1.
 
 ## Status
 

@@ -9,7 +9,7 @@ The bootloader is loaded at address 0x10000000 of the
 address space and is executed at startup. It waits for
 about 5 seconds (@ 50 MHz) before it jumps to the
 application at address 0x00000000. If a character is
-received via the USART within these 5 seconds, a
+received via UART1 within these 5 seconds, a
 prompt is shown and the user can enter commands. The
 command "h" (without the quotes) displays a list of
 supported commands.

@@ -17,7 +17,7 @@
 #endif
 /* Transmission speed */
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600ULL)
+#define BAUD_RATE (115200ULL)
 #endif
 
 int main(void)

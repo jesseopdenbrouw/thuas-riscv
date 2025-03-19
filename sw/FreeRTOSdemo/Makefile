@@ -79,8 +79,17 @@ else
 endif
 
 
-.PHONY: all
-all: $(TARGET).elf
+.PHONY: all check
+
+all:
+	@if ! [ -d $(FREERTOS_HOME) ]; then \
+		echo "FreeRTOS home directory not found!"; \
+		exit 0; \
+	else \
+		make check; \
+	fi
+
+check: $(TARGET).elf
 
 $(TARGET).elf : $(APP_SRC) FreeRTOSConfig.h
 	cp $(CRT_PATH)/$(CRT) .

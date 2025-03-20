@@ -100,6 +100,7 @@ begin
             wdt.mustreset <= '0';
             wdt.mustrestart <= '0';
             if I_mem_request.cs = '1' and cs_sync = '0' and isword then
+                -- Control register
                 if I_mem_request.wren = '1' then
                     if I_mem_request.addr(2) = '0' then
                         -- Write control register
@@ -114,7 +115,8 @@ begin
                         else
                             wdt.mustreset <= '1';
                         end if;
-                    elsif I_mem_request.addr(2) = '1' then
+                    -- Password register
+                    else
                         -- Write reset (trigger) register
                         -- Test for correct password
                         if I_mem_request.data = wdt_password_c then

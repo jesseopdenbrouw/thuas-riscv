@@ -192,6 +192,27 @@ typedef struct {
 #define MTIMECMP  (*(volatile uint32_t*)(IO_BASE+0x00000a08UL))
 #define MTIMECMPH (*(volatile uint32_t*)(IO_BASE+0x00000a0cUL))
 
+
+/*
+ * CRC unit
+ */
+typedef struct {
+	volatile uint32_t CTRL;
+	volatile uint32_t STAT;
+	volatile uint32_t POLY;
+	volatile uint32_t SREG;
+	volatile uint32_t DATA; /* only low 8 bits used */
+} CRC_struct_t;
+
+#define CRC_BASE (IO_BASE+0x00000c00UL)
+#define CRC ((CRC_struct_t *) CRC_BASE)
+#define CRC_CTRL (*(volatile uint32_t*)(CRC_BASE+0x00000000UL))
+#define CRC_STAT (*(volatile uint32_t*)(CRC_BASE+0x00000004UL))
+#define CRC_POLY (*(volatile uint32_t*)(CRC_BASE+0x00000008UL))
+#define CRC_SREG (*(volatile uint32_t*)(CRC_BASE+0x0000000cUL))
+#define CRC_DATA (*(volatile uint32_t*)(CRC_BASE+0x00000010UL))
+
+
 #ifdef __cplusplus
 }
 #endif

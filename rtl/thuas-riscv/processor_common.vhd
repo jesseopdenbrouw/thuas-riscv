@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_01_01#;
+    constant HW_VERSION : integer := 16#01_01_01_03#;
 
     
     -- Used data types
@@ -505,6 +505,8 @@ package processor_common is
                   HAVE_MSI : boolean;
                   -- Use watchdog?
                   HAVE_WDT : boolean;
+                  -- Use CRC?
+                  HAVE_CRC : boolean;
                   -- UART1 BREAK triggers system reset
                   UART1_BREAK_RESETS : boolean
              );

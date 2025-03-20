@@ -501,6 +501,41 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 * This macro expand to the watchdog password.
 
 
+== CRC
+
+=== Functions
+
+`void crc_init(uint32_t ctrl, uint32_t poly, uint32_t sreg)`
+
+* Initializes the CRC module. The first argument is written to the control register, the second argument to the polynomal register and the third argumemt is the start value of the CRC value.
+
+`void crc_write(uint8_t data)`
+
+* Write one byte to the CRC module.
+
+`void crc_block(uint8_t *block, uint32_t len)`
+
+* Write a block of `len` bytes to the CRC module.
+
+`uint32_t crc_get(void)`
+
+* Get the resultant CRC value.
+
+=== Macros
+
+`CRC_SIZE32` +
+`CRC_SIZE24` +
+`CRC_SIZE16` +
+`CRC_SIZE8` 
+
+* When used with the CTRL register, select the size of the resultant CRC computation and the polynomal.
+
+`CRC_TC`
+
+* When used with the STAT register, selects the Transaction Complete status bit.
+
+
+
 == Utitlities
 
 === Functions

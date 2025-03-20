@@ -47,15 +47,15 @@ vmap work rtl_work
 # Find out if we're started through Quartus or by hand
 # (or by using an exec in the Tcl window in Quartus).
 # Quartus has the annoying property that it will start
-# Modelsim from a directory called "simulation/modelsim".
+# Questasim from a directory called "simulation/questa".
 # The design and the testbench are located in the project
 # root, so we've to compensate for that.
-if [ string match "*simulation/modelsim" [pwd] ] { 
+if [ string match "*simulation/questa" [pwd] ] { 
 	set prefix "../../"
-	puts "Running Modelsim from Quartus..."
+	puts "Running Questasim from Quartus..."
 } else {
 	set prefix ""
-	puts "Running Modelsim..."
+	puts "Running Questasim..."
 }
 
 # Compile the VHDL description and testbench,
@@ -85,6 +85,7 @@ vcom -93 -work work ${prefix}wdt.vhd
 vcom -93 -work work ${prefix}msi.vhd
 vcom -93 -work work ${prefix}mtime.vhd
 vcom -93 -work work ${prefix}riscv.vhd
+vcom -93 -work work ${prefix}crc.vhd
 vcom -93 -work work ${prefix}tb_riscv.vhd
 
 # Start the simulator
@@ -156,10 +157,10 @@ if {[find signal -r */timer1gen/*] != ""} {
     add wave            -label timer1_rec dut/timer1gen/timer1/timera
 }
 if {[find signal -r */uart1gen/*] != ""} {
-    add wave            -label uart_rec dut/uart1gen/uart1/uart
+    add wave            -label uart1_rec dut/uart1gen/uart1/uart
 }
 if {[find signal -r */uart2gen/*] != ""} {
-    add wave            -label uart_rec dut/uart2gen/uart2/uart
+    add wave            -label uart2_rec dut/uart2gen/uart2/uart
 }
 if {[find signal -r */i2c1gen/*] != ""} {
     add wave            -label i2c1_rec dut/i2c1gen/i2c1/i2c
@@ -175,6 +176,9 @@ if {[find signal -r */spi1gen/*] != ""} {
 }
 if {[find signal -r */timer2gen/*] != ""} {
     add wave            -label timer2_rec dut/timer2gen/timer2/timerb
+}
+if {[find signal -r */crcgen/*] != ""} {
+    add wave            -label crc_rec dut/crcgen/crc1/crc
 }
 
 # Open Structure, Signals (waveform) and List window

@@ -4,7 +4,7 @@
   <vendor>jesseopdenbrouw</vendor>
   <name>thuasrv32</name>
   <series>RISC-V</series>
-  <version>0.2.1</version>
+  <version>0.3.0</version>
   <description>The THUAS RV32 RISC-V Processor</description>
 
   <!-- CPU core -->
@@ -152,7 +152,7 @@
     <!-- **************************************************************** -->
     <peripheral>
       <name>UART1</name>
-      <description>Universal Asynchronous Receiver/Transmitter</description>
+      <description>Primary Universal Asynchronous Receiver/Transmitter</description>
       <groupName>UART1</groupName>
       <baseAddress>0xF0000100</baseAddress>
 
@@ -276,15 +276,15 @@
 
     <!-- UART2 -->
     <!-- **************************************************************** -->
-    <peripheral>
+    <peripheral derivedFrom="UART1">
       <name>UART2</name>
-      <description>Universal Asynchronous Receiver/Transmitter</description>
+      <description>Secondary Universal Asynchronous Receiver/Transmitter</description>
       <groupName>UART2</groupName>
       <baseAddress>0xF0000b00</baseAddress>
 
-      <interrupt><name>UART1_RX_IRQ</name><value>19</value></interrupt>
-      <interrupt><name>UART1_TX_IRQ</name><value>19</value></interrupt>
-      <interrupt><name>UART1_BR_IRQ</name><value>19</value></interrupt>
+      <interrupt><name>UART2_RX_IRQ</name><value>19</value></interrupt>
+      <interrupt><name>UART2_TX_IRQ</name><value>19</value></interrupt>
+      <interrupt><name>UART2_BR_IRQ</name><value>19</value></interrupt>
 
       <addressBlock>
         <offset>0</offset>
@@ -898,6 +898,87 @@
         </register>
       </registers>
     </peripheral>
+
+
+    <!-- CRC -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>CRC</name>
+      <description>Cyclic Redundancy Check Module</description>
+      <groupName>CRC</groupName>
+      <baseAddress>0xF0000c00</baseAddress>
+
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x14</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+
+      <registers>
+        <register>
+          <name>CTRL</name>
+          <description>Control register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>CRC_CTRL_SIZE</name>
+              <bitRange>[5:4]</bitRange>
+              <description>CRC Size Field</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STAT</name>
+          <description>Status register</description>
+          <addressOffset>0x04</addressOffset>
+          <fields>
+            <field>
+              <name>CRC_STAT_TC</name>
+              <bitRange>[3:3]</bitRange>
+              <description>CRC Transaction Complete</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>POLY</name>
+          <description>Polynomal register</description>
+          <addressOffset>0x08</addressOffset>
+          <fields>
+            <field>
+              <name>CRC_POLY_POLY</name>
+              <bitRange>[31:0]</bitRange>
+              <description>CRC Polynomal Register</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>SREG</name>
+          <description>CRC calculation register</description>
+          <addressOffset>0x0c</addressOffset>
+          <fields>
+            <field>
+              <name>CRC_SREG_SREG</name>
+              <bitRange>[31:0]</bitRange>
+              <description>CRC calculated CRC Register</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DATA</name>
+          <description>CRC Data Register</description>
+          <addressOffset>0x1c</addressOffset>
+          <fields>
+            <field>
+              <name>CRC_DATA_DATA</name>
+              <bitRange>[7:0]</bitRange>
+              <description>CRC Data Register</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+
 
   </peripherals>
 </device>

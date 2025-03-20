@@ -151,6 +151,8 @@ begin
               HAVE_MSI => TRUE,
               -- Use watchdog?
               HAVE_WDT => TRUE,
+              -- Use CRC?
+              HAVE_CRC => TRUE,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
              )

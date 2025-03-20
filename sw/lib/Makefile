@@ -43,4 +43,5 @@ clean:
 	make -C timer clean
 	make -C gpio clean
 	make -C wdt clean
+	make -C crc clean
 	rm -f $(LIBTHUASRV32)

@@ -114,6 +114,8 @@ entity riscv is
           HAVE_MSI : boolean;
           -- Use watchdog?
           HAVE_WDT : boolean;
+          -- Use CRC?
+          HAVE_CRC : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -215,6 +217,8 @@ component core is
           HAVE_MSI : boolean;
           -- Use watchdog?
           HAVE_WDT : boolean;
+          -- Use CRC?
+          HAVE_CRC : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -576,6 +580,16 @@ component timerb is
          );
 end component timerb;
 
+-- CRC unit
+component crc is
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type
+         );
+end component crc;
+
 --Generic stub for I/O
 component stub is
     port (I_clk : in std_logic;
@@ -662,6 +676,8 @@ signal mtime_request_int : mem_request_type;
 signal mtime_response_int : mem_response_type;
 signal uart2_request_int : mem_request_type;
 signal uart2_response_int : mem_response_type;
+signal crc_request_int : mem_request_type;
+signal crc_response_int : mem_response_type;
 
 -- IRQ signals
 signal irq_gpioa_int : std_logic;
@@ -738,6 +754,7 @@ begin
               HAVE_TIMER2 => HAVE_TIMER2,
               HAVE_MSI => HAVE_MSI,
               HAVE_WDT => HAVE_WDT,
+              HAVE_CRC => HAVE_CRC,
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
@@ -955,9 +972,9 @@ begin
               -- 0xb00 - UART2
               O_dev11_request => uart2_request_int,
               I_dev11_response => uart2_response_int,
-              -- 0xc00 - free
-              O_dev12_request => open,
-              I_dev12_response => mem_response_terminate_c,
+              -- 0xc00 - CRC
+              O_dev12_request => crc_request_int,
+              I_dev12_response => crc_response_int,
               -- 0xd00 - free
               O_dev13_request => open,
               I_dev13_response => mem_response_terminate_c,
@@ -1299,16 +1316,29 @@ begin
         O_uart2txd <= '0';
         irq_uart2_int <= '0';
     end generate;
+
+    -- CRC
+    crcgen : if HAVE_CRC generate
+        crc1 : crc
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => crc_request_int,
+                  O_mem_response => crc_response_int
+                 );
+    end generate;
+    crcgen_not : if not HAVE_CRC generate
+        crc1 : stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  --
+                  I_mem_request => crc_request_int,
+                  O_mem_response => crc_response_int
+                 );
+    end generate;
     
---    stub12geb: stub
---    port map (
---              I_clk => clk_int,
---              I_areset => areset_sys_int,
---              --
---              I_mem_request => stub12_request_int,
---              O_mem_response => stub12_response_int
---             );
---
 --    stub13geb: stub
 --    port map (
 --              I_clk => clk_int,

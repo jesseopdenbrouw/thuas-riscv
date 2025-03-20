@@ -95,7 +95,7 @@ The register can optionally be put in ALM flip-flops. This increases the ALM cou
 
 === ALU
 
-The Arithmetic and Logic Unit (ALU) handles almost all computations on data. It can add, subtract, do logic operations such as AND, OR en XOR, can shift data left or right, and sign extend byte and half word data. Some operations require two registers. Some instructions use one register and immediate data. Furthermore the ALU is also used to determine if a conditional branch should be taken. The ALU is also used to compute the return address from unconditional function calls (JAL and JALR instructions). The data is in Big Endian format. The ALU is the only building block that can write registers. The ALU does not compute multiplications and divisions, but merely passes on data from the MD unit.
+The Arithmetic and Logic Unit (ALU) handles almost all computations on data. It can add, subtract, do logic operations such as AND, OR en XOR, can shift data left or right, and sign extend byte and half word data. Some operations require two registers. Some instructions use one register and immediate data. Furthermore the ALU is also used to determine if a conditional branch should be taken. The ALU is also used to compute the return address from unconditional function calls (JAL and JALR instructions). The data is in Big Endian format. The ALU is the only building block that can write registers. The ALU does not compute multiplications and divisions, but merely passes on data from the MD unit. The result calculated is written to the register file in the same clock cycle.
 
 Note that the computation of jump target addresses is handled by the Program Counter (PC) hardware.
 
@@ -303,7 +303,7 @@ Reading the RAM (byte, half word, word) requires three clock cycles. A write req
 
 === I/O
 
-Currently, the I/O consists of one 32-bit data input and one 32-bit data output, two simple UARTs with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit and the `TIME` and `TIMEH` memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A reads and writes both require three clock cycles. Note that not all I/O addresses are used.
+Currently, the I/O consists of one 32-bit data input and one 32-bit data output, two simple UARTs with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit, a CRC unit and the `TIME` and `TIMEH` memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A reads and writes both require three clock cycles. Note that not all I/O addresses are used.
 
 Note: GPIOA and MTIME are always included in synthesis.
 
@@ -329,7 +329,11 @@ WDT is a simple watchdog timer that can trigger a system wide reset or a non-mas
 
 The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger register will fire an MSI if `mie.MSIE` is set. As long a the trigger register is set to 1, MSIs will be fired. Cleared by writing a 0.
 
+The CRC unit can calculate 32-bit, 24-bit, 16-bit and 8-bit CRCs. The polynomal is programmable as is the initial value of the CRC value. CRCs are calculated on byte basis (8-bit data), so bigger data units (e.g. 32-bit) must be broken into bytes.
+
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since `clock()` and `gettimeofday()` depend on this value. As such, the system clock frequency must be a integer multiple of 1 MHz. Note that TIMEH:TIME is writable by software.
+
+The CRC unit can calculate 8-bit, 16-bit, 24-bit and 32-bit CRCs with arbitrary polynomals. The CRCs are calculated on byte data with the msb of the bytes rirst. The polynomal has the same width as the calculated CRC. The CRC value can be loaded with a start value (often 0x00000000 or 0xffffffff).
 
 Note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
 
@@ -413,6 +417,7 @@ The processor hardware is composed of the following VHDL files:
 * `stub.vhd` -- Placeholder for unused peripherals.
 * `dm.vhd` -- Description of the Debug Module.
 * `dtm.vhd` -- Description of the Debug Transport Module.
+* `crc.vhd` -- Description of the CRC module.
 * `riscv.vhd` -- Top-level description of the processor. Connects all the building blocks to a viable processor.
 * `riscv.sdc` -- Constraints file. Sets the target clock frequency.
 * `tb_riscv.vhd` -- VHDL testbench to simulate the design.
@@ -490,6 +495,8 @@ entity riscv is
           HAVE_MSI : boolean;
           -- Use watchdog?
           HAVE_WDT : boolean;
+          -- Use CRC?
+          HAVE_CRC : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -685,6 +692,7 @@ Using VHDL generics, the design can be customized.
 |HAVE_TIMER2           | boolean   | TRUE     | Use TIMER2
 |HAVE_MSI              | boolean   | TRUE     | Use Machine-mode Software Interrupt
 |HAVE_WDT              | boolean   | TRUE     | Use watchdog
+|HAVE_CRC              | booleab   | false    | Use CRC unit
 |UART1_BREAK_RESETS    | boolean   | false    | UART1 BREAK reception triggers system reset
 |===
 
@@ -979,6 +987,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `clock` -- a simple clock using the CSR MTIME and MTIMEH registers to fetch the time since last reset. Uses UART1. Works on the board.
 * `complex` -- a simple program that shows the use of complex numbers. Works on the board.
 * `coremark` -- implementation of the CoreMark test suite. Uses UART1. Works on the board.
+* `crc` -- test of the CRC module. Works on the board. The CRC module must be included in the hardware.
 * `ctor_c` -- C test to check if global constructors are called upon program execution. Uses UART1. Works on the board.
 * `ctor_cpp` -- C++ test to check if global constructors are called upon program execution. Uses UART1. Works on the board.
 * `dhrystone` -- preliminary Dhrystone test suite. Works on the board.

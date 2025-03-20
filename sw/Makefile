@@ -20,6 +20,7 @@ SUBDIRS = add64 \
           clock \
           complex \
           coremark \
+          crc \
           ctor_c \
           ctor_cpp \
           dhrystone \

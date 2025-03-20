@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2024, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -168,6 +168,8 @@ begin
               HAVE_MSI => TRUE,
               -- Use watchdog?
               HAVE_WDT => TRUE,
+              -- Use CRC?
+              HAVE_CRC => false,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
              )

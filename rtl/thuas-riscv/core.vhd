@@ -104,6 +104,8 @@ entity core is
           HAVE_MSI : boolean;
           -- Use watchdog?
           HAVE_WDT : boolean;
+          -- Use CRC?
+          HAVE_CRC : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -3160,7 +3162,8 @@ begin
     csr_reg.mxhw(28) <= boolean_to_std_logic(HAVE_MSI);
     csr_reg.mxhw(29) <= boolean_to_std_logic(BUFFER_IO_RESPONSE);
     csr_reg.mxhw(30) <= boolean_to_std_logic(HAVE_ZBB);
-    csr_reg.mxhw(csr_reg.mxhw'left downto 31) <= (others => '0');
+    csr_reg.mxhw(31) <= boolean_to_std_logic(HAVE_CRC);
+    --csr_reg.mxhw(csr_reg.mxhw'left downto 31) <= (others => '0');
 
 
     -- Custom read-only synthesized clock frequency

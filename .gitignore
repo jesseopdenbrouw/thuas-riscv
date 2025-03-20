@@ -20,3 +20,6 @@ rtl/thuas-riscv/dse/*
 rtl/thuas-riscv/*dse*
 rtl/thuas-riscv/riscv.archive.rpt
 rtl/thuas-riscv/riscv_assignment_defaults.qdf
+rtl/thuas-riscv/simulation/*
+rtl/thuas-riscv/riscv_nativelink_simulation.rpt
+

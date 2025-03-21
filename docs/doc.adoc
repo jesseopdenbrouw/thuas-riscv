@@ -95,7 +95,8 @@ The register can optionally be put in ALM flip-flops. This increases the ALM cou
 
 === ALU
 
-The Arithmetic and Logic Unit (ALU) handles almost all computations on data. It can add, subtract, do logic operations such as AND, OR en XOR, can shift data left or right, and sign extend byte and half word data. Some operations require two registers. Some instructions use one register and immediate data. Furthermore the ALU is also used to determine if a conditional branch should be taken. The ALU is also used to compute the return address from unconditional function calls (JAL and JALR instructions). The data is in Big Endian format. The ALU is the only building block that can write registers. The ALU does not compute multiplications and divisions, but merely passes on data from the MD unit. The result calculated is written to the register file in the same clock cycle.
+The Arithmetic and Logic Unit (ALU) handles almost all computations on data. It can add, subtract, do logic operations such as AND, OR en XOR, can shift data left or right, and sign extend byte and half word data. Some operations require two registers. Some instructions use one register and immediate data. Furthermore the ALU is also used to determine if a conditional branch should be taken. The ALU is also used to compute the return address from unconditional function calls (JAL and JALR instructions). The data is in Big Endian format. The ALU is the only building block that can write registers. The ALU does not compute multiplications and divisions, but merely passes on data from the MD unit. The result calculated is written to the register file in the same clock cycle. This means that the architectural state of the processor is consistent with the executing of the instructions.
+
 
 Note that the computation of jump target addresses is handled by the Program Counter (PC) hardware.
 
@@ -309,7 +310,7 @@ Note: GPIOA and MTIME are always included in synthesis.
 
 GPIOA has separate inputs and output, both 32 bits. This is because some FPGAs/synthesizers don't allow buried tri-state signals, i.e. the tri-state action must be done in the top level entity. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons (DE0-CV board). Note that KEY4 a.k.a. FPGA_RESET is connected to the reset of the processor. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt if a rising and/or falling edge is detected.
 
-UART1 can transmit and receive data at 7, 8 or 9 bits, no/even/odd parity and 1 or 2 stop bits. Tested speeds are 9600 bps, 115200 bps and 230400 bps. Several status flags are implemented to guide transmission. Receive, transmitted and BREAK character (local) interrupts are provided (one vector). These interrupt requests must be negated by software. A BREAK condition is found if UART1 samples 1 start bit + number of data bits + 1 stop bit to be low. UART1 does not provide hardware flow control.
+UART1 can transmit and receive data at 7, 8 or 9 bits, no/even/odd parity and 1 or 2 stop bits. Tested speeds are 9600 bps, 115200 bps and 230400 bps. Several status flags are implemented to guide transmission. Receive, transmitted and BREAK character (local) interrupts are provided (one vector). These interrupt requests must be negated by software. A BREAK condition is found if UART1 samples 1 start bit + number of data bits + 1 stop bit to be low. UART1 does not provide hardware flow control. UART1 can generate a system wide reset when a BREAK condition is found.
 
 UART2 is an exact copy of UART1 but with a different interrupt priority. Also, UART2 cannot reset the core on a BREAK condition.
 
@@ -362,17 +363,17 @@ To find the best compilation result for speed and/or area, we have to tweak the 
 
 Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed is set to 1 and the optimization is set to balanced. The total amount of ALMs is 18480. The total amount of RAM bits is 3153920.
 
-.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.1.1.0).
+.FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.1.2.0).
 [[tab_metrics]]
 [cols="1,1,1,1]
 |===
 | Setup | $f_{max}$ | ALMs | FFs | RAM
 
-| Default OCD (all I/O, MD, no extensions, no boot)  | 87 | 3244 | 3144 | 1,313,792
-| Default OCD + perf. options                        | 93 | 3244 | 3153 | 1,313,792
-| Full OCD (all extensions, fast divider, no boot)   | 78 | 4601 | 3634 | 1,313,792
-| Default bootloader (no OCD)                        | 89 | 2623 | 2552 | 1,345,536
-| Small (UART1, no boot, no MD, no OCD)              | 90 | 1735 | 1254 | 788,480 
+| Default OCD (all I/O, MD, no extensions, no boot)  | 92 | 3205 | 3300 | 1,313,792
+| Default OCD + perf. options                        | 92 | 3205 | 3338 | 1,313,792
+| Full OCD (all extensions, fast divider, no boot)   | 76 | 4615 | 3759 | 1,313,792
+| Default bootloader (no OCD)                        | 91 | 2637 | 2698 | 1,345,536
+| Small (UART1, no boot, no MD, no OCD)              | 89 | 1691 | 1247 | 788,480 
 |===
 
 Note: UART2 is never included. +
@@ -692,7 +693,7 @@ Using VHDL generics, the design can be customized.
 |HAVE_TIMER2           | boolean   | TRUE     | Use TIMER2
 |HAVE_MSI              | boolean   | TRUE     | Use Machine-mode Software Interrupt
 |HAVE_WDT              | boolean   | TRUE     | Use watchdog
-|HAVE_CRC              | booleab   | false    | Use CRC unit
+|HAVE_CRC              | booleab   | TRUE     | Use CRC unit
 |UART1_BREAK_RESETS    | boolean   | false    | UART1 BREAK reception triggers system reset
 |===
 

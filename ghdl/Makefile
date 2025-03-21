@@ -13,6 +13,7 @@ NOENT = \
 FILES = \
 		address_decode.vhd \
 		bootrom.vhd \
+        crc.vhd \
 		core.vhd \
 		dm.vhd \
 		dtm.vhd \
@@ -42,8 +43,6 @@ compile:
 	@echo "Compiling..."
 	@for i in $(NOENT) $(FILES); do ghdl -a $(PREFIX)/$$i; done
 	@for i in $(ENTITIES); do ghdl -e $$i; done
-
-#	echo "Compiling all VHDL files..."
 
 sim:
 	@echo "Running the simulation..."

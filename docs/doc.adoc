@@ -159,7 +159,7 @@ The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this t
 
 === Memory Interface
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (writes), the data size and the read/write flag on the bus. These signals are held stable until a acknowledge from the memory is sampled, or an exception is generated. If there is no acknoledge nor exception generated, the core will stall permanently. Currenlty a memory access must at least take two clock cycles.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (writes), the data size and the read/write flag on the bus. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is no acknowledge nor exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles.
 
 
 === Control and Status registers
@@ -232,7 +232,7 @@ Custom CSR:
 * `mxhw` -- this custom CSR with address 0xfc0 is read-only and reflects the hardware properties of the synthesized processor.
 * `mxspeed` -- this custom CSR with address 0xfc1 is read-only and contains the system frequency in Hz of the synthesized processor.
 
-Writing read-only registers causes an illegal instruction trap. Accessing a non-existent register causes an illegal instruction trap. The trap handler (vector) address must be loaded by software at boot time (normally done in `main`). Both direct and vectored mode are supported. In direct mode all traps redirect to a single trap handler that has to handle both interrupts and exceptions. The most significant bit of `mcause` is 1 when a trap occurred from an interrupt. In vectored mode, the addresses of *interrupt handlers* are loaded from a jump table. Exceptions are redirected to a single handler. Note that the address of the jump table must be on a 4-byte boundary, and bit 0 of `mtvec` must be set to 1 for vectored mode.
+Writing read-only registers causes an illegal instruction trap. Accessing a non-existent register causes an illegal instruction trap. The trap handler (vector) address must be loaded by software at boot time (normally done in `main`). Both direct and vectored mode are supported. In direct mode all traps redirect to a single trap handler that has to handle both interrupts and exceptions. The most significant bit of `mcause` is 1 when a trap occurred from an interrupt. In vectored mode, *interrupt handlers* are called from a jump table. Exceptions are redirected to a single handler. Note that the address of the jump table must be on a 4-byte boundary, and bit 0 of `mtvec` must be set to 1 for vectored mode.
 
 
 === Local Interrupt Controller
@@ -241,7 +241,7 @@ The Local Interrupt Controller is responsible for selecting which trap request m
 
 The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7) and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, SPI2, I2C2, UART1, TIMER2, TIMER1, UART2, EXTI external input interrupt, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
 
-Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture'': instruction access fault, instruction address misaligned, ECALL (M mode only), EBREAK, load/store address misaligned, load/store access fault. Note that ECALL and EBREAK are user instructions and can be interrupted by an interrupt (i.e. when the ECALL or EBREAK instruction is executing).
+Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture'': instruction access fault, instruction address misaligned, ECALL (M mode only), EBREAK, load/store address misaligned, load/store access fault. Note that ECALL and EBREAK are user instructions and can be interrupted by an interrupt (i.e. when the ECALL or EBREAK instruction is about to be executed).
 
 
 === Multiply/Divide Unit
@@ -251,7 +251,7 @@ The processor is equipped with a hardware integer multiply/divide unit. All mult
 
 === Trigger Module
 
-The core is equipped with a trigger module +(TM)+ that can be used with on-chip debugging. The TM makes it possipble the halt, reset and resume the core. The TM implements one hardware breakpoint. Also, the TM is used to access the registers, including CSRs.
+The core is equipped with a trigger module +(TM)+ that can be used with on-chip debugging. The TM makes it possible the halt, reset and resume the core. The TM implements one hardware breakpoint. Also, the TM is used to access the registers, including CSRs.
 
 === Implemented instructions
 
@@ -340,7 +340,7 @@ Note that *all* memory accesses are/must be acknowledged, even when this trigger
 
 == Debug Module and Debug Transport Module
 
-The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up a hardware breakpoint, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
+The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up breakpoints, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
 
 The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd).
 

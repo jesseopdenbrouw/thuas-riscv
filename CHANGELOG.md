@@ -41,4 +41,7 @@ All dates are in dd.mm.yyyy format.
 | 27.01.2025 | 1.1.0.6  | [core] Added Zbb extension, [common] added functions for use with Zbb | |
 | 29.01.2025 | 1.1.1.0  | New version | |
 | 09.02.2025 | 1.1.1.1  | [core] make sure that NMI is only accepted if not already executing an NMI [mtime] register access after mtime counter update | |
+| 20.03.2025 | 1.1.1.2  | Rewrite wdt code | |
+| 21.03.2025 | 1.1.1.3  | Added CRC module | |
+| 21.03.2025 | 1.1.2.0  | New version 1.1.2 | |
 

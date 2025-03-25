@@ -11,10 +11,6 @@
 # The target
 TARGET = mult
 
-# Compiler flags
-CFLAGS = -g -O2 -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) -march=rv32e_zicsr -mabi=ilp32e
-# Linker flags
-LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) -march=rv32e_zicsr -mabi=ilp32e $(EXTRA_LINKER_FLAGS)
 
 
 #-----
@@ -32,6 +28,11 @@ ifneq ("$(wildcard $(COMMON_FILE))","")
 include $(COMMON_FILE)
 else
 endif
+
+# Compiler flags
+CFLAGS = -g -O2 -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) -march=rv32e_zicsr -mabi=ilp32e
+# Linker flags
+LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) -march=rv32e_zicsr -mabi=ilp32e $(EXTRA_LINKER_FLAGS) -Wl,--gc-sections
 
 # All header files
 HFILES = $(wildcard *.h)

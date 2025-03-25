@@ -82,12 +82,13 @@ endif
 .PHONY: all check
 
 all:
-	@if ! [ -d $(FREERTOS_HOME) ]; then \
-		echo "FreeRTOS home directory not found!"; \
-		exit 0; \
-	else \
-		make check; \
-	fi
+#	@if ! [ -d $(FREERTOS_HOME) ]; then \
+#		echo "FreeRTOS home directory not found!"; \
+#		exit 0; \
+#	else \
+#		make check; \
+#	fi
+	make check
 
 check: $(TARGET).elf
 

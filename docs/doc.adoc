@@ -136,7 +136,7 @@ Exceptions are synchronous to the executing of instructions. When an exception o
 
 An ongoing memory access can only be interrupted by an exception (`mem` state). An ongoing hardware multiply/divide operation is *not* interrupted, the operation completes and writes back the result in a register.
 
-When a trap request is asserted, the trap vector from the `mtvec` CSR is loaded in the next clock cycle. Then, in the second clock cycle, the instruction is fetched and in the third clock cycle the instruction is decoded and in the fourth cycle the instruction is executed. On return from a trap handler, using `mret`, the original contents of the PC is fetched from the `mepc` CSRi, the pipeline is flushed and new instructions are fetched. A return takes 3 clock cycles.
+When a trap request is asserted, the trap vector from the `mtvec` CSR is loaded in the next clock cycle. Then, in the second clock cycle, the instruction is fetched and in the third clock cycle the instruction is decoded and in the fourth cycle the instruction is executed. On return from a trap handler, using `mret`, the original contents of the PC is fetched from the `mepc` CSR, the pipeline is flushed and new instructions are fetched. A return takes 3 clock cycles.
 
 The following exceptions are implemented:
 

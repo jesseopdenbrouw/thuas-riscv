@@ -6,10 +6,4 @@ and viewing the results using GTKWave.
 
 ## Usage
 
-`make compile` - compiles the design
-
-`make sim` - simulates the design
-
-`make wave` - displays signals in the viewer
-
-
+`make` - conmpiles and simulate the design, and starts the GTKWave to show the waveforms

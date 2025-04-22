@@ -44,4 +44,5 @@ All dates are in dd.mm.yyyy format.
 | 20.03.2025 | 1.1.1.2  | Rewrite wdt code | |
 | 21.03.2025 | 1.1.1.3  | Added CRC module | |
 | 21.03.2025 | 1.1.2.0  | New version 1.1.2 | |
+| 22.04.2025 | 1.1.2.1  | [crc] changed counting sequence of the CRC module | |
 

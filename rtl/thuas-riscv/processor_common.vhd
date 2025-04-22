@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_02_00#;
+    constant HW_VERSION : integer := 16#01_01_02_01#;
 
     
     -- Used data types
@@ -581,7 +581,7 @@ package processor_common is
     -- Count trailing zeros
     function count_trailing_zeros(input : data_type) return data_type;
 
-    end package processor_common;
+end package processor_common;
 
 package body processor_common is
 

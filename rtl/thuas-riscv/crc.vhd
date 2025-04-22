@@ -60,7 +60,7 @@ type crc_type is record
     tc : std_logic;
     data : std_logic_vector(7 downto 0);
     --
-    counter : integer range -1 to 7;
+    counter : integer range 0 to 8;
     msb : std_logic;
 end record;
 signal crc : crc_type;
@@ -125,7 +125,7 @@ begin
             -- See https://www.allegromicro.com/-/media/files/application-notes/an296177-crc-algorithms-in-sensor-communication.pdf
             -- Pre-multiply LFSR
             
-            if crc.counter >= 0 then
+            if crc.counter > 0 then
                 if crc.msb /= crc.data(7) then
                     crc.sreg <= (crc.sreg(30 downto 0) & '0') xor crc.poly;
                 else

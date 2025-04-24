@@ -55,7 +55,7 @@
 
 #endif
 
-#define VERSION "v0.4"
+#define VERSION "v0.4.1"
 
 /* 1000 should be enough */
 #define LEN_BUFFER (1000)
@@ -383,7 +383,7 @@ int main(int argc, char *argv[]) {
 	address = ((address + size - 1) & ~(size - 1));
 
 	/* Output the data */
-	for (i = 0; i <= address; i = i + size) {
+	for (i = 0; i < address; i = i + size) {
 		if (indent) {
 			for (int i = 0; i < indentarg; i++) {
 				fprintf(fout, " ");
@@ -401,7 +401,7 @@ int main(int argc, char *argv[]) {
 		} else {
 			fprintf(stderr, "BUG:: size unknown\n");
 		}
-		if ((i < address) || writeunused) {
+		if ((i < address-size) || writeunused) {
 			fprintf(fout, ",");
 		}
 		fprintf(fout, "\n");

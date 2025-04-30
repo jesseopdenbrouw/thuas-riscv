@@ -56,6 +56,7 @@ int main(void)
 	uart1_printf("has MSI: %s\r\n", (hw & CSR_MXHW_MSI) ? "yes" : "no");
 	uart1_printf("has Buffer I/O reponse: %s\r\n", (hw & CSR_MXHW_BUFFER) ? "yes" : "no");
 	uart1_printf("has Zbb extension: %s\r\n", (hw & CSR_MXHW_ZBB) ? "yes" : "no");
+	uart1_printf("has CRC hardware: %s\r\n", (hw & CSR_MXHW_CRC) ? "yes" : "no");
 
 	/* Are HPM counters enabled... */
 	if (hw & CSR_MXHW_ZIHPM) {

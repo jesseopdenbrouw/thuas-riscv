@@ -40,7 +40,8 @@ custom CS register `mxhw`. The register is located at address
 | 27   | On-chip debugging enabled |
 | 28   | Machine Software Interrupt enabled |
 | 29   | Buffer I/O Response     |
-| rest | Reserved                |
+| 30   | Zbb extension           |
+| 31   | CRC module enabled      |
 
 It also prints the synthesized clock frequency and the hardware version.
 

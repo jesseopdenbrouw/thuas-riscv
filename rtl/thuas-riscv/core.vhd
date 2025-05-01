@@ -136,6 +136,9 @@ end entity core;
 
 architecture rtl of core is
 
+-- Number of registers: 16 for E, 32 for I
+constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16, 32);
+
 -- The Program Counter
 -- Not part of any record.
 signal pc : data_type;
@@ -143,6 +146,8 @@ signal pc : data_type;
 -- IF/ID signals for Instruction Decode stage
 type if_id_type is record
     pc : data_type;
+    selrs1 : integer range 0 to NUMBER_OF_REGISTERS-1;
+    selrs2 : integer range 0 to NUMBER_OF_REGISTERS-1;
 end record if_id_type;
 signal if_id : if_id_type;
 
@@ -187,20 +192,10 @@ end record ex_wb_type;
 signal ex_wb : ex_wb_type;
 
 -- The registers
--- Number of registers: 16 for E, 32 for I
-constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16, 32);
 type regs_array_type is array (0 to NUMBER_OF_REGISTERS-1) of data_type;
 -- Quartus will not generate RAM blocks for registers when they are in a record
 -- Also, Quartus will not generate RAM blocks when one set of registers is to be copied three times
 signal regs_rs1, regs_rs2, regs_debug : regs_array_type;
--- Do not check for read during write. For some reason, Quartus
--- thinks that there are asynchronous read and write clocks.
-attribute ramstyle : string;
-attribute ramstyle of regs_rs1 : signal is "no_rw_check";
-attribute ramstyle of regs_rs2 : signal is "no_rw_check";
-attribute ramstyle of regs_debug : signal is "no_rw_check";
-signal selrs1 : integer range 0 to NUMBER_OF_REGISTERS-1;
-signal selrs2 : integer range 0 to NUMBER_OF_REGISTERS-1;
 -- Used with on-chip debugger
 signal data_from_gpr : data_type;
 
@@ -812,8 +807,8 @@ begin
         imm_shamt_v(4 downto 0) := rs2_v;
 
         -- Select registers from the register file
-        selrs1 <= to_integer(unsigned(rs1_v));
-        selrs2 <= to_integer(unsigned(rs2_v));
+        if_id.selrs1 <= to_integer(unsigned(rs1_v));
+        if_id.selrs2 <= to_integer(unsigned(rs2_v));
         
         if I_areset = '1' then
             id_ex.pc <= (others => '0');
@@ -1449,7 +1444,7 @@ begin
                 end if;
                 if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
                 else
-                    id_ex.rs1data <= regs_rs1(selrs1);
+                    id_ex.rs1data <= regs_rs1(if_id.selrs1);
                 end if;
             end if;
         end process;
@@ -1470,7 +1465,7 @@ begin
                 end if;
                 if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
                 else
-                    id_ex.rs2data <= regs_rs2(selrs2);
+                    id_ex.rs2data <= regs_rs2(if_id.selrs2);
                 end if;
             end if;
         end process;
@@ -1523,8 +1518,8 @@ begin
                 if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
                     null;
                 else
-                    id_ex.rs1data <= regs_debug(selrs1);
-                    id_ex.rs2data <= regs_debug(selrs2);
+                    id_ex.rs1data <= regs_debug(if_id.selrs1);
+                    id_ex.rs2data <= regs_debug(if_id.selrs2);
                 end if;
                 data_from_gpr <= regs_debug(selrd_v);
             end if;
@@ -3152,7 +3147,7 @@ begin
     csr_reg.mxhw(18) <= boolean_to_std_logic(HAVE_BOOTLOADER_ROM);
     csr_reg.mxhw(19) <= boolean_to_std_logic(HAVE_REGISTERS_IN_RAM);
     csr_reg.mxhw(20) <= boolean_to_std_logic(HAVE_ZBA);
-    csr_reg.mxhw(21) <= '0';
+    csr_reg.mxhw(21) <= '0'; -- reserved
     csr_reg.mxhw(22) <= boolean_to_std_logic(HAVE_ZICOND);
     csr_reg.mxhw(23) <= boolean_to_std_logic(HAVE_ZBS);
     csr_reg.mxhw(24) <= boolean_to_std_logic(UART1_BREAK_RESETS);
@@ -3163,8 +3158,6 @@ begin
     csr_reg.mxhw(29) <= boolean_to_std_logic(BUFFER_IO_RESPONSE);
     csr_reg.mxhw(30) <= boolean_to_std_logic(HAVE_ZBB);
     csr_reg.mxhw(31) <= boolean_to_std_logic(HAVE_CRC);
-    --csr_reg.mxhw(csr_reg.mxhw'left downto 31) <= (others => '0');
-
 
     -- Custom read-only synthesized clock frequency
     csr_reg.mxspeed <= std_logic_vector(to_unsigned(SYSTEM_FREQUENCY, 32));

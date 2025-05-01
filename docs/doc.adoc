@@ -264,8 +264,10 @@ There are two types resets. A system wide reset resets the complete processor, i
 
 == Memories
 
-The memories are access through the address decoder and data router and the instruction router.
+The memories are accessed through the address decoder and data router and the instruction router.
 The are four memories: ROM, boot ROM, RAM and I/O.
+
+The memories are responsible for handling different data sizes and rearranging half word and byte access. When reading, the core expects half word data on the lower 16 bits of the data bus and bytes on the lower 8 bits of the databus. When writing the core puts half words on the lower 16 bits of the data bus and bytes on the lower 8 bits of the data bus. The memories are also responsible for signaling misaligned accesses. Sign and zero extension is handled by the core.
 
 === Address Decoder and Data Router
 

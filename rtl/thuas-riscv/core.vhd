@@ -3328,10 +3328,16 @@ begin
                                     I_bus_response.data when I_dm_core_data_request.readmem = '1' else
                                     x"00000000";
 
-    O_dm_core_data_response.ack <= I_bus_response.ready;
+    -- Send an ACK if there is a ready from memory OR  we're in debug and there is a data memory error
+    O_dm_core_data_response.ack <= I_bus_response.ready or 
+                                  (control.indebug and 
+                                  (I_bus_response.load_misaligned_error or I_bus_response.store_misaligned_error or
+                                   I_bus_response.load_access_error or I_bus_response.store_access_error));
+    -- Send bus error if there is a data memory error
     O_dm_core_data_response.buserr <= control.indebug and
                                       (I_bus_response.load_misaligned_error or I_bus_response.store_misaligned_error or
                                        I_bus_response.load_access_error or I_bus_response.store_access_error);
+    -- Send an exception if there is an illegal instruction executed
     O_dm_core_data_response.excep <= control.indebug and
                                      (control.illegal_instruction_csr or control.illegal_instruction_decode);
 

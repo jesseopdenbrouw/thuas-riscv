@@ -47,4 +47,5 @@ All dates are in dd.mm.yyyy format.
 | 22.04.2025 | 1.1.2.1  | [crc] changed counting sequence of the CRC module | |
 | 01.05.2025 | 1.1.2.2  | [core] moved register selection signals to if_id record | |
 | 02.05.2025 | 1.1.2.3  | [core] when in debug, memory access is acknowledged even when misaligned or access error | |
+| 03.05.2025 | 1.1.2.4  | [ricsv] used generic stubs for non-used I/O address space, memory accesses are now acknowledged | |
 

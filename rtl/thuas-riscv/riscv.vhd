@@ -678,6 +678,12 @@ signal uart2_request_int : mem_request_type;
 signal uart2_response_int : mem_response_type;
 signal crc_request_int : mem_request_type;
 signal crc_response_int : mem_response_type;
+signal stub13_request_int : mem_request_type;
+signal stub13_response_int : mem_response_type;
+signal stub14_request_int : mem_request_type;
+signal stub14_response_int : mem_response_type;
+signal stub15_request_int : mem_request_type;
+signal stub15_response_int : mem_response_type;
 
 -- IRQ signals
 signal irq_gpioa_int : std_logic;
@@ -976,14 +982,14 @@ begin
               O_dev12_request => crc_request_int,
               I_dev12_response => crc_response_int,
               -- 0xd00 - free
-              O_dev13_request => open,
-              I_dev13_response => mem_response_terminate_c,
+              O_dev13_request => stub13_request_int,
+              I_dev13_response => stub13_response_int,
               -- 0xe00 - free
-              O_dev14_request => open,
-              I_dev14_response => mem_response_terminate_c,
+              O_dev14_request => stub14_request_int,
+              I_dev14_response => stub14_response_int,
               -- 0xf00 - free
-              O_dev15_request => open,
-              I_dev15_response => mem_response_terminate_c
+              O_dev15_request => stub15_request_int,
+              I_dev15_response => stub15_response_int
              );
 
     -- Always have GPIOA
@@ -1338,31 +1344,32 @@ begin
                   O_mem_response => crc_response_int
                  );
     end generate;
-    
---    stub13geb: stub
---    port map (
---              I_clk => clk_int,
---              I_areset => areset_sys_int,
---              --
---              I_mem_request => stub13_request_int,
---              O_mem_response => stub13_response_int
---             );
---    stub14geb: stub
---    port map (
---              I_clk => clk_int,
---              I_areset => areset_sys_int,
---              --
---              I_mem_request => stub14_request_int,
---              O_mem_response => stub14_response_int
---             );
---    stub15geb: stub
---    port map (
---              I_clk => clk_int,
---              I_areset => areset_sys_int,
---              --
---              I_mem_request => stub15_request_int,
---              O_mem_response => stub15_response_int
---             );
+
+    -- Three stubs for non-used I/O
+    stub13gen: stub
+    port map (
+              I_clk => clk_int,
+              I_areset => areset_sys_int,
+              --
+              I_mem_request => stub13_request_int,
+              O_mem_response => stub13_response_int
+             );
+    stub14gen: stub
+    port map (
+              I_clk => clk_int,
+              I_areset => areset_sys_int,
+              --
+              I_mem_request => stub14_request_int,
+              O_mem_response => stub14_response_int
+             );
+    stub15gen: stub
+    port map (
+              I_clk => clk_int,
+              I_areset => areset_sys_int,
+              --
+              I_mem_request => stub15_request_int,
+              O_mem_response => stub15_response_int
+             );
 
 
     -- Bundle all interrupt lines together

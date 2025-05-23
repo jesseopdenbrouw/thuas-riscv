@@ -30,7 +30,8 @@ image::images/ready.png[]
 
 Wait a while until the installation is completed.
 
-Open a DOS-box and check is `npm` works. Maybe you have to set the `%PATH%` environment variable.
+Open a DOS-box and check is `npm` works. You may have to set the `%PATH%` environment variable. Start the `Advanced system settings` via the `Search` box.
+Under the tab `Advanced`, you'll find `Settings` at the bottom.
 
 image::images/npm_works.png[]
 
@@ -40,7 +41,7 @@ Now we have to install `xpm`. Just type
 npm install xpm@latest
 -----
 
-Check that `xpm` is installed:
+Check that `xpm` is installed. You may have to set the `%PATH%` enviroment variable. The path is something like `C:\Users\<username>\node_modules\.bin`
 
 -----
 xpm --version

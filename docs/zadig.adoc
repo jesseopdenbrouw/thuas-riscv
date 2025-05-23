@@ -1,0 +1,20 @@
+= Installing WinUSB driver for FTDI boards on Windows 11
+
+Download `zadig` from the https://zadig.akeo.ie/[Web site].
+
+Plug in your FTDI serial-to-USB converter. Here we use an FTDI-2232H with two channels. Channel 0 will be used for `openocd` and channel 1 will be used as a serial device.
+You can find the devices in the `Device Manager` under `Ports`.
+
+image::images/devicemanager.png[]
+
+Now start `zadig`. It should show devices. If you can't find the Channels, click on `Options->List All Devices`. Select Channel 0.
+
+image::images/listalldevices.png[]
+
+Now replace it with the WinUSB driver.
+
+image::images/winusbdriver.png[]
+
+The default driver will be replaced. This can take some time.
+
+image::images/success.png[]

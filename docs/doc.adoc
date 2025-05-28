@@ -281,7 +281,7 @@ Note that _all_ memory accesses are/must be acknowledged, even when this trigger
 
 === Instruction Router
 
-The Instruction Router routes instructions from the ROM and the boot ROM. If the boot ROM is disabled, the synthesizer will remove access to boot ROM.
+The Instruction Router routes instructions from the ROM and the boot ROM. If the boot ROM is disabled, the synthesizer will remove the instruction decoder.
 
 
 === ROM
@@ -331,8 +331,6 @@ SPI2 is an exact copy of SPI1, but with a different interrupt priority.
 WDT is a simple watchdog timer that can trigger a system wide reset or a non-maskable interrupt (NMI). The NMI cannot be blocked. The NMI uses the same mechanism as other traps, so `mtvec` must point to a trap handler. Note that an NMI will fire only when the control unit is in the `exec` state. This is done so that the processor is in a known state when the NMI fires. An NMI cannot be interrupted by another NMI. It is not always possible to return to a correct running state of the program. This depends on the program.
 
 The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger register will fire an MSI if `mie.MSIE` is set. As long a the trigger register is set to 1, MSIs will be fired. Cleared by writing a 0.
-
-The CRC unit can calculate 32-bit, 24-bit, 16-bit and 8-bit CRCs. The polynomal is programmable as is the initial value of the CRC value. CRCs are calculated on byte basis (8-bit data), so bigger data units (e.g. 32-bit) must be broken into bytes.
 
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since `clock()` and `gettimeofday()` depend on this value. As such, the system clock frequency must be a integer multiple of 1 MHz. Note that TIMEH:TIME is writable by software.
 

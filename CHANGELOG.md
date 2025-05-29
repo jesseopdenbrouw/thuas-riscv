@@ -21,7 +21,7 @@ All dates are in dd.mm.yyyy format.
 | 09.09.2024 | 1.0.1.1  | [dm] Fix bug in auto-increment calculation | |
 | 17.09.2024 | 1.0.1.2  | Removed unused signal | |
 | 21.09.2024 | 1.0.1.3  | Minor comment edits, moved a signal in core | |
-| 27.09.2024 | 1.0.1.4  | MEPC has bit 0 set to hard 0, PC witg JARL has bit 0 set to hard 0 | |
+| 27.09.2024 | 1.0.1.4  | MEPC has bit 0 set to hard 0, PC with JARL has bit 0 set to hard 0 | |
 | 30.09.2024 | 1.0.1.5  | [core] fixed handling of NMI | |
 | 04.10.2024 | 1.0.2.0  | New version |
 | 19.10.2024 | 1.0.2.1  | [bootloader] Removed unused variable, renamed all variables to ending with v. [common] update function initialize_memory | |
@@ -48,4 +48,5 @@ All dates are in dd.mm.yyyy format.
 | 01.05.2025 | 1.1.2.2  | [core] moved register selection signals to if_id record | |
 | 02.05.2025 | 1.1.2.3  | [core] when in debug, memory access is acknowledged even when misaligned or access error | |
 | 03.05.2025 | 1.1.2.4  | [ricsv] used generic stubs for non-used I/O address space, memory accesses are now acknowledged | |
+| 29.05.2025 | 1.1.2.5  | [core] remove RAM block for debug when OCD is turned of and registers are in RAM block | |
 

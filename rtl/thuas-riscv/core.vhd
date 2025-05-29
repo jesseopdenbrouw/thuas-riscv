@@ -1471,23 +1471,28 @@ begin
         end process;
         -- Next process is for the debug read.
         -- We can't use RS1 or RS2, otherwise the selected output is changed
-        process (I_clk, I_areset, control, id_ex, I_dm_core_data_request) is
-        variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
-        begin
-            if control.indebug = '1' then
-                selrd_v := to_integer(unsigned(I_dm_core_data_request.address(4 downto 0)));
-            else
-                selrd_v := to_integer(unsigned(id_ex.rd));
-            end if;
-            if rising_edge(I_clk) then
-                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
-                    regs_debug(selrd_v) <= id_ex.result;
-                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
-                    regs_debug(selrd_v) <= I_dm_core_data_request.data;
+        debuginramgen: if HAVE_OCD generate
+            process (I_clk, I_areset, control, id_ex, I_dm_core_data_request) is
+            variable selrd_v : integer range 0 to NUMBER_OF_REGISTERS-1;
+            begin
+                if control.indebug = '1' then
+                    selrd_v := to_integer(unsigned(I_dm_core_data_request.address(4 downto 0)));
+                else
+                    selrd_v := to_integer(unsigned(id_ex.rd));
                 end if;
-                data_from_gpr <= regs_debug(selrd_v);
-            end if;
-        end process;
+                if rising_edge(I_clk) then
+                    if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                        regs_debug(selrd_v) <= id_ex.result;
+                    elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                        regs_debug(selrd_v) <= I_dm_core_data_request.data;
+                    end if;
+                    data_from_gpr <= regs_debug(selrd_v);
+                end if;
+            end process;
+        end generate;
+        debuginramnotgen: if not HAVE_OCD generate
+            data_from_gpr <= all_zeros_c;
+        end generate;
     end generate;
 
     -- Generate registers in ALM flip-flops

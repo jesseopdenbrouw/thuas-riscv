@@ -13,7 +13,7 @@ J.E.J.opdenBrouw@hhs.nl
 
 This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba, Zbb and Zbs (bit operations), Zihpm (extra counters) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 23.1 and QuestaSim Intel Starter Edition 2023.3. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
 
-The processor has a three-stage pipeline and executes each instruction in three clock cycles, but the next instructions are fetched and decoded while the current instruction is executed. Jump/branches taken require three clock cycles. Memory reads need three clock cycles, writes take two clock cycles, except for I/O where writes take three clock cycles. This processor also has a basic Control and Status Registers (CSR) set, suitable to handle traps, and a hardware integer multiplier/divider.
+The processor has a three-stage pipelined core and executes each instruction in three clock cycles, but the next instructions are fetched and decoded while the current instruction is executed. Jump/branches taken require three clock cycles. Memory reads need three clock cycles, writes take two clock cycles, except for I/O where writes take three clock cycles. This processor also has a basic Control and Status Registers (CSR) set, suitable to handle traps, and a hardware integer multiplier/divider.
 
 This is work in progress. Things will certainly change in the future.
 
@@ -23,7 +23,7 @@ This is work in progress. Things will certainly change in the future.
 
 This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbb, Zbs, Sdext and Sdtrig extensions are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
 
-The processor is build around a three-stage pipeline: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings.
+The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings.
 
 The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests shows an average CPI of 1.73 with a throughput of 1.93 coremark/MHz (4000 runs).
 
@@ -159,7 +159,7 @@ The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this t
 
 === Memory Interface
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (writes), the data size and the read/write flag on the bus. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is no acknowledge nor exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (writes), the data size and the read/write flag on the bus. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither acknowledge nor exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles.
 
 
 === Control and Status registers
@@ -735,7 +735,7 @@ Compilation of the hardware design is independent of the size of the software pr
 
 == Setting up the GNU C compiler for _this_ RISC-V
 
-The processor can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 14.2.0. Building the C/{cpp} compiler for Linux is straightforward:
+The processor can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 15.1.0. Building the C/{cpp} compiler for Linux is straightforward:
 
 You need a current GNU C/{cpp} compiler installed or your Linux box. You also need all essential building tools:
 [source,subs=attributes+]
@@ -803,12 +803,12 @@ It should say something like:
 ----
 Using built-in specs.
 COLLECT_GCC=riscv32-unknown-elf-gcc
-COLLECT_LTO_WRAPPER=/opt/riscv32/libexec/gcc/riscv32-unknown-elf/14.2.0/lto-wrapper
+COLLECT_LTO_WRAPPER=/opt/riscv32/libexec/gcc/riscv32-unknown-elf/15.1.0/lto-wrapper
 Target: riscv32-unknown-elf
-Configured with: /mnt/d/PROJECTS/RISCVDEV/riscv-gnu-toolchain/build/../gcc/configure --target=riscv32-unknown-elf --prefix=/opt/riscv32 --disable-shared --disable-threads --enable-languages=c,c++ --with-pkgversion= --with-system-zlib --enable-tls --with-newlib --with-sysroot=/opt/riscv32/riscv32-unknown-elf --with-native-system-header-dir=/include --disable-libmudflap --disable-libssp --disable-libquadmath --disable-libgomp --disable-nls --disable-tm-clone-registry --src=../../gcc --enable-multilib --with-multilib-generator='rv32im_zicsr_zba_zbs_zicond-ilp32--;rv32e-ilp32e--' --with-abi=ilp32 --with-arch=rv32im --with-tune=rocket --with-isa-spec=20191213 'CFLAGS_FOR_TARGET=-Os    -mcmodel=medlow' 'CXXFLAGS_FOR_TARGET=-Os    -mcmodel=medlow'
+Configured with: /mnt/d/PROJECTS/RISCVDEV/riscv-gnu-toolchain/build/../gcc/configure --target=riscv32-unknown-elf --prefix=/opt/riscv32 --disable-shared --disable-threads --enable-languages=c,c++ --with-pkgversion= --with-system-zlib --enable-tls --with-newlib --with-sysroot=/opt/riscv32/riscv32-unknown-elf --with-native-system-header-dir=/include --disable-libmudflap --disable-libssp --disable-libquadmath --disable-libgomp --disable-nls --disable-tm-clone-registry --src=../../gcc --enable-multilib --with-multilib-generator='rv32im_zicsr_zba_zbb_zbs_zicond-ilp32--;rv32e-ilp32e--' --with-abi=ilp32 --with-arch=rv32im --with-tune=rocket --with-isa-spec=20191213 'CFLAGS_FOR_TARGET=-Os    -mcmodel=medlow' 'CXXFLAGS_FOR_TARGET=-Os    -mcmodel=medlow'
 Thread model: single
 Supported LTO compression algorithms: zlib
-gcc version 14.2.0 () 
+gcc version 15.1.0 () 
 ----
 
 When using Windows, best is to use precompiled binaries. See <<sec_win>>.

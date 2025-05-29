@@ -39,11 +39,11 @@ compiler.
 
 == Current flavor
 
-The design can be equipped with bootloader and on-chip debugger
-hardware (both can be switched off). The bootloader can
+The design can be equipped with bootloader and/or on-chip debugger
+hardware. The bootloader can
 be used without the on-chip debugger to upload executables
 to the processor. The on-chip debugger can be used with
-OpenOCD, GDB and Eclipse CDT.
+OpenOCD, GDB and Eclipse-CDT.
  
 == Memory
 
@@ -120,7 +120,7 @@ is needed.
 
 == On-chip debugger
 
-The processor is equipped with an on-chip debugger that complies to the
+The processor can be equipped with an on-chip debugger that complies to the
 https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[RISC-V Debug Specification v1.0.0-rc3].
 It is an all-hardware solution,
 there is no program buffer involved. All processor registers (including

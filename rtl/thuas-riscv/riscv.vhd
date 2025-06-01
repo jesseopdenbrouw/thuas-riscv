@@ -34,7 +34,7 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
--- This file contains the description of a RISC-V RV32IM top level,
+-- This file contains the description of a RISC-V RV32IM microcontroller
 -- including the core (using a three-stage pipeline), and address
 -- decoding unit, RAM, ROM, boot ROM and I/O.
 

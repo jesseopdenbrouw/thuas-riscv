@@ -17,6 +17,7 @@ AR = $(PREFIX)-ar
 SIZE = $(PREFIX)-size
 SREC2VHDL = ../bin/srec2vhdl
 UPLOAD = ../bin/upload
+OPENOCD = openocd
 
 # Common settings of flags
 CFLAGS = -g -O2 -Wall -DF_CPU=$(F_CPU) -DBAUD_RATE=$(BAUD_RATE) -DPROG_NAME=$(PROG_NAME) -I$(INCPATH) $(MARCHABISTRING)
@@ -68,3 +69,6 @@ UPLOAD_OPTIONS= -nv -d COM1
 else
 UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0
 endif
+
+# OpenOCD config file from software examples
+OPENOCDCFG = "../../openocd/openocd.cfg"

@@ -10,5 +10,5 @@
 int __io_putchar(int ch)
 {
 	uart1_putc(ch);
-	return 1;
+	return ch;
 }

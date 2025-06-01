@@ -8,10 +8,9 @@
  *
  */
 
-#include <stdint.h>
-
 #include <thuasrv32.h>
 
+/* Leave this at 1 M */
 #ifndef CLOCK_FREQUENCY
 #define CLOCK_FREQUENCY (1000000ULL)
 #endif

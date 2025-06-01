@@ -104,6 +104,10 @@ $(TARGET).elf : $(APP_SRC) FreeRTOSConfig.h
 upload: $(TARGET).srec
 	$(UPLOAD) $(UPLOAD_OPTIONS) $(TARGET).srec
 
-.PHONY: clean_all
+.PHONY: ocd
+ocd: $(TARGET).elf
+	$(OPENOCD) -f $(OPENOCDCFG) -c "load_image $(TARGET).elf" -c "reset run" -c "shutdown"
+
+.PHONY: clean
 clean:
 	rm -f $(TARGET).elf $(TARGET).srec $(TARGET).vhd $(CRT)

@@ -29,7 +29,7 @@ endif
 
 # Linker flags
 #LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) --specs=../lib/thuas.specs --specs=nano.specs $(EXTRA_LINKER_FLAGS)
-LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) --specs=nano.specs --specs=../lib/thuas.specs $(EXTRA_LINKER_FLAGS)
+LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) --specs=nano.specs --specs=../lib/thuas.specs $(MORE_LINKER_FLAGS)
 
 # All header files
 HFILES = $(wildcard *.h)
@@ -63,6 +63,10 @@ $(TARGET).elf: $(OBJS) $(HFILES) $(COMMON_FILE)
 # Upload the S-record file
 upload: $(TARGET).srec
 	$(UPLOAD) $(UPLOAD_OPTIONS) $(TARGET).srec
+
+.PHONY: ocd
+ocd: $(TARGET).elf
+	$(OPENOCD) -f $(OPENOCDCFG) -c "load_image $(TARGET).elf" -c "reset run" -c "shutdown"
 
 .PHONY: clean
 # Clean all

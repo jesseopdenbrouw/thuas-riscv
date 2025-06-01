@@ -60,6 +60,10 @@ $(TARGET).elf: $(OBJS) $(HFILES) $(COMMON_FILE)
 upload: $(TARGET).srec
 	$(UPLOAD) $(UPLOAD_OPTIONS) $(TARGET).srec
 
+.PHONY: ocd
+ocd: $(TARGET).elf
+	$(OPENOCD) -f $(OPENOCDCFG) -c "load_image $(TARGET).elf" -c "reset run" -c "shutdown"
+
 .PHONY: clean
 # Clean all
 clean:

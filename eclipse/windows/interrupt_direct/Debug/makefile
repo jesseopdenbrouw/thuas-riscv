@@ -17,6 +17,7 @@ RM := rm -rf
 -include lib/i2c/subdir.mk
 -include lib/gpio/subdir.mk
 -include lib/csr/subdir.mk
+-include lib/crc/subdir.mk
 -include crt/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -67,7 +68,7 @@ main-build: interrupt_direct.elf secondary-outputs
 interrupt_direct.elf: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GNU RISC-V Cross C Linker'
-	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -T "D:\PROJECTS\RISCVDEV\thuas-riscv-with-new-io\eclipse\windows\interrupt_direct\ldfiles\riscv.ld" -nostartfiles -Xlinker --gc-sections -Wl,-Map,"interrupt_direct.map" --specs=nano.specs -o "interrupt_direct.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -T "D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\interrupt_direct\ldfiles\riscv.ld" -nostartfiles -Xlinker --gc-sections -Wl,-Map,"interrupt_direct.map" --specs=nano.specs -o "interrupt_direct.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

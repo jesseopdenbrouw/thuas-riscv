@@ -21,6 +21,7 @@
 #include <i2c.h>
 #include <timer.h>
 #include <wdt.h>
+#include <crc.h>
 
 #endif
 

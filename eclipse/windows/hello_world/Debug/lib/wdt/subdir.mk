@@ -9,12 +9,6 @@ C_SRCS += \
 ../lib/wdt/wdt_start.c \
 ../lib/wdt/wdt_stop.c 
 
-O_SRCS += \
-../lib/wdt/wdt_init.o \
-../lib/wdt/wdt_reset.o \
-../lib/wdt/wdt_start.o \
-../lib/wdt/wdt_stop.o 
-
 OBJS += \
 ./lib/wdt/wdt_init.o \
 ./lib/wdt/wdt_reset.o \
@@ -32,7 +26,7 @@ C_DEPS += \
 lib/wdt/%.o: ../lib/wdt/%.c lib/wdt/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GNU RISC-V Cross C Compiler'
-	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -isystem"D:\PROJECTS\RISCVDEV\thuas-riscv-with-new-io\eclipse\windows\hello_world\include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
+	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -isystem"D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\hello_world\include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

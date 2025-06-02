@@ -16,19 +16,6 @@ C_SRCS += \
 ../lib/spi/spi2_init.c \
 ../lib/spi/spi2_transfer.c 
 
-O_SRCS += \
-../lib/spi/spi1_csdisable.o \
-../lib/spi/spi1_csenable.o \
-../lib/spi/spi1_init.o \
-../lib/spi/spi1_receive.o \
-../lib/spi/spi1_transfer.o \
-../lib/spi/spi1_transmit.o \
-../lib/spi/spi1_transmit_receive.o \
-../lib/spi/spi2_csdisable.o \
-../lib/spi/spi2_csenable.o \
-../lib/spi/spi2_init.o \
-../lib/spi/spi2_transfer.o 
-
 OBJS += \
 ./lib/spi/spi1_csdisable.o \
 ./lib/spi/spi1_csenable.o \
@@ -60,7 +47,7 @@ C_DEPS += \
 lib/spi/%.o: ../lib/spi/%.c lib/spi/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GNU RISC-V Cross C Compiler'
-	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -isystem"D:\PROJECTS\RISCVDEV\thuas-riscv-with-new-io\eclipse\windows\hello_world\include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
+	riscv-none-elf-gcc.cmd -march=rv32im_zicsr -mabi=ilp32 -msmall-data-limit=8 -mno-save-restore -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -g3 -isystem"D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\hello_world\include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

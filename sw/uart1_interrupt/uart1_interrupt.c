@@ -102,6 +102,14 @@ int uart1_putsIT(char *str)
 }
 
 /* Get a string using interrupts */
+/* Note: GCC 15.1 thinks that receive_string
+ * is always not NULL, so always returns 1,
+ * and then the while loop on line 56 will always
+ * hang. This is to prevent the compiler to
+ * make optimzations */
+#if __GCC__ == 15
+__attribute__((optimize("O0")))
+#endif
 int uart1_getsIT(char *str, int len) {
 
 	static int still_receiving = 0;

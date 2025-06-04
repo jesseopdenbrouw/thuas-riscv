@@ -4,7 +4,7 @@
  * Note: these handlers are called by the universal handler
  *       since we are using direct traps, hence they are callable
  *
- * (c) 2024, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c) 2025, Jesse E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  */
 
@@ -142,7 +142,7 @@ void spi1_handler(void)
 /* I2C1 transmit complete interrupt handler */
 void i2c1_handler(void)
 {
-	/* Remove TC interrupt flags */
+	/* Remove TC interrupt flag */
 	I2C1->STAT &= ~I2C_TC;
 	/* Flip output bit 5 (led) */
 	GPIOA->POUT ^= 0x20;
@@ -151,7 +151,7 @@ void i2c1_handler(void)
 /* I2C2 transmit complete interrupt handler */
 void i2c2_handler(void)
 {
-	/* Remove TC interrupt flags */
+	/* Remove TC interrupt flag */
 	I2C2->STAT &= ~I2C_TC;
 	/* Flip output bit 7 */
 	GPIOA->POUT ^= 0x80;

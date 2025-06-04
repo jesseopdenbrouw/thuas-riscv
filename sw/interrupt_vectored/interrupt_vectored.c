@@ -47,7 +47,6 @@ int main(int argc, char *argv[], char *envp[])
 
 	/* Initialize the USART*/
 	uart1_init(BAUD_RATE, UART_CTRL_RCIE | UART_CTRL_EN);
-	//uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	/* Activate TIMER1 with a cycle of 100 Hz */
 	TIMER1->CMPT = speed/100UL - 1;

@@ -86,6 +86,7 @@ vcom -93 -work work ${prefix}msi.vhd
 vcom -93 -work work ${prefix}mtime.vhd
 vcom -93 -work work ${prefix}riscv.vhd
 vcom -93 -work work ${prefix}crc.vhd
+vcom -93 -work work ${prefix}stub.vhd
 vcom -93 -work work ${prefix}tb_riscv.vhd
 
 # Start the simulator

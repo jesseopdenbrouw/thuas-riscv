@@ -49,4 +49,5 @@ All dates are in dd.mm.yyyy format.
 | 02.05.2025 | 1.1.2.3  | [core] when in debug, memory access is acknowledged even when misaligned or access error | |
 | 03.05.2025 | 1.1.2.4  | [ricsv] used generic stubs for non-used I/O address space, memory accesses are now acknowledged | |
 | 29.05.2025 | 1.1.2.5  | [core] remove RAM block for debug when OCD is turned of and registers are in RAM block | |
+| 08.06.2025 | 1.1.2.6  | [riscv/address_decode] now have new generic HAVE_BOOTLOADER_ROM, [dm] new cmderr when memory access times out | |
 

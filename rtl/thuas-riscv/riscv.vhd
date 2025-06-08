@@ -249,6 +249,8 @@ component core is
 end component core;
 component address_decode is
     generic (
+          -- Do we have boot ROM?
+          HAVE_BOOTLOADER_ROM : boolean;
           -- 4 high bits of ROM address
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
@@ -789,6 +791,7 @@ begin
     
     address_decode0: address_decode
     generic map (
+              HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
               BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE,
               RAM_HIGH_NIBBLE => RAM_HIGH_NIBBLE,

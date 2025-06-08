@@ -47,6 +47,8 @@ use work.processor_common.all;
 
 entity address_decode is
     generic (
+          -- Do we have boot ROM?
+          HAVE_BOOTLOADER_ROM : boolean;
           -- 4 high bits of ROM address
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
@@ -131,7 +133,7 @@ begin
             O_bus_response.data <= I_mem_response_rom.data;
             O_bus_response.ready <= I_mem_response_rom.ready;
         -- Bootloader ROM @ 1xxxxxxx, 256M space, read only
-        elsif I_bus_request.addr(31 downto 28) = BOOT_HIGH_NIBBLE then
+        elsif I_bus_request.addr(31 downto 28) = BOOT_HIGH_NIBBLE and HAVE_BOOTLOADER_ROM then
             if I_bus_request.acc = memaccess_read then
                 O_mem_request_boot.cs <= '1';
             end if;

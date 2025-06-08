@@ -83,6 +83,12 @@ constant addr_command_c      : std_logic_vector(6 downto 0) := "0010111";
 constant addr_nextdm_c       : std_logic_vector(6 downto 0) := "0011101";
 constant addr_haltsum0_c     : std_logic_vector(6 downto 0) := "1000000";
 
+-- Memory timeout in clock cycles
+constant dm_memory_timeout_c : integer := 256;
+-- DM error on timeout (cmderr), currently set to 7 (other)
+-- See Debug Spec, S. 3.14.6.
+constant dm_timeout_code_c : std_logic_vector(2 downto 0) := "111";
+
 -- DM version
 constant dm_version_c : std_logic_vector(03 downto 0) := "0011";
 
@@ -103,6 +109,7 @@ type dm_reg_type is record
     write_acc_fault : std_logic;
     illegal_state : std_logic;
     illegal_cmd : std_logic;
+    timeout : std_logic;
     data0mustread : std_logic;
     data1mustincrement : std_logic;
     clrerr : std_logic;
@@ -116,6 +123,7 @@ type dm_reg_type is record
     command : data_type;
     cmderr : std_logic_vector(2 downto 0);
     state : dmstate_type;
+    counter : integer range 0 to 255;
 end record;
 signal dm_reg : dm_reg_type;
 
@@ -268,6 +276,8 @@ begin
             dm_reg.cmderr <= "000";
             dm_reg.illegal_state <= '0';
             dm_reg.illegal_cmd <= '0';
+            dm_reg.timeout <= '0';
+            dm_reg.counter <= 0;
             -- Reset the bus to the core
             O_dm_core_data_request.readcsr <= '0';
             O_dm_core_data_request.writecsr <= '0';
@@ -280,9 +290,11 @@ begin
         elsif rising_edge(I_clk) then
             dm_reg.illegal_state <= '0';
             dm_reg.illegal_cmd <= '0';
+            dm_reg.timeout <= '0';
             -- If the DM is deactivated...
             if dm_reg.dm_active = '0' then
                 dm_reg.state <= cmd_idle;
+                dm_reg.counter <= 0;
                 -- Reset the bus to the core
                 O_dm_core_data_request.readcsr <= '0';
                 O_dm_core_data_request.writecsr <= '0';
@@ -377,6 +389,7 @@ begin
                         O_dm_core_data_request.address <= dm_reg.data1;
                         O_dm_core_data_request.data <= dm_reg.data0;
                         O_dm_core_data_request.size <= dm_reg.command(21 downto 20);
+                        dm_reg.counter <= dm_memory_timeout_c-1;
                         if dm_reg.command(16) = '0' then            -- read
                             O_dm_core_data_request.writemem <= '0';
                             O_dm_core_data_request.readmem <= '1';
@@ -391,12 +404,32 @@ begin
                         if I_dm_core_data_response.ack = '1' then
                             dm_reg.state <= cmd_idle;
                         end if;
+                        -- Timeout counter, if it times out, the memory
+                        -- operation did not succeed and an error is
+                        -- reported to the debugger. This keeps the DM
+                        -- operable.
+                        if dm_reg.counter > 0 then
+                            dm_reg.counter <= dm_reg.counter - 1;
+                        else
+                            dm_reg.timeout <= '1';
+                            dm_reg.state <= cmd_error;
+                        end if;
                     -- Write memory, wait for response
                     when cmd_writemem1 =>
                         -- One-shot writemem
                         O_dm_core_data_request.writemem <= '0';
                         if I_dm_core_data_response.ack = '1' then
                             dm_reg.state <= cmd_idle;
+                        end if;
+                        -- Timeout counter, if it times out, the memory
+                        -- operation did not succeed and an error is
+                        -- reported to the debugger. This keeps the DM
+                        -- operable.
+                        if dm_reg.counter > 0 then
+                            dm_reg.counter <= dm_reg.counter - 1;
+                        else
+                            dm_reg.timeout <= '1';
+                            dm_reg.state <= cmd_error;
                         end if;
                     -- Extra cycle to get cmderr in place
                     when cmd_error =>
@@ -413,6 +446,9 @@ begin
                 -- Illegal command supplied
                 elsif dm_reg.illegal_cmd = '1' then
                     dm_reg.cmderr <= "010";
+                -- Timeout on memory operation
+                elsif dm_reg.timeout = '1' then
+                    dm_reg.cmderr <= dm_timeout_code_c;
                 -- Exception (illegal_instruction == use illegal register)
                 elsif I_dm_core_data_response.excep = '1' then
                     dm_reg.cmderr <= "011";

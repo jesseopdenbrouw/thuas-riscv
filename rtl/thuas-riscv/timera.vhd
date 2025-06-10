@@ -72,9 +72,9 @@ signal cs_sync : std_logic;
 
 begin
 
-    O_mem_response.load_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '0' and I_mem_request.size /= memsize_word else '0';
-    O_mem_response.store_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '1' and I_mem_request.size /= memsize_word else '0';
-    isword <= I_mem_request.size = memsize_word;
+    O_mem_response.load_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.store_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" ;
 
     process (I_clk, I_areset) is
     begin

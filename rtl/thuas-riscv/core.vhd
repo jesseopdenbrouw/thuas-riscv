@@ -767,15 +767,10 @@ begin
     variable selrs2_v : integer range 0 to NUMBER_OF_REGISTERS-1;
     begin
 
-        -- Replace opcode with a nop if we flush
-        if control.flush = '1' then
-            opcode_v := "0010011"; --nop
-            rd_v := (others => '0');
-        else
-            -- Get the opcode
-            opcode_v := I_instr_response.instr(6 downto 0);
-            rd_v := I_instr_response.instr(11 downto 7);
-        end if;
+
+        -- Get the opcode and destination register
+        opcode_v := I_instr_response.instr(6 downto 0);
+        rd_v := I_instr_response.instr(11 downto 7);
 
         -- Registers to select
         rs1_v := I_instr_response.instr(19 downto 15);
@@ -838,6 +833,7 @@ begin
             control.reg0_write_once <= '0';
         elsif rising_edge(I_clk) then
             id_ex.instr <= I_instr_response.instr;
+            id_ex.ismem <= '0';
             if control.stall_on_trigger = '1' then
                 -- Set all registers to default
                 id_ex.rd <= (others => '0');
@@ -847,7 +843,6 @@ begin
                 id_ex.imm <= imm_i_v;
                 id_ex.isimm <= '0';
                 id_ex.isunsigned <= '0';
-                id_ex.ismem <= '0';
                 id_ex.alu_op <= alu_nop;
                 id_ex.pc_op <= pc_incr;
                 id_ex.md_start <= '0';
@@ -879,10 +874,10 @@ begin
                 control.ecall_request <= '0';
                 -- EBREAK request reset
                 control.ebreak_request <= '0';
+                -- WFI request reset
                 control.wfi_request <= '0';
                 -- Illegal instruction reset
                 control.illegal_instruction_decode <= '0';
---                control.reg0_write_once <= '1';
             -- We need to stall the operation
             elsif control.stall = '1' then
                 -- Set id_ex.md_start to 0. It is already registered.
@@ -905,7 +900,6 @@ begin
                 id_ex.imm <= imm_i_v;
                 id_ex.isimm <= '0';
                 id_ex.isunsigned <= '0';
-                id_ex.ismem <= '0';
                 id_ex.alu_op <= alu_nop;
                 id_ex.pc_op <= pc_incr;
                 id_ex.md_start <= '0';
@@ -922,8 +916,9 @@ begin
                 control.illegal_instruction_decode <= '0';
                 control.reg0_write_once <= '1';
 
+                -- If we flush the pipeline, don't execute the instruction
                 if control.flush = '1' or control.state = state_debugflush or control.state = state_debugflush2 then
-                    id_ex.alu_op <= alu_nop;
+                    null;
                 else
                     case opcode_v is
                         -- LUI

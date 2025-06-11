@@ -51,4 +51,5 @@ All dates are in dd.mm.yyyy format.
 | 29.05.2025 | 1.1.2.5  | [core] remove RAM block for debug when OCD is turned of and registers are in RAM block | |
 | 08.06.2025 | 1.1.2.6  | [riscv/address_decode] now have new generic HAVE_BOOTLOADER_ROM, [dm] new cmderr when memory access times out | |
 | 10.06.2025 | 1.1.2.7  | [all I/O] correct response on misaligned access |
+| 11.06.2025 | 1.1.2.8  | [core] always decode instruction, id_ex.ismem always reset | |
 

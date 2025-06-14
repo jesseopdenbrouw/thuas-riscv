@@ -71,7 +71,8 @@ SUBDIRS = add64 \
           uart1_test \
           watchdog \
           wdt_nmi \
-          wfitest
+          wfitest \
+          whetstone
 
 ifeq ($(OS),Windows_NT)
 $(info Windows detected)

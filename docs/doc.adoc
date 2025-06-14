@@ -1039,6 +1039,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `watchdog` -- simple watchdog test program, resets the processor when the watchdog timer times out. Works on the board.
 * `wdt_nmi` -- program to test the NMI with the watchdog timer. Works on the board. Needs more testing.
 * `wfitest` -- simple program to test the WFI instruction. Works on the board.
+* `whetstone` -- port of the Whetstone benchmark. Works on the board.
 
 Note: we use a lot of the `volatile` keyword to emit the variables to RAM for easy inspection in the simulator.
 

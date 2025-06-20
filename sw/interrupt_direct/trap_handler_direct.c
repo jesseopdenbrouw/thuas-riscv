@@ -376,7 +376,6 @@ int32_t __trap_handler_execute(uint32_t _a0, uint32_t _a1, uint32_t _a2, uint32_
 			return_value = 0;
 		/* stat system call */
 		} else if (syscall_id == SYS_stat) {
-			GPIOA->POUT = 0xffffffff;
 			register struct stat *pst = (struct stat *) _a1;
 			pst->st_mode = S_IFCHR;
 			return_value = 0;

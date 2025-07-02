@@ -154,7 +154,7 @@ For on-chip debugging, see https://xpack-dev-tools.github.io/openocd-xpack/[xPac
 Take a short tour on xref:docs/xpack.adoc[Installing xPacks on Windows 11].
 
 
-## Plans (or not) and issues
+== Plans (or not) and issues
 
 * We are *not* planning the C standard.
 * Adding input synchronization for SPI1/SPI2 peripherals.

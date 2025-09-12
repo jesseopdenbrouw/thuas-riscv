@@ -32,10 +32,10 @@ endif
 # Compiler flags
 #CFLAGS += $(EXTRA_CFLAGS)
 #LDFLAGS += $(EXTRA_LDFLAGS)
-CFLAGS := $(EXTRA_CFLAGS) $(CFLAGS)
-LDFLAGS := $(EXTRA_LDFLAGS) $(LDFLAGS)
 # Linker script is different
 LD_SCRIPT = bl_riscv.ld
+CFLAGS := $(EXTRA_CFLAGS) $(CFLAGS)
+LDFLAGS := $(EXTRA_LDFLAGS) $(LDFLAGS)
 
 # All header files
 HFILES = $(wildcard *.h)

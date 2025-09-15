@@ -14,7 +14,6 @@
  * in registers. Faster code, but less
  * visible in RAM variables */
 #define WITH_REGISTER
-//#define WITH_DESTRUCTORS
 
 /* Find the name of the program */
 #ifndef PROG_NAME
@@ -103,8 +102,11 @@ void _start(void)
 		pStart++;
 	}
 
+/* If you do/don't need constructors */
+#ifndef NO_CONSTRUCTORS
 	/* Call the constructors */
 	__libc_init_array();
+#endif
 
 	/* At this point, the trap handler is not set up
 	 * properly. Also, the external timer is not set

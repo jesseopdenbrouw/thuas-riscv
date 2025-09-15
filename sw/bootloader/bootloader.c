@@ -27,7 +27,7 @@
 #define BAUD_RATE (115200UL)
 #endif
 
-#define VERSION "v0.6.3"
+#define VERSION "v0.6.4"
 #define BUFLEN (41)
 #define BOOTWAIT (10)
 
@@ -60,7 +60,9 @@ int main(int argc, char *argv[], char *envp[]) {
 	printlogo();
 
 	uart1_puts("\r\nTHUAS RISC-V Bootloader " VERSION "\r\n"
-				"Clock frequency: ");
+				"Hardware: ");
+	printhex(csr_read(mimpid), 8);
+	uart1_puts("\r\nClock frequency: ");
 	printdec(csr_read(0xfc1));
 	uart1_puts("\r\n");
 

@@ -9,7 +9,7 @@
 TARGET = bootloader
 
 # Compiler flags
-EXTRA_CFLAGS = -flto -Os -DNO_ARGC_ARGV
+EXTRA_CFLAGS = -flto -Os -DNO_ARGC_ARGV -DNO_CONSTRUCTORS
 EXTRA_LDFLAGS = -flto
 
 #-----

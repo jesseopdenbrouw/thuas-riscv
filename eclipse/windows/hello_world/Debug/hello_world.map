@@ -119,9 +119,11 @@ Discarded input sections
  .group         0x00000000        0xc ./src/hello_world.o
  .group         0x00000000        0xc ./src/hello_world.o
  .group         0x00000000        0xc ./src/hello_world.o
+ .group         0x00000000        0xc ./src/hello_world.o
  .text          0x00000000        0x0 ./src/hello_world.o
  .data          0x00000000        0x0 ./src/hello_world.o
  .bss           0x00000000        0x0 ./src/hello_world.o
+ .group         0x00000000        0xc ./lib/wdt/wdt_init.o
  .group         0x00000000        0xc ./lib/wdt/wdt_init.o
  .group         0x00000000        0xc ./lib/wdt/wdt_init.o
  .group         0x00000000        0xc ./lib/wdt/wdt_init.o
@@ -187,7 +189,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/wdt/wdt_init.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/wdt/wdt_init.o
- .debug_macro   0x00000000      0x2af ./lib/wdt/wdt_init.o
+ .debug_macro   0x00000000      0x2b8 ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000      0x7a2 ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000       0x22 ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000       0x8e ./lib/wdt/wdt_init.o
@@ -195,7 +197,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000       0x6a ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000      0x1df ./lib/wdt/wdt_init.o
- .debug_macro   0x00000000      0x1bb ./lib/wdt/wdt_init.o
+ .debug_macro   0x00000000      0x1ec ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000       0x22 ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000       0xdc ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000       0x7c ./lib/wdt/wdt_init.o
@@ -242,16 +244,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000       0x1c ./lib/wdt/wdt_init.o
  .debug_macro   0x00000000       0x28 ./lib/wdt/wdt_init.o
- .debug_line    0x00000000      0x189 ./lib/wdt/wdt_init.o
- .debug_str     0x00000000     0xac3e ./lib/wdt/wdt_init.o
+ .debug_macro   0x00000000       0x28 ./lib/wdt/wdt_init.o
+ .debug_line    0x00000000      0x18e ./lib/wdt/wdt_init.o
+ .debug_str     0x00000000     0xadfd ./lib/wdt/wdt_init.o
  .debug_line_str
-                0x00000000      0x4de ./lib/wdt/wdt_init.o
+                0x00000000      0x4e4 ./lib/wdt/wdt_init.o
  .comment       0x00000000       0x34 ./lib/wdt/wdt_init.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/wdt/wdt_init.o
  .debug_frame   0x00000000       0x38 ./lib/wdt/wdt_init.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/wdt/wdt_init.o
+ .group         0x00000000        0xc ./lib/wdt/wdt_reset.o
  .group         0x00000000        0xc ./lib/wdt/wdt_reset.o
  .group         0x00000000        0xc ./lib/wdt/wdt_reset.o
  .group         0x00000000        0xc ./lib/wdt/wdt_reset.o
@@ -317,7 +321,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/wdt/wdt_reset.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/wdt/wdt_reset.o
- .debug_macro   0x00000000      0x2af ./lib/wdt/wdt_reset.o
+ .debug_macro   0x00000000      0x2b8 ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000      0x7a2 ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000       0x22 ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000       0x8e ./lib/wdt/wdt_reset.o
@@ -325,7 +329,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000       0x6a ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000      0x1df ./lib/wdt/wdt_reset.o
- .debug_macro   0x00000000      0x1bb ./lib/wdt/wdt_reset.o
+ .debug_macro   0x00000000      0x1ec ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000       0x22 ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000       0xdc ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000       0x7c ./lib/wdt/wdt_reset.o
@@ -372,16 +376,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000       0x1c ./lib/wdt/wdt_reset.o
  .debug_macro   0x00000000       0x28 ./lib/wdt/wdt_reset.o
- .debug_line    0x00000000      0x189 ./lib/wdt/wdt_reset.o
- .debug_str     0x00000000     0xac3f ./lib/wdt/wdt_reset.o
+ .debug_macro   0x00000000       0x28 ./lib/wdt/wdt_reset.o
+ .debug_line    0x00000000      0x18e ./lib/wdt/wdt_reset.o
+ .debug_str     0x00000000     0xadfe ./lib/wdt/wdt_reset.o
  .debug_line_str
-                0x00000000      0x4e1 ./lib/wdt/wdt_reset.o
+                0x00000000      0x4e7 ./lib/wdt/wdt_reset.o
  .comment       0x00000000       0x34 ./lib/wdt/wdt_reset.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/wdt/wdt_reset.o
  .debug_frame   0x00000000       0x38 ./lib/wdt/wdt_reset.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/wdt/wdt_reset.o
+ .group         0x00000000        0xc ./lib/wdt/wdt_start.o
  .group         0x00000000        0xc ./lib/wdt/wdt_start.o
  .group         0x00000000        0xc ./lib/wdt/wdt_start.o
  .group         0x00000000        0xc ./lib/wdt/wdt_start.o
@@ -447,7 +453,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/wdt/wdt_start.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/wdt/wdt_start.o
- .debug_macro   0x00000000      0x2af ./lib/wdt/wdt_start.o
+ .debug_macro   0x00000000      0x2b8 ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000      0x7a2 ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000       0x22 ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000       0x8e ./lib/wdt/wdt_start.o
@@ -455,7 +461,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000       0x6a ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000      0x1df ./lib/wdt/wdt_start.o
- .debug_macro   0x00000000      0x1bb ./lib/wdt/wdt_start.o
+ .debug_macro   0x00000000      0x1ec ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000       0x22 ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000       0xdc ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000       0x7c ./lib/wdt/wdt_start.o
@@ -502,16 +508,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000       0x1c ./lib/wdt/wdt_start.o
  .debug_macro   0x00000000       0x28 ./lib/wdt/wdt_start.o
- .debug_line    0x00000000      0x189 ./lib/wdt/wdt_start.o
- .debug_str     0x00000000     0xac3f ./lib/wdt/wdt_start.o
+ .debug_macro   0x00000000       0x28 ./lib/wdt/wdt_start.o
+ .debug_line    0x00000000      0x18e ./lib/wdt/wdt_start.o
+ .debug_str     0x00000000     0xadfe ./lib/wdt/wdt_start.o
  .debug_line_str
-                0x00000000      0x4e1 ./lib/wdt/wdt_start.o
+                0x00000000      0x4e7 ./lib/wdt/wdt_start.o
  .comment       0x00000000       0x34 ./lib/wdt/wdt_start.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/wdt/wdt_start.o
  .debug_frame   0x00000000       0x38 ./lib/wdt/wdt_start.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/wdt/wdt_start.o
+ .group         0x00000000        0xc ./lib/wdt/wdt_stop.o
  .group         0x00000000        0xc ./lib/wdt/wdt_stop.o
  .group         0x00000000        0xc ./lib/wdt/wdt_stop.o
  .group         0x00000000        0xc ./lib/wdt/wdt_stop.o
@@ -577,7 +585,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/wdt/wdt_stop.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/wdt/wdt_stop.o
- .debug_macro   0x00000000      0x2af ./lib/wdt/wdt_stop.o
+ .debug_macro   0x00000000      0x2b8 ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000      0x7a2 ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000       0x22 ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000       0x8e ./lib/wdt/wdt_stop.o
@@ -585,7 +593,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000       0x6a ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000      0x1df ./lib/wdt/wdt_stop.o
- .debug_macro   0x00000000      0x1bb ./lib/wdt/wdt_stop.o
+ .debug_macro   0x00000000      0x1ec ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000       0x22 ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000       0xdc ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000       0x7c ./lib/wdt/wdt_stop.o
@@ -632,16 +640,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000       0x1c ./lib/wdt/wdt_stop.o
  .debug_macro   0x00000000       0x28 ./lib/wdt/wdt_stop.o
- .debug_line    0x00000000      0x189 ./lib/wdt/wdt_stop.o
- .debug_str     0x00000000     0xac3e ./lib/wdt/wdt_stop.o
+ .debug_macro   0x00000000       0x28 ./lib/wdt/wdt_stop.o
+ .debug_line    0x00000000      0x18e ./lib/wdt/wdt_stop.o
+ .debug_str     0x00000000     0xadfd ./lib/wdt/wdt_stop.o
  .debug_line_str
-                0x00000000      0x4de ./lib/wdt/wdt_stop.o
+                0x00000000      0x4e4 ./lib/wdt/wdt_stop.o
  .comment       0x00000000       0x34 ./lib/wdt/wdt_stop.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/wdt/wdt_stop.o
  .debug_frame   0x00000000       0x38 ./lib/wdt/wdt_stop.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/wdt/wdt_stop.o
+ .group         0x00000000        0xc ./lib/util/delayms.o
  .group         0x00000000        0xc ./lib/util/delayms.o
  .group         0x00000000        0xc ./lib/util/delayms.o
  .group         0x00000000        0xc ./lib/util/delayms.o
@@ -706,7 +716,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/util/delayms.o
  .debug_macro   0x00000000       0x6a ./lib/util/delayms.o
  .debug_macro   0x00000000      0x1df ./lib/util/delayms.o
- .debug_macro   0x00000000      0x1bb ./lib/util/delayms.o
+ .debug_macro   0x00000000      0x1ec ./lib/util/delayms.o
  .debug_macro   0x00000000       0x22 ./lib/util/delayms.o
  .debug_macro   0x00000000       0xdc ./lib/util/delayms.o
  .debug_macro   0x00000000       0x7c ./lib/util/delayms.o
@@ -753,6 +763,8 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/util/delayms.o
  .debug_macro   0x00000000       0x1c ./lib/util/delayms.o
  .debug_macro   0x00000000       0x28 ./lib/util/delayms.o
+ .debug_macro   0x00000000       0x28 ./lib/util/delayms.o
+ .group         0x00000000        0xc ./lib/util/gethex.o
  .group         0x00000000        0xc ./lib/util/gethex.o
  .group         0x00000000        0xc ./lib/util/gethex.o
  .group         0x00000000        0xc ./lib/util/gethex.o
@@ -817,7 +829,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/util/gethex.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/util/gethex.o
- .debug_macro   0x00000000      0x2ad ./lib/util/gethex.o
+ .debug_macro   0x00000000      0x2b6 ./lib/util/gethex.o
  .debug_macro   0x00000000      0x7a2 ./lib/util/gethex.o
  .debug_macro   0x00000000       0x22 ./lib/util/gethex.o
  .debug_macro   0x00000000       0x68 ./lib/util/gethex.o
@@ -832,7 +844,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/util/gethex.o
  .debug_macro   0x00000000       0x6a ./lib/util/gethex.o
  .debug_macro   0x00000000      0x1df ./lib/util/gethex.o
- .debug_macro   0x00000000      0x1bb ./lib/util/gethex.o
+ .debug_macro   0x00000000      0x1ec ./lib/util/gethex.o
  .debug_macro   0x00000000       0x22 ./lib/util/gethex.o
  .debug_macro   0x00000000       0xdc ./lib/util/gethex.o
  .debug_macro   0x00000000       0x7c ./lib/util/gethex.o
@@ -872,16 +884,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/util/gethex.o
  .debug_macro   0x00000000       0x1c ./lib/util/gethex.o
  .debug_macro   0x00000000       0x28 ./lib/util/gethex.o
- .debug_line    0x00000000      0x22a ./lib/util/gethex.o
- .debug_str     0x00000000     0xb45f ./lib/util/gethex.o
+ .debug_macro   0x00000000       0x28 ./lib/util/gethex.o
+ .debug_line    0x00000000      0x22f ./lib/util/gethex.o
+ .debug_str     0x00000000     0xb61e ./lib/util/gethex.o
  .debug_line_str
-                0x00000000      0x4e2 ./lib/util/gethex.o
+                0x00000000      0x4e8 ./lib/util/gethex.o
  .comment       0x00000000       0x34 ./lib/util/gethex.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/util/gethex.o
  .debug_frame   0x00000000       0x38 ./lib/util/gethex.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/util/gethex.o
+ .group         0x00000000        0xc ./lib/util/parsehex.o
  .group         0x00000000        0xc ./lib/util/parsehex.o
  .group         0x00000000        0xc ./lib/util/parsehex.o
  .group         0x00000000        0xc ./lib/util/parsehex.o
@@ -947,7 +961,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/util/parsehex.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/util/parsehex.o
- .debug_macro   0x00000000      0x2ad ./lib/util/parsehex.o
+ .debug_macro   0x00000000      0x2b6 ./lib/util/parsehex.o
  .debug_macro   0x00000000      0x7a2 ./lib/util/parsehex.o
  .debug_macro   0x00000000       0x22 ./lib/util/parsehex.o
  .debug_macro   0x00000000       0x68 ./lib/util/parsehex.o
@@ -962,7 +976,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/util/parsehex.o
  .debug_macro   0x00000000       0x6a ./lib/util/parsehex.o
  .debug_macro   0x00000000      0x1df ./lib/util/parsehex.o
- .debug_macro   0x00000000      0x1bb ./lib/util/parsehex.o
+ .debug_macro   0x00000000      0x1ec ./lib/util/parsehex.o
  .debug_macro   0x00000000       0x22 ./lib/util/parsehex.o
  .debug_macro   0x00000000       0xdc ./lib/util/parsehex.o
  .debug_macro   0x00000000       0x7c ./lib/util/parsehex.o
@@ -1002,16 +1016,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/util/parsehex.o
  .debug_macro   0x00000000       0x1c ./lib/util/parsehex.o
  .debug_macro   0x00000000       0x28 ./lib/util/parsehex.o
- .debug_line    0x00000000      0x234 ./lib/util/parsehex.o
- .debug_str     0x00000000     0xb45d ./lib/util/parsehex.o
+ .debug_macro   0x00000000       0x28 ./lib/util/parsehex.o
+ .debug_line    0x00000000      0x239 ./lib/util/parsehex.o
+ .debug_str     0x00000000     0xb61c ./lib/util/parsehex.o
  .debug_line_str
-                0x00000000      0x4e8 ./lib/util/parsehex.o
+                0x00000000      0x4ee ./lib/util/parsehex.o
  .comment       0x00000000       0x34 ./lib/util/parsehex.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/util/parsehex.o
  .debug_frame   0x00000000       0x38 ./lib/util/parsehex.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/util/parsehex.o
+ .group         0x00000000        0xc ./lib/util/printdec.o
  .group         0x00000000        0xc ./lib/util/printdec.o
  .group         0x00000000        0xc ./lib/util/printdec.o
  .group         0x00000000        0xc ./lib/util/printdec.o
@@ -1076,7 +1092,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/util/printdec.o
  .debug_macro   0x00000000       0x6a ./lib/util/printdec.o
  .debug_macro   0x00000000      0x1df ./lib/util/printdec.o
- .debug_macro   0x00000000      0x1bb ./lib/util/printdec.o
+ .debug_macro   0x00000000      0x1ec ./lib/util/printdec.o
  .debug_macro   0x00000000       0x22 ./lib/util/printdec.o
  .debug_macro   0x00000000       0xdc ./lib/util/printdec.o
  .debug_macro   0x00000000       0x7c ./lib/util/printdec.o
@@ -1123,6 +1139,8 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/util/printdec.o
  .debug_macro   0x00000000       0x1c ./lib/util/printdec.o
  .debug_macro   0x00000000       0x28 ./lib/util/printdec.o
+ .debug_macro   0x00000000       0x28 ./lib/util/printdec.o
+ .group         0x00000000        0xc ./lib/util/printhex.o
  .group         0x00000000        0xc ./lib/util/printhex.o
  .group         0x00000000        0xc ./lib/util/printhex.o
  .group         0x00000000        0xc ./lib/util/printhex.o
@@ -1188,7 +1206,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/util/printhex.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/util/printhex.o
- .debug_macro   0x00000000      0x2af ./lib/util/printhex.o
+ .debug_macro   0x00000000      0x2b8 ./lib/util/printhex.o
  .debug_macro   0x00000000      0x7a2 ./lib/util/printhex.o
  .debug_macro   0x00000000       0x22 ./lib/util/printhex.o
  .debug_macro   0x00000000       0x8e ./lib/util/printhex.o
@@ -1196,7 +1214,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/util/printhex.o
  .debug_macro   0x00000000       0x6a ./lib/util/printhex.o
  .debug_macro   0x00000000      0x1df ./lib/util/printhex.o
- .debug_macro   0x00000000      0x1bb ./lib/util/printhex.o
+ .debug_macro   0x00000000      0x1ec ./lib/util/printhex.o
  .debug_macro   0x00000000       0x22 ./lib/util/printhex.o
  .debug_macro   0x00000000       0xdc ./lib/util/printhex.o
  .debug_macro   0x00000000       0x7c ./lib/util/printhex.o
@@ -1243,16 +1261,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/util/printhex.o
  .debug_macro   0x00000000       0x1c ./lib/util/printhex.o
  .debug_macro   0x00000000       0x28 ./lib/util/printhex.o
- .debug_line    0x00000000      0x213 ./lib/util/printhex.o
- .debug_str     0x00000000     0xac32 ./lib/util/printhex.o
+ .debug_macro   0x00000000       0x28 ./lib/util/printhex.o
+ .debug_line    0x00000000      0x218 ./lib/util/printhex.o
+ .debug_str     0x00000000     0xadf1 ./lib/util/printhex.o
  .debug_line_str
-                0x00000000      0x4e0 ./lib/util/printhex.o
+                0x00000000      0x4e6 ./lib/util/printhex.o
  .comment       0x00000000       0x34 ./lib/util/printhex.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/util/printhex.o
  .debug_frame   0x00000000       0x38 ./lib/util/printhex.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/util/printhex.o
+ .group         0x00000000        0xc ./lib/util/printhwversion.o
  .group         0x00000000        0xc ./lib/util/printhwversion.o
  .group         0x00000000        0xc ./lib/util/printhwversion.o
  .group         0x00000000        0xc ./lib/util/printhwversion.o
@@ -1318,7 +1338,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/util/printhwversion.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/util/printhwversion.o
- .debug_macro   0x00000000      0x2af ./lib/util/printhwversion.o
+ .debug_macro   0x00000000      0x2b8 ./lib/util/printhwversion.o
  .debug_macro   0x00000000      0x7a2 ./lib/util/printhwversion.o
  .debug_macro   0x00000000       0x22 ./lib/util/printhwversion.o
  .debug_macro   0x00000000       0x8e ./lib/util/printhwversion.o
@@ -1326,7 +1346,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/util/printhwversion.o
  .debug_macro   0x00000000       0x6a ./lib/util/printhwversion.o
  .debug_macro   0x00000000      0x1df ./lib/util/printhwversion.o
- .debug_macro   0x00000000      0x1bb ./lib/util/printhwversion.o
+ .debug_macro   0x00000000      0x1ec ./lib/util/printhwversion.o
  .debug_macro   0x00000000       0x22 ./lib/util/printhwversion.o
  .debug_macro   0x00000000       0xdc ./lib/util/printhwversion.o
  .debug_macro   0x00000000       0x7c ./lib/util/printhwversion.o
@@ -1373,16 +1393,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/util/printhwversion.o
  .debug_macro   0x00000000       0x1c ./lib/util/printhwversion.o
  .debug_macro   0x00000000       0x28 ./lib/util/printhwversion.o
- .debug_line    0x00000000      0x2ab ./lib/util/printhwversion.o
- .debug_str     0x00000000     0xac40 ./lib/util/printhwversion.o
+ .debug_macro   0x00000000       0x28 ./lib/util/printhwversion.o
+ .debug_line    0x00000000      0x2b0 ./lib/util/printhwversion.o
+ .debug_str     0x00000000     0xadff ./lib/util/printhwversion.o
  .debug_line_str
-                0x00000000      0x4f2 ./lib/util/printhwversion.o
+                0x00000000      0x4f8 ./lib/util/printhwversion.o
  .comment       0x00000000       0x34 ./lib/util/printhwversion.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/util/printhwversion.o
  .debug_frame   0x00000000       0x3c ./lib/util/printhwversion.o
  .riscv.attributes
                 0x00000000       0x37 ./lib/util/printhwversion.o
+ .group         0x00000000        0xc ./lib/util/printlogo.o
  .group         0x00000000        0xc ./lib/util/printlogo.o
  .group         0x00000000        0xc ./lib/util/printlogo.o
  .group         0x00000000        0xc ./lib/util/printlogo.o
@@ -1449,7 +1471,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/util/printlogo.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/util/printlogo.o
- .debug_macro   0x00000000      0x2af ./lib/util/printlogo.o
+ .debug_macro   0x00000000      0x2b8 ./lib/util/printlogo.o
  .debug_macro   0x00000000      0x7a2 ./lib/util/printlogo.o
  .debug_macro   0x00000000       0x22 ./lib/util/printlogo.o
  .debug_macro   0x00000000       0x8e ./lib/util/printlogo.o
@@ -1457,7 +1479,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/util/printlogo.o
  .debug_macro   0x00000000       0x6a ./lib/util/printlogo.o
  .debug_macro   0x00000000      0x1df ./lib/util/printlogo.o
- .debug_macro   0x00000000      0x1bb ./lib/util/printlogo.o
+ .debug_macro   0x00000000      0x1ec ./lib/util/printlogo.o
  .debug_macro   0x00000000       0x22 ./lib/util/printlogo.o
  .debug_macro   0x00000000       0xdc ./lib/util/printlogo.o
  .debug_macro   0x00000000       0x7c ./lib/util/printlogo.o
@@ -1504,16 +1526,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/util/printlogo.o
  .debug_macro   0x00000000       0x1c ./lib/util/printlogo.o
  .debug_macro   0x00000000       0x28 ./lib/util/printlogo.o
- .debug_line    0x00000000      0x181 ./lib/util/printlogo.o
- .debug_str     0x00000000     0xac1f ./lib/util/printlogo.o
+ .debug_macro   0x00000000       0x28 ./lib/util/printlogo.o
+ .debug_line    0x00000000      0x186 ./lib/util/printlogo.o
+ .debug_str     0x00000000     0xadde ./lib/util/printlogo.o
  .debug_line_str
-                0x00000000      0x4e3 ./lib/util/printlogo.o
+                0x00000000      0x4e9 ./lib/util/printlogo.o
  .comment       0x00000000       0x34 ./lib/util/printlogo.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/util/printlogo.o
  .debug_frame   0x00000000       0x38 ./lib/util/printlogo.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/util/printlogo.o
+ .group         0x00000000        0xc ./lib/uart/uart1_getc.o
  .group         0x00000000        0xc ./lib/uart/uart1_getc.o
  .group         0x00000000        0xc ./lib/uart/uart1_getc.o
  .group         0x00000000        0xc ./lib/uart/uart1_getc.o
@@ -1579,7 +1603,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/uart/uart1_getc.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/uart/uart1_getc.o
- .debug_macro   0x00000000      0x2bb ./lib/uart/uart1_getc.o
+ .debug_macro   0x00000000      0x2c4 ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000      0x7a2 ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000       0x8e ./lib/uart/uart1_getc.o
@@ -1587,7 +1611,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart1_getc.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart1_getc.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart1_getc.o
@@ -1634,16 +1658,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart1_getc.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart1_getc.o
- .debug_line    0x00000000      0x1b7 ./lib/uart/uart1_getc.o
- .debug_str     0x00000000     0xac71 ./lib/uart/uart1_getc.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart1_getc.o
+ .debug_line    0x00000000      0x1bc ./lib/uart/uart1_getc.o
+ .debug_str     0x00000000     0xae30 ./lib/uart/uart1_getc.o
  .debug_line_str
-                0x00000000      0x4e6 ./lib/uart/uart1_getc.o
+                0x00000000      0x4ec ./lib/uart/uart1_getc.o
  .comment       0x00000000       0x34 ./lib/uart/uart1_getc.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/uart/uart1_getc.o
  .debug_frame   0x00000000       0x38 ./lib/uart/uart1_getc.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/uart/uart1_getc.o
+ .group         0x00000000        0xc ./lib/uart/uart1_gets.o
  .group         0x00000000        0xc ./lib/uart/uart1_gets.o
  .group         0x00000000        0xc ./lib/uart/uart1_gets.o
  .group         0x00000000        0xc ./lib/uart/uart1_gets.o
@@ -1714,7 +1740,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/uart/uart1_gets.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/uart/uart1_gets.o
- .debug_macro   0x00000000      0x2e0 ./lib/uart/uart1_gets.o
+ .debug_macro   0x00000000      0x2e9 ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000      0x7a2 ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000       0x68 ./lib/uart/uart1_gets.o
@@ -1743,7 +1769,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart1_gets.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart1_gets.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart1_gets.o
@@ -1771,16 +1797,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart1_gets.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart1_gets.o
- .debug_line    0x00000000      0x2a1 ./lib/uart/uart1_gets.o
- .debug_str     0x00000000     0xb4bd ./lib/uart/uart1_gets.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart1_gets.o
+ .debug_line    0x00000000      0x2a6 ./lib/uart/uart1_gets.o
+ .debug_str     0x00000000     0xb67c ./lib/uart/uart1_gets.o
  .debug_line_str
-                0x00000000      0x50a ./lib/uart/uart1_gets.o
+                0x00000000      0x510 ./lib/uart/uart1_gets.o
  .comment       0x00000000       0x34 ./lib/uart/uart1_gets.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/uart/uart1_gets.o
  .debug_frame   0x00000000       0x38 ./lib/uart/uart1_gets.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/uart/uart1_gets.o
+ .group         0x00000000        0xc ./lib/uart/uart1_init.o
  .group         0x00000000        0xc ./lib/uart/uart1_init.o
  .group         0x00000000        0xc ./lib/uart/uart1_init.o
  .group         0x00000000        0xc ./lib/uart/uart1_init.o
@@ -1845,7 +1873,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart1_init.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart1_init.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart1_init.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart1_init.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart1_init.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_init.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart1_init.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart1_init.o
@@ -1892,6 +1920,8 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart1_init.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart1_init.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart1_init.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart1_init.o
+ .group         0x00000000        0xc ./lib/uart/uart1_printf.o
  .group         0x00000000        0xc ./lib/uart/uart1_printf.o
  .group         0x00000000        0xc ./lib/uart/uart1_printf.o
  .group         0x00000000        0xc ./lib/uart/uart1_printf.o
@@ -1957,7 +1987,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/uart/uart1_printf.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/uart/uart1_printf.o
- .debug_macro   0x00000000      0x2af ./lib/uart/uart1_printf.o
+ .debug_macro   0x00000000      0x2b8 ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000      0x7a2 ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000       0x58 ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_printf.o
@@ -1966,7 +1996,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart1_printf.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart1_printf.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart1_printf.o
@@ -2012,16 +2042,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart1_printf.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart1_printf.o
- .debug_line    0x00000000      0x19b ./lib/uart/uart1_printf.o
- .debug_str     0x00000000     0xad76 ./lib/uart/uart1_printf.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart1_printf.o
+ .debug_line    0x00000000      0x1a0 ./lib/uart/uart1_printf.o
+ .debug_str     0x00000000     0xaf35 ./lib/uart/uart1_printf.o
  .debug_line_str
-                0x00000000      0x4ec ./lib/uart/uart1_printf.o
+                0x00000000      0x4f2 ./lib/uart/uart1_printf.o
  .comment       0x00000000       0x34 ./lib/uart/uart1_printf.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/uart/uart1_printf.o
  .debug_frame   0x00000000       0x3c ./lib/uart/uart1_printf.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/uart/uart1_printf.o
+ .group         0x00000000        0xc ./lib/uart/uart1_printlonglong.o
  .group         0x00000000        0xc ./lib/uart/uart1_printlonglong.o
  .group         0x00000000        0xc ./lib/uart/uart1_printlonglong.o
  .group         0x00000000        0xc ./lib/uart/uart1_printlonglong.o
@@ -2087,7 +2119,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/uart/uart1_printlonglong.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/uart/uart1_printlonglong.o
- .debug_macro   0x00000000      0x2af ./lib/uart/uart1_printlonglong.o
+ .debug_macro   0x00000000      0x2b8 ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000      0x7a2 ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000       0x8e ./lib/uart/uart1_printlonglong.o
@@ -2095,7 +2127,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart1_printlonglong.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart1_printlonglong.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart1_printlonglong.o
@@ -2142,16 +2174,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart1_printlonglong.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart1_printlonglong.o
- .debug_line    0x00000000      0x207 ./lib/uart/uart1_printlonglong.o
- .debug_str     0x00000000     0xac5a ./lib/uart/uart1_printlonglong.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart1_printlonglong.o
+ .debug_line    0x00000000      0x20c ./lib/uart/uart1_printlonglong.o
+ .debug_str     0x00000000     0xae19 ./lib/uart/uart1_printlonglong.o
  .debug_line_str
-                0x00000000      0x501 ./lib/uart/uart1_printlonglong.o
+                0x00000000      0x507 ./lib/uart/uart1_printlonglong.o
  .comment       0x00000000       0x34 ./lib/uart/uart1_printlonglong.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/uart/uart1_printlonglong.o
  .debug_frame   0x00000000       0x38 ./lib/uart/uart1_printlonglong.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/uart/uart1_printlonglong.o
+ .group         0x00000000        0xc ./lib/uart/uart1_printulonglong.o
  .group         0x00000000        0xc ./lib/uart/uart1_printulonglong.o
  .group         0x00000000        0xc ./lib/uart/uart1_printulonglong.o
  .group         0x00000000        0xc ./lib/uart/uart1_printulonglong.o
@@ -2217,7 +2251,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/uart/uart1_printulonglong.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/uart/uart1_printulonglong.o
- .debug_macro   0x00000000      0x2af ./lib/uart/uart1_printulonglong.o
+ .debug_macro   0x00000000      0x2b8 ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000      0x7a2 ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000       0x8e ./lib/uart/uart1_printulonglong.o
@@ -2225,7 +2259,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart1_printulonglong.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart1_printulonglong.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart1_printulonglong.o
@@ -2272,16 +2306,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart1_printulonglong.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart1_printulonglong.o
- .debug_line    0x00000000      0x1d9 ./lib/uart/uart1_printulonglong.o
- .debug_str     0x00000000     0xac49 ./lib/uart/uart1_printulonglong.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart1_printulonglong.o
+ .debug_line    0x00000000      0x1de ./lib/uart/uart1_printulonglong.o
+ .debug_str     0x00000000     0xae08 ./lib/uart/uart1_printulonglong.o
  .debug_line_str
-                0x00000000      0x504 ./lib/uart/uart1_printulonglong.o
+                0x00000000      0x50a ./lib/uart/uart1_printulonglong.o
  .comment       0x00000000       0x34 ./lib/uart/uart1_printulonglong.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/uart/uart1_printulonglong.o
  .debug_frame   0x00000000       0x38 ./lib/uart/uart1_printulonglong.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/uart/uart1_printulonglong.o
+ .group         0x00000000        0xc ./lib/uart/uart1_putc.o
  .group         0x00000000        0xc ./lib/uart/uart1_putc.o
  .group         0x00000000        0xc ./lib/uart/uart1_putc.o
  .group         0x00000000        0xc ./lib/uart/uart1_putc.o
@@ -2369,7 +2405,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart1_putc.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart1_putc.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart1_putc.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart1_putc.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart1_putc.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_putc.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart1_putc.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart1_putc.o
@@ -2397,6 +2433,8 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart1_putc.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart1_putc.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart1_putc.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart1_putc.o
+ .group         0x00000000        0xc ./lib/uart/uart1_puts.o
  .group         0x00000000        0xc ./lib/uart/uart1_puts.o
  .group         0x00000000        0xc ./lib/uart/uart1_puts.o
  .group         0x00000000        0xc ./lib/uart/uart1_puts.o
@@ -2484,7 +2522,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart1_puts.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart1_puts.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart1_puts.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart1_puts.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart1_puts.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart1_puts.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart1_puts.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart1_puts.o
@@ -2512,6 +2550,8 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart1_puts.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart1_puts.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart1_puts.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart1_puts.o
+ .group         0x00000000        0xc ./lib/uart/uart_hasreceived.o
  .group         0x00000000        0xc ./lib/uart/uart_hasreceived.o
  .group         0x00000000        0xc ./lib/uart/uart_hasreceived.o
  .group         0x00000000        0xc ./lib/uart/uart_hasreceived.o
@@ -2577,7 +2617,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/uart/uart_hasreceived.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/uart/uart_hasreceived.o
- .debug_macro   0x00000000      0x2bb ./lib/uart/uart_hasreceived.o
+ .debug_macro   0x00000000      0x2c4 ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000      0x7a2 ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000       0x8e ./lib/uart/uart_hasreceived.o
@@ -2585,7 +2625,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000       0x6a ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000      0x1df ./lib/uart/uart_hasreceived.o
- .debug_macro   0x00000000      0x1bb ./lib/uart/uart_hasreceived.o
+ .debug_macro   0x00000000      0x1ec ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000       0x22 ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000       0xdc ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000       0x7c ./lib/uart/uart_hasreceived.o
@@ -2632,16 +2672,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000       0x1c ./lib/uart/uart_hasreceived.o
  .debug_macro   0x00000000       0x28 ./lib/uart/uart_hasreceived.o
- .debug_line    0x00000000      0x18b ./lib/uart/uart_hasreceived.o
- .debug_str     0x00000000     0xac78 ./lib/uart/uart_hasreceived.o
+ .debug_macro   0x00000000       0x28 ./lib/uart/uart_hasreceived.o
+ .debug_line    0x00000000      0x190 ./lib/uart/uart_hasreceived.o
+ .debug_str     0x00000000     0xae37 ./lib/uart/uart_hasreceived.o
  .debug_line_str
-                0x00000000      0x4f8 ./lib/uart/uart_hasreceived.o
+                0x00000000      0x4fe ./lib/uart/uart_hasreceived.o
  .comment       0x00000000       0x34 ./lib/uart/uart_hasreceived.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/uart/uart_hasreceived.o
  .debug_frame   0x00000000       0x38 ./lib/uart/uart_hasreceived.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/uart/uart_hasreceived.o
+ .group         0x00000000        0xc ./lib/timer/timer1_clear_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_clear_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_clear_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_clear_interrupt.o
@@ -2707,7 +2749,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/timer/timer1_clear_interrupt.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/timer/timer1_clear_interrupt.o
- .debug_macro   0x00000000      0x2af ./lib/timer/timer1_clear_interrupt.o
+ .debug_macro   0x00000000      0x2b8 ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000      0x7a2 ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000       0x8e ./lib/timer/timer1_clear_interrupt.o
@@ -2715,7 +2757,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000       0x6a ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000      0x1df ./lib/timer/timer1_clear_interrupt.o
- .debug_macro   0x00000000      0x1bb ./lib/timer/timer1_clear_interrupt.o
+ .debug_macro   0x00000000      0x1ec ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000       0xdc ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000       0x7c ./lib/timer/timer1_clear_interrupt.o
@@ -2762,16 +2804,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000       0x1c ./lib/timer/timer1_clear_interrupt.o
  .debug_macro   0x00000000       0x28 ./lib/timer/timer1_clear_interrupt.o
- .debug_line    0x00000000      0x189 ./lib/timer/timer1_clear_interrupt.o
- .debug_str     0x00000000     0xac59 ./lib/timer/timer1_clear_interrupt.o
+ .debug_macro   0x00000000       0x28 ./lib/timer/timer1_clear_interrupt.o
+ .debug_line    0x00000000      0x18e ./lib/timer/timer1_clear_interrupt.o
+ .debug_str     0x00000000     0xae18 ./lib/timer/timer1_clear_interrupt.o
  .debug_line_str
-                0x00000000      0x50c ./lib/timer/timer1_clear_interrupt.o
+                0x00000000      0x512 ./lib/timer/timer1_clear_interrupt.o
  .comment       0x00000000       0x34 ./lib/timer/timer1_clear_interrupt.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/timer/timer1_clear_interrupt.o
  .debug_frame   0x00000000       0x38 ./lib/timer/timer1_clear_interrupt.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/timer/timer1_clear_interrupt.o
+ .group         0x00000000        0xc ./lib/timer/timer1_disable.o
  .group         0x00000000        0xc ./lib/timer/timer1_disable.o
  .group         0x00000000        0xc ./lib/timer/timer1_disable.o
  .group         0x00000000        0xc ./lib/timer/timer1_disable.o
@@ -2837,7 +2881,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/timer/timer1_disable.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/timer/timer1_disable.o
- .debug_macro   0x00000000      0x2af ./lib/timer/timer1_disable.o
+ .debug_macro   0x00000000      0x2b8 ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000      0x7a2 ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000       0x8e ./lib/timer/timer1_disable.o
@@ -2845,7 +2889,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000       0x6a ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000      0x1df ./lib/timer/timer1_disable.o
- .debug_macro   0x00000000      0x1bb ./lib/timer/timer1_disable.o
+ .debug_macro   0x00000000      0x1ec ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000       0xdc ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000       0x7c ./lib/timer/timer1_disable.o
@@ -2892,16 +2936,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000       0x1c ./lib/timer/timer1_disable.o
  .debug_macro   0x00000000       0x28 ./lib/timer/timer1_disable.o
- .debug_line    0x00000000      0x189 ./lib/timer/timer1_disable.o
- .debug_str     0x00000000     0xac51 ./lib/timer/timer1_disable.o
+ .debug_macro   0x00000000       0x28 ./lib/timer/timer1_disable.o
+ .debug_line    0x00000000      0x18e ./lib/timer/timer1_disable.o
+ .debug_str     0x00000000     0xae10 ./lib/timer/timer1_disable.o
  .debug_line_str
-                0x00000000      0x4f4 ./lib/timer/timer1_disable.o
+                0x00000000      0x4fa ./lib/timer/timer1_disable.o
  .comment       0x00000000       0x34 ./lib/timer/timer1_disable.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/timer/timer1_disable.o
  .debug_frame   0x00000000       0x38 ./lib/timer/timer1_disable.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/timer/timer1_disable.o
+ .group         0x00000000        0xc ./lib/timer/timer1_disable_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_disable_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_disable_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_disable_interrupt.o
@@ -2967,7 +3013,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/timer/timer1_disable_interrupt.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/timer/timer1_disable_interrupt.o
- .debug_macro   0x00000000      0x2af ./lib/timer/timer1_disable_interrupt.o
+ .debug_macro   0x00000000      0x2b8 ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000      0x7a2 ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000       0x8e ./lib/timer/timer1_disable_interrupt.o
@@ -2975,7 +3021,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000       0x6a ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000      0x1df ./lib/timer/timer1_disable_interrupt.o
- .debug_macro   0x00000000      0x1bb ./lib/timer/timer1_disable_interrupt.o
+ .debug_macro   0x00000000      0x1ec ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000       0xdc ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000       0x7c ./lib/timer/timer1_disable_interrupt.o
@@ -3022,16 +3068,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000       0x1c ./lib/timer/timer1_disable_interrupt.o
  .debug_macro   0x00000000       0x28 ./lib/timer/timer1_disable_interrupt.o
- .debug_line    0x00000000      0x189 ./lib/timer/timer1_disable_interrupt.o
- .debug_str     0x00000000     0xac5b ./lib/timer/timer1_disable_interrupt.o
+ .debug_macro   0x00000000       0x28 ./lib/timer/timer1_disable_interrupt.o
+ .debug_line    0x00000000      0x18e ./lib/timer/timer1_disable_interrupt.o
+ .debug_str     0x00000000     0xae1a ./lib/timer/timer1_disable_interrupt.o
  .debug_line_str
-                0x00000000      0x512 ./lib/timer/timer1_disable_interrupt.o
+                0x00000000      0x518 ./lib/timer/timer1_disable_interrupt.o
  .comment       0x00000000       0x34 ./lib/timer/timer1_disable_interrupt.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/timer/timer1_disable_interrupt.o
  .debug_frame   0x00000000       0x38 ./lib/timer/timer1_disable_interrupt.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/timer/timer1_disable_interrupt.o
+ .group         0x00000000        0xc ./lib/timer/timer1_enable.o
  .group         0x00000000        0xc ./lib/timer/timer1_enable.o
  .group         0x00000000        0xc ./lib/timer/timer1_enable.o
  .group         0x00000000        0xc ./lib/timer/timer1_enable.o
@@ -3097,7 +3145,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/timer/timer1_enable.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/timer/timer1_enable.o
- .debug_macro   0x00000000      0x2af ./lib/timer/timer1_enable.o
+ .debug_macro   0x00000000      0x2b8 ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000      0x7a2 ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000       0x8e ./lib/timer/timer1_enable.o
@@ -3105,7 +3153,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000       0x6a ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000      0x1df ./lib/timer/timer1_enable.o
- .debug_macro   0x00000000      0x1bb ./lib/timer/timer1_enable.o
+ .debug_macro   0x00000000      0x1ec ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000       0xdc ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000       0x7c ./lib/timer/timer1_enable.o
@@ -3152,16 +3200,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000       0x1c ./lib/timer/timer1_enable.o
  .debug_macro   0x00000000       0x28 ./lib/timer/timer1_enable.o
- .debug_line    0x00000000      0x189 ./lib/timer/timer1_enable.o
- .debug_str     0x00000000     0xac50 ./lib/timer/timer1_enable.o
+ .debug_macro   0x00000000       0x28 ./lib/timer/timer1_enable.o
+ .debug_line    0x00000000      0x18e ./lib/timer/timer1_enable.o
+ .debug_str     0x00000000     0xae0f ./lib/timer/timer1_enable.o
  .debug_line_str
-                0x00000000      0x4f1 ./lib/timer/timer1_enable.o
+                0x00000000      0x4f7 ./lib/timer/timer1_enable.o
  .comment       0x00000000       0x34 ./lib/timer/timer1_enable.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/timer/timer1_enable.o
  .debug_frame   0x00000000       0x38 ./lib/timer/timer1_enable.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/timer/timer1_enable.o
+ .group         0x00000000        0xc ./lib/timer/timer1_enable_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_enable_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_enable_interrupt.o
  .group         0x00000000        0xc ./lib/timer/timer1_enable_interrupt.o
@@ -3227,7 +3277,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/timer/timer1_enable_interrupt.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/timer/timer1_enable_interrupt.o
- .debug_macro   0x00000000      0x2af ./lib/timer/timer1_enable_interrupt.o
+ .debug_macro   0x00000000      0x2b8 ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000      0x7a2 ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000       0x8e ./lib/timer/timer1_enable_interrupt.o
@@ -3235,7 +3285,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000       0x6a ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000      0x1df ./lib/timer/timer1_enable_interrupt.o
- .debug_macro   0x00000000      0x1bb ./lib/timer/timer1_enable_interrupt.o
+ .debug_macro   0x00000000      0x1ec ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000       0xdc ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000       0x7c ./lib/timer/timer1_enable_interrupt.o
@@ -3282,16 +3332,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000       0x1c ./lib/timer/timer1_enable_interrupt.o
  .debug_macro   0x00000000       0x28 ./lib/timer/timer1_enable_interrupt.o
- .debug_line    0x00000000      0x189 ./lib/timer/timer1_enable_interrupt.o
- .debug_str     0x00000000     0xac5a ./lib/timer/timer1_enable_interrupt.o
+ .debug_macro   0x00000000       0x28 ./lib/timer/timer1_enable_interrupt.o
+ .debug_line    0x00000000      0x18e ./lib/timer/timer1_enable_interrupt.o
+ .debug_str     0x00000000     0xae19 ./lib/timer/timer1_enable_interrupt.o
  .debug_line_str
-                0x00000000      0x50f ./lib/timer/timer1_enable_interrupt.o
+                0x00000000      0x515 ./lib/timer/timer1_enable_interrupt.o
  .comment       0x00000000       0x34 ./lib/timer/timer1_enable_interrupt.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/timer/timer1_enable_interrupt.o
  .debug_frame   0x00000000       0x38 ./lib/timer/timer1_enable_interrupt.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/timer/timer1_enable_interrupt.o
+ .group         0x00000000        0xc ./lib/timer/timer1_getcounter.o
  .group         0x00000000        0xc ./lib/timer/timer1_getcounter.o
  .group         0x00000000        0xc ./lib/timer/timer1_getcounter.o
  .group         0x00000000        0xc ./lib/timer/timer1_getcounter.o
@@ -3357,7 +3409,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/timer/timer1_getcounter.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/timer/timer1_getcounter.o
- .debug_macro   0x00000000      0x2af ./lib/timer/timer1_getcounter.o
+ .debug_macro   0x00000000      0x2b8 ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000      0x7a2 ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000       0x8e ./lib/timer/timer1_getcounter.o
@@ -3365,7 +3417,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000       0x6a ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000      0x1df ./lib/timer/timer1_getcounter.o
- .debug_macro   0x00000000      0x1bb ./lib/timer/timer1_getcounter.o
+ .debug_macro   0x00000000      0x1ec ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000       0xdc ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000       0x7c ./lib/timer/timer1_getcounter.o
@@ -3412,16 +3464,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000       0x1c ./lib/timer/timer1_getcounter.o
  .debug_macro   0x00000000       0x28 ./lib/timer/timer1_getcounter.o
- .debug_line    0x00000000      0x181 ./lib/timer/timer1_getcounter.o
- .debug_str     0x00000000     0xac54 ./lib/timer/timer1_getcounter.o
+ .debug_macro   0x00000000       0x28 ./lib/timer/timer1_getcounter.o
+ .debug_line    0x00000000      0x186 ./lib/timer/timer1_getcounter.o
+ .debug_str     0x00000000     0xae13 ./lib/timer/timer1_getcounter.o
  .debug_line_str
-                0x00000000      0x4fd ./lib/timer/timer1_getcounter.o
+                0x00000000      0x503 ./lib/timer/timer1_getcounter.o
  .comment       0x00000000       0x34 ./lib/timer/timer1_getcounter.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/timer/timer1_getcounter.o
  .debug_frame   0x00000000       0x38 ./lib/timer/timer1_getcounter.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/timer/timer1_getcounter.o
+ .group         0x00000000        0xc ./lib/timer/timer1_setcompare.o
  .group         0x00000000        0xc ./lib/timer/timer1_setcompare.o
  .group         0x00000000        0xc ./lib/timer/timer1_setcompare.o
  .group         0x00000000        0xc ./lib/timer/timer1_setcompare.o
@@ -3487,7 +3541,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/timer/timer1_setcompare.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/timer/timer1_setcompare.o
- .debug_macro   0x00000000      0x2af ./lib/timer/timer1_setcompare.o
+ .debug_macro   0x00000000      0x2b8 ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000      0x7a2 ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000       0x8e ./lib/timer/timer1_setcompare.o
@@ -3495,7 +3549,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000       0x6a ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000      0x1df ./lib/timer/timer1_setcompare.o
- .debug_macro   0x00000000      0x1bb ./lib/timer/timer1_setcompare.o
+ .debug_macro   0x00000000      0x1ec ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000       0xdc ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000       0x7c ./lib/timer/timer1_setcompare.o
@@ -3542,16 +3596,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000       0x1c ./lib/timer/timer1_setcompare.o
  .debug_macro   0x00000000       0x28 ./lib/timer/timer1_setcompare.o
- .debug_line    0x00000000      0x189 ./lib/timer/timer1_setcompare.o
- .debug_str     0x00000000     0xac59 ./lib/timer/timer1_setcompare.o
+ .debug_macro   0x00000000       0x28 ./lib/timer/timer1_setcompare.o
+ .debug_line    0x00000000      0x18e ./lib/timer/timer1_setcompare.o
+ .debug_str     0x00000000     0xae18 ./lib/timer/timer1_setcompare.o
  .debug_line_str
-                0x00000000      0x4fd ./lib/timer/timer1_setcompare.o
+                0x00000000      0x503 ./lib/timer/timer1_setcompare.o
  .comment       0x00000000       0x34 ./lib/timer/timer1_setcompare.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/timer/timer1_setcompare.o
  .debug_frame   0x00000000       0x38 ./lib/timer/timer1_setcompare.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/timer/timer1_setcompare.o
+ .group         0x00000000        0xc ./lib/timer/timer1_setcounter.o
  .group         0x00000000        0xc ./lib/timer/timer1_setcounter.o
  .group         0x00000000        0xc ./lib/timer/timer1_setcounter.o
  .group         0x00000000        0xc ./lib/timer/timer1_setcounter.o
@@ -3617,7 +3673,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/timer/timer1_setcounter.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/timer/timer1_setcounter.o
- .debug_macro   0x00000000      0x2af ./lib/timer/timer1_setcounter.o
+ .debug_macro   0x00000000      0x2b8 ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000      0x7a2 ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000       0x8e ./lib/timer/timer1_setcounter.o
@@ -3625,7 +3681,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000       0x6a ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000      0x1df ./lib/timer/timer1_setcounter.o
- .debug_macro   0x00000000      0x1bb ./lib/timer/timer1_setcounter.o
+ .debug_macro   0x00000000      0x1ec ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000       0x22 ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000       0xdc ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000       0x7c ./lib/timer/timer1_setcounter.o
@@ -3672,10 +3728,11 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000       0x1c ./lib/timer/timer1_setcounter.o
  .debug_macro   0x00000000       0x28 ./lib/timer/timer1_setcounter.o
- .debug_line    0x00000000      0x189 ./lib/timer/timer1_setcounter.o
- .debug_str     0x00000000     0xac59 ./lib/timer/timer1_setcounter.o
+ .debug_macro   0x00000000       0x28 ./lib/timer/timer1_setcounter.o
+ .debug_line    0x00000000      0x18e ./lib/timer/timer1_setcounter.o
+ .debug_str     0x00000000     0xae18 ./lib/timer/timer1_setcounter.o
  .debug_line_str
-                0x00000000      0x4fd ./lib/timer/timer1_setcounter.o
+                0x00000000      0x503 ./lib/timer/timer1_setcounter.o
  .comment       0x00000000       0x34 ./lib/timer/timer1_setcounter.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/timer/timer1_setcounter.o
@@ -4328,6 +4385,7 @@ Discarded input sections
  .group         0x00000000        0xc ./lib/spi/spi1_csdisable.o
  .group         0x00000000        0xc ./lib/spi/spi1_csdisable.o
  .group         0x00000000        0xc ./lib/spi/spi1_csdisable.o
+ .group         0x00000000        0xc ./lib/spi/spi1_csdisable.o
  .text          0x00000000        0x0 ./lib/spi/spi1_csdisable.o
  .data          0x00000000        0x0 ./lib/spi/spi1_csdisable.o
  .bss           0x00000000        0x0 ./lib/spi/spi1_csdisable.o
@@ -4339,7 +4397,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi1_csdisable.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi1_csdisable.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi1_csdisable.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi1_csdisable.o
@@ -4347,7 +4405,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi1_csdisable.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi1_csdisable.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi1_csdisable.o
@@ -4394,16 +4452,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi1_csdisable.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi1_csdisable.o
- .debug_line    0x00000000      0x179 ./lib/spi/spi1_csdisable.o
- .debug_str     0x00000000     0xac19 ./lib/spi/spi1_csdisable.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi1_csdisable.o
+ .debug_line    0x00000000      0x17e ./lib/spi/spi1_csdisable.o
+ .debug_str     0x00000000     0xadd8 ./lib/spi/spi1_csdisable.o
  .debug_line_str
-                0x00000000      0x4f0 ./lib/spi/spi1_csdisable.o
+                0x00000000      0x4f6 ./lib/spi/spi1_csdisable.o
  .comment       0x00000000       0x34 ./lib/spi/spi1_csdisable.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi1_csdisable.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi1_csdisable.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi1_csdisable.o
+ .group         0x00000000        0xc ./lib/spi/spi1_csenable.o
  .group         0x00000000        0xc ./lib/spi/spi1_csenable.o
  .group         0x00000000        0xc ./lib/spi/spi1_csenable.o
  .group         0x00000000        0xc ./lib/spi/spi1_csenable.o
@@ -4469,7 +4529,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi1_csenable.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi1_csenable.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi1_csenable.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi1_csenable.o
@@ -4477,7 +4537,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi1_csenable.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi1_csenable.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi1_csenable.o
@@ -4524,16 +4584,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi1_csenable.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi1_csenable.o
- .debug_line    0x00000000      0x179 ./lib/spi/spi1_csenable.o
- .debug_str     0x00000000     0xac18 ./lib/spi/spi1_csenable.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi1_csenable.o
+ .debug_line    0x00000000      0x17e ./lib/spi/spi1_csenable.o
+ .debug_str     0x00000000     0xadd7 ./lib/spi/spi1_csenable.o
  .debug_line_str
-                0x00000000      0x4ed ./lib/spi/spi1_csenable.o
+                0x00000000      0x4f3 ./lib/spi/spi1_csenable.o
  .comment       0x00000000       0x34 ./lib/spi/spi1_csenable.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi1_csenable.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi1_csenable.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi1_csenable.o
+ .group         0x00000000        0xc ./lib/spi/spi1_init.o
  .group         0x00000000        0xc ./lib/spi/spi1_init.o
  .group         0x00000000        0xc ./lib/spi/spi1_init.o
  .group         0x00000000        0xc ./lib/spi/spi1_init.o
@@ -4599,7 +4661,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi1_init.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi1_init.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi1_init.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi1_init.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi1_init.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_init.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi1_init.o
@@ -4607,7 +4669,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi1_init.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi1_init.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi1_init.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi1_init.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi1_init.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_init.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi1_init.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi1_init.o
@@ -4654,16 +4716,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi1_init.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi1_init.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi1_init.o
- .debug_line    0x00000000      0x18b ./lib/spi/spi1_init.o
- .debug_str     0x00000000     0xac4a ./lib/spi/spi1_init.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi1_init.o
+ .debug_line    0x00000000      0x190 ./lib/spi/spi1_init.o
+ .debug_str     0x00000000     0xae09 ./lib/spi/spi1_init.o
  .debug_line_str
-                0x00000000      0x4e1 ./lib/spi/spi1_init.o
+                0x00000000      0x4e7 ./lib/spi/spi1_init.o
  .comment       0x00000000       0x34 ./lib/spi/spi1_init.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi1_init.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi1_init.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi1_init.o
+ .group         0x00000000        0xc ./lib/spi/spi1_receive.o
  .group         0x00000000        0xc ./lib/spi/spi1_receive.o
  .group         0x00000000        0xc ./lib/spi/spi1_receive.o
  .group         0x00000000        0xc ./lib/spi/spi1_receive.o
@@ -4729,7 +4793,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi1_receive.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi1_receive.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi1_receive.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi1_receive.o
@@ -4737,7 +4801,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi1_receive.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi1_receive.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi1_receive.o
@@ -4784,16 +4848,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi1_receive.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi1_receive.o
- .debug_line    0x00000000      0x1c3 ./lib/spi/spi1_receive.o
- .debug_str     0x00000000     0xac51 ./lib/spi/spi1_receive.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi1_receive.o
+ .debug_line    0x00000000      0x1c8 ./lib/spi/spi1_receive.o
+ .debug_str     0x00000000     0xae10 ./lib/spi/spi1_receive.o
  .debug_line_str
-                0x00000000      0x4ea ./lib/spi/spi1_receive.o
+                0x00000000      0x4f0 ./lib/spi/spi1_receive.o
  .comment       0x00000000       0x34 ./lib/spi/spi1_receive.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi1_receive.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi1_receive.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi1_receive.o
+ .group         0x00000000        0xc ./lib/spi/spi1_transfer.o
  .group         0x00000000        0xc ./lib/spi/spi1_transfer.o
  .group         0x00000000        0xc ./lib/spi/spi1_transfer.o
  .group         0x00000000        0xc ./lib/spi/spi1_transfer.o
@@ -4859,7 +4925,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi1_transfer.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi1_transfer.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi1_transfer.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi1_transfer.o
@@ -4867,7 +4933,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi1_transfer.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi1_transfer.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi1_transfer.o
@@ -4914,16 +4980,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi1_transfer.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi1_transfer.o
- .debug_line    0x00000000      0x1bf ./lib/spi/spi1_transfer.o
- .debug_str     0x00000000     0xac4d ./lib/spi/spi1_transfer.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi1_transfer.o
+ .debug_line    0x00000000      0x1c4 ./lib/spi/spi1_transfer.o
+ .debug_str     0x00000000     0xae0c ./lib/spi/spi1_transfer.o
  .debug_line_str
-                0x00000000      0x4ed ./lib/spi/spi1_transfer.o
+                0x00000000      0x4f3 ./lib/spi/spi1_transfer.o
  .comment       0x00000000       0x34 ./lib/spi/spi1_transfer.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi1_transfer.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi1_transfer.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi1_transfer.o
+ .group         0x00000000        0xc ./lib/spi/spi1_transmit.o
  .group         0x00000000        0xc ./lib/spi/spi1_transmit.o
  .group         0x00000000        0xc ./lib/spi/spi1_transmit.o
  .group         0x00000000        0xc ./lib/spi/spi1_transmit.o
@@ -4989,7 +5057,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi1_transmit.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi1_transmit.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi1_transmit.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi1_transmit.o
@@ -4997,7 +5065,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi1_transmit.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi1_transmit.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi1_transmit.o
@@ -5044,16 +5112,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi1_transmit.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi1_transmit.o
- .debug_line    0x00000000      0x1bb ./lib/spi/spi1_transmit.o
- .debug_str     0x00000000     0xac4c ./lib/spi/spi1_transmit.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi1_transmit.o
+ .debug_line    0x00000000      0x1c0 ./lib/spi/spi1_transmit.o
+ .debug_str     0x00000000     0xae0b ./lib/spi/spi1_transmit.o
  .debug_line_str
-                0x00000000      0x4ed ./lib/spi/spi1_transmit.o
+                0x00000000      0x4f3 ./lib/spi/spi1_transmit.o
  .comment       0x00000000       0x34 ./lib/spi/spi1_transmit.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi1_transmit.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi1_transmit.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi1_transmit.o
+ .group         0x00000000        0xc ./lib/spi/spi1_transmit_receive.o
  .group         0x00000000        0xc ./lib/spi/spi1_transmit_receive.o
  .group         0x00000000        0xc ./lib/spi/spi1_transmit_receive.o
  .group         0x00000000        0xc ./lib/spi/spi1_transmit_receive.o
@@ -5119,7 +5189,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi1_transmit_receive.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/spi/spi1_transmit_receive.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi1_transmit_receive.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi1_transmit_receive.o
@@ -5127,7 +5197,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi1_transmit_receive.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi1_transmit_receive.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi1_transmit_receive.o
@@ -5174,16 +5244,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi1_transmit_receive.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi1_transmit_receive.o
- .debug_line    0x00000000      0x1d3 ./lib/spi/spi1_transmit_receive.o
- .debug_str     0x00000000     0xac5e ./lib/spi/spi1_transmit_receive.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi1_transmit_receive.o
+ .debug_line    0x00000000      0x1d8 ./lib/spi/spi1_transmit_receive.o
+ .debug_str     0x00000000     0xae1d ./lib/spi/spi1_transmit_receive.o
  .debug_line_str
-                0x00000000      0x505 ./lib/spi/spi1_transmit_receive.o
+                0x00000000      0x50b ./lib/spi/spi1_transmit_receive.o
  .comment       0x00000000       0x34 ./lib/spi/spi1_transmit_receive.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi1_transmit_receive.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi1_transmit_receive.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi1_transmit_receive.o
+ .group         0x00000000        0xc ./lib/spi/spi2_csdisable.o
  .group         0x00000000        0xc ./lib/spi/spi2_csdisable.o
  .group         0x00000000        0xc ./lib/spi/spi2_csdisable.o
  .group         0x00000000        0xc ./lib/spi/spi2_csdisable.o
@@ -5249,7 +5321,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi2_csdisable.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi2_csdisable.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi2_csdisable.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi2_csdisable.o
@@ -5257,7 +5329,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi2_csdisable.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi2_csdisable.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi2_csdisable.o
@@ -5304,16 +5376,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi2_csdisable.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi2_csdisable.o
- .debug_line    0x00000000      0x177 ./lib/spi/spi2_csdisable.o
- .debug_str     0x00000000     0xac19 ./lib/spi/spi2_csdisable.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi2_csdisable.o
+ .debug_line    0x00000000      0x17c ./lib/spi/spi2_csdisable.o
+ .debug_str     0x00000000     0xadd8 ./lib/spi/spi2_csdisable.o
  .debug_line_str
-                0x00000000      0x4f0 ./lib/spi/spi2_csdisable.o
+                0x00000000      0x4f6 ./lib/spi/spi2_csdisable.o
  .comment       0x00000000       0x34 ./lib/spi/spi2_csdisable.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi2_csdisable.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi2_csdisable.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi2_csdisable.o
+ .group         0x00000000        0xc ./lib/spi/spi2_csenable.o
  .group         0x00000000        0xc ./lib/spi/spi2_csenable.o
  .group         0x00000000        0xc ./lib/spi/spi2_csenable.o
  .group         0x00000000        0xc ./lib/spi/spi2_csenable.o
@@ -5379,7 +5453,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi2_csenable.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi2_csenable.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi2_csenable.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi2_csenable.o
@@ -5387,7 +5461,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi2_csenable.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi2_csenable.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi2_csenable.o
@@ -5434,16 +5508,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi2_csenable.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi2_csenable.o
- .debug_line    0x00000000      0x177 ./lib/spi/spi2_csenable.o
- .debug_str     0x00000000     0xac18 ./lib/spi/spi2_csenable.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi2_csenable.o
+ .debug_line    0x00000000      0x17c ./lib/spi/spi2_csenable.o
+ .debug_str     0x00000000     0xadd7 ./lib/spi/spi2_csenable.o
  .debug_line_str
-                0x00000000      0x4ed ./lib/spi/spi2_csenable.o
+                0x00000000      0x4f3 ./lib/spi/spi2_csenable.o
  .comment       0x00000000       0x34 ./lib/spi/spi2_csenable.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi2_csenable.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi2_csenable.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi2_csenable.o
+ .group         0x00000000        0xc ./lib/spi/spi2_init.o
  .group         0x00000000        0xc ./lib/spi/spi2_init.o
  .group         0x00000000        0xc ./lib/spi/spi2_init.o
  .group         0x00000000        0xc ./lib/spi/spi2_init.o
@@ -5509,7 +5585,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi2_init.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi2_init.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi2_init.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi2_init.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi2_init.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi2_init.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi2_init.o
@@ -5517,7 +5593,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi2_init.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi2_init.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi2_init.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi2_init.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi2_init.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi2_init.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi2_init.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi2_init.o
@@ -5564,16 +5640,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi2_init.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi2_init.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi2_init.o
- .debug_line    0x00000000      0x189 ./lib/spi/spi2_init.o
- .debug_str     0x00000000     0xac4a ./lib/spi/spi2_init.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi2_init.o
+ .debug_line    0x00000000      0x18e ./lib/spi/spi2_init.o
+ .debug_str     0x00000000     0xae09 ./lib/spi/spi2_init.o
  .debug_line_str
-                0x00000000      0x4e1 ./lib/spi/spi2_init.o
+                0x00000000      0x4e7 ./lib/spi/spi2_init.o
  .comment       0x00000000       0x34 ./lib/spi/spi2_init.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi2_init.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi2_init.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi2_init.o
+ .group         0x00000000        0xc ./lib/spi/spi2_transfer.o
  .group         0x00000000        0xc ./lib/spi/spi2_transfer.o
  .group         0x00000000        0xc ./lib/spi/spi2_transfer.o
  .group         0x00000000        0xc ./lib/spi/spi2_transfer.o
@@ -5639,7 +5717,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/spi/spi2_transfer.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/spi/spi2_transfer.o
- .debug_macro   0x00000000      0x2af ./lib/spi/spi2_transfer.o
+ .debug_macro   0x00000000      0x2b8 ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000      0x7a2 ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000       0x8e ./lib/spi/spi2_transfer.o
@@ -5647,7 +5725,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000       0x6a ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000      0x1df ./lib/spi/spi2_transfer.o
- .debug_macro   0x00000000      0x1bb ./lib/spi/spi2_transfer.o
+ .debug_macro   0x00000000      0x1ec ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000       0x22 ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000       0xdc ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000       0x7c ./lib/spi/spi2_transfer.o
@@ -5694,16 +5772,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000       0x1c ./lib/spi/spi2_transfer.o
  .debug_macro   0x00000000       0x28 ./lib/spi/spi2_transfer.o
- .debug_line    0x00000000      0x1bd ./lib/spi/spi2_transfer.o
- .debug_str     0x00000000     0xac4d ./lib/spi/spi2_transfer.o
+ .debug_macro   0x00000000       0x28 ./lib/spi/spi2_transfer.o
+ .debug_line    0x00000000      0x1c2 ./lib/spi/spi2_transfer.o
+ .debug_str     0x00000000     0xae0c ./lib/spi/spi2_transfer.o
  .debug_line_str
-                0x00000000      0x4ed ./lib/spi/spi2_transfer.o
+                0x00000000      0x4f3 ./lib/spi/spi2_transfer.o
  .comment       0x00000000       0x34 ./lib/spi/spi2_transfer.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/spi/spi2_transfer.o
  .debug_frame   0x00000000       0x38 ./lib/spi/spi2_transfer.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/spi/spi2_transfer.o
+ .group         0x00000000        0xc ./lib/i2c/i2c1_init.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_init.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_init.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_init.o
@@ -5769,7 +5849,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c1_init.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/i2c/i2c1_init.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c1_init.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c1_init.o
@@ -5777,7 +5857,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c1_init.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c1_init.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c1_init.o
@@ -5824,16 +5904,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c1_init.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_init.o
- .debug_line    0x00000000      0x189 ./lib/i2c/i2c1_init.o
- .debug_str     0x00000000     0xac44 ./lib/i2c/i2c1_init.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_init.o
+ .debug_line    0x00000000      0x18e ./lib/i2c/i2c1_init.o
+ .debug_str     0x00000000     0xae03 ./lib/i2c/i2c1_init.o
  .debug_line_str
-                0x00000000      0x4e1 ./lib/i2c/i2c1_init.o
+                0x00000000      0x4e7 ./lib/i2c/i2c1_init.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c1_init.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c1_init.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c1_init.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c1_init.o
+ .group         0x00000000        0xc ./lib/i2c/i2c1_receive.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_receive.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_receive.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_receive.o
@@ -5899,7 +5981,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c1_receive.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/i2c/i2c1_receive.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c1_receive.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c1_receive.o
@@ -5907,7 +5989,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c1_receive.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c1_receive.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c1_receive.o
@@ -5954,16 +6036,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c1_receive.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_receive.o
- .debug_line    0x00000000      0x241 ./lib/i2c/i2c1_receive.o
- .debug_str     0x00000000     0xaca4 ./lib/i2c/i2c1_receive.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_receive.o
+ .debug_line    0x00000000      0x246 ./lib/i2c/i2c1_receive.o
+ .debug_str     0x00000000     0xae63 ./lib/i2c/i2c1_receive.o
  .debug_line_str
-                0x00000000      0x4ea ./lib/i2c/i2c1_receive.o
+                0x00000000      0x4f0 ./lib/i2c/i2c1_receive.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c1_receive.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c1_receive.o
  .debug_frame   0x00000000       0x3c ./lib/i2c/i2c1_receive.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c1_receive.o
+ .group         0x00000000        0xc ./lib/i2c/i2c1_receive_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_receive_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_receive_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_receive_byte.o
@@ -6029,7 +6113,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c1_receive_byte.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/i2c/i2c1_receive_byte.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c1_receive_byte.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c1_receive_byte.o
@@ -6037,7 +6121,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c1_receive_byte.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c1_receive_byte.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c1_receive_byte.o
@@ -6084,16 +6168,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c1_receive_byte.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_receive_byte.o
- .debug_line    0x00000000      0x1bd ./lib/i2c/i2c1_receive_byte.o
- .debug_str     0x00000000     0xac5e ./lib/i2c/i2c1_receive_byte.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_receive_byte.o
+ .debug_line    0x00000000      0x1c2 ./lib/i2c/i2c1_receive_byte.o
+ .debug_str     0x00000000     0xae1d ./lib/i2c/i2c1_receive_byte.o
  .debug_line_str
-                0x00000000      0x4f9 ./lib/i2c/i2c1_receive_byte.o
+                0x00000000      0x4ff ./lib/i2c/i2c1_receive_byte.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c1_receive_byte.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c1_receive_byte.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c1_receive_byte.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c1_receive_byte.o
+ .group         0x00000000        0xc ./lib/i2c/i2c1_transmit.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit.o
@@ -6159,7 +6245,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c1_transmit.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/i2c/i2c1_transmit.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c1_transmit.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c1_transmit.o
@@ -6167,7 +6253,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c1_transmit.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c1_transmit.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c1_transmit.o
@@ -6214,16 +6300,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c1_transmit.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_transmit.o
- .debug_line    0x00000000      0x2b5 ./lib/i2c/i2c1_transmit.o
- .debug_str     0x00000000     0xaca6 ./lib/i2c/i2c1_transmit.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_transmit.o
+ .debug_line    0x00000000      0x2ba ./lib/i2c/i2c1_transmit.o
+ .debug_str     0x00000000     0xae65 ./lib/i2c/i2c1_transmit.o
  .debug_line_str
-                0x00000000      0x4ed ./lib/i2c/i2c1_transmit.o
+                0x00000000      0x4f3 ./lib/i2c/i2c1_transmit.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c1_transmit.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c1_transmit.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c1_transmit.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c1_transmit.o
+ .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_address.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_address.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_address.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_address.o
@@ -6289,7 +6377,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c1_transmit_address.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/i2c/i2c1_transmit_address.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c1_transmit_address.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c1_transmit_address.o
@@ -6297,7 +6385,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c1_transmit_address.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c1_transmit_address.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c1_transmit_address.o
@@ -6344,16 +6432,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c1_transmit_address.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_transmit_address.o
- .debug_line    0x00000000      0x1d5 ./lib/i2c/i2c1_transmit_address.o
- .debug_str     0x00000000     0xac6a ./lib/i2c/i2c1_transmit_address.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_transmit_address.o
+ .debug_line    0x00000000      0x1da ./lib/i2c/i2c1_transmit_address.o
+ .debug_str     0x00000000     0xae29 ./lib/i2c/i2c1_transmit_address.o
  .debug_line_str
-                0x00000000      0x505 ./lib/i2c/i2c1_transmit_address.o
+                0x00000000      0x50b ./lib/i2c/i2c1_transmit_address.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c1_transmit_address.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c1_transmit_address.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c1_transmit_address.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c1_transmit_address.o
+ .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_address_only.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_address_only.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_address_only.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_address_only.o
@@ -6419,7 +6509,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c1_transmit_address_only.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/i2c/i2c1_transmit_address_only.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c1_transmit_address_only.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c1_transmit_address_only.o
@@ -6427,7 +6517,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c1_transmit_address_only.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c1_transmit_address_only.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c1_transmit_address_only.o
@@ -6474,16 +6564,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c1_transmit_address_only.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_transmit_address_only.o
- .debug_line    0x00000000      0x1d5 ./lib/i2c/i2c1_transmit_address_only.o
- .debug_str     0x00000000     0xac6f ./lib/i2c/i2c1_transmit_address_only.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_transmit_address_only.o
+ .debug_line    0x00000000      0x1da ./lib/i2c/i2c1_transmit_address_only.o
+ .debug_str     0x00000000     0xae2e ./lib/i2c/i2c1_transmit_address_only.o
  .debug_line_str
-                0x00000000      0x514 ./lib/i2c/i2c1_transmit_address_only.o
+                0x00000000      0x51a ./lib/i2c/i2c1_transmit_address_only.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c1_transmit_address_only.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c1_transmit_address_only.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c1_transmit_address_only.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c1_transmit_address_only.o
+ .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c1_transmit_byte.o
@@ -6549,7 +6641,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c1_transmit_byte.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/i2c/i2c1_transmit_byte.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c1_transmit_byte.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c1_transmit_byte.o
@@ -6557,7 +6649,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c1_transmit_byte.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c1_transmit_byte.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c1_transmit_byte.o
@@ -6604,16 +6696,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c1_transmit_byte.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_transmit_byte.o
- .debug_line    0x00000000      0x1c5 ./lib/i2c/i2c1_transmit_byte.o
- .debug_str     0x00000000     0xac64 ./lib/i2c/i2c1_transmit_byte.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c1_transmit_byte.o
+ .debug_line    0x00000000      0x1ca ./lib/i2c/i2c1_transmit_byte.o
+ .debug_str     0x00000000     0xae23 ./lib/i2c/i2c1_transmit_byte.o
  .debug_line_str
-                0x00000000      0x4fc ./lib/i2c/i2c1_transmit_byte.o
+                0x00000000      0x502 ./lib/i2c/i2c1_transmit_byte.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c1_transmit_byte.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c1_transmit_byte.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c1_transmit_byte.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c1_transmit_byte.o
+ .group         0x00000000        0xc ./lib/i2c/i2c2_init.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_init.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_init.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_init.o
@@ -6679,7 +6773,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c2_init.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/i2c/i2c2_init.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c2_init.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c2_init.o
@@ -6687,7 +6781,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c2_init.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c2_init.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c2_init.o
@@ -6734,16 +6828,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c2_init.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_init.o
- .debug_line    0x00000000      0x189 ./lib/i2c/i2c2_init.o
- .debug_str     0x00000000     0xac44 ./lib/i2c/i2c2_init.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_init.o
+ .debug_line    0x00000000      0x18e ./lib/i2c/i2c2_init.o
+ .debug_str     0x00000000     0xae03 ./lib/i2c/i2c2_init.o
  .debug_line_str
-                0x00000000      0x4e1 ./lib/i2c/i2c2_init.o
+                0x00000000      0x4e7 ./lib/i2c/i2c2_init.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c2_init.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c2_init.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c2_init.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c2_init.o
+ .group         0x00000000        0xc ./lib/i2c/i2c2_receive.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_receive.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_receive.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_receive.o
@@ -6809,7 +6905,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c2_receive.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/i2c/i2c2_receive.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c2_receive.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c2_receive.o
@@ -6817,7 +6913,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c2_receive.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c2_receive.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c2_receive.o
@@ -6864,16 +6960,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c2_receive.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_receive.o
- .debug_line    0x00000000      0x241 ./lib/i2c/i2c2_receive.o
- .debug_str     0x00000000     0xaca4 ./lib/i2c/i2c2_receive.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_receive.o
+ .debug_line    0x00000000      0x246 ./lib/i2c/i2c2_receive.o
+ .debug_str     0x00000000     0xae63 ./lib/i2c/i2c2_receive.o
  .debug_line_str
-                0x00000000      0x4ea ./lib/i2c/i2c2_receive.o
+                0x00000000      0x4f0 ./lib/i2c/i2c2_receive.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c2_receive.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c2_receive.o
  .debug_frame   0x00000000       0x3c ./lib/i2c/i2c2_receive.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c2_receive.o
+ .group         0x00000000        0xc ./lib/i2c/i2c2_receive_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_receive_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_receive_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_receive_byte.o
@@ -6939,7 +7037,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c2_receive_byte.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/i2c/i2c2_receive_byte.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c2_receive_byte.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c2_receive_byte.o
@@ -6947,7 +7045,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c2_receive_byte.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c2_receive_byte.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c2_receive_byte.o
@@ -6994,16 +7092,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c2_receive_byte.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_receive_byte.o
- .debug_line    0x00000000      0x1bd ./lib/i2c/i2c2_receive_byte.o
- .debug_str     0x00000000     0xac5e ./lib/i2c/i2c2_receive_byte.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_receive_byte.o
+ .debug_line    0x00000000      0x1c2 ./lib/i2c/i2c2_receive_byte.o
+ .debug_str     0x00000000     0xae1d ./lib/i2c/i2c2_receive_byte.o
  .debug_line_str
-                0x00000000      0x4f9 ./lib/i2c/i2c2_receive_byte.o
+                0x00000000      0x4ff ./lib/i2c/i2c2_receive_byte.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c2_receive_byte.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c2_receive_byte.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c2_receive_byte.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c2_receive_byte.o
+ .group         0x00000000        0xc ./lib/i2c/i2c2_transmit.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit.o
@@ -7069,7 +7169,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c2_transmit.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/i2c/i2c2_transmit.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c2_transmit.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c2_transmit.o
@@ -7077,7 +7177,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c2_transmit.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c2_transmit.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c2_transmit.o
@@ -7124,16 +7224,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c2_transmit.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_transmit.o
- .debug_line    0x00000000      0x2b5 ./lib/i2c/i2c2_transmit.o
- .debug_str     0x00000000     0xaca6 ./lib/i2c/i2c2_transmit.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_transmit.o
+ .debug_line    0x00000000      0x2ba ./lib/i2c/i2c2_transmit.o
+ .debug_str     0x00000000     0xae65 ./lib/i2c/i2c2_transmit.o
  .debug_line_str
-                0x00000000      0x4ed ./lib/i2c/i2c2_transmit.o
+                0x00000000      0x4f3 ./lib/i2c/i2c2_transmit.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c2_transmit.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c2_transmit.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c2_transmit.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c2_transmit.o
+ .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_address.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_address.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_address.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_address.o
@@ -7199,7 +7301,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c2_transmit_address.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/i2c/i2c2_transmit_address.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c2_transmit_address.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c2_transmit_address.o
@@ -7207,7 +7309,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c2_transmit_address.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c2_transmit_address.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c2_transmit_address.o
@@ -7254,16 +7356,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c2_transmit_address.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_transmit_address.o
- .debug_line    0x00000000      0x1d5 ./lib/i2c/i2c2_transmit_address.o
- .debug_str     0x00000000     0xac6a ./lib/i2c/i2c2_transmit_address.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_transmit_address.o
+ .debug_line    0x00000000      0x1da ./lib/i2c/i2c2_transmit_address.o
+ .debug_str     0x00000000     0xae29 ./lib/i2c/i2c2_transmit_address.o
  .debug_line_str
-                0x00000000      0x505 ./lib/i2c/i2c2_transmit_address.o
+                0x00000000      0x50b ./lib/i2c/i2c2_transmit_address.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c2_transmit_address.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c2_transmit_address.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c2_transmit_address.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c2_transmit_address.o
+ .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_address_only.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_address_only.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_address_only.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_address_only.o
@@ -7329,7 +7433,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c2_transmit_address_only.o
  .debug_rnglists
                 0x00000000       0x14 ./lib/i2c/i2c2_transmit_address_only.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c2_transmit_address_only.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c2_transmit_address_only.o
@@ -7337,7 +7441,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c2_transmit_address_only.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c2_transmit_address_only.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c2_transmit_address_only.o
@@ -7384,16 +7488,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c2_transmit_address_only.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_transmit_address_only.o
- .debug_line    0x00000000      0x1d5 ./lib/i2c/i2c2_transmit_address_only.o
- .debug_str     0x00000000     0xac6f ./lib/i2c/i2c2_transmit_address_only.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_transmit_address_only.o
+ .debug_line    0x00000000      0x1da ./lib/i2c/i2c2_transmit_address_only.o
+ .debug_str     0x00000000     0xae2e ./lib/i2c/i2c2_transmit_address_only.o
  .debug_line_str
-                0x00000000      0x514 ./lib/i2c/i2c2_transmit_address_only.o
+                0x00000000      0x51a ./lib/i2c/i2c2_transmit_address_only.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c2_transmit_address_only.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c2_transmit_address_only.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c2_transmit_address_only.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c2_transmit_address_only.o
+ .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_byte.o
  .group         0x00000000        0xc ./lib/i2c/i2c2_transmit_byte.o
@@ -7459,7 +7565,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/i2c/i2c2_transmit_byte.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/i2c/i2c2_transmit_byte.o
- .debug_macro   0x00000000      0x2af ./lib/i2c/i2c2_transmit_byte.o
+ .debug_macro   0x00000000      0x2b8 ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000      0x7a2 ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000       0x8e ./lib/i2c/i2c2_transmit_byte.o
@@ -7467,7 +7573,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000       0x6a ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000      0x1df ./lib/i2c/i2c2_transmit_byte.o
- .debug_macro   0x00000000      0x1bb ./lib/i2c/i2c2_transmit_byte.o
+ .debug_macro   0x00000000      0x1ec ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000       0x22 ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000       0xdc ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000       0x7c ./lib/i2c/i2c2_transmit_byte.o
@@ -7514,16 +7620,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000       0x1c ./lib/i2c/i2c2_transmit_byte.o
  .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_transmit_byte.o
- .debug_line    0x00000000      0x1c5 ./lib/i2c/i2c2_transmit_byte.o
- .debug_str     0x00000000     0xac64 ./lib/i2c/i2c2_transmit_byte.o
+ .debug_macro   0x00000000       0x28 ./lib/i2c/i2c2_transmit_byte.o
+ .debug_line    0x00000000      0x1ca ./lib/i2c/i2c2_transmit_byte.o
+ .debug_str     0x00000000     0xae23 ./lib/i2c/i2c2_transmit_byte.o
  .debug_line_str
-                0x00000000      0x4fc ./lib/i2c/i2c2_transmit_byte.o
+                0x00000000      0x502 ./lib/i2c/i2c2_transmit_byte.o
  .comment       0x00000000       0x34 ./lib/i2c/i2c2_transmit_byte.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/i2c/i2c2_transmit_byte.o
  .debug_frame   0x00000000       0x38 ./lib/i2c/i2c2_transmit_byte.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/i2c/i2c2_transmit_byte.o
+ .group         0x00000000        0xc ./lib/gpio/gpioa_readpin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_readpin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_readpin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_readpin.o
@@ -7589,7 +7697,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/gpio/gpioa_readpin.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/gpio/gpioa_readpin.o
- .debug_macro   0x00000000      0x2af ./lib/gpio/gpioa_readpin.o
+ .debug_macro   0x00000000      0x2b8 ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000      0x7a2 ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000       0x22 ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000       0x8e ./lib/gpio/gpioa_readpin.o
@@ -7597,7 +7705,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000       0x6a ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000      0x1df ./lib/gpio/gpioa_readpin.o
- .debug_macro   0x00000000      0x1bb ./lib/gpio/gpioa_readpin.o
+ .debug_macro   0x00000000      0x1ec ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000       0x22 ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000       0xdc ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000       0x7c ./lib/gpio/gpioa_readpin.o
@@ -7644,16 +7752,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000       0x1c ./lib/gpio/gpioa_readpin.o
  .debug_macro   0x00000000       0x28 ./lib/gpio/gpioa_readpin.o
- .debug_line    0x00000000      0x193 ./lib/gpio/gpioa_readpin.o
- .debug_str     0x00000000     0xac66 ./lib/gpio/gpioa_readpin.o
+ .debug_macro   0x00000000       0x28 ./lib/gpio/gpioa_readpin.o
+ .debug_line    0x00000000      0x198 ./lib/gpio/gpioa_readpin.o
+ .debug_str     0x00000000     0xae25 ./lib/gpio/gpioa_readpin.o
  .debug_line_str
-                0x00000000      0x4ef ./lib/gpio/gpioa_readpin.o
+                0x00000000      0x4f5 ./lib/gpio/gpioa_readpin.o
  .comment       0x00000000       0x34 ./lib/gpio/gpioa_readpin.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/gpio/gpioa_readpin.o
  .debug_frame   0x00000000       0x38 ./lib/gpio/gpioa_readpin.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/gpio/gpioa_readpin.o
+ .group         0x00000000        0xc ./lib/gpio/gpioa_togglepin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_togglepin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_togglepin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_togglepin.o
@@ -7719,7 +7829,7 @@ Discarded input sections
                 0x00000000       0x20 ./lib/gpio/gpioa_togglepin.o
  .debug_rnglists
                 0x00000000       0x13 ./lib/gpio/gpioa_togglepin.o
- .debug_macro   0x00000000      0x2af ./lib/gpio/gpioa_togglepin.o
+ .debug_macro   0x00000000      0x2b8 ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000      0x7a2 ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000       0x22 ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000       0x8e ./lib/gpio/gpioa_togglepin.o
@@ -7727,7 +7837,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000       0x6a ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000      0x1df ./lib/gpio/gpioa_togglepin.o
- .debug_macro   0x00000000      0x1bb ./lib/gpio/gpioa_togglepin.o
+ .debug_macro   0x00000000      0x1ec ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000       0x22 ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000       0xdc ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000       0x7c ./lib/gpio/gpioa_togglepin.o
@@ -7774,16 +7884,18 @@ Discarded input sections
  .debug_macro   0x00000000       0x64 ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000       0x1c ./lib/gpio/gpioa_togglepin.o
  .debug_macro   0x00000000       0x28 ./lib/gpio/gpioa_togglepin.o
- .debug_line    0x00000000      0x18b ./lib/gpio/gpioa_togglepin.o
- .debug_str     0x00000000     0xac5e ./lib/gpio/gpioa_togglepin.o
+ .debug_macro   0x00000000       0x28 ./lib/gpio/gpioa_togglepin.o
+ .debug_line    0x00000000      0x190 ./lib/gpio/gpioa_togglepin.o
+ .debug_str     0x00000000     0xae1d ./lib/gpio/gpioa_togglepin.o
  .debug_line_str
-                0x00000000      0x4f5 ./lib/gpio/gpioa_togglepin.o
+                0x00000000      0x4fb ./lib/gpio/gpioa_togglepin.o
  .comment       0x00000000       0x34 ./lib/gpio/gpioa_togglepin.o
  .note.GNU-stack
                 0x00000000        0x0 ./lib/gpio/gpioa_togglepin.o
  .debug_frame   0x00000000       0x38 ./lib/gpio/gpioa_togglepin.o
  .riscv.attributes
                 0x00000000       0x33 ./lib/gpio/gpioa_togglepin.o
+ .group         0x00000000        0xc ./lib/gpio/gpioa_writepin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_writepin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_writepin.o
  .group         0x00000000        0xc ./lib/gpio/gpioa_writepin.o
@@ -7848,7 +7960,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x103 ./lib/gpio/gpioa_writepin.o
  .debug_macro   0x00000000       0x6a ./lib/gpio/gpioa_writepin.o
  .debug_macro   0x00000000      0x1df ./lib/gpio/gpioa_writepin.o
- .debug_macro   0x00000000      0x1bb ./lib/gpio/gpioa_writepin.o
+ .debug_macro   0x00000000      0x1ec ./lib/gpio/gpioa_writepin.o
  .debug_macro   0x00000000       0x22 ./lib/gpio/gpioa_writepin.o
  .debug_macro   0x00000000       0xdc ./lib/gpio/gpioa_writepin.o
  .debug_macro   0x00000000       0x7c ./lib/gpio/gpioa_writepin.o
@@ -7894,6 +8006,7 @@ Discarded input sections
  .debug_macro   0x00000000       0x76 ./lib/gpio/gpioa_writepin.o
  .debug_macro   0x00000000       0x64 ./lib/gpio/gpioa_writepin.o
  .debug_macro   0x00000000       0x1c ./lib/gpio/gpioa_writepin.o
+ .debug_macro   0x00000000       0x28 ./lib/gpio/gpioa_writepin.o
  .debug_macro   0x00000000       0x28 ./lib/gpio/gpioa_writepin.o
  .group         0x00000000        0xc ./lib/csr/csr_get_cycle.o
  .group         0x00000000        0xc ./lib/csr/csr_get_cycle.o
@@ -9530,122 +9643,123 @@ OUTPUT(hello_world.elf elf32-littleriscv)
  .debug_rnglists
                 0x0000009c       0x1a ./crt/startup.o
 
-.debug_macro    0x00000000     0x4077
- .debug_macro   0x00000000      0x2af ./src/hello_world.o
- .debug_macro   0x000002af      0x7a2 ./src/hello_world.o
- .debug_macro   0x00000a51       0x22 ./src/hello_world.o
- .debug_macro   0x00000a73       0x8e ./src/hello_world.o
- .debug_macro   0x00000b01       0x51 ./src/hello_world.o
- .debug_macro   0x00000b52      0x103 ./src/hello_world.o
- .debug_macro   0x00000c55       0x6a ./src/hello_world.o
- .debug_macro   0x00000cbf      0x1df ./src/hello_world.o
- .debug_macro   0x00000e9e      0x1bb ./src/hello_world.o
- .debug_macro   0x00001059       0x22 ./src/hello_world.o
- .debug_macro   0x0000107b       0xdc ./src/hello_world.o
- .debug_macro   0x00001157       0x7c ./src/hello_world.o
- .debug_macro   0x000011d3       0x10 ./src/hello_world.o
- .debug_macro   0x000011e3       0x6e ./src/hello_world.o
- .debug_macro   0x00001251       0x19 ./src/hello_world.o
- .debug_macro   0x0000126a       0x3b ./src/hello_world.o
- .debug_macro   0x000012a5       0x34 ./src/hello_world.o
- .debug_macro   0x000012d9      0x190 ./src/hello_world.o
- .debug_macro   0x00001469      0x364 ./src/hello_world.o
- .debug_macro   0x000017cd       0x16 ./src/hello_world.o
- .debug_macro   0x000017e3       0x4a ./src/hello_world.o
- .debug_macro   0x0000182d       0x34 ./src/hello_world.o
- .debug_macro   0x00001861       0x10 ./src/hello_world.o
- .debug_macro   0x00001871       0x58 ./src/hello_world.o
- .debug_macro   0x000018c9      0x1de ./src/hello_world.o
- .debug_macro   0x00001aa7      0x23c ./src/hello_world.o
- .debug_macro   0x00001ce3       0x16 ./src/hello_world.o
- .debug_macro   0x00001cf9       0x3c ./src/hello_world.o
- .debug_macro   0x00001d35       0x10 ./src/hello_world.o
- .debug_macro   0x00001d45       0x1c ./src/hello_world.o
- .debug_macro   0x00001d61       0x16 ./src/hello_world.o
- .debug_macro   0x00001d77      0x170 ./src/hello_world.o
- .debug_macro   0x00001ee7       0x10 ./src/hello_world.o
- .debug_macro   0x00001ef7       0x1c ./src/hello_world.o
- .debug_macro   0x00001f13       0x52 ./src/hello_world.o
- .debug_macro   0x00001f65       0x22 ./src/hello_world.o
- .debug_macro   0x00001f87       0x10 ./src/hello_world.o
- .debug_macro   0x00001f97       0x52 ./src/hello_world.o
- .debug_macro   0x00001fe9       0xc1 ./src/hello_world.o
- .debug_macro   0x000020aa       0x1c ./src/hello_world.o
- .debug_macro   0x000020c6       0x3d ./src/hello_world.o
- .debug_macro   0x00002103      0x18a ./src/hello_world.o
- .debug_macro   0x0000228d       0x16 ./src/hello_world.o
- .debug_macro   0x000022a3       0x16 ./src/hello_world.o
- .debug_macro   0x000022b9       0x10 ./src/hello_world.o
- .debug_macro   0x000022c9       0x10 ./src/hello_world.o
- .debug_macro   0x000022d9       0x35 ./src/hello_world.o
- .debug_macro   0x0000230e      0x132 ./src/hello_world.o
- .debug_macro   0x00002440       0xce ./src/hello_world.o
- .debug_macro   0x0000250e       0xed ./src/hello_world.o
- .debug_macro   0x000025fb       0x46 ./src/hello_world.o
- .debug_macro   0x00002641       0x76 ./src/hello_world.o
- .debug_macro   0x000026b7       0x64 ./src/hello_world.o
- .debug_macro   0x0000271b       0x1c ./src/hello_world.o
- .debug_macro   0x00002737       0x28 ./src/hello_world.o
- .debug_macro   0x0000275f      0x2bb ./lib/util/delayms.o
- .debug_macro   0x00002a1a      0x2af ./lib/util/printdec.o
- .debug_macro   0x00002cc9      0x2bb ./lib/uart/uart1_init.o
- .debug_macro   0x00002f84      0x2e0 ./lib/uart/uart1_putc.o
- .debug_macro   0x00003264      0x2e0 ./lib/uart/uart1_puts.o
- .debug_macro   0x00003544       0x11 ./lib/syscalls/sys_exit.o
- .debug_macro   0x00003555      0x2af ./lib/gpio/gpioa_writepin.o
- .debug_macro   0x00003804      0x20f ./crt/startup.o
- .debug_macro   0x00003a13       0x10 ./crt/startup.o
- .debug_macro   0x00003a23       0x16 ./crt/startup.o
- .debug_macro   0x00003a39       0x16 ./crt/startup.o
- .debug_macro   0x00003a4f       0x29 ./crt/startup.o
- .debug_macro   0x00003a78       0x16 ./crt/startup.o
- .debug_macro   0x00003a8e       0xcf ./crt/startup.o
- .debug_macro   0x00003b5d      0x51a ./crt/startup.o
+.debug_macro    0x00000000     0x410f
+ .debug_macro   0x00000000      0x2b8 ./src/hello_world.o
+ .debug_macro   0x000002b8      0x7a2 ./src/hello_world.o
+ .debug_macro   0x00000a5a       0x22 ./src/hello_world.o
+ .debug_macro   0x00000a7c       0x8e ./src/hello_world.o
+ .debug_macro   0x00000b0a       0x51 ./src/hello_world.o
+ .debug_macro   0x00000b5b      0x103 ./src/hello_world.o
+ .debug_macro   0x00000c5e       0x6a ./src/hello_world.o
+ .debug_macro   0x00000cc8      0x1df ./src/hello_world.o
+ .debug_macro   0x00000ea7      0x1ec ./src/hello_world.o
+ .debug_macro   0x00001093       0x22 ./src/hello_world.o
+ .debug_macro   0x000010b5       0xdc ./src/hello_world.o
+ .debug_macro   0x00001191       0x7c ./src/hello_world.o
+ .debug_macro   0x0000120d       0x10 ./src/hello_world.o
+ .debug_macro   0x0000121d       0x6e ./src/hello_world.o
+ .debug_macro   0x0000128b       0x19 ./src/hello_world.o
+ .debug_macro   0x000012a4       0x3b ./src/hello_world.o
+ .debug_macro   0x000012df       0x34 ./src/hello_world.o
+ .debug_macro   0x00001313      0x190 ./src/hello_world.o
+ .debug_macro   0x000014a3      0x364 ./src/hello_world.o
+ .debug_macro   0x00001807       0x16 ./src/hello_world.o
+ .debug_macro   0x0000181d       0x4a ./src/hello_world.o
+ .debug_macro   0x00001867       0x34 ./src/hello_world.o
+ .debug_macro   0x0000189b       0x10 ./src/hello_world.o
+ .debug_macro   0x000018ab       0x58 ./src/hello_world.o
+ .debug_macro   0x00001903      0x1de ./src/hello_world.o
+ .debug_macro   0x00001ae1      0x23c ./src/hello_world.o
+ .debug_macro   0x00001d1d       0x16 ./src/hello_world.o
+ .debug_macro   0x00001d33       0x3c ./src/hello_world.o
+ .debug_macro   0x00001d6f       0x10 ./src/hello_world.o
+ .debug_macro   0x00001d7f       0x1c ./src/hello_world.o
+ .debug_macro   0x00001d9b       0x16 ./src/hello_world.o
+ .debug_macro   0x00001db1      0x170 ./src/hello_world.o
+ .debug_macro   0x00001f21       0x10 ./src/hello_world.o
+ .debug_macro   0x00001f31       0x1c ./src/hello_world.o
+ .debug_macro   0x00001f4d       0x52 ./src/hello_world.o
+ .debug_macro   0x00001f9f       0x22 ./src/hello_world.o
+ .debug_macro   0x00001fc1       0x10 ./src/hello_world.o
+ .debug_macro   0x00001fd1       0x52 ./src/hello_world.o
+ .debug_macro   0x00002023       0xc1 ./src/hello_world.o
+ .debug_macro   0x000020e4       0x1c ./src/hello_world.o
+ .debug_macro   0x00002100       0x3d ./src/hello_world.o
+ .debug_macro   0x0000213d      0x18a ./src/hello_world.o
+ .debug_macro   0x000022c7       0x16 ./src/hello_world.o
+ .debug_macro   0x000022dd       0x16 ./src/hello_world.o
+ .debug_macro   0x000022f3       0x10 ./src/hello_world.o
+ .debug_macro   0x00002303       0x10 ./src/hello_world.o
+ .debug_macro   0x00002313       0x35 ./src/hello_world.o
+ .debug_macro   0x00002348      0x132 ./src/hello_world.o
+ .debug_macro   0x0000247a       0xce ./src/hello_world.o
+ .debug_macro   0x00002548       0xed ./src/hello_world.o
+ .debug_macro   0x00002635       0x46 ./src/hello_world.o
+ .debug_macro   0x0000267b       0x76 ./src/hello_world.o
+ .debug_macro   0x000026f1       0x64 ./src/hello_world.o
+ .debug_macro   0x00002755       0x1c ./src/hello_world.o
+ .debug_macro   0x00002771       0x28 ./src/hello_world.o
+ .debug_macro   0x00002799       0x28 ./src/hello_world.o
+ .debug_macro   0x000027c1      0x2c4 ./lib/util/delayms.o
+ .debug_macro   0x00002a85      0x2b8 ./lib/util/printdec.o
+ .debug_macro   0x00002d3d      0x2c4 ./lib/uart/uart1_init.o
+ .debug_macro   0x00003001      0x2e9 ./lib/uart/uart1_putc.o
+ .debug_macro   0x000032ea      0x2e9 ./lib/uart/uart1_puts.o
+ .debug_macro   0x000035d3       0x11 ./lib/syscalls/sys_exit.o
+ .debug_macro   0x000035e4      0x2b8 ./lib/gpio/gpioa_writepin.o
+ .debug_macro   0x0000389c      0x20f ./crt/startup.o
+ .debug_macro   0x00003aab       0x10 ./crt/startup.o
+ .debug_macro   0x00003abb       0x16 ./crt/startup.o
+ .debug_macro   0x00003ad1       0x16 ./crt/startup.o
+ .debug_macro   0x00003ae7       0x29 ./crt/startup.o
+ .debug_macro   0x00003b10       0x16 ./crt/startup.o
+ .debug_macro   0x00003b26       0xcf ./crt/startup.o
+ .debug_macro   0x00003bf5      0x51a ./crt/startup.o
 
-.debug_line     0x00000000      0xf21
- .debug_line    0x00000000      0x1b9 ./src/hello_world.o
- .debug_line    0x000001b9      0x1d3 ./lib/util/delayms.o
- .debug_line    0x0000038c      0x207 ./lib/util/printdec.o
- .debug_line    0x00000593      0x219 ./lib/uart/uart1_init.o
- .debug_line    0x000007ac      0x1d3 ./lib/uart/uart1_putc.o
- .debug_line    0x0000097f      0x1cf ./lib/uart/uart1_puts.o
- .debug_line    0x00000b4e       0x52 ./lib/syscalls/sys_exit.o
- .debug_line    0x00000ba0      0x1bb ./lib/gpio/gpioa_writepin.o
- .debug_line    0x00000d5b      0x1c6 ./crt/startup.o
+.debug_line     0x00000000      0xf44
+ .debug_line    0x00000000      0x1be ./src/hello_world.o
+ .debug_line    0x000001be      0x1d8 ./lib/util/delayms.o
+ .debug_line    0x00000396      0x20c ./lib/util/printdec.o
+ .debug_line    0x000005a2      0x21e ./lib/uart/uart1_init.o
+ .debug_line    0x000007c0      0x1d8 ./lib/uart/uart1_putc.o
+ .debug_line    0x00000998      0x1d4 ./lib/uart/uart1_puts.o
+ .debug_line    0x00000b6c       0x52 ./lib/syscalls/sys_exit.o
+ .debug_line    0x00000bbe      0x1c0 ./lib/gpio/gpioa_writepin.o
+ .debug_line    0x00000d7e      0x1c6 ./crt/startup.o
 
-.debug_str      0x00000000     0xc4b6
- .debug_str     0x00000000     0xc4b6 ./src/hello_world.o
-                               0xac71 (size before relaxing)
- .debug_str     0x0000c4b6     0xac5e ./lib/util/delayms.o
- .debug_str     0x0000c4b6     0xac4f ./lib/util/printdec.o
- .debug_str     0x0000c4b6     0xac85 ./lib/uart/uart1_init.o
- .debug_str     0x0000c4b6     0xb4d2 ./lib/uart/uart1_putc.o
- .debug_str     0x0000c4b6     0xb495 ./lib/uart/uart1_puts.o
- .debug_str     0x0000c4b6     0x2750 ./lib/syscalls/sys_exit.o
- .debug_str     0x0000c4b6     0xac63 ./lib/gpio/gpioa_writepin.o
- .debug_str     0x0000c4b6     0x7f7b ./crt/startup.o
+.debug_str      0x00000000     0xc675
+ .debug_str     0x00000000     0xc675 ./src/hello_world.o
+                               0xae30 (size before relaxing)
+ .debug_str     0x0000c675     0xae1d ./lib/util/delayms.o
+ .debug_str     0x0000c675     0xae0e ./lib/util/printdec.o
+ .debug_str     0x0000c675     0xae44 ./lib/uart/uart1_init.o
+ .debug_str     0x0000c675     0xb691 ./lib/uart/uart1_putc.o
+ .debug_str     0x0000c675     0xb654 ./lib/uart/uart1_puts.o
+ .debug_str     0x0000c675     0x2750 ./lib/syscalls/sys_exit.o
+ .debug_str     0x0000c675     0xae22 ./lib/gpio/gpioa_writepin.o
+ .debug_str     0x0000c675     0x7f7b ./crt/startup.o
 
 .debug_line_str
-                0x00000000      0x537
+                0x00000000      0x53d
  .debug_line_str
-                0x00000000      0x537 ./src/hello_world.o
-                                0x4df (size before relaxing)
+                0x00000000      0x53d ./src/hello_world.o
+                                0x4e5 (size before relaxing)
  .debug_line_str
-                0x00000537      0x4dd ./lib/util/delayms.o
+                0x0000053d      0x4e3 ./lib/util/delayms.o
  .debug_line_str
-                0x00000537      0x4e0 ./lib/util/printdec.o
+                0x0000053d      0x4e6 ./lib/util/printdec.o
  .debug_line_str
-                0x00000537      0x4e6 ./lib/uart/uart1_init.o
+                0x0000053d      0x4ec ./lib/uart/uart1_init.o
  .debug_line_str
-                0x00000537      0x50a ./lib/uart/uart1_putc.o
+                0x0000053d      0x510 ./lib/uart/uart1_putc.o
  .debug_line_str
-                0x00000537      0x50a ./lib/uart/uart1_puts.o
+                0x0000053d      0x510 ./lib/uart/uart1_puts.o
  .debug_line_str
-                0x00000537       0xc7 ./lib/syscalls/sys_exit.o
+                0x0000053d       0xc7 ./lib/syscalls/sys_exit.o
  .debug_line_str
-                0x00000537      0x4f2 ./lib/gpio/gpioa_writepin.o
+                0x0000053d      0x4f8 ./lib/gpio/gpioa_writepin.o
  .debug_line_str
-                0x00000537      0x40d ./crt/startup.o
+                0x0000053d      0x40d ./crt/startup.o
 
 .comment        0x00000000       0x33
  .comment       0x00000000       0x33 ./src/hello_world.o

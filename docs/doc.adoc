@@ -25,7 +25,7 @@ This document describes the buildup of a simple, one core, RISC-V processor, com
 
 The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. A multiplication takes 3 clocks. Trap taken and return take 3 clocks.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests shows an average CPI of 1.73 with a throughput of 1.93 coremark/MHz (4000 runs).
+The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests shows an average CPI of 1.76 with a throughput of 1.94 coremark/MHz (GCC 15.1, 4000 runs).
 
 == The Processor
 
@@ -159,7 +159,7 @@ The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this t
 
 === Memory Interface
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (writes), the data size and the read/write flag on the bus. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither acknowledge nor exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. In the first cycle of the memory access, a strobe signal is present. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither acknowledge nor exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles.
 
 
 === Control and Status registers
@@ -266,6 +266,12 @@ There are two types resets. A system wide reset resets the complete processor, i
 
 The memories are accessed through the address decoder and data router and the instruction router.
 The are four memories: ROM, boot ROM, RAM and I/O.
+
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. In the first cycle of the memory access, a strobe signal is present. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither acknowledge nor exception generated, the core will stall permanently. Currently a memory access must at least take two clock cyclesi (one external cycle. See figure.
+
+.Timing diagram of a read operation.
+[[fig_read]]
+image::images/read.svg[Image of the read operation]
 
 The memories are responsible for handling different data sizes and rearranging half word and byte access. When reading, the core expects half word data on the lower 16 bits of the data bus and bytes on the lower 8 bits of the databus. When writing the core puts half words on the lower 16 bits of the data bus and bytes on the lower 8 bits of the data bus. The memories are also responsible for signaling misaligned accesses. Sign and zero extension is handled by the core.
 
@@ -1214,7 +1220,7 @@ The on-chip debugger (OCD) follows the guidelines of the https://github.com/risc
 * Read/write all core registers (GPR and CSR),
 * Read/write memory.
 
-The OCD is an all-hardware solution. Accessing core registers and memory is done by Abstract Commands. There is no support for program buffer (progbuf) and System Bus Access. This means that the debugger cannot execute the `fence` instruction (or any other instruction). That is not a problem, since the core will wait for a memory operation to be completed.
+The OCD is an all-hardware solution. Accessing core registers and memory is done by Abstract Commands. There is no support for program buffer (progbuf) and System Bus Access. This means that the debugger cannot execute the `fence` instruction (or any other instruction). That is not a problem, since the core will wait for a memory operation to be completedi before entering denug state. Note that the program buffer is optional.
 
 From the debug specification, Chapter 3, there is a list of requirements. Some are mandatory, others are optional. All requirements for multiple harts are not applicable.
 
@@ -1253,9 +1259,9 @@ The hart can be in five "states": resetting, running, halting, halted and resumi
 
 *WFI Instruction* When the hart is halting when executing the WFI instruction, the hart enters debug mode. When stepping, the WFI instruction is treated as a NOP instruction.
 
-To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while it isn't. If the VHDL generic `OCD_AAMPOSTINCREMENT` is set to true, bulk memory accesses will use the auto post-increment feature for the address register, e.g. when uploading a binary executable with GDB. When using OCD, the bootloader is usually disabled.
+To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while there isn't. If the VHDL generic `OCD_AAMPOSTINCREMENT` is set to true, bulk memory accesses will use the auto post-increment feature for the address register, e.g. when uploading a binary executable with GDB. When using OCD, the bootloader is usually disabled.
 
-Note: the OCD is still considered experimental although we used it a lot. We tested the OCD with OpenOCD, GDB and Eclipse-CDT. When there are issues, please report them to J.E.J.opdenBrouw@hhs.nl.
+Registers and CSRs are directly accessed via the core. Memory operations are handled by the core's memory interface. If a memory operation times out, the DM will report error code 7. This is not standard.
 
 Tests with the OCD were conducted with an https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE]. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB and Eclipse-CDT.
 

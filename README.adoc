@@ -122,10 +122,10 @@ is needed.
 
 The processor can be equipped with an on-chip debugger that complies to the
 https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[RISC-V Debug Specification v1.0.0-rc3].
-It is an all-hardware solution,
-there is no program buffer involved. All processor registers (including
+It is an all-hardware solution, there is no program buffer involved
+(yes, the program buffer is optional). All processor registers (including
 CSRs) can be read and written (when possible). Memory can be read and
-written. There is one hardware breakpoint available. De on-chip debugger
+written. There is one hardware breakpoint available. The on-chip debugger
 is compatible with OpenOCD, GDB and Eclipse-CDT.
 
 == Bootloader

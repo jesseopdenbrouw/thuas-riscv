@@ -55,14 +55,12 @@ end entity stub;
 architecture rtl of stub is
 
 signal isword : boolean;
--- For strobing
-signal cs_sync : std_logic;
 
 begin
 
     -- Should we really check for alignments for non-used I/O?
-    O_mem_response.load_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
-    O_mem_response.store_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
     isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" ;
 
     -- This process just creates a ready signal so that the core will not hang
@@ -70,11 +68,9 @@ begin
     begin
         if I_areset = '1' then
             O_mem_response.ready <= '0';
-            cs_sync <= '0';
         elsif rising_edge(I_clk) then
             O_mem_response.ready <= '0';
-            cs_sync <= I_mem_request.cs;
-            if I_mem_request.cs = '1' and cs_sync = '0' and isword then
+            if I_mem_request.stb = '1' and isword then
                 O_mem_response.ready <= '1';
             end if;
         end if;

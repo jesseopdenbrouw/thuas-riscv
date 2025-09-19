@@ -279,6 +279,7 @@ begin
             dm_reg.timeout <= '0';
             dm_reg.counter <= 0;
             -- Reset the bus to the core
+            O_dm_core_data_request.stb <= '0';
             O_dm_core_data_request.readcsr <= '0';
             O_dm_core_data_request.writecsr <= '0';
             O_dm_core_data_request.readgpr <= '0';
@@ -296,6 +297,7 @@ begin
                 dm_reg.state <= cmd_idle;
                 dm_reg.counter <= 0;
                 -- Reset the bus to the core
+                O_dm_core_data_request.stb <= '0';
                 O_dm_core_data_request.readcsr <= '0';
                 O_dm_core_data_request.writecsr <= '0';
                 O_dm_core_data_request.readgpr <= '0';
@@ -308,6 +310,7 @@ begin
                 case dm_reg.state is
                     -- Idle, wait for command to be written
                     when cmd_idle =>
+                        O_dm_core_data_request.stb <= '0';
                         O_dm_core_data_request.readcsr <= '0';
                         O_dm_core_data_request.writecsr <= '0';
                         O_dm_core_data_request.readgpr <= '0';
@@ -386,6 +389,7 @@ begin
                         dm_reg.state <= cmd_idle;
                     -- Prepare DM for memory access
                     when cmd_preparemem =>
+                        O_dm_core_data_request.stb <= '1';
                         O_dm_core_data_request.address <= dm_reg.data1;
                         O_dm_core_data_request.data <= dm_reg.data0;
                         O_dm_core_data_request.size <= dm_reg.command(21 downto 20);
@@ -401,6 +405,7 @@ begin
                         end if;
                     -- Read memory, wait for response
                     when cmd_readmem1 =>
+                        O_dm_core_data_request.stb <= '0';
                         if I_dm_core_data_response.ack = '1' then
                             dm_reg.state <= cmd_idle;
                         end if;
@@ -416,6 +421,7 @@ begin
                         end if;
                     -- Write memory, wait for response
                     when cmd_writemem1 =>
+                        O_dm_core_data_request.stb <= '0';
                         -- One-shot writemem
                         O_dm_core_data_request.writemem <= '0';
                         if I_dm_core_data_response.ack = '1' then

@@ -81,7 +81,11 @@ begin
     -- Address decoder and data router (may be forward from RS1)
     process (I_bus_request, I_mem_response_rom, I_mem_response_boot, I_mem_response_ram, I_mem_response_io) is
     begin
-        
+
+        O_mem_request_rom.stb <= '0';
+        O_mem_request_boot.stb <= '0';
+        O_mem_request_ram.stb <= '0';
+        O_mem_request_io.stb <= '0';    
         
         O_mem_request_rom.cs <= '0';
         O_mem_request_boot.cs <= '0';
@@ -126,6 +130,7 @@ begin
         if I_bus_request.addr(31 downto 28) = ROM_HIGH_NIBBLE then
             if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
                 O_mem_request_rom.cs <= '1';
+                O_mem_request_rom.stb <= I_bus_request.stb;
             end if;
             if I_bus_request.acc = memaccess_write then
                 O_mem_request_rom.wren <= '1';
@@ -136,6 +141,7 @@ begin
         elsif I_bus_request.addr(31 downto 28) = BOOT_HIGH_NIBBLE and HAVE_BOOTLOADER_ROM then
             if I_bus_request.acc = memaccess_read then
                 O_mem_request_boot.cs <= '1';
+                O_mem_request_boot.stb <= I_bus_request.stb;
             end if;
             -- The boot ROM cannot be written
             if I_bus_request.acc = memaccess_write then
@@ -147,6 +153,7 @@ begin
         elsif I_bus_request.addr(31 downto 28) = RAM_HIGH_NIBBLE then
             if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
                 O_mem_request_ram.cs <= '1';
+                O_mem_request_ram.stb <= I_bus_request.stb;
             end if;
             if I_bus_request.acc = memaccess_write then
                 O_mem_request_ram.wren <='1';
@@ -157,6 +164,7 @@ begin
         elsif I_bus_request.addr(31 downto 28) = IO_HIGH_NIBBLE then
             if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
                 O_mem_request_io.cs <= '1';
+                O_mem_request_io.stb <= I_bus_request.stb;
             end if;
             if I_bus_request.acc = memaccess_write then
                 O_mem_request_io.wren <='1';

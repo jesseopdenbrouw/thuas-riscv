@@ -80,11 +80,13 @@ type ram_alt_type is array (0 to ram_size-1) of data_type;
 signal ram_alt : ram_alt_type;
 -- synthesis translate_on
 
+signal stb_dly : std_logic;
+
 begin 
     -- RAM + Input & output recoding
     -- The RAM is 32 bits, Big Endian, so we have to recode the inputs
     -- to support Little Endian
-    process (I_clk, I_areset, I_mem_request) is
+    process (I_clk, I_areset, I_mem_request, stb_dly) is
     variable address_v : integer range 0 to ram_size-1;
     constant x : std_logic_vector(7 downto 0) := (others => '-');
     variable datawrite_v : data_type;
@@ -103,7 +105,7 @@ begin
         O_mem_response.store_misaligned_error <= '0';
         
          -- Input recoding
-        if I_mem_request.cs = '1' and I_mem_request.wren = '1' then
+        if I_mem_request.stb = '1' and I_mem_request.wren = '1' then
             case I_mem_request.size is
                 -- Byte size
                 when memsize_byte =>
@@ -139,7 +141,7 @@ begin
         else
             datawrite_v := x & x & x & x;
         end if;
-       
+
         -- The RAM itself
         if rising_edge(I_clk) then
             -- Write to RAM
@@ -160,9 +162,18 @@ begin
             dataout_v := ramhh(address_v) & ramhl(address_v) & ramlh(address_v) & ramll(address_v);
         end if;
 
+        -- Delay the strobe, for read, a read needs two cycles.
+        -- First the address is set and in the next cycle the
+        -- data is read.
+        if I_areset = '1' then
+            stb_dly <= '0';
+        elsif rising_edge(I_clk) then
+            stb_dly <= I_mem_request.stb and not I_mem_request.wren;
+        end if;
+        
         O_mem_response.load_misaligned_error <= '0';
         -- Output recoding
-        if I_mem_request.cs = '1' and I_mem_request.wren = '0' then
+        if stb_dly = '1' then
             case I_mem_request.size is
                 -- Byte size
                 when memsize_byte =>
@@ -189,6 +200,7 @@ begin
                     else
                         O_mem_response.data <= x & x & x & x; O_mem_response.load_misaligned_error <= '1';
                     end if;
+                -- Memory size unknown
                 when others =>
                     O_mem_response.data <= x & x & x & x;
             end case;
@@ -198,27 +210,7 @@ begin
         
     end process;
 
-    -- Generate RAM ready signal for reads and writes    
-    process (I_clk, I_areset, I_mem_request) is
-    variable readready_v : std_logic;
-    begin
-        if I_areset = '1' then
-            readready_v := '0';
-        elsif rising_edge(I_clk) then
-            if readready_v = '1' then
-                readready_v := '0';
-            elsif I_mem_request.cs = '1' and I_mem_request.wren = '0' then
-                readready_v := '1';
-            else
-                readready_v := '0';
-            end if;
-        end if;
-
-        -- Fuse read ready and write ready
-        O_mem_response.ready <= readready_v  or (I_mem_request.cs and I_mem_request.wren);
-
-    end process;
-
+    O_mem_response.ready <= stb_dly or (I_mem_request.stb and I_mem_request.wren);
     
     -- For simulation only, now it can be used in the simulator.
     -- synthesis translate_off

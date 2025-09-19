@@ -37,7 +37,7 @@
 -- This file contains the description of a RISC-V RV32IM core,
 -- using a three-stage pipeline. It contains the PC, the
 -- instruction decoder and the ALU, the MD unit, the memory
--- interface unit, the CSR and the LIC.
+-- interface unit, the CSR, the LIC and the TM.
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -2213,11 +2213,14 @@ begin
         end if;
 
         if I_areset = '1' then
+            O_bus_request.stb <= '0';
             O_bus_request.size <= memsize_unknown;
             O_bus_request.acc <= memaccess_nop;
             O_bus_request.data <= (others => '0');
             csr_transfer.address_to_mtval <= (others => '0');
         elsif rising_edge(I_clk) then
+            -- Create memory access strobe from core or DM
+            O_bus_request.stb <= id_ex.ismem or (I_dm_core_data_request.stb and boolean_to_std_logic(HAVE_OCD));
             -- If current transaction is completed, reset the bus
             if I_bus_response.ready = '1' then
                 O_bus_request.size <= memsize_unknown;

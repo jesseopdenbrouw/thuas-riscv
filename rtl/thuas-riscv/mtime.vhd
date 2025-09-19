@@ -70,13 +70,11 @@ end record;
 
 signal mtime : mtime_type;
 signal isword : boolean;
--- For strobing
-signal cs_sync : std_logic;
 
 begin
 
-    O_mem_response.load_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
-    O_mem_response.store_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
     isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" ;
 
     process (I_clk, I_areset, mtime) is
@@ -90,11 +88,9 @@ begin
             prescaler_v := 0;
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            cs_sync <= '0';
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            cs_sync <= I_mem_request.cs;
             -- Update system timer
             if prescaler_v = SYSTEM_FREQUENCY/CLOCK_FREQUENCY-1 then
                 prescaler_v := 0;
@@ -102,7 +98,7 @@ begin
             else
                 prescaler_v := prescaler_v + 1;
             end if;
-            if I_mem_request.cs = '1' and cs_sync = '0' and isword then
+            if I_mem_request.stb = '1' and isword then
                 if I_mem_request.wren = '1' then
                     case I_mem_request.addr(3 downto 2) is
                         when "00" => mtime_v(31 downto 00) := unsigned(I_mem_request.data);     -- Store time (low 32 bits)

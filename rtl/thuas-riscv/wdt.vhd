@@ -68,16 +68,14 @@ end record;
 
 signal wdt : wdt_type;
 signal isword : boolean;
--- For strobing
-signal cs_sync : std_logic;
 
 -- Watchdog password
 constant wdt_password_c : data_type := x"5c93a0f1";
    
 begin
 
-    O_mem_response.load_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
-    O_mem_response.store_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
     isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" ;
 
     process (I_clk, I_areset) is
@@ -92,14 +90,13 @@ begin
             wdt.mustrestart <= '0';
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            cs_sync <= '0';
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            cs_sync <= I_mem_request.cs;
+            --
             wdt.mustreset <= '0';
             wdt.mustrestart <= '0';
-            if I_mem_request.cs = '1' and cs_sync = '0' and isword then
+            if I_mem_request.stb = '1' and isword then
                 -- Control register
                 if I_mem_request.wren = '1' then
                     if I_mem_request.addr(2) = '0' then

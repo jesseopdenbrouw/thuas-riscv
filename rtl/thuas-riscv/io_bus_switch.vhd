@@ -117,97 +117,114 @@ begin
         O_dev0_request.data <= I_mem_request.data;
         O_dev0_request.wren <= I_mem_request.wren;        
         O_dev0_request.cs <= '0';
+        O_dev0_request.stb <= '0';
 
         O_dev1_request.addr <= I_mem_request.addr;
         O_dev1_request.size <= I_mem_request.size;
         O_dev1_request.data <= I_mem_request.data;
         O_dev1_request.wren <= I_mem_request.wren;        
         O_dev1_request.cs <= '0';
+        O_dev1_request.stb <= '0';
         
         O_dev2_request.addr <= I_mem_request.addr;
         O_dev2_request.size <= I_mem_request.size;
         O_dev2_request.data <= I_mem_request.data;
         O_dev2_request.wren <= I_mem_request.wren;        
         O_dev2_request.cs <= '0';
+        O_dev2_request.stb <= '0';
         
         O_dev3_request.addr <= I_mem_request.addr;
         O_dev3_request.size <= I_mem_request.size;
         O_dev3_request.data <= I_mem_request.data;
         O_dev3_request.wren <= I_mem_request.wren;        
         O_dev3_request.cs <= '0';
+        O_dev3_request.stb <= '0';
 
         O_dev4_request.addr <= I_mem_request.addr;
         O_dev4_request.size <= I_mem_request.size;
         O_dev4_request.data <= I_mem_request.data;
         O_dev4_request.wren <= I_mem_request.wren;        
         O_dev4_request.cs <= '0';
+        O_dev4_request.stb <= '0';
 
         O_dev5_request.addr <= I_mem_request.addr;
         O_dev5_request.size <= I_mem_request.size;
         O_dev5_request.data <= I_mem_request.data;
         O_dev5_request.wren <= I_mem_request.wren;        
         O_dev5_request.cs <= '0';
+        O_dev5_request.stb <= '0';
 
         O_dev6_request.addr <= I_mem_request.addr;
         O_dev6_request.size <= I_mem_request.size;
         O_dev6_request.data <= I_mem_request.data;
         O_dev6_request.wren <= I_mem_request.wren;        
         O_dev6_request.cs <= '0';
+        O_dev6_request.stb <= '0';
 
         O_dev7_request.addr <= I_mem_request.addr;
         O_dev7_request.size <= I_mem_request.size;
         O_dev7_request.data <= I_mem_request.data;
         O_dev7_request.wren <= I_mem_request.wren;        
         O_dev7_request.cs <= '0';
+        O_dev7_request.stb <= '0';
 
         O_dev8_request.addr <= I_mem_request.addr;
         O_dev8_request.size <= I_mem_request.size;
         O_dev8_request.data <= I_mem_request.data;
         O_dev8_request.wren <= I_mem_request.wren;        
         O_dev8_request.cs <= '0';
+        O_dev8_request.stb <= '0';
 
         O_dev9_request.addr <= I_mem_request.addr;
         O_dev9_request.size <= I_mem_request.size;
         O_dev9_request.data <= I_mem_request.data;
         O_dev9_request.wren <= I_mem_request.wren;        
         O_dev9_request.cs <= '0';
+        O_dev9_request.stb <= '0';
 
         O_dev10_request.addr <= I_mem_request.addr;
         O_dev10_request.size <= I_mem_request.size;
         O_dev10_request.data <= I_mem_request.data;
         O_dev10_request.wren <= I_mem_request.wren;        
         O_dev10_request.cs <= '0';
+        O_dev10_request.stb <= '0';
 
         O_dev11_request.addr <= I_mem_request.addr;
         O_dev11_request.size <= I_mem_request.size;
         O_dev11_request.data <= I_mem_request.data;
         O_dev11_request.wren <= I_mem_request.wren;        
         O_dev11_request.cs <= '0';
+        O_dev11_request.stb <= '0';
 
         O_dev12_request.addr <= I_mem_request.addr;
         O_dev12_request.size <= I_mem_request.size;
         O_dev12_request.data <= I_mem_request.data;
         O_dev12_request.wren <= I_mem_request.wren;        
         O_dev12_request.cs <= '0';
+        O_dev12_request.stb <= '0';
 
         O_dev13_request.addr <= I_mem_request.addr;
         O_dev13_request.size <= I_mem_request.size;
         O_dev13_request.data <= I_mem_request.data;
         O_dev13_request.wren <= I_mem_request.wren;        
         O_dev13_request.cs <= '0';
+        O_dev13_request.stb <= '0';
 
         O_dev14_request.addr <= I_mem_request.addr;
         O_dev14_request.size <= I_mem_request.size;
         O_dev14_request.data <= I_mem_request.data;
         O_dev14_request.wren <= I_mem_request.wren;        
         O_dev14_request.cs <= '0';
+        O_dev14_request.stb <= '0';
 
         O_dev15_request.addr <= I_mem_request.addr;
         O_dev15_request.size <= I_mem_request.size;
         O_dev15_request.data <= I_mem_request.data;
         O_dev15_request.wren <= I_mem_request.wren;        
         O_dev15_request.cs <= '0';
+        O_dev15_request.stb <= '0';
 
+        -- Generate Chip SelectS - not used anymore
         if I_mem_request.cs = '1' then
             -- Make 16 groups of 2**ADDRESS_SIZE_LOG2 bytes
             case I_mem_request.addr(ADDRESS_SIZE_LOG2+3 downto ADDRESS_SIZE_LOG2) is
@@ -230,6 +247,31 @@ begin
                 when others => null;
             end case;
         end if;
+
+        -- Generate STroBe - strobe the access to the I/O modules
+        if I_mem_request.stb = '1' then
+            -- Make 16 groups of 2**ADDRESS_SIZE_LOG2 bytes
+            case I_mem_request.addr(ADDRESS_SIZE_LOG2+3 downto ADDRESS_SIZE_LOG2) is
+                when "0000" => O_dev0_request.stb <= '1';
+                when "0001" => O_dev1_request.stb <= '1';
+                when "0010" => O_dev2_request.stb <= '1';
+                when "0011" => O_dev3_request.stb <= '1';
+                when "0100" => O_dev4_request.stb <= '1';
+                when "0101" => O_dev5_request.stb <= '1';
+                when "0110" => O_dev6_request.stb <= '1';
+                when "0111" => O_dev7_request.stb <= '1';
+                when "1000" => O_dev8_request.stb <= '1';
+                when "1001" => O_dev9_request.stb <= '1';
+                when "1010" => O_dev10_request.stb <= '1';
+                when "1011" => O_dev11_request.stb <= '1';
+                when "1100" => O_dev12_request.stb <= '1';
+                when "1101" => O_dev13_request.stb <= '1';
+                when "1110" => O_dev14_request.stb <= '1';
+                when "1111" => O_dev15_request.stb <= '1';
+                when others => null;
+            end case;
+        end if;
+        
     end process;
 
     -- Generate the I/O response WITH buffering

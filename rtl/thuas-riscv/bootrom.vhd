@@ -74,6 +74,10 @@ constant bootrom_size_bits : integer := 12;
 constant bootrom_size : integer := 2**(bootrom_size_bits-2);
 constant bootrom_length : integer := bootrom_contents'length;
 signal bootrom : memory_type(0 to bootrom_size-1) := initialize_memory(bootrom_contents, bootrom_size);
+
+-- Delay strobe one clock cycle
+signal stb_dly : std_logic;
+
 begin
 
     bootromgen : if HAVE_BOOTLOADER_ROM generate
@@ -99,58 +103,60 @@ begin
                 end if;
                 romdata_v := bootrom(address_data_v);
             end if;
-            
+
             -- Recode instruction
             O_instr_response.instr <= instr_v(7 downto 0) & instr_v(15 downto 8) & instr_v(23 downto 16) & instr_v(31 downto 24);
+
+            -- Delay the strobe, for read, a read needs two cycles.
+            -- First the address is set and in the next cycle the
+            -- data is read.
+            if I_areset = '1' then
+                stb_dly <= '0';
+            elsif rising_edge(I_clk) then
+                stb_dly <= I_mem_request.stb and not I_mem_request.wren;
+            end if;
             
             O_mem_response.load_misaligned_error <= '0';
             O_mem_response.store_misaligned_error <= '0';
-            
-            -- By natural size, for data
-            if I_mem_request.cs = '1' then
-                if I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" then
-                    O_mem_response.data <= romdata_v(7 downto 0) & romdata_v(15 downto 8) & romdata_v(23 downto 16) & romdata_v(31 downto 24);
-                elsif I_mem_request.size = memsize_halfword and I_mem_request.addr(1 downto 0) = "00" then
-                    O_mem_response.data <= x & x & romdata_v(23 downto 16) & romdata_v(31 downto 24);
-                elsif I_mem_request.size = memsize_halfword and I_mem_request.addr(1 downto 0) = "10" then
-                    O_mem_response.data <= x & x & romdata_v(7 downto 0) & romdata_v(15 downto 8);
-                elsif I_mem_request.size = memsize_byte then
-                    case I_mem_request.addr(1 downto 0) is
-                        when "00" => O_mem_response.data <= x & x & x & romdata_v(31 downto 24);
-                        when "01" => O_mem_response.data <= x & x & x & romdata_v(23 downto 16);
-                        when "10" => O_mem_response.data <= x & x & x & romdata_v(15 downto 8);
-                        when "11" => O_mem_response.data <= x & x & x & romdata_v(7 downto 0);
-                        when others => O_mem_response.data <= x & x & x & x; O_mem_response.load_misaligned_error <= '1';
-                    end case;
-                else
-                    -- Chip select, but not aligned
-                    O_mem_response.data <= x & x & x & x;
-                    O_mem_response.load_misaligned_error <= '1';
-                end if;
+
+            -- Output recoding
+            if stb_dly = '1' and I_mem_request.wren = '0' then
+                case I_mem_request.size is
+                    -- Byte size
+                    when memsize_byte =>
+                        case I_mem_request.addr(1 downto 0) is
+                            when "00" => O_mem_response.data <= x & x & x & romdata_v(31 downto 24);
+                            when "01" => O_mem_response.data <= x & x & x & romdata_v(23 downto 16);
+                            when "10" => O_mem_response.data <= x & x & x & romdata_v(15 downto 8);
+                            when "11" => O_mem_response.data <= x & x & x & romdata_v(7 downto 0);
+                            when others => O_mem_response.data <= x & x & x & x; O_mem_response.load_misaligned_error <= '1';
+                        end case;
+                    -- Half word size
+                    when memsize_halfword =>
+                        if I_mem_request.addr(1 downto 0) = "00" then
+                            O_mem_response.data <= x & x & romdata_v(23 downto 16) & romdata_v(31 downto 24);
+                        elsif I_mem_request.addr(1 downto 0) = "10" then
+                            O_mem_response.data <= x & x & romdata_v(7 downto 0) & romdata_v(15 downto 8);
+                        else
+                            O_mem_response.data <= x & x & x & x; O_mem_response.load_misaligned_error <= '1';
+                        end if;
+                    -- Word size
+                    when memsize_word =>
+                        if I_mem_request.addr(1 downto 0) = "00" then
+                            O_mem_response.data <= romdata_v(7 downto 0) & romdata_v(15 downto 8) & romdata_v(23 downto 16) & romdata_v(31 downto 24);
+                        else
+                            O_mem_response.data <= x & x & x & x; O_mem_response.load_misaligned_error <= '1';
+                        end if;
+                    when others =>
+                        O_mem_response.data <= x & x & x & x;
+                end case;
             else
-                -- No chip select, so no data
                 O_mem_response.data <= x & x & x & x;
             end if;
+            
         end process;
         
-        -- Generate boot ROM ready signal for reads and writes    
-        process (I_clk, I_areset, I_mem_request) is
-        variable readready_v : std_logic;
-        begin
-            if I_areset = '1' then
-                readready_v := '0';
-            elsif rising_edge(I_clk) then
-                if readready_v = '1' then
-                    readready_v := '0';
-                elsif I_mem_request.cs = '1' then
-                    readready_v := '1';
-                else
-                    readready_v := '0';
-                end if;
-            end if;
-
-            O_mem_response.ready <= readready_v;
-        end process;
+        O_mem_response.ready <= stb_dly;
         
     end generate;
 

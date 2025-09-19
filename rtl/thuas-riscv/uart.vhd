@@ -96,13 +96,11 @@ end record;
 
 signal uart : uart_type;
 signal isword : boolean;
--- For strobing
-signal cs_sync : std_logic;
 
 begin
 
-    O_mem_response.load_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
-    O_mem_response.store_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
     isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" ;
 
     process (I_clk, I_areset) is
@@ -140,16 +138,13 @@ begin
             O_txd <= '1';
             --
             O_mem_response.data <= all_zeros_c;
-            O_mem_response.ready <= '0';
-            cs_sync <= '0';
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            cs_sync <= I_mem_request.cs;
             -- Default for start transmission
             uart.txstart <= '0';
             -- Common register writes
-            if I_mem_request.cs = '1' and cs_sync = '0' and isword then
+            if I_mem_request.stb = '1' and isword then
                 if I_mem_request.wren = '1' then
                     if I_mem_request.addr(3 downto 2) = "00" then
                         -- A write to the control register

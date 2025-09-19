@@ -67,13 +67,11 @@ end record;
 
 signal gpio : gpio_type;
 signal isword : boolean;
--- For strobing
-signal cs_sync : std_logic;
 
 begin
 
-    O_mem_response.load_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
-    O_mem_response.store_misaligned_error <= '1' when I_mem_request.cs = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
+    O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
     isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" ;
     
     process (I_clk, I_areset) is
@@ -88,14 +86,12 @@ begin
             --
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            cs_sync <= '0';
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            cs_sync <= I_mem_request.cs;
             gpio.pinsync <= I_pin;
             gpio.detectsync <= gpio.detectsync(0) & I_pin(to_integer(unsigned(gpio.pinnr)));
-            if I_mem_request.cs = '1' and cs_sync = '0' and isword then
+            if I_mem_request.stb = '1' and isword then
                 -- Write
                 if I_mem_request.wren = '1' then
                     -- Write on read-only GPIO inputs: ignore (0x00)

@@ -36,7 +36,7 @@
 
 -- This file contains the description of a RISC-V RV32IM microcontroller
 -- including the core (using a three-stage pipeline), and address
--- decoding unit, RAM, ROM, boot ROM and I/O.
+-- decoding unit, RAM, ROM, boot ROM, I/O and debug modules.
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -922,6 +922,7 @@ begin
         resume_req_int <= '0';
         ackhavereset_int <= '0';
         
+        dm_core_data_request_int.stb <= '0';
         dm_core_data_request_int.address <= (others => '0');
         dm_core_data_request_int.data <= (others => '0');
         dm_core_data_request_int.size <= (others => '0');

@@ -34,6 +34,8 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
+-- This is the top-level file wrapping around the RISC-V core. The RISC-V is
+-- instantiated with default generics.
 
 library ieee;
 use ieee.std_logic_1164.all;

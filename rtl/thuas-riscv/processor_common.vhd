@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_03_00#;
+    constant HW_VERSION : integer := 16#01_01_03_01#;
 
     
     -- Used data types
@@ -113,6 +113,7 @@ package processor_common is
     
     -- Access from core to address decoder
     type bus_request_type is record
+        stb : std_logic;
         acc : memaccess_type;
         size : memsize_type;
         addr : data_type;
@@ -130,10 +131,11 @@ package processor_common is
     
     -- Access from address decoder to memory
     type mem_request_type is record
+        stb : std_logic;
+        cs : std_logic;
         size : memsize_type;
         addr : data_type;
         data : data_type;
-        cs : std_logic;
         wren : std_logic;
     end record;
     -- Response from memory to address decoder
@@ -144,10 +146,11 @@ package processor_common is
         store_misaligned_error : std_logic;
     end record;
     constant mem_request_terminate_c : mem_request_type := (
+        stb  => '0',
+        cs   => '0',
         size => memsize_unknown,
         addr => (others => '0'),
         data => (others => '0'),
-        cs   => '0',
         wren => '0'
        );
     constant mem_response_terminate_c : mem_response_type := (
@@ -192,6 +195,7 @@ package processor_common is
 
     -- DM to core data request
     type dm_core_data_request_type is record
+        stb      : std_logic;
         address  : std_logic_vector(31 downto 0);
         readgpr  : std_logic;
         readcsr  : std_logic;

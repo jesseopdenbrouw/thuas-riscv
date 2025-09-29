@@ -159,7 +159,7 @@ The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this t
 
 === Memory Interface
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. In the first cycle of the memory access, a strobe signal is present. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither acknowledge nor exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. In the first cycle of the memory access, a strobe signal is present. If there is neither an acknowledge nor an exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles.
 
 
 === Control and Status registers
@@ -267,7 +267,7 @@ There are two types resets. A system wide reset resets the complete processor, i
 The memories are accessed through the address decoder and data router and the instruction router.
 The are four memories: ROM, boot ROM, RAM and I/O.
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. In the first cycle of the memory access, a strobe signal is present. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither acknowledge nor exception generated, the core will stall permanently. Currently a memory access must at least take two clock cyclesi (one external cycle. See figure.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. In the first cycle of the memory access, a strobe signal is present. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. Currently a memory access must at least take two clock cyclesi (one external cycle. See figure.
 
 .Timing diagram of a read operation.
 [[fig_read]]
@@ -982,8 +982,8 @@ In the `sw` directory, there are a number of software programs available. First,
 ** `minimal.S` -- contains `_start` label, sets up the global pointer and stack pointer, calls `main` and halts the processor.
 ** `startup.c` -- full-fledged startup code for any C program executable.
 * `bin` -- contains the binaries of `srec2vhdl` and `upload`. This directory is created when running `make`.
-* `include` -- contains the header files for the design. Use `#include <thuasrv32.h>` in programs.
-* `lib` -- contains the libraries for the design. Link against `libthuasrv32.a`.
+* `include` -- contains the header files for the board support package. Use `#include <thuasrv32.h>` in programs.
+* `lib` -- contains the C files for the board suport package. Link against `libthuasrv32.a`.
 
 Some examples are to be used in de simulator only, mainly to test functionality and clock cycle accuracy. Most examples work on the DE0-CV board, but without testing traps. Two examples work on the board and use traps.
 
@@ -1018,7 +1018,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `linked_list` -- example on how to use linked lists. This program soups up all available dynamic RAM but does not penetrate the reserved stack space. Uses UART1. Works on the board.
 * `malloc` -- example to test `malloc` and friends. Works. Used in simulations.
 * `mcountinhibit` -- program to test the `mcountinhibit` CSR. Uses UART1. Works on the board.
-* `mhpmcounter` -- program to test the HPM counters. The Zihpm extension must be enabled for proper usage. Works on the board.
+* `mhpmcounter` -- program to test the HPM counters. The Zihpm hardware must be enabled for proper usage. Works on the board.
 * `monitor` -- simple monitor program. Works on the board. Uses strings, UART1, RAM, ROM, I/O and `sprintf` (and therefore `malloc` et al.).
 * `mult` -- integer multiplication with the C library. Set to the E extension with no hardware multiply/divide support. For simulations.
 * `mxhw` -- Program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized processor to the terminal. Works on the board.
@@ -1035,7 +1035,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `timer1` -- a simple program that uses TIMER1 interrupt to generate a time base for an interrupt handler. Shows how to set up direct mode interrupts. Works on the board.
 * `timer2pwm` -- Shows how use TIMER2's PWM and Output Compare feature. Works on the board.
 * `timer2ic` -- Shows how use TIMER2's Input Capture feature. Works on the board.
-* `trig` -- some float trigonometry functions for float and double. Prints results to UART1. This is a big binary. Works on the board.
+* `trig` -- some trigonometry functions for float and double. Prints results to UART1. This is a big binary. Works on the board.
 * `uart_cpp` -- Simple {cpp} UART program. Makes use of a singleton design pattern. Works on the board.
 * `uart_interrupt` -- Example program on how to use the UART1 interrupt for transmiiting and receiving data. Works on the board.
 * `uart_printf` -- simple program that prints an integer, a pointer, a float and a double to the terminal using `printf`, this is a big binary. Works on the board.

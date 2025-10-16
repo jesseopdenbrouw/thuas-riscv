@@ -53,5 +53,6 @@ All dates are in dd.mm.yyyy format.
 | 10.06.2025 | 1.1.2.7  | [all I/O] correct response on misaligned access |
 | 11.06.2025 | 1.1.2.8  | [core] always decode instruction, id_ex.ismem always reset | |
 | 19.06.2025 | 1.1.3.0  | New version 1.1.3 | |
-| 19.09.2025 | 1.1.3.1  | [all] implemented a memory operation strobe signal in favor for a chip select signal. | |
+| 19.09.2025 | 1.1.3.1  | [all] implemented a memory operation strobe signal in favor of a chip select signal. | |
+| 16.10.2025 | 1.1.3.2  | [dm] timeout is now 16 system clocks, timeout sets cmderr to 5 . | |
 

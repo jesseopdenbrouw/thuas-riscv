@@ -84,13 +84,10 @@ constant addr_nextdm_c       : std_logic_vector(6 downto 0) := "0011101";
 constant addr_haltsum0_c     : std_logic_vector(6 downto 0) := "1000000";
 
 -- Memory timeout in clock cycles
-constant dm_memory_timeout_c : integer := 256;
--- DM error on timeout (cmderr), currently set to 7 (other)
--- See Debug Spec, S. 3.14.6.
-constant dm_timeout_code_c : std_logic_vector(2 downto 0) := "111";
+constant dm_memory_timeout_c : integer := 16;
 
 -- DM version
-constant dm_version_c : std_logic_vector(03 downto 0) := "0011";
+constant dm_version_c : std_logic_vector(3 downto 0) := "0011";
 
 -- States of the DM
 type dmstate_type is (cmd_idle, cmd_check, cmd_preparegprcsr, cmd_preparemem,
@@ -123,7 +120,7 @@ type dm_reg_type is record
     command : data_type;
     cmderr : std_logic_vector(2 downto 0);
     state : dmstate_type;
-    counter : integer range 0 to 255;
+    counter : integer range 0 to dm_memory_timeout_c-1;
 end record;
 signal dm_reg : dm_reg_type;
 
@@ -452,9 +449,9 @@ begin
                 -- Illegal command supplied
                 elsif dm_reg.illegal_cmd = '1' then
                     dm_reg.cmderr <= "010";
-                -- Timeout on memory operation
+                -- Timeout on memory operation (== bus error)
                 elsif dm_reg.timeout = '1' then
-                    dm_reg.cmderr <= dm_timeout_code_c;
+                    dm_reg.cmderr <= "101";
                 -- Exception (illegal_instruction == use illegal register)
                 elsif I_dm_core_data_response.excep = '1' then
                     dm_reg.cmderr <= "011";

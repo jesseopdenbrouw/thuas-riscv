@@ -153,7 +153,7 @@ signal if_id : if_id_type;
 
 -- ID/EX signals for Execute stage
 -- Behavior of the Program Counter
-type pc_op_type is (pc_hold, pc_incr, pc_loadoffset, pc_loadoffsetregister,
+type pc_op_type is (pc_incr, pc_hold, pc_loadoffset, pc_loadoffsetregister,
                     pc_branch, pc_load_mepc, pc_load_mtvec);
 type id_ex_type is record
     instr : data_type;
@@ -1438,6 +1438,7 @@ begin
                     regs_rs1(selrd_v) <= I_dm_core_data_request.data;
                 end if;
                 if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
+                    null;
                 else
                     id_ex.rs1data <= regs_rs1(if_id.selrs1);
                 end if;
@@ -1459,6 +1460,7 @@ begin
                     regs_rs2(selrd_v) <= I_dm_core_data_request.data;
                 end if;
                 if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
+                    null;
                 else
                     id_ex.rs2data <= regs_rs2(if_id.selrs2);
                 end if;
@@ -2230,7 +2232,7 @@ begin
             -- else clock in the credentials for memory access
             else
                 -- Debug
-                if control.indebug = '1' then
+                if control.indebug = '1' and HAVE_OCD then
                     if I_dm_core_data_request.readmem = '1' then
                         O_bus_request.acc <= memaccess_read;
                     elsif I_dm_core_data_request.writemem = '1' then
@@ -2380,8 +2382,6 @@ begin
         end if;
 
         -- Check for correct access
-        -- This is troublesome on Eclipse, so if we are in debug, unimplemented
-        -- registers return -1 as value
         if control.indebug = '0' and csr_access.op = csr_nop then
             control.illegal_instruction_csr <= '0';
         elsif control.indebug = '0' and csr_access.address(11 downto 10) = "11" and (csr_access.op = csr_rw or csr_access.op = csr_rwi or csr_access.immrs1 /= "00000") then
@@ -2577,7 +2577,7 @@ begin
             control.illegal_instruction_csr <= '1';
         end if;
 
-        -- Output to ALU
+        -- Output to ALU, unused CSRs return all zero bits
         case csr_addr_v is
             when cycle_addr         => csr_access.datain <= csr_reg.mcycle;
             -- 'mtime' does not exists, but 'time' is a reserved keyword...
@@ -3338,10 +3338,10 @@ begin
                                    I_bus_response.load_access_error or I_bus_response.store_access_error));
     -- Send bus error if there is a data memory error
     O_dm_core_data_response.buserr <= control.indebug and
-                                      (I_bus_response.load_misaligned_error or I_bus_response.store_misaligned_error or
-                                       I_bus_response.load_access_error or I_bus_response.store_access_error);
+                                     (I_bus_response.load_misaligned_error or I_bus_response.store_misaligned_error or
+                                      I_bus_response.load_access_error or I_bus_response.store_access_error);
     -- Send an exception if there is an illegal instruction executed
     O_dm_core_data_response.excep <= control.indebug and
-                                     (control.illegal_instruction_csr or control.illegal_instruction_decode);
+                                    (control.illegal_instruction_csr or control.illegal_instruction_decode);
 
 end architecture rtl;

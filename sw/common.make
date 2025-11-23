@@ -28,7 +28,7 @@ ifndef F_CPU
 F_CPU = "(50000000UL)"
 endif
 
-# The default baud rate of the USART
+# The default baud rate of the UART
 ifndef BAUD_RATE
 BAUD_RATE = "(115200UL)"
 endif

@@ -57,11 +57,18 @@ end entity gpio;
 architecture rtl of gpio is
 
 type gpio_type is record
+    -- Input synchronization
     pinsync : data_type;
+    pinsync2 : data_type;
+    -- Output
     pout : data_type;
+    -- Edge to detect
     edge : std_logic_vector(1 downto 0);
+    -- Pin number to detect from
     pinnr : std_logic_vector(4 downto 0);
+    -- Detect bit
     detect : std_logic;
+    -- Detection synchronization
     detectsync : std_logic_vector(1 downto 0);
 end record;
 
@@ -70,6 +77,7 @@ signal isword : boolean;
 
 begin
 
+    -- Check for misaligned access, only on word boundaries
     O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
     O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
     isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" ;
@@ -77,20 +85,24 @@ begin
     process (I_clk, I_areset) is
     begin
         if I_areset = '1' then
+            -- GPIO reset everything
             gpio.pout <= all_zeros_c;
             gpio.pinsync <= all_zeros_c;
+            gpio.pinsync2 <= all_zeros_c;
             gpio.edge <= (others => '0');
             gpio.pinnr <= (others => '0');
             gpio.detectsync <= (others => '0');
             gpio.detect <= '0';
-            --
+            -- Bus resets
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
+            -- Double synchronization
             gpio.pinsync <= I_pin;
-            gpio.detectsync <= gpio.detectsync(0) & I_pin(to_integer(unsigned(gpio.pinnr)));
+            gpio.pinsync2 <= gpio.pinsync;
+            gpio.detectsync <= gpio.detectsync(0) & gpio.pinsync2(to_integer(unsigned(gpio.pinnr)));
             if I_mem_request.stb = '1' and isword then
                 -- Write
                 if I_mem_request.wren = '1' then
@@ -116,18 +128,19 @@ begin
                     end if;
                 -- Read
                 else
+                    -- Note: you cannot read from the Bit Set and Bit Clear registers
+                    -- Read from external inputs (0x00)
                     if I_mem_request.addr(4 downto 2) = "000" then
-                        -- Read from external inputs
                         O_mem_response.data <= gpio.pinsync;
+                    -- Read from external outputs (0x04)
                     elsif I_mem_request.addr(4 downto 2) = "001" then
-                        -- Read from external outputs
                         O_mem_response.data <= gpio.pout;
+                    -- Read from external interrupt control register (0x18)
                     elsif I_mem_request.addr(4 downto 2) = "110" then
-                        -- Read from external interrupt control register
                         O_mem_response.data(7 downto 3) <= gpio.pinnr;
                         O_mem_response.data(2 downto 1) <= gpio.edge;
+                   -- Read from external interrupt status register (0x1c)
                     elsif I_mem_request.addr(4 downto 2) = "111" then
-                        -- Read from external interrupt status register
                         O_mem_response.data <= all_zeros_c;
                         O_mem_response.data(0) <= gpio.detect;
                     end if;

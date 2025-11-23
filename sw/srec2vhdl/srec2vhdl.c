@@ -1,7 +1,9 @@
 /* 
  * srec2vhdl - Motorola S-record to VHDL table generator
  *
- * (c)2024, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * For use with the THUAS RISC-V processor
+ *
+ * (c)2025, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  * This program converts a file with Motorola S-records to
  * a series of VHDL table statements.
@@ -13,7 +15,7 @@
  * By default, srec2vhdl creates only the table entries
  *
  * Options:
- *      -f         Creates a full table
+ *      -f         Creates a full table (for THUAS RISC-V)
  *      -i <arg>   Indents the tables entries by <arg>
  *      -v         Verbose output
  *      -q         Quiet output, only errors are reported
@@ -55,7 +57,7 @@
 
 #endif
 
-#define VERSION "v0.4.1"
+#define VERSION "v0.4.2"
 
 /* 1000 should be enough */
 #define LEN_BUFFER (1000)
@@ -389,7 +391,6 @@ int main(int argc, char *argv[]) {
 				fprintf(fout, " ");
 			}
 		}
-		//fprintf(fout,">> %5d:  ", i);
 		if (size == BYTE) {
 			fprintf(fout, "%4d => x\"%02x\"", i/size, code[i]);
 		} else if (size == HALFWORD) {
@@ -432,5 +433,5 @@ int main(int argc, char *argv[]) {
 	fclose(fp);
 	fclose(fout);
 
-	return 0;
+	return EXIT_SUCCESS;
 }

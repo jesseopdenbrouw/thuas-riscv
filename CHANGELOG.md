@@ -56,4 +56,5 @@ All dates are in dd.mm.yyyy format.
 | 19.09.2025 | 1.1.3.1  | [all] implemented a memory operation strobe signal in favor of a chip select signal. | |
 | 16.10.2025 | 1.1.3.2  | [dm] timeout is now 16 system clocks, timeout sets cmderr to 5. | |
 | 23.11.2025 | 1.1.3.3  | [gpio] inputs are now double synchronized. | |
+| 05.12.2025 | 1.1.3.4  | [gpio] fixed an issue with double synchronization, edge detect now after 3 clocks. | |
 

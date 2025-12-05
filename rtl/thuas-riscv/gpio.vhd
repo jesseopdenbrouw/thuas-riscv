@@ -102,7 +102,7 @@ begin
             -- Double synchronization
             gpio.pinsync <= I_pin;
             gpio.pinsync2 <= gpio.pinsync;
-            gpio.detectsync <= gpio.detectsync(0) & gpio.pinsync2(to_integer(unsigned(gpio.pinnr)));
+            gpio.detectsync <= gpio.detectsync(0) & gpio.pinsync(to_integer(unsigned(gpio.pinnr)));
             if I_mem_request.stb = '1' and isword then
                 -- Write
                 if I_mem_request.wren = '1' then
@@ -131,7 +131,7 @@ begin
                     -- Note: you cannot read from the Bit Set and Bit Clear registers
                     -- Read from external inputs (0x00)
                     if I_mem_request.addr(4 downto 2) = "000" then
-                        O_mem_response.data <= gpio.pinsync;
+                        O_mem_response.data <= gpio.pinsync2;
                     -- Read from external outputs (0x04)
                     elsif I_mem_request.addr(4 downto 2) = "001" then
                         O_mem_response.data <= gpio.pout;

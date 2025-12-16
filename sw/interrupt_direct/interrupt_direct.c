@@ -31,7 +31,7 @@ int main(int argc, char *argv[], char *envp[])
 	struct timeval tv;
 	uint32_t hour, min, sec;
 	uint32_t ebreak_counter = 0;
-	uint32_t speed;
+	uint32_t fsys;
 	uint32_t has_ocd = csr_read(0xfc0) & CSR_MXHW_OCD;
 
 #if USEPRINTF != 1
@@ -39,8 +39,8 @@ int main(int argc, char *argv[], char *envp[])
 #endif
 
 	/* Get system frequency */
-	speed = csr_read(0xfc1);
-	speed = (speed == 0) ? F_CPU : speed;
+	fsys = csr_read(0xfc1);
+	fsys = (fsys == 0) ? F_CPU : fsys;
 
 	/* Set the trap handler vector */
 	set_mtvec(trap_handler_direct, TRAP_DIRECT_MODE);
@@ -49,12 +49,12 @@ int main(int argc, char *argv[], char *envp[])
 	uart1_init(BAUD_RATE, UART_CTRL_RCIE | UART_CTRL_EN);
 
 	/* Activate TIMER1 with a cycle of 1 Hz */
-	TIMER1->CMPT = speed/2-1;
+	TIMER1->CMPT = fsys/2-1;
 	/* Bit 0 = enable, bit 4 is interrupt enable */
 	TIMER1->CTRL = (1<<4)|(1<<0);
 
 	/* Activate TIMER2 compare T interrupt with a cycle of 0.5 Hz */
-	TIMER2->PRSC = speed/10000UL-1;
+	TIMER2->PRSC = fsys/10000UL-1;
 	TIMER2->CMPT = 9999UL;
 	TIMER2->CTRL = (1<<4)|(1<<0);
 
@@ -64,11 +64,11 @@ int main(int argc, char *argv[], char *envp[])
 
 	/* Activate I2C1 transmit/receive complete interrupt */
 	/* Standard mode, 100 kHz */
-	I2C1->CTRL = I2C_PRESCALER_SM(speed) | I2C_TCIE | I2C_STANDARD_MODE;
+	I2C1->CTRL = I2C_PRESCALER_SM(fsys) | I2C_TCIE | I2C_STANDARD_MODE;
 
 	/* Activate I2C2 transmit/receive complete interrupt */
 	/* Fast mode, 400 kHz */
-	I2C2->CTRL = I2C_PRESCALER_FM(speed) | I2C_TCIE | I2C_FAST_MODE;
+	I2C2->CTRL = I2C_PRESCALER_FM(fsys) | I2C_TCIE | I2C_FAST_MODE;
 
 	/* External input pin interrupt, pin 15, rising edge */	
 	GPIOA->EXTC = (15 << 3) | (1 << 1);
@@ -87,15 +87,20 @@ int main(int argc, char *argv[], char *envp[])
 	while(argc-- > 0) {
 		printf("%s\r\n", *argv++);
 	}
-	printf("\r\n\nDisplaying the time passed since reset\r\n\n");
+
+	printf("\nClock frequency: %u", fsys);
 #else
 	uart1_puts("\r\n");
 	while(argc-- > 0) {
 		uart1_puts(*argv++);
 		uart1_puts("\r\n");
 	}
-	uart1_puts("\r\n\nDisplaying the time passed since reset\r\n\n");
+	uart1_puts("\r\nClock frequency: ");
+	printdec(fsys);
 #endif
+	uart1_puts("\r\nHardware version: ");
+	printhwversion();
+	uart1_puts("\r\n\nDisplaying the time passed since reset\r\n\n");
 	if (has_ocd) {
 		uart1_puts("On-chip debugger found, skipping EBREAK instruction\r\n\r\n");
 	}

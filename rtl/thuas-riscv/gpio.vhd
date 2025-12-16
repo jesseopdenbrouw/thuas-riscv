@@ -43,7 +43,10 @@ use work.processor_common.all;
 
 entity gpio is
     port (I_clk : in std_logic;
+          -- Asynchrous reset
           I_areset : in std_logic;
+          -- Synchronous reser
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -97,60 +100,73 @@ begin
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
         elsif rising_edge(I_clk) then
-            O_mem_response.data <= all_zeros_c;
-            O_mem_response.ready <= '0';
-            -- Double synchronization
-            gpio.pinsync <= I_pin;
-            gpio.pinsync2 <= gpio.pinsync;
-            gpio.detectsync <= gpio.detectsync(0) & gpio.pinsync(to_integer(unsigned(gpio.pinnr)));
-            if I_mem_request.stb = '1' and isword then
-                -- Write
-                if I_mem_request.wren = '1' then
-                    -- Write on read-only GPIO inputs: ignore (0x00)
-                    if I_mem_request.addr(4 downto 2) = "000" then
-                        null;
-                    -- Write on GPIO outputs (0x04)
-                    elsif I_mem_request.addr(4 downto 2) = "001" then
-                        gpio.pout <= I_mem_request.data;
-                    -- Bit set (0x08)
-                    elsif I_mem_request.addr(4 downto 2) = "010" then
-                        gpio.pout <= gpio.pout or I_mem_request.data;
-                    -- Bit clear (0x0c)
-                    elsif I_mem_request.addr(4 downto 2) = "011" then
-                        gpio.pout <= gpio.pout and not I_mem_request.data;
-                    -- Write GPIO external ctrl register (0x18)
-                    elsif I_mem_request.addr(4 downto 2) = "110" then
-                        gpio.pinnr <= I_mem_request.data(7 downto 3);
-                        gpio.edge <= I_mem_request.data(2 downto 1);
-                    -- Write GPIO external stat register (0x1c)
-                    elsif I_mem_request.addr(4 downto 2) = "111" then
-                        gpio.detect <= I_mem_request.data(0);
+            if I_sreset = '1' then
+                gpio.pout <= all_zeros_c;
+                gpio.pinsync <= all_zeros_c;
+                gpio.pinsync2 <= all_zeros_c;
+                gpio.edge <= (others => '0');
+                gpio.pinnr <= (others => '0');
+                gpio.detectsync <= (others => '0');
+                gpio.detect <= '0';
+                -- Bus resets
+                O_mem_response.data <= all_zeros_c;
+                O_mem_response.ready <= '0';
+            else
+                O_mem_response.data <= all_zeros_c;
+                O_mem_response.ready <= '0';
+                -- Double synchronization
+                gpio.pinsync <= I_pin;
+                gpio.pinsync2 <= gpio.pinsync;
+                gpio.detectsync <= gpio.detectsync(0) & gpio.pinsync(to_integer(unsigned(gpio.pinnr)));
+                if I_mem_request.stb = '1' and isword then
+                    -- Write
+                    if I_mem_request.wren = '1' then
+                        -- Write on read-only GPIO inputs: ignore (0x00)
+                        if I_mem_request.addr(4 downto 2) = "000" then
+                            null;
+                        -- Write on GPIO outputs (0x04)
+                        elsif I_mem_request.addr(4 downto 2) = "001" then
+                            gpio.pout <= I_mem_request.data;
+                        -- Bit set (0x08)
+                        elsif I_mem_request.addr(4 downto 2) = "010" then
+                            gpio.pout <= gpio.pout or I_mem_request.data;
+                        -- Bit clear (0x0c)
+                        elsif I_mem_request.addr(4 downto 2) = "011" then
+                            gpio.pout <= gpio.pout and not I_mem_request.data;
+                        -- Write GPIO external ctrl register (0x18)
+                        elsif I_mem_request.addr(4 downto 2) = "110" then
+                            gpio.pinnr <= I_mem_request.data(7 downto 3);
+                            gpio.edge <= I_mem_request.data(2 downto 1);
+                        -- Write GPIO external stat register (0x1c)
+                        elsif I_mem_request.addr(4 downto 2) = "111" then
+                            gpio.detect <= I_mem_request.data(0);
+                        end if;
+                    -- Read
+                    else
+                        -- Note: you cannot read from the Bit Set and Bit Clear registers
+                        -- Read from external inputs (0x00)
+                        if I_mem_request.addr(4 downto 2) = "000" then
+                            O_mem_response.data <= gpio.pinsync2;
+                        -- Read from external outputs (0x04)
+                        elsif I_mem_request.addr(4 downto 2) = "001" then
+                            O_mem_response.data <= gpio.pout;
+                        -- Read from external interrupt control register (0x18)
+                        elsif I_mem_request.addr(4 downto 2) = "110" then
+                            O_mem_response.data(7 downto 3) <= gpio.pinnr;
+                            O_mem_response.data(2 downto 1) <= gpio.edge;
+                       -- Read from external interrupt status register (0x1c)
+                        elsif I_mem_request.addr(4 downto 2) = "111" then
+--                            O_mem_response.data <= all_zeros_c;
+                            O_mem_response.data(0) <= gpio.detect;
+                        end if;
                     end if;
-                -- Read
-                else
-                    -- Note: you cannot read from the Bit Set and Bit Clear registers
-                    -- Read from external inputs (0x00)
-                    if I_mem_request.addr(4 downto 2) = "000" then
-                        O_mem_response.data <= gpio.pinsync2;
-                    -- Read from external outputs (0x04)
-                    elsif I_mem_request.addr(4 downto 2) = "001" then
-                        O_mem_response.data <= gpio.pout;
-                    -- Read from external interrupt control register (0x18)
-                    elsif I_mem_request.addr(4 downto 2) = "110" then
-                        O_mem_response.data(7 downto 3) <= gpio.pinnr;
-                        O_mem_response.data(2 downto 1) <= gpio.edge;
-                   -- Read from external interrupt status register (0x1c)
-                    elsif I_mem_request.addr(4 downto 2) = "111" then
-                        O_mem_response.data <= all_zeros_c;
-                        O_mem_response.data(0) <= gpio.detect;
-                    end if;
+                    O_mem_response.ready <= '1';
                 end if;
-                O_mem_response.ready <= '1';
-            end if;
-           -- Detect rising edge or falling edge or both
-            if (gpio.edge(0) = '1' and gpio.detectsync(1) = '0' and gpio.detectsync(0) = '1') or
-               (gpio.edge(1) = '1' and gpio.detectsync(1) = '1' and gpio.detectsync(0) = '0') then
-                gpio.detect <= '1';
+               -- Detect rising edge or falling edge or both
+                if (gpio.edge(0) = '1' and gpio.detectsync(1) = '0' and gpio.detectsync(0) = '1') or
+                   (gpio.edge(1) = '1' and gpio.detectsync(1) = '1' and gpio.detectsync(0) = '0') then
+                    gpio.detect <= '1';
+                end if;
             end if;
         end if;
     end process;

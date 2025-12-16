@@ -42,7 +42,7 @@ set_global_assignment -name DEVICE 5CEFA4F23C7
 set_global_assignment -name TOP_LEVEL_ENTITY de0_cv
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 21.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:24:12  APRIL 16, 2022"
-set_global_assignment -name LAST_QUARTUS_VERSION "24.1std.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -50,7 +50,7 @@ set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 484
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 7
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
-set_global_assignment -name EDA_SIMULATION_TOOL "Questa Intel FPGA (Verilog)"
+set_global_assignment -name EDA_SIMULATION_TOOL "Questa Altera FPGA (VHDL)"
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_timing
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_symbol
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_signal_integrity
@@ -137,14 +137,10 @@ set_location_assignment PIN_T18 -to I_tms
 set_location_assignment PIN_T15 -to I_trst
 set_location_assignment PIN_T20 -to O_tdo
 
-set_instance_assignment -name GLOBAL_SIGNAL GLOBAL_CLOCK -to "riscv:riscv0|areset_sys_int" -entity riscv -disable
-set_instance_assignment -name GLOBAL_SIGNAL GLOBAL_CLOCK -to "riscv:riscv0|areset_debug_int" -entity riscv -disable
 set_location_assignment PIN_R22 -to I_uart2rxd
 set_location_assignment PIN_T22 -to O_uart2txd
-set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
 set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
-set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS COMMAND_MACRO_MODE -section_id eda_simulation
-set_global_assignment -name EDA_SIMULATION_RUN_SCRIPT tb_riscv.do -section_id eda_simulation
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
 set_global_assignment -name VHDL_FILE processor_common.vhd
 set_global_assignment -name VHDL_FILE de0_cv.vhd
 set_global_assignment -name VHDL_FILE riscv.vhd
@@ -160,17 +156,19 @@ set_global_assignment -name VHDL_FILE dm.vhd
 set_global_assignment -name VHDL_FILE dtm.vhd
 set_global_assignment -name VHDL_FILE io_bus_switch.vhd
 set_global_assignment -name VHDL_FILE gpio.vhd
+set_global_assignment -name VHDL_FILE uart.vhd
 set_global_assignment -name VHDL_FILE i2c.vhd
-set_global_assignment -name VHDL_FILE crc.vhd
-set_global_assignment -name VHDL_FILE mtime.vhd
-set_global_assignment -name VHDL_FILE msi.vhd
 set_global_assignment -name VHDL_FILE spi.vhd
+set_global_assignment -name VHDL_FILE crc.vhd
 set_global_assignment -name VHDL_FILE timera.vhd
 set_global_assignment -name VHDL_FILE timerb.vhd
-set_global_assignment -name VHDL_FILE uart.vhd
+set_global_assignment -name VHDL_FILE mtime.vhd
+set_global_assignment -name VHDL_FILE msi.vhd
 set_global_assignment -name VHDL_FILE wdt.vhd
 set_global_assignment -name VHDL_FILE stub.vhd
 set_global_assignment -name SDC_FILE riscv.sdc
 set_global_assignment -name COMMAND_MACRO_FILE tb_riscv.do
 set_global_assignment -name VHDL_TEST_BENCH_FILE tb_riscv.vhd
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS COMMAND_MACRO_MODE -section_id eda_simulation
+set_global_assignment -name EDA_SIMULATION_RUN_SCRIPT tb_riscv.do -section_id eda_simulation
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

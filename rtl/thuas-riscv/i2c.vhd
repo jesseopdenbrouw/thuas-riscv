@@ -50,6 +50,7 @@ entity i2c is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -143,263 +144,288 @@ begin
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
             i2c.starttransmission <= '0';
-            -- Common register writes
-            if I_mem_request.stb = '1' and isword then
-                if I_mem_request.wren = '1' then
-                    if I_mem_request.addr(3 downto 2) = "00" then
-                        -- Write control register
-                        i2c.fm <= I_mem_request.data(2);
-                        i2c.tcie <= I_mem_request.data(3);
-                        i2c.stop <= I_mem_request.data(8);
-                        i2c.start <= I_mem_request.data(9);
-                        i2c.hardstop <= I_mem_request.data(10);
-                        i2c.mack <= I_mem_request.data(11);
-                        i2c.baud <= I_mem_request.data(31 downto 16);
-                    elsif I_mem_request.addr(3 downto 2) = "01" then
-                        -- Write status register
-                        i2c.trans <= I_mem_request.data(2);
-                        i2c.tc <= I_mem_request.data(3);
-                        i2c.af <= I_mem_request.data(5);
-                        i2c.busy <= I_mem_request.data(6);
-                    elsif I_mem_request.addr(3 downto 2) = "10" then
-                        -- Latch data, if startbit set, end with master Nack
-                        i2c.txbuffer <= I_mem_request.data(7 downto 0) & (i2c.start or i2c.stop or not i2c.mack);
-                        -- Signal that we are sending data
-                        i2c.starttransmission <= '1';
-                        -- Reset both Transmission Complete and Ack Failed
-                        i2c.tc <= '0';
-                        i2c.af <= '0';
-                    end if;
-                else
-                    if I_mem_request.addr(3 downto 2) = "00" then
-                        -- Read control register
-                        O_mem_response.data(2) <= i2c.fm;
-                        O_mem_response.data(3) <= i2c.tcie;
-                        O_mem_response.data(8) <= i2c.stop;
-                        O_mem_response.data(9) <= i2c.start;
-                        O_mem_response.data(10) <= i2c.hardstop;
-                        O_mem_response.data(11) <= i2c.mack;
-                        O_mem_response.data(31 downto 16) <= i2c.baud;
-                    elsif I_mem_request.addr(3 downto 2) = "01" then
-                        -- Read status register
-                        O_mem_response.data(2) <= i2c.trans;
-                        O_mem_response.data(3) <= i2c.tc;
-                        O_mem_response.data(5) <= i2c.af;
-                        O_mem_response.data(6) <= i2c.busy;
-                    elsif I_mem_request.addr(3 downto 2) = "10" then
-                        -- Read data register
-                        O_mem_response.data(7 downto 0) <= i2c.data(7 downto 0);
-                        -- Reset flags
-                        i2c.tc <= '0';
-                        i2c.af <= '0';
-                    end if;
-                end if;
-                O_mem_response.ready <= '1';
-            end if;
-
-            -- Check for I2C bus is busy.
-            -- If SCL or SDA is/are low...
-            if i2c.sclsync(1) = '0' or i2c.sdasync(1) = '0' then
-                -- I2C bus is busy
-                i2c.busy <= '1';
-            end if;
-            -- SCL is high and rising edge on SDA...
-            if i2c.sclsync(0) /= '0' and i2c.sdasync(1) = '0' and i2c.sdasync(0) /= '0' then
-                -- signals a STOP, so bus is free
-                i2c.busy <= '0';
-            end if;
             
-            -- Input synchronizer
-            i2c.sdasync <= i2c.sdasync(0) & IO_sda;
-            i2c.sclsync <= i2c.sclsync(0) & IO_scl;
-
-            -- The i2c state machine
-            case i2c.state is
-                when idle =>
-                    -- Clock == !state_of_transmitting, SDA = High-Z (==1)
-                    -- If transmitting, the clock is held low. If not
-                    -- transmitting, the clock is held high (high-Z). After
-                    -- STOP, the state of transmitting is reset. This keeps
-                    -- the bus occupied between START and STOP.
-                    i2c.scl_out <= not i2c.trans;
-                    i2c.sda_out <= '1';
-                    -- Idle situation, load the counters and set SCL/SDA to High-Z
-                    if i2c.fm = '1' then
-                        i2c.bittimer <= to_integer(unsigned(i2c.baud))*2;
-                    else
-                        i2c.bittimer <= to_integer(unsigned(i2c.baud));
-                    end if;
-                    i2c.shiftcounter <= 8;
-                    -- Is data register written?
-                    if i2c.starttransmission = '1' then
-                        -- Register that we are transmitting
-                        i2c.trans <= '1';
-                        -- Data written to data register, check for start condition
-                        if i2c.start = '1' then
-                            -- Start bit is seen, so clear it.
-                            i2c.start <= '0';
-                            -- Send a START bit, so address comes next
-                            i2c.state <= send_startbit;
-                        else
-                            -- Regular data
-                            i2c.state <= send_data_first;
+            if I_sreset = '1' then
+                i2c.fm <= '0';
+                i2c.tcie <= '0';
+                i2c.stop <= '0';
+                i2c.start <= '0';
+                i2c.hardstop <= '0';
+                i2c.mack <= '0';
+                i2c.baud <= (others => '0');
+                i2c.trans <= '0';
+                i2c.tc <= '0';
+                i2c.af <= '0';
+                i2c.busy <= '0';
+                i2c.data <= (others => '0');
+                i2c.scl_out <= '1';
+                i2c.sda_out <= '1';
+                i2c.state <= idle;
+                i2c.bittimer <= 0;
+                i2c.shiftcounter <= 0;
+                i2c.txbuffer <= (others => '0');
+                i2c.rxbuffer <= (others => '0');
+                i2c.sclsync <= (others => '1');
+                i2c.sdasync <= (others => '1');
+                i2c.trise <= 0;
+            else
+                -- Common register writes
+                if I_mem_request.stb = '1' and isword then
+                    if I_mem_request.wren = '1' then
+                        if I_mem_request.addr(3 downto 2) = "00" then
+                            -- Write control register
+                            i2c.fm <= I_mem_request.data(2);
+                            i2c.tcie <= I_mem_request.data(3);
+                            i2c.stop <= I_mem_request.data(8);
+                            i2c.start <= I_mem_request.data(9);
+                            i2c.hardstop <= I_mem_request.data(10);
+                            i2c.mack <= I_mem_request.data(11);
+                            i2c.baud <= I_mem_request.data(31 downto 16);
+                        elsif I_mem_request.addr(3 downto 2) = "01" then
+                            -- Write status register
+                            i2c.trans <= I_mem_request.data(2);
+                            i2c.tc <= I_mem_request.data(3);
+                            i2c.af <= I_mem_request.data(5);
+                            i2c.busy <= I_mem_request.data(6);
+                        elsif I_mem_request.addr(3 downto 2) = "10" then
+                            -- Latch data, if startbit set, end with master Nack
+                            i2c.txbuffer <= I_mem_request.data(7 downto 0) & (i2c.start or i2c.stop or not i2c.mack);
+                            -- Signal that we are sending data
+                            i2c.starttransmission <= '1';
+                            -- Reset both Transmission Complete and Ack Failed
+                            i2c.tc <= '0';
+                            i2c.af <= '0';
                         end if;
-                    -- Do we have to send a single STOP condition?
-                    elsif i2c.hardstop = '1' then
-                        i2c.state <= send_stopbit_first;
-                    end if;
-                when send_startbit =>
-                    -- Generate start condition
-                    i2c.scl_out <= '1';
-                    i2c.sda_out <= '0';
-                    if i2c.bittimer > 0 then
-                        i2c.bittimer <= i2c.bittimer - 1;
                     else
+                        if I_mem_request.addr(3 downto 2) = "00" then
+                            -- Read control register
+                            O_mem_response.data(2) <= i2c.fm;
+                            O_mem_response.data(3) <= i2c.tcie;
+                            O_mem_response.data(8) <= i2c.stop;
+                            O_mem_response.data(9) <= i2c.start;
+                            O_mem_response.data(10) <= i2c.hardstop;
+                            O_mem_response.data(11) <= i2c.mack;
+                            O_mem_response.data(31 downto 16) <= i2c.baud;
+                        elsif I_mem_request.addr(3 downto 2) = "01" then
+                            -- Read status register
+                            O_mem_response.data(2) <= i2c.trans;
+                            O_mem_response.data(3) <= i2c.tc;
+                            O_mem_response.data(5) <= i2c.af;
+                            O_mem_response.data(6) <= i2c.busy;
+                        elsif I_mem_request.addr(3 downto 2) = "10" then
+                            -- Read data register
+                            O_mem_response.data(7 downto 0) <= i2c.data(7 downto 0);
+                            -- Reset flags
+                            i2c.tc <= '0';
+                            i2c.af <= '0';
+                        end if;
+                    end if;
+                    O_mem_response.ready <= '1';
+                end if;
+
+                -- Check for I2C bus is busy.
+                -- If SCL or SDA is/are low...
+                if i2c.sclsync(1) = '0' or i2c.sdasync(1) = '0' then
+                    -- I2C bus is busy
+                    i2c.busy <= '1';
+                end if;
+                -- SCL is high and rising edge on SDA...
+                if i2c.sclsync(0) /= '0' and i2c.sdasync(1) = '0' and i2c.sdasync(0) /= '0' then
+                    -- signals a STOP, so bus is free
+                    i2c.busy <= '0';
+                end if;
+                
+                -- Input synchronizer
+                i2c.sdasync <= i2c.sdasync(0) & IO_sda;
+                i2c.sclsync <= i2c.sclsync(0) & IO_scl;
+
+                -- The i2c state machine
+                case i2c.state is
+                    when idle =>
+                        -- Clock == !state_of_transmitting, SDA = High-Z (==1)
+                        -- If transmitting, the clock is held low. If not
+                        -- transmitting, the clock is held high (high-Z). After
+                        -- STOP, the state of transmitting is reset. This keeps
+                        -- the bus occupied between START and STOP.
+                        i2c.scl_out <= not i2c.trans;
+                        i2c.sda_out <= '1';
+                        -- Idle situation, load the counters and set SCL/SDA to High-Z
                         if i2c.fm = '1' then
                             i2c.bittimer <= to_integer(unsigned(i2c.baud))*2;
                         else
                             i2c.bittimer <= to_integer(unsigned(i2c.baud));
                         end if;
-                        i2c.state <= send_data_first;
-                    end if;
-                when send_data_first =>
-                    -- SCL low == 0, SDA 0 or High-Z (== 1)
-                    i2c.scl_out <= '0';
-                    i2c.sda_out <= i2c.txbuffer(8);
-                    
-                    -- Count bit time
-                    if i2c.bittimer > 0 then
-                        i2c.bittimer <= i2c.bittimer - 1;
-                    else
+                        i2c.shiftcounter <= 8;
+                        -- Is data register written?
+                        if i2c.starttransmission = '1' then
+                            -- Register that we are transmitting
+                            i2c.trans <= '1';
+                            -- Data written to data register, check for start condition
+                            if i2c.start = '1' then
+                                -- Start bit is seen, so clear it.
+                                i2c.start <= '0';
+                                -- Send a START bit, so address comes next
+                                i2c.state <= send_startbit;
+                            else
+                                -- Regular data
+                                i2c.state <= send_data_first;
+                            end if;
+                        -- Do we have to send a single STOP condition?
+                        elsif i2c.hardstop = '1' then
+                            i2c.state <= send_stopbit_first;
+                        end if;
+                    when send_startbit =>
+                        -- Generate start condition
+                        i2c.scl_out <= '1';
+                        i2c.sda_out <= '0';
+                        if i2c.bittimer > 0 then
+                            i2c.bittimer <= i2c.bittimer - 1;
+                        else
+                            if i2c.fm = '1' then
+                                i2c.bittimer <= to_integer(unsigned(i2c.baud))*2;
+                            else
+                                i2c.bittimer <= to_integer(unsigned(i2c.baud));
+                            end if;
+                            i2c.state <= send_data_first;
+                        end if;
+                    when send_data_first =>
+                        -- SCL low == 0, SDA 0 or High-Z (== 1)
+                        i2c.scl_out <= '0';
+                        i2c.sda_out <= i2c.txbuffer(8);
+                        
+                        -- Count bit time
+                        if i2c.bittimer > 0 then
+                            i2c.bittimer <= i2c.bittimer - 1;
+                        else
+                            i2c.bittimer <= to_integer(unsigned(i2c.baud));
+                            i2c.state <= send_data_second;
+                            -- Set the rise time of SCL in clock pulses
+                            if i2c.fm = '1' then
+                                i2c.trise <= crise_fm_c;
+                            else
+                                i2c.trise <= crise_sm_c;
+                            end if;
+                        end if;
+                    when send_data_second =>
+                        -- SCL High-Z == 1, SDA 0 or High-Z (== 1)
+                        i2c.scl_out <= '1';
+                        i2c.sda_out <= i2c.txbuffer(8);
+
+                        -- Count down rise time
+                        if i2c.trise  > 0 then
+                            i2c.trise  <= i2c.trise - 1;
+                        else
+                            -- Check for SCL low == clock stretched
+                            if i2c.sclsync(1) = '0' then
+                                i2c.state <= stretch;
+                            end if;
+                        end if;
+                        
+                        -- Count bit time
+                        if i2c.bittimer > 0 then
+                            i2c.bittimer <= i2c.bittimer - 1;
+                        else
+                            if i2c.fm = '1' then
+                                i2c.bittimer <= to_integer(unsigned(i2c.baud))*2;
+                            else
+                                i2c.bittimer <= to_integer(unsigned(i2c.baud));
+                            end if;
+                            -- Check if more bits
+                            if i2c.shiftcounter > 0 then
+                                -- More bits to send...
+                                i2c.shiftcounter <= i2c.shiftcounter - 1;
+                                i2c.state <= send_data_first;
+                                -- Shift next bit, hold time is 0 ns as per spec
+                                i2c.txbuffer <= i2c.txbuffer(7 downto 0) & '1';
+                            else
+                                -- No more bits, then goto STOP or leadout
+                                if i2c.stop = '1' then
+                                    i2c.state <= send_stopbit_first;
+                                else
+                                    i2c.state <= idle;
+                                    i2c.tc <= '1';
+                                    i2c.data <= i2c.rxbuffer(8 downto 1);
+                                    i2c.af <= i2c.rxbuffer(0);
+                                    --i2c.state <= leadout;
+                                end if;
+                            end if;
+                        end if;
+                        -- If detected rising edge on external SCL, clock in SDA.
+                        if i2c.sclsync(1) = '0' and i2c.sclsync(0) /= '0' then
+                            i2c.rxbuffer <= i2c.rxbuffer(7 downto 0) & i2c.sdasync(1);
+                        end if;
+                    when send_stopbit_first =>
+                        -- SCL low, SDA low
+                        i2c.scl_out <= '0';
+                        i2c.sda_out <= '0';
+                        -- Count bit time
+                        if i2c.bittimer > 0 then
+                            i2c.bittimer <= i2c.bittimer - 1;
+                        else
+                            i2c.bittimer <= to_integer(unsigned(i2c.baud));
+                            i2c.state <= send_stopbit_second;
+                        end if;
+                    when send_stopbit_second =>
+                        -- SCL high, SDA low
+                        i2c.scl_out <= '1';
+                        i2c.sda_out <= '0';
+                        -- Count bit timer
+                        if i2c.bittimer > 0 then
+                            i2c.bittimer <= i2c.bittimer - 1;
+                        else
+                            if i2c.fm = '1' then
+                                i2c.bittimer <= to_integer(unsigned(i2c.baud))*2;
+                            else
+                                i2c.bittimer <= to_integer(unsigned(i2c.baud));
+                            end if;
+                            i2c.state <= send_stopbit_third;
+                        end if;
+                    when send_stopbit_third =>
+                        -- SCL high, SDA high
+                        i2c.scl_out <= '1';
+                        i2c.sda_out <= '1';
+                        -- Count bit timer
+                        if i2c.bittimer > 0 then
+                            i2c.bittimer <= i2c.bittimer - 1;
+                        else
+                            -- Transmission conplete
+                            i2c.tc <= '1';
+                            -- Clear STOP bit
+                            i2c.stop <= '0';
+                            -- and goto IDLE
+                            i2c.state <= idle;
+                            -- Copy data to data register and flag ACK
+                            i2c.data <= i2c.rxbuffer(8 downto 1);
+                            i2c.af <= i2c.rxbuffer(0);
+                            -- Clear hard stop
+                            i2c.hardstop <= '0';
+                            -- Unregister that we are transmitting
+                            i2c.trans <= '0';
+                        end if;
+                    when stretch =>
+                        -- Clock is stretched
+                        -- Load bit time for high perriod
                         i2c.bittimer <= to_integer(unsigned(i2c.baud));
-                        i2c.state <= send_data_second;
                         -- Set the rise time of SCL in clock pulses
                         if i2c.fm = '1' then
                             i2c.trise <= crise_fm_c;
                         else
                             i2c.trise <= crise_sm_c;
                         end if;
-                    end if;
-                when send_data_second =>
-                    -- SCL High-Z == 1, SDA 0 or High-Z (== 1)
-                    i2c.scl_out <= '1';
-                    i2c.sda_out <= i2c.txbuffer(8);
-
-                    -- Count down rise time
-                    if i2c.trise  > 0 then
-                        i2c.trise  <= i2c.trise - 1;
-                    else
-                        -- Check for SCL low == clock stretched
-                        if i2c.sclsync(1) = '0' then
-                            i2c.state <= stretch;
+                        -- Check if SCL is released...
+                        if i2c.sclsync(1) /= '0' then
+                            -- Resume transmission
+                            i2c.state <= send_data_second;
                         end if;
-                    end if;
-                    
-                    -- Count bit time
-                    if i2c.bittimer > 0 then
-                        i2c.bittimer <= i2c.bittimer - 1;
-                    else
-                        if i2c.fm = '1' then
-                            i2c.bittimer <= to_integer(unsigned(i2c.baud))*2;
-                        else
-                            i2c.bittimer <= to_integer(unsigned(i2c.baud));
+                        -- If detected rising edge on external SCL, clock in SDA.
+                        if i2c.sclsync(1) = '0' and i2c.sclsync(0) /= '0' then
+                            i2c.rxbuffer <= i2c.rxbuffer(7 downto 0) & i2c.sdasync(1);
                         end if;
-                        -- Check if more bits
-                        if i2c.shiftcounter > 0 then
-                            -- More bits to send...
-                            i2c.shiftcounter <= i2c.shiftcounter - 1;
-                            i2c.state <= send_data_first;
-                            -- Shift next bit, hold time is 0 ns as per spec
-                            i2c.txbuffer <= i2c.txbuffer(7 downto 0) & '1';
-                        else
-                            -- No more bits, then goto STOP or leadout
-                            if i2c.stop = '1' then
-                                i2c.state <= send_stopbit_first;
-                            else
-                                i2c.state <= idle;
-                                i2c.tc <= '1';
-                                i2c.data <= i2c.rxbuffer(8 downto 1);
-                                i2c.af <= i2c.rxbuffer(0);
-                                --i2c.state <= leadout;
-                            end if;
-                        end if;
-                    end if;
-                    -- If detected rising edge on external SCL, clock in SDA.
-                    if i2c.sclsync(1) = '0' and i2c.sclsync(0) /= '0' then
-                        i2c.rxbuffer <= i2c.rxbuffer(7 downto 0) & i2c.sdasync(1);
-                    end if;
-                when send_stopbit_first =>
-                    -- SCL low, SDA low
-                    i2c.scl_out <= '0';
-                    i2c.sda_out <= '0';
-                    -- Count bit time
-                    if i2c.bittimer > 0 then
-                        i2c.bittimer <= i2c.bittimer - 1;
-                    else
-                        i2c.bittimer <= to_integer(unsigned(i2c.baud));
-                        i2c.state <= send_stopbit_second;
-                    end if;
-                when send_stopbit_second =>
-                    -- SCL high, SDA low
-                    i2c.scl_out <= '1';
-                    i2c.sda_out <= '0';
-                    -- Count bit timer
-                    if i2c.bittimer > 0 then
-                        i2c.bittimer <= i2c.bittimer - 1;
-                    else
-                        if i2c.fm = '1' then
-                            i2c.bittimer <= to_integer(unsigned(i2c.baud))*2;
-                        else
-                            i2c.bittimer <= to_integer(unsigned(i2c.baud));
-                        end if;
-                        i2c.state <= send_stopbit_third;
-                    end if;
-                when send_stopbit_third =>
-                    -- SCL high, SDA high
-                    i2c.scl_out <= '1';
-                    i2c.sda_out <= '1';
-                    -- Count bit timer
-                    if i2c.bittimer > 0 then
-                        i2c.bittimer <= i2c.bittimer - 1;
-                    else
-                        -- Transmission conplete
-                        i2c.tc <= '1';
-                        -- Clear STOP bit
-                        i2c.stop <= '0';
-                        -- and goto IDLE
+                    when others =>
                         i2c.state <= idle;
-                        -- Copy data to data register and flag ACK
-                        i2c.data <= i2c.rxbuffer(8 downto 1);
-                        i2c.af <= i2c.rxbuffer(0);
-                        -- Clear hard stop
-                        i2c.hardstop <= '0';
-                        -- Unregister that we are transmitting
-                        i2c.trans <= '0';
-                    end if;
-                when stretch =>
-                    -- Clock is stretched
-                    -- Load bit time for high perriod
-                    i2c.bittimer <= to_integer(unsigned(i2c.baud));
-                    -- Set the rise time of SCL in clock pulses
-                    if i2c.fm = '1' then
-                        i2c.trise <= crise_fm_c;
-                    else
-                        i2c.trise <= crise_sm_c;
-                    end if;
-                    -- Check if SCL is released...
-                    if i2c.sclsync(1) /= '0' then
-                        -- Resume transmission
-                        i2c.state <= send_data_second;
-                    end if;
-                    -- If detected rising edge on external SCL, clock in SDA.
-                    if i2c.sclsync(1) = '0' and i2c.sclsync(0) /= '0' then
-                        i2c.rxbuffer <= i2c.rxbuffer(7 downto 0) & i2c.sdasync(1);
-                    end if;
-                when others =>
-                    i2c.state <= idle;
-            end case;
-
-        end if;
+                end case;
+            end if; -- sreset
+        end if; -- posedge
     end process;
     -- Drive the clock and data lines
     IO_scl <= '0' when i2c.scl_out = '0' else 'Z';

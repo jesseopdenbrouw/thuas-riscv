@@ -47,6 +47,7 @@ entity io_bus_switch is
     port (
           I_clk : in std_logic;
           I_areset : in std_logic;
+          i_sreset : in std_logic;
           -- Input from address router
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -357,6 +358,12 @@ begin
                                                          I_dev13_response.store_misaligned_error or
                                                          I_dev14_response.store_misaligned_error or
                                                          I_dev15_response.store_misaligned_error;
+                if I_sreset = '1' then
+                    O_mem_response.data  <= all_zeros_c;
+                    O_mem_response.ready <= '0';
+                    O_mem_response.load_misaligned_error <= '0';
+                    O_mem_response.store_misaligned_error <= '0';
+                end if;
             end if;
         end process;
     end generate;

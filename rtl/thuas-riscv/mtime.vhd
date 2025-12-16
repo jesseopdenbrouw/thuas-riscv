@@ -48,6 +48,7 @@ entity mtime is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -91,32 +92,39 @@ begin
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            -- Update system timer
-            if prescaler_v = SYSTEM_FREQUENCY/CLOCK_FREQUENCY-1 then
+            
+            if I_sreset = '1' then
+                mtime_v := (others => '0');
+                mtimecmp_v := (others => '0');
                 prescaler_v := 0;
-                mtime_v := mtime_v + 1;
             else
-                prescaler_v := prescaler_v + 1;
-            end if;
-            if I_mem_request.stb = '1' and isword then
-                if I_mem_request.wren = '1' then
-                    case I_mem_request.addr(3 downto 2) is
-                        when "00" => mtime_v(31 downto 00) := unsigned(I_mem_request.data);     -- Store time (low 32 bits)
-                        when "01" => mtime_v(63 downto 32) := unsigned(I_mem_request.data);     -- Store timeh (high 32 bits)
-                        when "10" => mtimecmp_v(31 downto 00) := unsigned(I_mem_request.data);  -- Store compare register (low 32 bits)
-                        when "11" => mtimecmp_v(63 downto 32) := unsigned(I_mem_request.data);  -- Store compare register (high 32 bits)
-                        when others => null;
-                    end case;
+                -- Update system timer
+                if prescaler_v = SYSTEM_FREQUENCY/CLOCK_FREQUENCY-1 then
+                    prescaler_v := 0;
+                    mtime_v := mtime_v + 1;
                 else
-                    case I_mem_request.addr(3 downto 2) is
-                        when "00" => O_mem_response.data <= mtime.mtime;      -- Load time (low 32 bits)
-                        when "01" => O_mem_response.data <= mtime.mtimeh;     -- Load timeh (high 32 bits)
-                        when "10" => O_mem_response.data <= mtime.mtimecmp;   -- Load compare register (low 32 bits)
-                        when "11" => O_mem_response.data <= mtime.mtimecmph;  -- Load compare register (high 32 bits)
-                        when others => null;
-                    end case;
+                    prescaler_v := prescaler_v + 1;
                 end if;
-                O_mem_response.ready <= '1';
+                if I_mem_request.stb = '1' and isword then
+                    if I_mem_request.wren = '1' then
+                        case I_mem_request.addr(3 downto 2) is
+                            when "00" => mtime_v(31 downto 00) := unsigned(I_mem_request.data);     -- Store time (low 32 bits)
+                            when "01" => mtime_v(63 downto 32) := unsigned(I_mem_request.data);     -- Store timeh (high 32 bits)
+                            when "10" => mtimecmp_v(31 downto 00) := unsigned(I_mem_request.data);  -- Store compare register (low 32 bits)
+                            when "11" => mtimecmp_v(63 downto 32) := unsigned(I_mem_request.data);  -- Store compare register (high 32 bits)
+                            when others => null;
+                        end case;
+                    else
+                        case I_mem_request.addr(3 downto 2) is
+                            when "00" => O_mem_response.data <= mtime.mtime;      -- Load time (low 32 bits)
+                            when "01" => O_mem_response.data <= mtime.mtimeh;     -- Load timeh (high 32 bits)
+                            when "10" => O_mem_response.data <= mtime.mtimecmp;   -- Load compare register (low 32 bits)
+                            when "11" => O_mem_response.data <= mtime.mtimecmph;  -- Load compare register (high 32 bits)
+                            when others => null;
+                        end case;
+                    end if;
+                    O_mem_response.ready <= '1';
+                end if;
             end if;
         end if;
         mtime.mtime <= std_logic_vector(mtime_v(31 downto 0));

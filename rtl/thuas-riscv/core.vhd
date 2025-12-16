@@ -111,6 +111,7 @@ entity core is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- Instruction request from ROM
           O_instr_request : out instr_request_type;
           I_instr_response : in instr_response_type;
@@ -379,6 +380,7 @@ begin
     -- Processor state control
     process (I_clk, I_areset) is
     begin
+        -- Asynchronous reset
         if I_areset = '1' then
             control.state <= state_boot0;
             control.step <= '0';
@@ -390,166 +392,179 @@ begin
             control.skip_match <= '0';
             csr_reg.dcsr_cause <= "0000";
         elsif rising_edge(I_clk) then
-            control.load_pc <= '0';
-            control.load_dpc <= '0';
-            if I_ackhavereset = '1' then
+            -- Synchronous reset
+            if I_sreset = '1' then
+                control.state <= state_boot0;
+                control.step <= '0';
+                O_halt_ack <= '0';
                 O_reset_ack <= '0';
-            end if;
-            case control.state is
-                -- Booting first cycle
-                when state_boot0 =>
-                    control.state <= state_boot1;
-                    control.skip_match <= '0';
-                    control.step <= '0';
-                    O_halt_ack <= '0';
+                O_resume_ack <= '0';
+                control.load_pc <= '0';
+                control.load_dpc <= '0';
+                control.skip_match <= '0';
+                csr_reg.dcsr_cause <= "0000";
+            else
+                control.load_pc <= '0';
+                control.load_dpc <= '0';
+                if I_ackhavereset = '1' then
                     O_reset_ack <= '0';
-                    O_resume_ack <= '0';
-                    csr_reg.dcsr_cause <= "0000";
-                -- Booting second cycle
-                when state_boot1 =>
-                    control.state <= state_exec;
-                    O_reset_ack <= '1';
-                -- The executing state, can be interrupted.
-                when state_exec =>
-                    O_resume_ack <= '1';  -- keep this at '1'
-                    O_halt_ack <= '0';
-
-                    -- If user halt request...
-                    if I_halt_req = '1' and HAVE_OCD then
-                        O_halt_ack <= '1';                  -- Signal halt
-                        control.step <= '0';                --
-                        control.state <= state_debug;       -- Goto to debug state
-                        control.load_dpc <= '1';            -- Load DPC with PC
-                        csr_reg.dcsr_cause <= "1011";       -- Signal halt to user
-                    -- If hardware breakpoint and not resuming from this breakpoint...
-                    elsif control.bpmatch = '1' and control.skip_match = '0' and HAVE_OCD then
-                        O_halt_ack <= '1';                  -- Signal halt
-                        control.step <= '0';                --
-                        control.state <= state_debug;       -- Goto debug state
-                        control.load_dpc <= '1';            -- Load DPC with PC
-                        csr_reg.dcsr_cause <= "1010";       -- Signal HW break to user
-                    -- If software breakpoint...
-                    -- Can be switched off with: <targetname> riscv set_ebreakm off
-                    -- dcsr(15) is dcsr.ebreakm bit
-                    elsif control.ebreak_request = '1' and csr_reg.dcsr(15) = '1' and HAVE_OCD then
-                        O_halt_ack <= '1';                  -- Signal halt
-                        control.step <= '0';                --
-                        control.state <= state_debug;       -- Goto debug state
-                        control.load_dpc <= '1';            -- Load DPC with PC
-                        csr_reg.dcsr_cause <= "1001";       -- Signal EBREAK to user
-                    elsif control.isstepping = '1' and control.step = '0' and HAVE_OCD then
-                        O_halt_ack <= '1';                  -- Signal halt
+                end if;
+                case control.state is
+                    -- Booting first cycle
+                    when state_boot0 =>
+                        control.state <= state_boot1;
+                        control.skip_match <= '0';
                         control.step <= '0';
-                        control.state <= state_debug;       -- Goto debug state
-                        control.load_dpc <= '1';            -- Load DPC with PC
-                        csr_reg.dcsr_cause <= "1100";       -- Signal STEP to user
-                    -- If there is a trap request, it can be an interrupt
-                    -- or an exception.
-                    elsif control.trap_request = '1' then
-                        control.state <= state_trap;
-                    elsif control.wfi_request = '1' then----
-                        control.state <= state_wfi;
-                    -- If we have an mret request (MRET)
-                    elsif control.mret_request = '1' then
-                        control.state <= state_mret;
-                    -- Jump/branch request
-                    elsif control.penalty = '1' then
-                        control.state <= state_flush;
-                    -- If we have to wait for data, we need to wait extra cycles
-                    elsif id_ex.ismem = '1' and I_bus_response.ready = '0' then
-                        control.state <= state_mem;
-                    -- If the MD unit is started....
-                    elsif id_ex.md_start = '1' then
-                        control.state <= state_md;
-                    end if;
-                    control.step <= '0';
+                        O_halt_ack <= '0';
+                        O_reset_ack <= '0';
+                        O_resume_ack <= '0';
+                        csr_reg.dcsr_cause <= "0000";
+                    -- Booting second cycle
+                    when state_boot1 =>
+                        control.state <= state_exec;
+                        O_reset_ack <= '1';
+                    -- The executing state, can be interrupted.
+                    when state_exec =>
+                        O_resume_ack <= '1';  -- keep this at '1'
+                        O_halt_ack <= '0';
 
-                -- Wait for data (read from ROM, boot ROM, RAM or I/O)
-                when state_mem =>
-                    -- If there is a trap then it is one of load/store misaligned error
-                    -- This can never be an interrupt, because interrupts are disabled
-                    -- while accessing memory
-                    if control.trap_request = '1' then
-                        control.state <= state_trap;
-                    elsif I_bus_response.ready = '1' then
+                        -- If user halt request...
+                        if I_halt_req = '1' and HAVE_OCD then
+                            O_halt_ack <= '1';                  -- Signal halt
+                            control.step <= '0';                --
+                            control.state <= state_debug;       -- Goto to debug state
+                            control.load_dpc <= '1';            -- Load DPC with PC
+                            csr_reg.dcsr_cause <= "1011";       -- Signal halt to user
+                        -- If hardware breakpoint and not resuming from this breakpoint...
+                        elsif control.bpmatch = '1' and control.skip_match = '0' and HAVE_OCD then
+                            O_halt_ack <= '1';                  -- Signal halt
+                            control.step <= '0';                --
+                            control.state <= state_debug;       -- Goto debug state
+                            control.load_dpc <= '1';            -- Load DPC with PC
+                            csr_reg.dcsr_cause <= "1010";       -- Signal HW break to user
+                        -- If software breakpoint...
+                        -- Can be switched off with: <targetname> riscv set_ebreakm off
+                        -- dcsr(15) is dcsr.ebreakm bit
+                        elsif control.ebreak_request = '1' and csr_reg.dcsr(15) = '1' and HAVE_OCD then
+                            O_halt_ack <= '1';                  -- Signal halt
+                            control.step <= '0';                --
+                            control.state <= state_debug;       -- Goto debug state
+                            control.load_dpc <= '1';            -- Load DPC with PC
+                            csr_reg.dcsr_cause <= "1001";       -- Signal EBREAK to user
+                        elsif control.isstepping = '1' and control.step = '0' and HAVE_OCD then
+                            O_halt_ack <= '1';                  -- Signal halt
+                            control.step <= '0';
+                            control.state <= state_debug;       -- Goto debug state
+                            control.load_dpc <= '1';            -- Load DPC with PC
+                            csr_reg.dcsr_cause <= "1100";       -- Signal STEP to user
+                        -- If there is a trap request, it can be an interrupt
+                        -- or an exception.
+                        elsif control.trap_request = '1' then
+                            control.state <= state_trap;
+                        elsif control.wfi_request = '1' then----
+                            control.state <= state_wfi;
+                        -- If we have an mret request (MRET)
+                        elsif control.mret_request = '1' then
+                            control.state <= state_mret;
+                        -- Jump/branch request
+                        elsif control.penalty = '1' then
+                            control.state <= state_flush;
+                        -- If we have to wait for data, we need to wait extra cycles
+                        elsif id_ex.ismem = '1' and I_bus_response.ready = '0' then
+                            control.state <= state_mem;
+                        -- If the MD unit is started....
+                        elsif id_ex.md_start = '1' then
+                            control.state <= state_md;
+                        end if;
+                        control.step <= '0';
+
+                    -- Wait for data (read from ROM, boot ROM, RAM or I/O)
+                    when state_mem =>
+                        -- If there is a trap then it is one of load/store misaligned error
+                        -- This can never be an interrupt, because interrupts are disabled
+                        -- while accessing memory
+                        if control.trap_request = '1' then
+                            control.state <= state_trap;
+                        elsif I_bus_response.ready = '1' then
+                            control.state <= state_exec;
+                        end if;
+                    -- Flush
+                    when state_flush =>
+                        control.state <= state_flush2;
+                    -- Second state flush
+                    when state_flush2 =>
                         control.state <= state_exec;
-                    end if;
-                -- Flush
-                when state_flush =>
-                    control.state <= state_flush2;
-                -- Second state flush
-                when state_flush2 =>
-                    control.state <= state_exec;
-                -- Flush after leaving debug state
-                when state_debugflush =>
-                    control.state <= state_debugflush2;
-                when state_debugflush2 =>
-                    control.state <= state_debugflush3;
-                when state_debugflush3 =>
-                    control.state <= state_exec;
-                -- MD operation in progress (cannot be interrupted)
-                when state_md =>
-                    if md.ready = '1' then
-                        control.state <= state_md2;
-                    end if;
-                -- MD ready, copy result (cannot be interrupted)
-                when state_md2 =>
-                    control.state <= state_exec;
-                -- First cycle of trap request, flushes pipeline
-                when state_trap =>
-                    control.state <= state_trap2;
-                -- Second state of trap handling, flushes pipeline
-                when state_trap2 =>
-                    if control.isstepping = '1' then
-                        control.state <= state_trap3;
-                    else
+                    -- Flush after leaving debug state
+                    when state_debugflush =>
+                        control.state <= state_debugflush2;
+                    when state_debugflush2 =>
+                        control.state <= state_debugflush3;
+                    when state_debugflush3 =>
                         control.state <= state_exec;
-                    end if;
-                -- Need this extra state to load the correct PC in DPC
-                when state_trap3 =>
-                    control.state <= state_exec;
-                -- First state of MRET, flushes the pipeline
-                when state_mret =>
-                    control.state <= state_mret2;
-                -- Second state of MRET, flushes the pipeline
-                when state_mret2 =>
-                    control.state <= state_exec;
-                -- Stalling on WFI, waiting for an interrupt
-                when state_wfi =>
-                    -- A halt request on WFI goes to debug state
-                    if I_halt_req = '1' and HAVE_OCD then
-                        O_halt_ack <= '1';                  -- Signal halt
-                        control.step <= '0';                --
-                        control.state <= state_debug;       -- Goto to debug state
-                        control.load_dpc <= '1';            -- Load DPC with PC
-                        csr_reg.dcsr_cause <= "1011";       -- Signal halt to user                  
-                    elsif control.trap_request = '1' then
-                        control.state <= state_trap;
-                    end if;
-                -- When we're in debug...
-                when state_debug =>
-                    csr_reg.dcsr_cause <= "0000";
-                    O_halt_ack <= '1';
-                    -- If resuming from stepping
-                    if I_resume_req = '1' and control.isstepping = '1' then
-                        control.state <= state_debugflush;   -- Flush the pipeline
-                        control.step <= '1';            -- Set stepping
-                        csr_reg.dcsr_cause <= "1000";   -- Clear DCSR.cause
-                        control.load_pc <= '1';         -- Load PC with DPC
-                        O_halt_ack <= '0';              -- Signal run
-                        control.skip_match <= control.bpmatch;
-                    elsif I_resume_req = '1' then
-                        control.state <= state_debugflush;   -- Flush the pipeline
-                        control.step <= '0';            -- Not stepping
-                        csr_reg.dcsr_cause <= "1000";   -- Clear DCSR.cause
-                        control.load_pc <= '1';         -- Load PC with DPC
-                        O_halt_ack <= '0';              -- Signal run
-                        control.skip_match <= control.bpmatch;
-                    end if;
-                when others =>
-                    control.state <= state_exec;
-            end case;
-        end if;
+                    -- MD operation in progress (cannot be interrupted)
+                    when state_md =>
+                        if md.ready = '1' then
+                            control.state <= state_md2;
+                        end if;
+                    -- MD ready, copy result (cannot be interrupted)
+                    when state_md2 =>
+                        control.state <= state_exec;
+                    -- First cycle of trap request, flushes pipeline
+                    when state_trap =>
+                        control.state <= state_trap2;
+                    -- Second state of trap handling, flushes pipeline
+                    when state_trap2 =>
+                        if control.isstepping = '1' then
+                            control.state <= state_trap3;
+                        else
+                            control.state <= state_exec;
+                        end if;
+                    -- Need this extra state to load the correct PC in DPC
+                    when state_trap3 =>
+                        control.state <= state_exec;
+                    -- First state of MRET, flushes the pipeline
+                    when state_mret =>
+                        control.state <= state_mret2;
+                    -- Second state of MRET, flushes the pipeline
+                    when state_mret2 =>
+                        control.state <= state_exec;
+                    -- Stalling on WFI, waiting for an interrupt
+                    when state_wfi =>
+                        -- A halt request on WFI goes to debug state
+                        if I_halt_req = '1' and HAVE_OCD then
+                            O_halt_ack <= '1';                  -- Signal halt
+                            control.step <= '0';                --
+                            control.state <= state_debug;       -- Goto to debug state
+                            control.load_dpc <= '1';            -- Load DPC with PC
+                            csr_reg.dcsr_cause <= "1011";       -- Signal halt to user                  
+                        elsif control.trap_request = '1' then
+                            control.state <= state_trap;
+                        end if;
+                    -- When we're in debug...
+                    when state_debug =>
+                        csr_reg.dcsr_cause <= "0000";
+                        O_halt_ack <= '1';
+                        -- If resuming from stepping
+                        if I_resume_req = '1' and control.isstepping = '1' then
+                            control.state <= state_debugflush;   -- Flush the pipeline
+                            control.step <= '1';            -- Set stepping
+                            csr_reg.dcsr_cause <= "1000";   -- Clear DCSR.cause
+                            control.load_pc <= '1';         -- Load PC with DPC
+                            O_halt_ack <= '0';              -- Signal run
+                            control.skip_match <= control.bpmatch;
+                        elsif I_resume_req = '1' then
+                            control.state <= state_debugflush;   -- Flush the pipeline
+                            control.step <= '0';            -- Not stepping
+                            csr_reg.dcsr_cause <= "1000";   -- Clear DCSR.cause
+                            control.load_pc <= '1';         -- Load PC with DPC
+                            O_halt_ack <= '0';              -- Signal run
+                            control.skip_match <= control.bpmatch;
+                        end if;
+                    when others =>
+                        control.state <= state_exec;
+                end case;
+            end if; -- sreset
+        end if; -- posedge
     end process;
     
     -- Determine stall
@@ -614,7 +629,9 @@ begin
         if I_areset = '1' then
             control.instr_misaligned_ff <= '0';
         elsif rising_edge(I_clk) then
-            if id_ex.pc(1 downto 0) /= "00" then
+            if I_sreset = '1' then
+                control.instr_misaligned_ff <= '0';
+            elsif id_ex.pc(1 downto 0) /= "00" then
                 control.instr_misaligned_ff <= '1';
             else
                 control.instr_misaligned_ff <= '0';
@@ -631,7 +648,9 @@ begin
         if I_areset = '1' then
             control.instr_access_error <= (others => '0');
         elsif rising_edge(I_clk) then
-            if control.state = state_trap then
+            if I_sreset = '1' then
+                control.instr_access_error <= (others => '0');
+            elsif control.state = state_trap then
                 control.instr_access_error <= (others => '0');
             else
                 control.instr_access_error <= control.instr_access_error(0) & I_instr_response.instr_access_error;
@@ -666,6 +685,7 @@ begin
     -- The PC
     process (I_clk, I_areset) is
     begin
+        -- Asynchronous reset
         if I_areset = '1' then
             pc <= (others => '0');
             if HAVE_BOOTLOADER_ROM then
@@ -674,53 +694,63 @@ begin
                 pc(pc'left downto pc'left-3) <= ROM_HIGH_NIBBLE;
             end if;
         elsif rising_edge(I_clk) then
-            -- Load DPC to PC
-            if control.load_pc = '1' then
-                pc <= csr_reg.dpc;
-            -- Should we stall the pipeline
-            elsif control.stall = '1' or control.stall_on_trigger = '1' then
-                -- PC holds value
-                null;
+            -- Synchronous reset
+            if I_sreset = '1' then
+                pc <= (others => '0');
+                if HAVE_BOOTLOADER_ROM then
+                    pc(pc'left downto pc'left-3) <= BOOT_HIGH_NIBBLE;
+                else
+                    pc(pc'left downto pc'left-3) <= ROM_HIGH_NIBBLE;
+                end if;
             else
-                case id_ex.pc_op is
-                    -- Hold the PC
-                    when pc_hold =>
-                        null;
-                    -- Increment the PC
-                    when pc_incr =>
-                        pc <= std_logic_vector(unsigned(pc) + 4);
-                    -- JAL
-                    when pc_loadoffset =>
-                        pc <= std_logic_vector(unsigned(id_ex.pc) + unsigned(id_ex.imm));
-                    -- JALR
-                    when pc_loadoffsetregister =>
-                        -- Check forwarding
-                        if control.forwarda = '1' then
-                            pc <= std_logic_vector(unsigned(ex_wb.rddata) + unsigned(id_ex.imm));
-                        else
-                            pc <= std_logic_vector(unsigned(id_ex.rs1data) + unsigned(id_ex.imm));
-                        end if;
-                        -- As per RISC-V unpriv spec
-                        pc(0) <= '0';
-                    -- Branch
-                    when pc_branch =>
-                        -- Must we branch?
-                        if control.penalty = '1' then
-                            pc <= std_logic_vector(unsigned(id_ex.pc) + unsigned(id_ex.imm));
-                        else
+                -- Load DPC to PC
+                if control.load_pc = '1' then
+                    pc <= csr_reg.dpc;
+                -- Should we stall the pipeline
+                elsif control.stall = '1' or control.stall_on_trigger = '1' then
+                    -- PC holds value
+                    null;
+                else
+                    case id_ex.pc_op is
+                        -- Hold the PC
+                        when pc_hold =>
+                            null;
+                        -- Increment the PC
+                        when pc_incr =>
                             pc <= std_logic_vector(unsigned(pc) + 4);
-                        end if;
-                    -- Load mtvec, direct or vectored
-                    when pc_load_mtvec =>
-                        pc <= csr_transfer.mtvec_to_pc;
-                    -- Load mepc
-                    when pc_load_mepc =>
-                        pc <= csr_transfer.mepc_to_pc;
-                    when others =>
-                        pc <= std_logic_vector(unsigned(pc) + 4);
-                end case;
-            end if;
-        end if;
+                        -- JAL
+                        when pc_loadoffset =>
+                            pc <= std_logic_vector(unsigned(id_ex.pc) + unsigned(id_ex.imm));
+                        -- JALR
+                        when pc_loadoffsetregister =>
+                            -- Check forwarding
+                            if control.forwarda = '1' then
+                                pc <= std_logic_vector(unsigned(ex_wb.rddata) + unsigned(id_ex.imm));
+                            else
+                                pc <= std_logic_vector(unsigned(id_ex.rs1data) + unsigned(id_ex.imm));
+                            end if;
+                            -- As per RISC-V unpriv spec
+                            pc(0) <= '0';
+                        -- Branch
+                        when pc_branch =>
+                            -- Must we branch?
+                            if control.penalty = '1' then
+                                pc <= std_logic_vector(unsigned(id_ex.pc) + unsigned(id_ex.imm));
+                            else
+                                pc <= std_logic_vector(unsigned(pc) + 4);
+                            end if;
+                        -- Load mtvec, direct or vectored
+                        when pc_load_mtvec =>
+                            pc <= csr_transfer.mtvec_to_pc;
+                        -- Load mepc
+                        when pc_load_mepc =>
+                            pc <= csr_transfer.mepc_to_pc;
+                        when others =>
+                            pc <= std_logic_vector(unsigned(pc) + 4);
+                    end case;
+                end if;
+            end if; -- sreset
+        end if; -- posedge
     end process;
     -- For fetching instructions
     O_instr_request.pc <= pc;
@@ -737,8 +767,10 @@ begin
             -- the PC.
             if_id.pc <= (others => '0');
         elsif rising_edge(I_clk) then
+            if I_sreset = '1' then
+                if_id.pc <= (others => '0');
             -- Must we stall?
-            if control.stall = '1' or control.stall_on_trigger = '1' or id_ex.pc_op = pc_hold then
+            elsif control.stall = '1' or control.stall_on_trigger = '1' or id_ex.pc_op = pc_hold then
                 null;
             else
                 if_id.pc <= pc;
@@ -750,7 +782,6 @@ begin
     --
     -- Instruction decode block
     --
-    --id_ex.instr <= I_instr_response.instr;
    
     process (I_clk, I_areset, I_instr_response, control) is
     variable opcode_v : std_logic_vector(6 downto 0);
@@ -832,18 +863,18 @@ begin
             control.illegal_instruction_decode <= '0';
             control.reg0_write_once <= '0';
         elsif rising_edge(I_clk) then
-            id_ex.instr <= I_instr_response.instr;
-            id_ex.ismem <= '0';
-            if control.stall_on_trigger = '1' then
-                -- Set all registers to default
+            if I_sreset = '1' then
+                id_ex.pc <= (others => '0');
+                id_ex.instr <= (others => 'X');
                 id_ex.rd <= (others => '0');
                 id_ex.rs1 <= (others => '0');
                 id_ex.rs2 <= (others => '0');
-                id_ex.rd_en <= '0';
-                id_ex.imm <= imm_i_v;
+                id_ex.rd_en <= '1';
+                id_ex.imm <= (others => '0');
                 id_ex.isimm <= '0';
                 id_ex.isunsigned <= '0';
-                id_ex.alu_op <= alu_nop;
+                id_ex.ismem <= '0';
+                id_ex.alu_op <= alu_unknown;
                 id_ex.pc_op <= pc_incr;
                 id_ex.md_start <= '0';
                 id_ex.md_op <= (others => '0');
@@ -857,553 +888,581 @@ begin
                 control.mret_request <= '0';
                 control.wfi_request <= '0';
                 control.illegal_instruction_decode <= '0';
-            -- if a trap is requested
-            elsif control.trap_request = '1' then
-                -- ALU does nothing
-                id_ex.alu_op <= alu_nop;
-                -- No writeback to register
-                id_ex.rd <= (others => '0');
-                id_ex.rd_en <= '0';
-                -- Load PC with MTVEC CSR
-                id_ex.pc_op <= pc_load_mtvec;
-                -- Disable CSR operation
-                id_ex.csr_op <= csr_nop;
-                -- Do not start the MD unit
-                id_ex.md_start <= '0';
-                -- ECALL request reset
-                control.ecall_request <= '0';
-                -- EBREAK request reset
-                control.ebreak_request <= '0';
-                -- WFI request reset
-                control.wfi_request <= '0';
-                -- Illegal instruction reset
-                control.illegal_instruction_decode <= '0';
-            -- We need to stall the operation
-            elsif control.stall = '1' then
-                -- Set id_ex.md_start to 0. It is already registered.
-                id_ex.md_start <= '0';
-                -- If the MD unit is ready and we are still doing MD operation,
-                -- load the data in the selected register. MD operation cannot
-                -- be interrupted by trap.
-                if md.ready = '1' then
-                    id_ex.pc_op <= pc_incr;
-                    id_ex.rd_en <= '1';
-                end if;
-                control.wfi_request <= '0';
+                control.reg0_write_once <= '0';
             else
-                -- Set all registers to default
-                id_ex.pc <= if_id.pc;
-                id_ex.rd <= rd_v;
-                id_ex.rs1 <= rs1_v;
-                id_ex.rs2 <= rs2_v;
-                id_ex.rd_en <= '0';
-                id_ex.imm <= imm_i_v;
-                id_ex.isimm <= '0';
-                id_ex.isunsigned <= '0';
-                id_ex.alu_op <= alu_nop;
-                id_ex.pc_op <= pc_incr;
-                id_ex.md_start <= '0';
-                id_ex.md_op <= (others => '0');
-                id_ex.memaccess <= memaccess_nop;
-                id_ex.memsize <= memsize_unknown;
-                id_ex.csr_op <= csr_nop;
-                id_ex.csr_addr <= (others => '0');
-                id_ex.csr_immrs1 <= (others => '0');
-                control.ecall_request <= '0';
-                control.ebreak_request <= '0';
-                control.mret_request <= '0';
-                control.wfi_request <= '0';
-                control.illegal_instruction_decode <= '0';
-                control.reg0_write_once <= '1';
-
-                -- If we flush the pipeline, don't execute the instruction
-                if control.flush = '1' or control.state = state_debugflush or control.state = state_debugflush2 then
-                    null;
+                id_ex.instr <= I_instr_response.instr;
+                id_ex.ismem <= '0';
+                if control.stall_on_trigger = '1' then
+                    -- Set all registers to default
+                    id_ex.rd <= (others => '0');
+                    id_ex.rs1 <= (others => '0');
+                    id_ex.rs2 <= (others => '0');
+                    id_ex.rd_en <= '0';
+                    id_ex.imm <= imm_i_v;
+                    id_ex.isimm <= '0';
+                    id_ex.isunsigned <= '0';
+                    id_ex.alu_op <= alu_nop;
+                    id_ex.pc_op <= pc_incr;
+                    id_ex.md_start <= '0';
+                    id_ex.md_op <= (others => '0');
+                    id_ex.memaccess <= memaccess_nop;
+                    id_ex.memsize <= memsize_unknown;
+                    id_ex.csr_op <= csr_nop;
+                    id_ex.csr_addr <= (others => '0');
+                    id_ex.csr_immrs1 <= (others => '0');
+                    control.ecall_request <= '0';
+                    control.ebreak_request <= '0';
+                    control.mret_request <= '0';
+                    control.wfi_request <= '0';
+                    control.illegal_instruction_decode <= '0';
+                -- if a trap is requested
+                elsif control.trap_request = '1' then
+                    -- ALU does nothing
+                    id_ex.alu_op <= alu_nop;
+                    -- No writeback to register
+                    id_ex.rd <= (others => '0');
+                    id_ex.rd_en <= '0';
+                    -- Load PC with MTVEC CSR
+                    id_ex.pc_op <= pc_load_mtvec;
+                    -- Disable CSR operation
+                    id_ex.csr_op <= csr_nop;
+                    -- Do not start the MD unit
+                    id_ex.md_start <= '0';
+                    -- ECALL request reset
+                    control.ecall_request <= '0';
+                    -- EBREAK request reset
+                    control.ebreak_request <= '0';
+                    -- WFI request reset
+                    control.wfi_request <= '0';
+                    -- Illegal instruction reset
+                    control.illegal_instruction_decode <= '0';
+                -- We need to stall the operation
+                elsif control.stall = '1' then
+                    -- Set id_ex.md_start to 0. It is already registered.
+                    id_ex.md_start <= '0';
+                    -- If the MD unit is ready and we are still doing MD operation,
+                    -- load the data in the selected register. MD operation cannot
+                    -- be interrupted by trap.
+                    if md.ready = '1' then
+                        id_ex.pc_op <= pc_incr;
+                        id_ex.rd_en <= '1';
+                    end if;
+                    control.wfi_request <= '0';
                 else
-                    case opcode_v is
-                        -- LUI
-                        when "0110111" =>
-                            id_ex.alu_op <= alu_lui;
-                            id_ex.rd_en <= '1';
-                            id_ex.imm <= imm_u_v;
-                            id_ex.isimm <= '1';
-                        -- AUIPC
-                        when "0010111" =>
-                            id_ex.alu_op <= alu_auipc;
-                            id_ex.rd_en <= '1';
-                            id_ex.imm <= imm_u_v;
-                            id_ex.isimm <= '1';
-                        -- JAL
-                        when "1101111" =>
-                            id_ex.alu_op <= alu_jal_jalr;
-                            id_ex.pc_op <= pc_loadoffset;
-                            id_ex.rd_en <= '1';
-                            id_ex.imm <= imm_j_v;
-                        -- JALR
-                        when "1100111" =>
-                            if func3_v = "000" then
+                    -- Set all registers to default
+                    id_ex.pc <= if_id.pc;
+                    id_ex.rd <= rd_v;
+                    id_ex.rs1 <= rs1_v;
+                    id_ex.rs2 <= rs2_v;
+                    id_ex.rd_en <= '0';
+                    id_ex.imm <= imm_i_v;
+                    id_ex.isimm <= '0';
+                    id_ex.isunsigned <= '0';
+                    id_ex.alu_op <= alu_nop;
+                    id_ex.pc_op <= pc_incr;
+                    id_ex.md_start <= '0';
+                    id_ex.md_op <= (others => '0');
+                    id_ex.memaccess <= memaccess_nop;
+                    id_ex.memsize <= memsize_unknown;
+                    id_ex.csr_op <= csr_nop;
+                    id_ex.csr_addr <= (others => '0');
+                    id_ex.csr_immrs1 <= (others => '0');
+                    control.ecall_request <= '0';
+                    control.ebreak_request <= '0';
+                    control.mret_request <= '0';
+                    control.wfi_request <= '0';
+                    control.illegal_instruction_decode <= '0';
+                    control.reg0_write_once <= '1';
+
+                    -- If we flush the pipeline, don't execute the instruction
+                    if control.flush = '1' or control.state = state_debugflush or control.state = state_debugflush2 then
+                        null;
+                    else
+                        case opcode_v is
+                            -- LUI
+                            when "0110111" =>
+                                id_ex.alu_op <= alu_lui;
+                                id_ex.rd_en <= '1';
+                                id_ex.imm <= imm_u_v;
+                                id_ex.isimm <= '1';
+                            -- AUIPC
+                            when "0010111" =>
+                                id_ex.alu_op <= alu_auipc;
+                                id_ex.rd_en <= '1';
+                                id_ex.imm <= imm_u_v;
+                                id_ex.isimm <= '1';
+                            -- JAL
+                            when "1101111" =>
                                 id_ex.alu_op <= alu_jal_jalr;
-                                id_ex.pc_op <= pc_loadoffsetregister;
+                                id_ex.pc_op <= pc_loadoffset;
                                 id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_i_v;
-                            else
-                                control.illegal_instruction_decode <= '1';
-                            end if;
-                        -- Branches
-                        when "1100011" =>
-                            -- Set the registers to compare. Comparison is handled by the ALU.
-                            id_ex.imm <= imm_b_v;
-                            id_ex.pc_op <= pc_branch;
-                            case func3_v is
-                                when "000" => id_ex.alu_op <= alu_beq;
-                                when "001" => id_ex.alu_op <= alu_bne;
-                                when "100" => id_ex.alu_op <= alu_blt;
-                                when "101" => id_ex.alu_op <= alu_bge;
-                                when "110" => id_ex.alu_op <= alu_bltu; id_ex.isunsigned <= '1';
-                                when "111" => id_ex.alu_op <= alu_bgeu; id_ex.isunsigned <= '1';
-                                when others =>
-                                    -- Reset defaults
-                                    id_ex.pc_op <= pc_incr;
-                                    control.illegal_instruction_decode <= '1';
-                            end case;
-
-                        -- Arithmetic/logic register/immediate
-                        when "0010011" =>
-                            -- ADDI
-                            if func3_v = "000" then
-                                id_ex.alu_op <= alu_addi;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_i_v;
-                                id_ex.isimm <= '1';
-                            -- SLTI
-                            elsif func3_v = "010" then
-                                id_ex.alu_op <= alu_slti;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_i_v;
-                                id_ex.isimm <= '1';
-                            -- SLTIU
-                            elsif func3_v = "011" then
-                                id_ex.alu_op <= alu_sltiu;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_i_v;
-                                id_ex.isimm <= '1';
-                                id_ex.isunsigned <= '1';
-                            -- XORI
-                            elsif func3_v = "100" then
-                                id_ex.alu_op <= alu_xori;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_i_v;
-                                id_ex.isimm <= '1';
-                            -- ORI
-                            elsif func3_v = "110" then
-                                id_ex.alu_op <= alu_ori;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_i_v;
-                                id_ex.isimm <= '1';
-                            -- ANDI
-                            elsif func3_v = "111" then
-                                id_ex.alu_op <= alu_andi;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_i_v;
-                                id_ex.isimm <= '1';
-                            -- SLLI
-                            elsif func3_v = "001" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_slli;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_shamt_v;
-                                id_ex.isimm <= '1';
-                            -- SRLI
-                            elsif func3_v = "101" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_srli;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_shamt_v;
-                                id_ex.isimm <= '1';
-                            -- SRAI
-                            elsif func3_v = "101" and func7_v = "0100000" then
-                                id_ex.alu_op <= alu_srai;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_shamt_v;
-                                id_ex.isimm <= '1';
-                            -- BCLRI
-                            elsif func3_v = "001" and func7_v = "0100100" and HAVE_ZBS then
-                                id_ex.alu_op <= alu_bclri;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_shamt_v;
-                                id_ex.isimm <= '1';
-                            -- BEXTI
-                            elsif func3_v = "101" and func7_v = "0100100" and HAVE_ZBS then
-                                id_ex.alu_op <= alu_bexti;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_shamt_v;
-                                id_ex.isimm <= '1';
-                            -- BINVI
-                            elsif func3_v = "001" and func7_v = "0110100" and HAVE_ZBS then
-                                id_ex.alu_op <= alu_binvi;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_shamt_v;
-                                id_ex.isimm <= '1';
-                             -- BSETI
-                             elsif func3_v = "001" and func7_v = "0010100" and HAVE_ZBS then
-                                id_ex.alu_op <= alu_bseti;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_shamt_v;
-                                id_ex.isimm <= '1';
-                            -- SEXT.B, extra code in instructionm bit 24 to 20 (== RS2)
-                            elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00100" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_sextb;
-                                id_ex.rd_en <= '1';
-                            -- SEXT.H, extra code in instructionm bit 24 to 20 (== RS2)
-                            elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00101" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_sexth;
-                                id_ex.rd_en <= '1';
-                            -- CPOP, extra code in instructionm bit 24 to 20 (== RS2)
-                            elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00010" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_cpop;
-                                id_ex.rd_en <= '1';
-                            -- CLZ, extra code in instructionm bit 24 to 20 (== RS2)
-                            elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_clz;
-                                id_ex.rd_en <= '1';
-                            -- CTZ, extra code in instructionm bit 24 to 20 (== RS2)
-                            elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00001" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_ctz;
-                                id_ex.rd_en <= '1';
-                            -- REV8, extra code in instructionm bit 24 to 20 (== RS2)
-                            elsif func3_v = "101" and func7_v = "0110100" and rs2_v = "11000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_rev8;
-                                id_ex.rd_en <= '1';
-                            -- ORC.B, extra code in instructionm bit 24 to 20 (== RS2)
-                            elsif func3_v = "101" and func7_v = "0010100" and rs2_v = "00111" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_orcb;
-                                id_ex.rd_en <= '1';
-                            -- RORI
-                            elsif func3_v = "101" and func7_v = "0110000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_rori;
-                                id_ex.rd_en <= '1';
-                                id_ex.imm <= imm_shamt_v;
-                                id_ex.isimm <= '1';
-                            else
-                                control.illegal_instruction_decode <= '1';
-                            end if;
-
-                        -- Arithmetic/logic register/register
-                        when "0110011" =>
-                            -- ADD
-                            if func3_v = "000" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_add;
-                                id_ex.rd_en <= '1';
-                            -- SUB
-                            elsif func3_v = "000" and func7_v = "0100000" then
-                                id_ex.alu_op <= alu_sub;
-                                id_ex.rd_en <= '1';
-                            -- SLL
-                            elsif func3_v = "001" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_sll; 
-                                id_ex.rd_en <= '1';
-                            -- SLT
-                            elsif func3_v = "010" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_slt; 
-                                id_ex.rd_en <= '1';
-                            -- SLTU
-                            elsif func3_v = "011" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_sltu; 
-                                id_ex.rd_en <= '1';
-                                id_ex.isunsigned <= '1';
-                            -- XOR
-                            elsif func3_v = "100" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_xor; 
-                                id_ex.rd_en <= '1';
-                            -- SRL
-                            elsif func3_v = "101" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_srl; 
-                                id_ex.rd_en <= '1';
-                            -- SRA
-                            elsif func3_v = "101" and func7_v = "0100000" then
-                                id_ex.alu_op <= alu_sra; 
-                                id_ex.rd_en <= '1';
-                            -- OR
-                            elsif func3_v = "110" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_or;
-                                id_ex.rd_en <= '1';
-                            -- AND
-                            elsif func3_v = "111" and func7_v = "0000000" then
-                                id_ex.alu_op <= alu_and;
-                                id_ex.rd_en <= '1';
-                            -- SH1ADD
-                            elsif func3_v = "010" and func7_v = "0010000" and HAVE_ZBA then
-                                id_ex.alu_op <= alu_sh1add;
-                                id_ex.rd_en <= '1';
-                            -- SH2ADD
-                            elsif func3_v = "100" and func7_v = "0010000" and HAVE_ZBA then
-                                id_ex.alu_op <= alu_sh2add;
-                                id_ex.rd_en <= '1';
-                            -- SH3ADD
-                            elsif func3_v = "110" and func7_v = "0010000" and HAVE_ZBA then
-                                id_ex.alu_op <= alu_sh3add;
-                                id_ex.rd_en <= '1';
-                            -- BCLR
-                            elsif func3_v = "001" and func7_v = "0100100" and HAVE_ZBS then
-                                id_ex.alu_op <= alu_bclr;
-                                id_ex.rd_en <= '1';
-                            -- BEXT
-                            elsif func3_v = "101" and func7_v = "0100100" and HAVE_ZBS then
-                                id_ex.alu_op <= alu_bext;
-                                id_ex.rd_en <= '1';
-                            -- BINV
-                            elsif func3_v = "001" and func7_v = "0110100" and HAVE_ZBS then
-                                id_ex.alu_op <= alu_binv;
-                                id_ex.rd_en <= '1';
-                            -- BSET
-                            elsif func3_v = "001" and func7_v = "0010100" and HAVE_ZBS then
-                                id_ex.alu_op <= alu_bset;
-                                id_ex.rd_en <= '1';
-                            -- CZERO.EQZ
-                            elsif func3_v = "101" and func7_v = "0000111" and HAVE_ZICOND then
-                                id_ex.alu_op <= alu_czeroeqz;
-                                id_ex.rd_en <= '1';
-                            -- CZERO.NEZ
-                            elsif func3_v = "111" and func7_v = "0000111" and HAVE_ZICOND then
-                                id_ex.alu_op <= alu_czeronez;
-                                id_ex.rd_en <= '1';
-                            -- ANDN
-                            elsif func3_v = "111" and func7_v = "0100000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_andn;
-                                id_ex.rd_en <= '1';
-                            -- ORN
-                            elsif func3_v = "110" and func7_v = "0100000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_orn;
-                                id_ex.rd_en <= '1';
-                            -- XNOR
-                            elsif func3_v = "100" and func7_v = "0100000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_xnor;
-                                id_ex.rd_en <= '1';
-                            -- ZEXT.H, extra code in instructionm bit 24 to 20 (== RS2)
-                            elsif func3_v = "100" and func7_v = "0000100" and rs2_v = "00000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_zexth;
-                                id_ex.rd_en <= '1';
-                            -- MAX (signed)
-                            elsif func3_v = "110" and func7_v = "0000101" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_max;
-                                id_ex.rd_en <= '1';
-                            -- MAXU (signed)
-                            elsif func3_v = "111" and func7_v = "0000101" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_maxu;
-                                id_ex.rd_en <= '1';
-                                id_ex.isunsigned <= '1';
-                            -- MIN (signed)
-                            elsif func3_v = "100" and func7_v = "0000101" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_min;
-                                id_ex.rd_en <= '1';
-                            -- MINU (signed)
-                            elsif func3_v = "101" and func7_v = "0000101" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_minu;
-                                id_ex.rd_en <= '1';
-                                id_ex.isunsigned <= '1';
-                            -- ROL
-                            elsif func3_v = "001" and func7_v = "0110000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_rol;
-                                id_ex.rd_en <= '1';
-                            -- ROR
-                            elsif func3_v = "101" and func7_v = "0110000" and HAVE_ZBB then
-                                id_ex.alu_op <= alu_ror;
-                                id_ex.rd_en <= '1';
-                            -- Multiply, divide, remainder
-                            elsif func7_v = "0000001" then
-                                -- Set operation to multiply or divide/remainder
-                                -- func3 contains the real operation
-                                if HAVE_MULDIV then
-                                    case func3_v(2) is
-                                        when '0' => id_ex.alu_op <= alu_multiply;
-                                        when '1' => id_ex.alu_op <= alu_divrem;
-                                        when others => null;
-                                    end case;
-                                    -- Hold the PC
-                                    id_ex.pc_op <= pc_hold;
-                                    -- func3 contains the function
-                                    id_ex.md_op <= func3_v;
-                                    -- Start multiply/divide/remainder
-                                    id_ex.md_start <= '1';
+                                id_ex.imm <= imm_j_v;
+                            -- JALR
+                            when "1100111" =>
+                                if func3_v = "000" then
+                                    id_ex.alu_op <= alu_jal_jalr;
+                                    id_ex.pc_op <= pc_loadoffsetregister;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_i_v;
                                 else
                                     control.illegal_instruction_decode <= '1';
                                 end if;
-                            else
-                                control.illegal_instruction_decode <= '1';
-                            end if;
+                            -- Branches
+                            when "1100011" =>
+                                -- Set the registers to compare. Comparison is handled by the ALU.
+                                id_ex.imm <= imm_b_v;
+                                id_ex.pc_op <= pc_branch;
+                                case func3_v is
+                                    when "000" => id_ex.alu_op <= alu_beq;
+                                    when "001" => id_ex.alu_op <= alu_bne;
+                                    when "100" => id_ex.alu_op <= alu_blt;
+                                    when "101" => id_ex.alu_op <= alu_bge;
+                                    when "110" => id_ex.alu_op <= alu_bltu; id_ex.isunsigned <= '1';
+                                    when "111" => id_ex.alu_op <= alu_bgeu; id_ex.isunsigned <= '1';
+                                    when others =>
+                                        -- Reset defaults
+                                        id_ex.pc_op <= pc_incr;
+                                        control.illegal_instruction_decode <= '1';
+                                end case;
 
-                        -- S(W|H|B)
-                        when "0100011" =>
-                            case func3_v is
-                                -- Store byte (no sign extension or zero extension)
-                                when "000" =>
-                                    id_ex.alu_op <= alu_sb;
-                                    id_ex.memaccess <= memaccess_write;
-                                    id_ex.memsize <= memsize_byte;
-                                    id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= '1';
-                                -- Store halfword (no sign extension or zero extension)
-                                when "001" =>
-                                    id_ex.alu_op <= alu_sh;
-                                    id_ex.memaccess <= memaccess_write;
-                                    id_ex.memsize <= memsize_halfword;
-                                    id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= '1';
-                                    -- Store word (no sign extension or zero extension)
-                                when "010" =>
-                                    id_ex.alu_op <= alu_sw;
-                                    id_ex.memaccess <= memaccess_write;
-                                    id_ex.memsize <= memsize_word;
-                                    id_ex.imm <= imm_s_v;
-                                    id_ex.ismem <= '1';
-                                when others =>
+                            -- Arithmetic/logic register/immediate
+                            when "0010011" =>
+                                -- ADDI
+                                if func3_v = "000" then
+                                    id_ex.alu_op <= alu_addi;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_i_v;
+                                    id_ex.isimm <= '1';
+                                -- SLTI
+                                elsif func3_v = "010" then
+                                    id_ex.alu_op <= alu_slti;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_i_v;
+                                    id_ex.isimm <= '1';
+                                -- SLTIU
+                                elsif func3_v = "011" then
+                                    id_ex.alu_op <= alu_sltiu;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_i_v;
+                                    id_ex.isimm <= '1';
+                                    id_ex.isunsigned <= '1';
+                                -- XORI
+                                elsif func3_v = "100" then
+                                    id_ex.alu_op <= alu_xori;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_i_v;
+                                    id_ex.isimm <= '1';
+                                -- ORI
+                                elsif func3_v = "110" then
+                                    id_ex.alu_op <= alu_ori;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_i_v;
+                                    id_ex.isimm <= '1';
+                                -- ANDI
+                                elsif func3_v = "111" then
+                                    id_ex.alu_op <= alu_andi;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_i_v;
+                                    id_ex.isimm <= '1';
+                                -- SLLI
+                                elsif func3_v = "001" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_slli;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_shamt_v;
+                                    id_ex.isimm <= '1';
+                                -- SRLI
+                                elsif func3_v = "101" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_srli;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_shamt_v;
+                                    id_ex.isimm <= '1';
+                                -- SRAI
+                                elsif func3_v = "101" and func7_v = "0100000" then
+                                    id_ex.alu_op <= alu_srai;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_shamt_v;
+                                    id_ex.isimm <= '1';
+                                -- BCLRI
+                                elsif func3_v = "001" and func7_v = "0100100" and HAVE_ZBS then
+                                    id_ex.alu_op <= alu_bclri;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_shamt_v;
+                                    id_ex.isimm <= '1';
+                                -- BEXTI
+                                elsif func3_v = "101" and func7_v = "0100100" and HAVE_ZBS then
+                                    id_ex.alu_op <= alu_bexti;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_shamt_v;
+                                    id_ex.isimm <= '1';
+                                -- BINVI
+                                elsif func3_v = "001" and func7_v = "0110100" and HAVE_ZBS then
+                                    id_ex.alu_op <= alu_binvi;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_shamt_v;
+                                    id_ex.isimm <= '1';
+                                 -- BSETI
+                                 elsif func3_v = "001" and func7_v = "0010100" and HAVE_ZBS then
+                                    id_ex.alu_op <= alu_bseti;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_shamt_v;
+                                    id_ex.isimm <= '1';
+                                -- SEXT.B, extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00100" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_sextb;
+                                    id_ex.rd_en <= '1';
+                                -- SEXT.H, extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00101" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_sexth;
+                                    id_ex.rd_en <= '1';
+                                -- CPOP, extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00010" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_cpop;
+                                    id_ex.rd_en <= '1';
+                                -- CLZ, extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_clz;
+                                    id_ex.rd_en <= '1';
+                                -- CTZ, extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "001" and func7_v = "0110000" and rs2_v = "00001" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_ctz;
+                                    id_ex.rd_en <= '1';
+                                -- REV8, extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "101" and func7_v = "0110100" and rs2_v = "11000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_rev8;
+                                    id_ex.rd_en <= '1';
+                                -- ORC.B, extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "101" and func7_v = "0010100" and rs2_v = "00111" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_orcb;
+                                    id_ex.rd_en <= '1';
+                                -- RORI
+                                elsif func3_v = "101" and func7_v = "0110000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_rori;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.imm <= imm_shamt_v;
+                                    id_ex.isimm <= '1';
+                                else
                                     control.illegal_instruction_decode <= '1';
-                            end case;
-                            
-                        -- L{W|H|B|HU|BU}
-                        -- Data from memory is routed through the ALU
-                        when "0000011" =>
-                            case func3_v is
-                                -- LB
-                                when "000" =>
-                                    id_ex.alu_op <= alu_lb;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.memaccess <= memaccess_read;
-                                    id_ex.memsize <= memsize_byte;
-                                    id_ex.imm <= imm_i_v;
-                                    id_ex.ismem <= '1';
-                                -- LH
-                                when "001" =>
-                                    id_ex.alu_op <= alu_lh;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.memaccess <= memaccess_read;
-                                    id_ex.memsize <= memsize_halfword;
-                                    id_ex.imm <= imm_i_v;
-                                    id_ex.ismem <= '1';
-                                -- LW
-                                when "010" =>
-                                    id_ex.alu_op <= alu_lw;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.memaccess <= memaccess_read;
-                                    id_ex.memsize <= memsize_word;
-                                    id_ex.imm <= imm_i_v;
-                                    id_ex.ismem <= '1';
-                                -- LBU
-                                when "100" =>
-                                    id_ex.alu_op <= alu_lbu;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.memaccess <= memaccess_read;
-                                    id_ex.memsize <= memsize_byte;
-                                    id_ex.imm <= imm_i_v;
-                                    id_ex.ismem <= '1';
-                                -- LHU
-                                when "101" =>
-                                    id_ex.alu_op <= alu_lhu;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.memaccess <= memaccess_read;
-                                    id_ex.memsize <= memsize_halfword;
-                                    id_ex.imm <= imm_i_v;
-                                    id_ex.ismem <= '1';
-                                when others =>
-                                    control.illegal_instruction_decode <= '1';
-                            end case;
+                                end if;
 
-                        -- CSR{}, {ECALL, EBREAK, MRET, WFI}
-                        when "1110011" =>
-                            case func3_v is
-                                when "000" =>
-                                    -- ECALL/EBREAK/MRET/WFI
-                                    if I_instr_response.instr(31 downto 20) = "000000000000" then
-                                        -- ECALL
-                                        control.ecall_request <= '1';
-                                        id_ex.alu_op <= alu_trap;
+                            -- Arithmetic/logic register/register
+                            when "0110011" =>
+                                -- ADD
+                                if func3_v = "000" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_add;
+                                    id_ex.rd_en <= '1';
+                                -- SUB
+                                elsif func3_v = "000" and func7_v = "0100000" then
+                                    id_ex.alu_op <= alu_sub;
+                                    id_ex.rd_en <= '1';
+                                -- SLL
+                                elsif func3_v = "001" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_sll; 
+                                    id_ex.rd_en <= '1';
+                                -- SLT
+                                elsif func3_v = "010" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_slt; 
+                                    id_ex.rd_en <= '1';
+                                -- SLTU
+                                elsif func3_v = "011" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_sltu; 
+                                    id_ex.rd_en <= '1';
+                                    id_ex.isunsigned <= '1';
+                                -- XOR
+                                elsif func3_v = "100" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_xor; 
+                                    id_ex.rd_en <= '1';
+                                -- SRL
+                                elsif func3_v = "101" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_srl; 
+                                    id_ex.rd_en <= '1';
+                                -- SRA
+                                elsif func3_v = "101" and func7_v = "0100000" then
+                                    id_ex.alu_op <= alu_sra; 
+                                    id_ex.rd_en <= '1';
+                                -- OR
+                                elsif func3_v = "110" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_or;
+                                    id_ex.rd_en <= '1';
+                                -- AND
+                                elsif func3_v = "111" and func7_v = "0000000" then
+                                    id_ex.alu_op <= alu_and;
+                                    id_ex.rd_en <= '1';
+                                -- SH1ADD
+                                elsif func3_v = "010" and func7_v = "0010000" and HAVE_ZBA then
+                                    id_ex.alu_op <= alu_sh1add;
+                                    id_ex.rd_en <= '1';
+                                -- SH2ADD
+                                elsif func3_v = "100" and func7_v = "0010000" and HAVE_ZBA then
+                                    id_ex.alu_op <= alu_sh2add;
+                                    id_ex.rd_en <= '1';
+                                -- SH3ADD
+                                elsif func3_v = "110" and func7_v = "0010000" and HAVE_ZBA then
+                                    id_ex.alu_op <= alu_sh3add;
+                                    id_ex.rd_en <= '1';
+                                -- BCLR
+                                elsif func3_v = "001" and func7_v = "0100100" and HAVE_ZBS then
+                                    id_ex.alu_op <= alu_bclr;
+                                    id_ex.rd_en <= '1';
+                                -- BEXT
+                                elsif func3_v = "101" and func7_v = "0100100" and HAVE_ZBS then
+                                    id_ex.alu_op <= alu_bext;
+                                    id_ex.rd_en <= '1';
+                                -- BINV
+                                elsif func3_v = "001" and func7_v = "0110100" and HAVE_ZBS then
+                                    id_ex.alu_op <= alu_binv;
+                                    id_ex.rd_en <= '1';
+                                -- BSET
+                                elsif func3_v = "001" and func7_v = "0010100" and HAVE_ZBS then
+                                    id_ex.alu_op <= alu_bset;
+                                    id_ex.rd_en <= '1';
+                                -- CZERO.EQZ
+                                elsif func3_v = "101" and func7_v = "0000111" and HAVE_ZICOND then
+                                    id_ex.alu_op <= alu_czeroeqz;
+                                    id_ex.rd_en <= '1';
+                                -- CZERO.NEZ
+                                elsif func3_v = "111" and func7_v = "0000111" and HAVE_ZICOND then
+                                    id_ex.alu_op <= alu_czeronez;
+                                    id_ex.rd_en <= '1';
+                                -- ANDN
+                                elsif func3_v = "111" and func7_v = "0100000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_andn;
+                                    id_ex.rd_en <= '1';
+                                -- ORN
+                                elsif func3_v = "110" and func7_v = "0100000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_orn;
+                                    id_ex.rd_en <= '1';
+                                -- XNOR
+                                elsif func3_v = "100" and func7_v = "0100000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_xnor;
+                                    id_ex.rd_en <= '1';
+                                -- ZEXT.H, extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "100" and func7_v = "0000100" and rs2_v = "00000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_zexth;
+                                    id_ex.rd_en <= '1';
+                                -- MAX (signed)
+                                elsif func3_v = "110" and func7_v = "0000101" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_max;
+                                    id_ex.rd_en <= '1';
+                                -- MAXU (unsigned)
+                                elsif func3_v = "111" and func7_v = "0000101" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_maxu;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.isunsigned <= '1';
+                                -- MIN (signed)
+                                elsif func3_v = "100" and func7_v = "0000101" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_min;
+                                    id_ex.rd_en <= '1';
+                                -- MINU (unsigned)
+                                elsif func3_v = "101" and func7_v = "0000101" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_minu;
+                                    id_ex.rd_en <= '1';
+                                    id_ex.isunsigned <= '1';
+                                -- ROL
+                                elsif func3_v = "001" and func7_v = "0110000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_rol;
+                                    id_ex.rd_en <= '1';
+                                -- ROR
+                                elsif func3_v = "101" and func7_v = "0110000" and HAVE_ZBB then
+                                    id_ex.alu_op <= alu_ror;
+                                    id_ex.rd_en <= '1';
+                                -- Multiply, divide, remainder
+                                elsif func7_v = "0000001" then
+                                    -- Set operation to multiply or divide/remainder
+                                    -- func3 contains the real operation
+                                    if HAVE_MULDIV then
+                                        case func3_v(2) is
+                                            when '0' => id_ex.alu_op <= alu_multiply;
+                                            when '1' => id_ex.alu_op <= alu_divrem;
+                                            when others => null;
+                                        end case;
+                                        -- Hold the PC
                                         id_ex.pc_op <= pc_hold;
-                                    elsif I_instr_response.instr(31 downto 20) = "000000000001" then
-                                        -- EBREAK
-                                        control.ebreak_request <= '1';
-                                        -- Check the dcsr.ebreakm flag, if 0 then trap
-                                        if csr_reg.dcsr(15) = '0' then
-                                            id_ex.alu_op <= alu_trap;
-                                            id_ex.pc_op <= pc_hold;
-                                        end if;
-                                    elsif I_instr_response.instr(31 downto 20) = "001100000010" then
-                                        -- MRET
-                                        id_ex.alu_op <= alu_mret;
-                                        control.mret_request <= '1';
-                                        id_ex.pc_op <= pc_load_mepc;
-                                    elsif I_instr_response.instr(31 downto 20) = "000100000101" then
-                                        -- WFI
-                                        -- Only execute while not stepping
-                                        control.wfi_request <= not control.isstepping;
+                                        -- func3 contains the function
+                                        id_ex.md_op <= func3_v;
+                                        -- Start multiply/divide/remainder
+                                        id_ex.md_start <= '1';
                                     else
                                         control.illegal_instruction_decode <= '1';
                                     end if;
-                                when "001" =>
-                                    id_ex.alu_op <= alu_csr;
-                                    id_ex.csr_op <= csr_rw;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.csr_addr <= imm_i_v(11 downto 0);
-                                    id_ex.csr_immrs1 <= rs1_v; -- RS1
-                                when "010" =>
-                                    id_ex.alu_op <= alu_csr;
-                                    id_ex.csr_op <= csr_rs;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.csr_addr <= imm_i_v(11 downto 0);
-                                    id_ex.csr_immrs1 <= rs1_v; -- RS1
-                                when "011" =>
-                                    id_ex.alu_op <= alu_csr;
-                                    id_ex.csr_op <= csr_rc;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.csr_addr <= imm_i_v(11 downto 0);
-                                    id_ex.csr_immrs1 <= rs1_v; -- RS1
-                                when "101" =>
-                                    id_ex.alu_op <= alu_csr;
-                                    id_ex.csr_op <= csr_rwi;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.csr_addr <= imm_i_v(11 downto 0);
-                                    id_ex.csr_immrs1 <= rs1_v; -- imm
-                                when "110" =>
-                                    id_ex.alu_op <= alu_csr;
-                                    id_ex.csr_op <= csr_rsi;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.csr_addr <= imm_i_v(11 downto 0);
-                                    id_ex.csr_immrs1 <= rs1_v; -- imm
-                                when "111" =>
-                                    id_ex.alu_op <= alu_csr;
-                                    id_ex.csr_op <= csr_rci;
-                                    id_ex.rd_en <= '1';
-                                    id_ex.csr_addr <= imm_i_v(11 downto 0);
-                                    id_ex.csr_immrs1 <= rs1_v; -- imm
-                                when others =>
+                                else
                                     control.illegal_instruction_decode <= '1';
-                            end case;
+                                end if;
 
-                        -- FENCE, FENCE.I
-                        when "0001111" =>
-                            if func3_v = "000" or func3_v = "001" then
-                                -- Just ignore
-                                null;
-                            else
+                            -- S(W|H|B)
+                            when "0100011" =>
+                                case func3_v is
+                                    -- Store byte (no sign extension or zero extension)
+                                    when "000" =>
+                                        id_ex.alu_op <= alu_sb;
+                                        id_ex.memaccess <= memaccess_write;
+                                        id_ex.memsize <= memsize_byte;
+                                        id_ex.imm <= imm_s_v;
+                                        id_ex.ismem <= '1';
+                                    -- Store halfword (no sign extension or zero extension)
+                                    when "001" =>
+                                        id_ex.alu_op <= alu_sh;
+                                        id_ex.memaccess <= memaccess_write;
+                                        id_ex.memsize <= memsize_halfword;
+                                        id_ex.imm <= imm_s_v;
+                                        id_ex.ismem <= '1';
+                                        -- Store word (no sign extension or zero extension)
+                                    when "010" =>
+                                        id_ex.alu_op <= alu_sw;
+                                        id_ex.memaccess <= memaccess_write;
+                                        id_ex.memsize <= memsize_word;
+                                        id_ex.imm <= imm_s_v;
+                                        id_ex.ismem <= '1';
+                                    when others =>
+                                        control.illegal_instruction_decode <= '1';
+                                end case;
+                                
+                            -- L{W|H|B|HU|BU}
+                            -- Data from memory is routed through the ALU
+                            when "0000011" =>
+                                case func3_v is
+                                    -- LB
+                                    when "000" =>
+                                        id_ex.alu_op <= alu_lb;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.memaccess <= memaccess_read;
+                                        id_ex.memsize <= memsize_byte;
+                                        id_ex.imm <= imm_i_v;
+                                        id_ex.ismem <= '1';
+                                    -- LH
+                                    when "001" =>
+                                        id_ex.alu_op <= alu_lh;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.memaccess <= memaccess_read;
+                                        id_ex.memsize <= memsize_halfword;
+                                        id_ex.imm <= imm_i_v;
+                                        id_ex.ismem <= '1';
+                                    -- LW
+                                    when "010" =>
+                                        id_ex.alu_op <= alu_lw;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.memaccess <= memaccess_read;
+                                        id_ex.memsize <= memsize_word;
+                                        id_ex.imm <= imm_i_v;
+                                        id_ex.ismem <= '1';
+                                    -- LBU
+                                    when "100" =>
+                                        id_ex.alu_op <= alu_lbu;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.memaccess <= memaccess_read;
+                                        id_ex.memsize <= memsize_byte;
+                                        id_ex.imm <= imm_i_v;
+                                        id_ex.ismem <= '1';
+                                    -- LHU
+                                    when "101" =>
+                                        id_ex.alu_op <= alu_lhu;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.memaccess <= memaccess_read;
+                                        id_ex.memsize <= memsize_halfword;
+                                        id_ex.imm <= imm_i_v;
+                                        id_ex.ismem <= '1';
+                                    when others =>
+                                        control.illegal_instruction_decode <= '1';
+                                end case;
+
+                            -- CSR{}, {ECALL, EBREAK, MRET, WFI}
+                            when "1110011" =>
+                                case func3_v is
+                                    when "000" =>
+                                        -- ECALL/EBREAK/MRET/WFI
+                                        if I_instr_response.instr(31 downto 20) = "000000000000" then
+                                            -- ECALL
+                                            control.ecall_request <= '1';
+                                            id_ex.alu_op <= alu_trap;
+                                            id_ex.pc_op <= pc_hold;
+                                        elsif I_instr_response.instr(31 downto 20) = "000000000001" then
+                                            -- EBREAK
+                                            control.ebreak_request <= '1';
+                                            -- Check the dcsr.ebreakm flag, if 0 then trap
+                                            if csr_reg.dcsr(15) = '0' then
+                                                id_ex.alu_op <= alu_trap;
+                                                id_ex.pc_op <= pc_hold;
+                                            end if;
+                                        elsif I_instr_response.instr(31 downto 20) = "001100000010" then
+                                            -- MRET
+                                            id_ex.alu_op <= alu_mret;
+                                            control.mret_request <= '1';
+                                            id_ex.pc_op <= pc_load_mepc;
+                                        elsif I_instr_response.instr(31 downto 20) = "000100000101" then
+                                            -- WFI
+                                            -- Only execute while not stepping
+                                            control.wfi_request <= not control.isstepping;
+                                        else
+                                            control.illegal_instruction_decode <= '1';
+                                        end if;
+                                    when "001" =>
+                                        id_ex.alu_op <= alu_csr;
+                                        id_ex.csr_op <= csr_rw;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.csr_addr <= imm_i_v(11 downto 0);
+                                        id_ex.csr_immrs1 <= rs1_v; -- RS1
+                                    when "010" =>
+                                        id_ex.alu_op <= alu_csr;
+                                        id_ex.csr_op <= csr_rs;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.csr_addr <= imm_i_v(11 downto 0);
+                                        id_ex.csr_immrs1 <= rs1_v; -- RS1
+                                    when "011" =>
+                                        id_ex.alu_op <= alu_csr;
+                                        id_ex.csr_op <= csr_rc;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.csr_addr <= imm_i_v(11 downto 0);
+                                        id_ex.csr_immrs1 <= rs1_v; -- RS1
+                                    when "101" =>
+                                        id_ex.alu_op <= alu_csr;
+                                        id_ex.csr_op <= csr_rwi;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.csr_addr <= imm_i_v(11 downto 0);
+                                        id_ex.csr_immrs1 <= rs1_v; -- imm
+                                    when "110" =>
+                                        id_ex.alu_op <= alu_csr;
+                                        id_ex.csr_op <= csr_rsi;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.csr_addr <= imm_i_v(11 downto 0);
+                                        id_ex.csr_immrs1 <= rs1_v; -- imm
+                                    when "111" =>
+                                        id_ex.alu_op <= alu_csr;
+                                        id_ex.csr_op <= csr_rci;
+                                        id_ex.rd_en <= '1';
+                                        id_ex.csr_addr <= imm_i_v(11 downto 0);
+                                        id_ex.csr_immrs1 <= rs1_v; -- imm
+                                    when others =>
+                                        control.illegal_instruction_decode <= '1';
+                                end case;
+
+                            -- FENCE, FENCE.I
+                            when "0001111" =>
+                                if func3_v = "000" or func3_v = "001" then
+                                    -- Just ignore
+                                    null;
+                                else
+                                    control.illegal_instruction_decode <= '1';
+                                end if;
+                                
+                            -- Illegal instruction or not implemented
+                            when others =>
                                 control.illegal_instruction_decode <= '1';
-                            end if;
-                            
-                        -- Illegal instruction or not implemented
-                        when others =>
-                            control.illegal_instruction_decode <= '1';
-                    end case;
-                    
-                    -- When the registers use onboard RAM, the registers
-                    -- cannot be reset. In that case, we must write register
-                    -- x0 (zero) with 0x00000000. This needs to be done only
-                    -- once when the processor starts up. After that, register
-                    -- x0 is not written anymore. When the processor starts,
-                    -- it executes an `alu_nop`, which sets the result to 0 so
-                    -- register x0 is written with 0x00000000.
-                    if control.reg0_write_once = '0' and HAVE_REGISTERS_IN_RAM then
-                        id_ex.rd_en <= '1';
-                    elsif rd_v = "00000" then
-                        id_ex.rd_en <= '0';
-                    end if;
-               end if; -- flush
-            end if; -- stall
+                        end case;
+                        
+                        -- When the registers use onboard RAM, the registers
+                        -- cannot be reset. In that case, we must write register
+                        -- x0 (zero) with 0x00000000. This needs to be done only
+                        -- once when the processor starts up. After that, register
+                        -- x0 is not written anymore. When the processor starts,
+                        -- it executes an `alu_nop`, which sets the result to 0 so
+                        -- register x0 is written with 0x00000000.
+                        if control.reg0_write_once = '0' and HAVE_REGISTERS_IN_RAM then
+                            id_ex.rd_en <= '1';
+                        elsif rd_v = "00000" then
+                            id_ex.rd_en <= '0';
+                        end if;
+                   end if; -- flush
+                end if; -- stall
+            end if; -- sreset
         end if; -- rising_edge
             
     end process;
@@ -1510,20 +1569,28 @@ begin
                 regs_debug <= (others => (others => '0'));
                 id_ex.rs1data <= (others => '0');
                 id_ex.rs2data <= (others => '0');
+                data_from_gpr <= (others => '0');
             elsif rising_edge(I_clk) then
-                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
-                    regs_debug(selrd_v) <= id_ex.result;
-                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
-                    regs_debug(selrd_v) <= I_dm_core_data_request.data;
-                end if;
-                regs_debug(0) <= (others => '0');
-                if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
-                    null;
+                if I_sreset = '1' then
+                    regs_debug <= (others => (others => '0'));
+                    id_ex.rs1data <= (others => '0');
+                    id_ex.rs2data <= (others => '0');
+                    data_from_gpr <= (others => '0');
                 else
-                    id_ex.rs1data <= regs_debug(if_id.selrs1);
-                    id_ex.rs2data <= regs_debug(if_id.selrs2);
+                    if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                        regs_debug(selrd_v) <= id_ex.result;
+                    elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                        regs_debug(selrd_v) <= I_dm_core_data_request.data;
+                    end if;
+                    regs_debug(0) <= (others => '0');
+                    if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
+                        null;
+                    else
+                        id_ex.rs1data <= regs_debug(if_id.selrs1);
+                        id_ex.rs2data <= regs_debug(if_id.selrs2);
+                    end if;
+                    data_from_gpr <= regs_debug(selrd_v);
                 end if;
-                data_from_gpr <= regs_debug(selrd_v);
             end if;
         end process;
     end generate;
@@ -1892,25 +1959,31 @@ begin
                 md.rdata_b <= (others => '0');
                 md.mul_running <= '0';
             elsif rising_edge(I_clk) then
-                -- Clock in the multiplicand and multiplier
-                -- In the Cyclone V, these are embedded registers
-                -- in the DSP units.
-                if id_ex.md_start = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
-                    if id_ex.md_op(1) = '1' then
-                        if id_ex.md_op(0) = '1' then
-                            md.rdata_a <= '0' & unsigned(a_v);
+                if I_sreset = '1' then
+                    md.rdata_a <= (others => '0');
+                    md.rdata_b <= (others => '0');
+                    md.mul_running <= '0';
+                else
+                    -- Clock in the multiplicand and multiplier
+                    -- In the Cyclone V, these are embedded registers
+                    -- in the DSP units.
+                    if id_ex.md_start = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
+                        if id_ex.md_op(1) = '1' then
+                            if id_ex.md_op(0) = '1' then
+                                md.rdata_a <= '0' & unsigned(a_v);
+                            else
+                                md.rdata_a <= a_v(31) & unsigned(a_v);
+                            end if;
+                            md.rdata_b <= '0' & unsigned(b_v);
                         else
                             md.rdata_a <= a_v(31) & unsigned(a_v);
+                            md.rdata_b <= b_v(31) & unsigned(b_v);
                         end if;
-                        md.rdata_b <= '0' & unsigned(b_v);
-                    else
-                        md.rdata_a <= a_v(31) & unsigned(a_v);
-                        md.rdata_b <= b_v(31) & unsigned(b_v);
                     end if;
-                end if;
-                -- Only start when start seen and multiply
-                md.mul_running <= id_ex.md_start and not control.trap_request and not id_ex.md_op(2);
-            end if;
+                    -- Only start when start seen and multiply
+                    md.mul_running <= id_ex.md_start and not control.trap_request and not id_ex.md_op(2);
+                end if; -- sreset
+            end if; -- posedge
         end process;
 
         -- Do the multiplication
@@ -1920,10 +1993,15 @@ begin
                 md.mul_rd_int <= (others => '0');
                 md.mul_ready <= '0';
             elsif rising_edge (I_clk) then
-                -- Do the multiplication and store in embedded registers
-                md.mul_rd_int <= signed(md.rdata_a) * signed(md.rdata_b);
-                md.mul_ready <= md.mul_running;
-            end if;
+                if I_sreset = '1' then
+                    md.mul_rd_int <= (others => '0');
+                    md.mul_ready <= '0';
+                else
+                    -- Do the multiplication and store in embedded registers
+                    md.mul_rd_int <= signed(md.rdata_a) * signed(md.rdata_b);
+                    md.mul_ready <= md.mul_running;
+                end if; -- sreset
+            end if; -- posedge
         end process;
         
         -- Output multiplier result
@@ -1971,78 +2049,91 @@ begin
                 div_running_v := '0';
                 md.div_ready <= '0';
                 md.outsign <= '0';
-            elsif rising_edge(I_clk) then 
-                -- If start and dividing...
-                md.div_ready <= '0';
-                if id_ex.md_start = '1' and id_ex.md_op(2) = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
-                    -- Signal that we are running
-                    div_running_v := '1';
-                    -- For restarting the division
+            elsif rising_edge(I_clk) then
+                if I_sreset = '1' then
+                    -- Reset everything
                     count_v := 0;
-                end if;
-                if div_running_v = '1' then
-                    case count_v is 
-                        when 0 =>
-                            md_buf1 <= (others => '0');
-                            -- If signed divide, check for negative
-                            -- value and make it positive
-                            if id_ex.md_op(0) = '0' and a_v(31) = '1' then
-                                md_buf2 <= unsigned(not a_v) + 1;
-                            else
-                                md_buf2 <= unsigned(a_v);
-                            end if;
-                            -- Load the divisor x1, divisor x2 and divisor x3
-                            if id_ex.md_op(0) = '0' and b_v(31) = '1' then
-                                md.divisor1 <= "00" & (unsigned(not b_v) + 1);
-                                md.divisor2 <= ("0" & (unsigned(not b_v) + 1) & "0");
-                                md.divisor3 <= ("0" & (unsigned(not b_v) + 1) & "0") + ("00" & (unsigned(not b_v) + 1));
-                            else
-                                md.divisor1 <= ("00" & unsigned(b_v));
-                                md.divisor2 <= ("0" & unsigned(b_v) & "0");
-                                md.divisor3 <= ("0" & unsigned(b_v) & "0") + ("00" & unsigned(b_v));
-                            end if;
-                            count_v := 1;
-                            md.div_ready <= '0';
-                            -- Determine the sign of the quotient and remainder
-                            if (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '0' and (a_v(31) /= b_v(31)) and b_v /= all_zeros_c) or (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '1' and a_v(31) = '1') then
-                                md.outsign <= '1';
-                            else
-                                md.outsign <= '0';
-                            end if;
-                        when others =>
-                            -- Do the divide
-                            -- First check is divisor x3 can be subtracted...
-                            if md.buf(63 downto 30) >= md.divisor3 then
-                                md_buf1(63 downto 32) <= md.buf(61 downto 30) - md.divisor3(31 downto 0);
-                                md_buf2 <= md_buf2(29 downto 0) & "11";
-                            -- Then check is divisor x2 can be subtracted...
-                            elsif md.buf(63 downto 30) >= md.divisor2 then
-                                md_buf1(63 downto 32) <= md.buf(61 downto 30) - md.divisor2(31 downto 0);
-                                md_buf2 <= md_buf2(29 downto 0) & "10";
-                            -- Then check is divisor x1 can be subtracted...
-                            elsif md.buf(63 downto 30) >= md.divisor1 then
-                                md_buf1(63 downto 32) <= md.buf(61 downto 30) - md.divisor1(31 downto 0);
-                                md_buf2 <= md_buf2(29 downto 0) & "01";
-                            -- Else no subtraction can be performed.
-                            else
-                                -- Shift in 0 (00)
-                                md.buf <= md.buf(61 downto 0) & "00";
-                            end if;
-                            -- Do this 16 times (32 bit/2 bits at a time, output in last cycle)
-                            if count_v /= 16 then
-                                -- Signal ready one clock before
-                                if count_v = 15 then
-                                    md.div_ready <= '1';
+                    md_buf1 <= (others => '0');
+                    md_buf2 <= (others => '0');
+                    md.divisor1 <= (others => '0');
+                    md.divisor2 <= (others => '0');
+                    md.divisor3 <= (others => '0');
+                    div_running_v := '0';
+                    md.div_ready <= '0';
+                    md.outsign <= '0';
+                else
+                    -- If start and dividing...
+                    md.div_ready <= '0';
+                    if id_ex.md_start = '1' and id_ex.md_op(2) = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
+                        -- Signal that we are running
+                        div_running_v := '1';
+                        -- For restarting the division
+                        count_v := 0;
+                    end if;
+                    if div_running_v = '1' then
+                        case count_v is 
+                            when 0 =>
+                                md_buf1 <= (others => '0');
+                                -- If signed divide, check for negative
+                                -- value and make it positive
+                                if id_ex.md_op(0) = '0' and a_v(31) = '1' then
+                                    md_buf2 <= unsigned(not a_v) + 1;
+                                else
+                                    md_buf2 <= unsigned(a_v);
                                 end if;
-                                count_v := count_v + 1;
-                            else
-                                -- Ready, show the result
-                                count_v := 0;
-                                div_running_v := '0';
-                            end if;
-                    end case;
-                end if;
-            end if;
+                                -- Load the divisor x1, divisor x2 and divisor x3
+                                if id_ex.md_op(0) = '0' and b_v(31) = '1' then
+                                    md.divisor1 <= "00" & (unsigned(not b_v) + 1);
+                                    md.divisor2 <= ("0" & (unsigned(not b_v) + 1) & "0");
+                                    md.divisor3 <= ("0" & (unsigned(not b_v) + 1) & "0") + ("00" & (unsigned(not b_v) + 1));
+                                else
+                                    md.divisor1 <= ("00" & unsigned(b_v));
+                                    md.divisor2 <= ("0" & unsigned(b_v) & "0");
+                                    md.divisor3 <= ("0" & unsigned(b_v) & "0") + ("00" & unsigned(b_v));
+                                end if;
+                                count_v := 1;
+                                md.div_ready <= '0';
+                                -- Determine the sign of the quotient and remainder
+                                if (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '0' and (a_v(31) /= b_v(31)) and b_v /= all_zeros_c) or (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '1' and a_v(31) = '1') then
+                                    md.outsign <= '1';
+                                else
+                                    md.outsign <= '0';
+                                end if;
+                            when others =>
+                                -- Do the divide
+                                -- First check is divisor x3 can be subtracted...
+                                if md.buf(63 downto 30) >= md.divisor3 then
+                                    md_buf1(63 downto 32) <= md.buf(61 downto 30) - md.divisor3(31 downto 0);
+                                    md_buf2 <= md_buf2(29 downto 0) & "11";
+                                -- Then check is divisor x2 can be subtracted...
+                                elsif md.buf(63 downto 30) >= md.divisor2 then
+                                    md_buf1(63 downto 32) <= md.buf(61 downto 30) - md.divisor2(31 downto 0);
+                                    md_buf2 <= md_buf2(29 downto 0) & "10";
+                                -- Then check is divisor x1 can be subtracted...
+                                elsif md.buf(63 downto 30) >= md.divisor1 then
+                                    md_buf1(63 downto 32) <= md.buf(61 downto 30) - md.divisor1(31 downto 0);
+                                    md_buf2 <= md_buf2(29 downto 0) & "01";
+                                -- Else no subtraction can be performed.
+                                else
+                                    -- Shift in 0 (00)
+                                    md.buf <= md.buf(61 downto 0) & "00";
+                                end if;
+                                -- Do this 16 times (32 bit/2 bits at a time, output in last cycle)
+                                if count_v /= 16 then
+                                    -- Signal ready one clock before
+                                    if count_v = 15 then
+                                        md.div_ready <= '1';
+                                    end if;
+                                    count_v := count_v + 1;
+                                else
+                                    -- Ready, show the result
+                                    count_v := 0;
+                                    div_running_v := '0';
+                                end if;
+                        end case;
+                    end if;
+                end if; -- sreset
+            end if; -- posedge
 -- synthesis translate_off
             md.count <= count_v;
 -- synthesis translate_on
@@ -2079,60 +2170,71 @@ begin
                 md.div_ready <= '0';
                 md.outsign <= '0';
             elsif rising_edge(I_clk) then 
-                -- If start and dividing...
-                md.div_ready <= '0';
-                if id_ex.md_start = '1' and id_ex.md_op(2) = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
-                    div_running_v := '1';
+                if I_sreset = '1' then
+                    -- Reset everything
                     count_v := 0;
-                end if;
-                if div_running_v = '1' then
-                    case count_v is 
-                        when 0 => 
-                            md_buf1 <= (others => '0');
-                            -- If signed divide, check for negative
-                            -- value and make it positive
-                            if id_ex.md_op(0) = '0' and a_v(31) = '1' then
-                                md_buf2 <= unsigned(not a_v) + 1;
-                            else
-                                md_buf2 <= unsigned(a_v);
-                            end if;
-                            if id_ex.md_op(0) = '0' and b_v(31) = '1' then
-                                md.divisor <= unsigned(not b_v) + 1;
-                            else
-                                md.divisor <= unsigned(b_v); 
-                            end if;
-                            count_v := 1; 
-                            md.div_ready <= '0';
-                            -- Determine the result sign
-                            if (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '0' and (a_v(31) /= b_v(31)) and b_v /= all_zeros_c) or (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '1' and a_v(31) = '1') then
-                                md.outsign <= '1';
-                            else
-                                md.outsign <= '0';
-                            end if;
-
-                        when others =>
-                            -- Do the division
-                            if md.buf(62 downto 31) >= md.divisor then 
-                                md_buf1 <= '0' & (md.buf(61 downto 31) - md.divisor(30 downto 0)); 
-                                md_buf2 <= md_buf2(30 downto 0) & '1'; 
-                            else 
-                                md.buf <= md.buf(62 downto 0) & '0'; 
-                            end if;
-                            -- Do this 32 times, last one outputs the result
-                            if count_v /= 32 then 
-                                -- Signal ready one clock before
-                                if count_v = 31 then
-                                    md.div_ready <= '1';
+                    md_buf1 <= (others => '0');
+                    md_buf2 <= (others => '0');
+                    md.divisor <= (others => '0');
+                    div_running_v := '0';
+                    md.div_ready <= '0';
+                    md.outsign <= '0';
+                else
+                    -- If start and dividing...
+                    md.div_ready <= '0';
+                    if id_ex.md_start = '1' and id_ex.md_op(2) = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
+                        div_running_v := '1';
+                        count_v := 0;
+                    end if;
+                    if div_running_v = '1' then
+                        case count_v is 
+                            when 0 => 
+                                md_buf1 <= (others => '0');
+                                -- If signed divide, check for negative
+                                -- value and make it positive
+                                if id_ex.md_op(0) = '0' and a_v(31) = '1' then
+                                    md_buf2 <= unsigned(not a_v) + 1;
+                                else
+                                    md_buf2 <= unsigned(a_v);
                                 end if;
-                                count_v := count_v + 1;
-                            else
-                                -- Signal ready
-                                count_v := 0;
-                                div_running_v := '0';
-                            end if; 
-                    end case; 
-                end if;
-            end if;
+                                if id_ex.md_op(0) = '0' and b_v(31) = '1' then
+                                    md.divisor <= unsigned(not b_v) + 1;
+                                else
+                                    md.divisor <= unsigned(b_v); 
+                                end if;
+                                count_v := 1; 
+                                md.div_ready <= '0';
+                                -- Determine the result sign
+                                if (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '0' and (a_v(31) /= b_v(31)) and b_v /= all_zeros_c) or (id_ex.md_op(0) = '0' and id_ex.md_op(1) = '1' and a_v(31) = '1') then
+                                    md.outsign <= '1';
+                                else
+                                    md.outsign <= '0';
+                                end if;
+
+                            when others =>
+                                -- Do the division
+                                if md.buf(62 downto 31) >= md.divisor then 
+                                    md_buf1 <= '0' & (md.buf(61 downto 31) - md.divisor(30 downto 0)); 
+                                    md_buf2 <= md_buf2(30 downto 0) & '1'; 
+                                else 
+                                    md.buf <= md.buf(62 downto 0) & '0'; 
+                                end if;
+                                -- Do this 32 times, last one outputs the result
+                                if count_v /= 32 then 
+                                    -- Signal ready one clock before
+                                    if count_v = 31 then
+                                        md.div_ready <= '1';
+                                    end if;
+                                    count_v := count_v + 1;
+                                else
+                                    -- Signal ready
+                                    count_v := 0;
+                                    div_running_v := '0';
+                                end if; 
+                        end case; 
+                    end if;
+                end if; -- sreset
+            end if; -- posedge
 -- synthesis translate_off
             -- Only to view in simulator
             md.count <= count_v;
@@ -2177,15 +2279,22 @@ begin
             ex_wb.rddata <= (others => '0');
             ex_wb.pc <= (others => '0');
         elsif rising_edge(I_clk) then
-            if control.stall = '1' or control.stall_on_trigger = '1' then
-                null;
+            if I_sreset = '1' then
+                ex_wb.rd <= (others => '0');
+                ex_wb.rd_en <= '0';
+                ex_wb.rddata <= (others => '0');
+                ex_wb.pc <= (others => '0');
             else
-                ex_wb.rd_en <= id_ex.rd_en;
-                if id_ex.rd_en = '1' and control.trap_request = '0' then
-                    ex_wb.rddata <= id_ex.result;
-                    ex_wb.rd <= id_ex.rd;
+                if control.stall = '1' or control.stall_on_trigger = '1' then
+                    null;
+                else
+                    ex_wb.rd_en <= id_ex.rd_en;
+                    if id_ex.rd_en = '1' and control.trap_request = '0' then
+                        ex_wb.rddata <= id_ex.result;
+                        ex_wb.rd <= id_ex.rd;
+                    end if;
+                    ex_wb.pc <= id_ex.pc;
                 end if;
-                ex_wb.pc <= id_ex.pc;
             end if;
         end if;       
     end process;
@@ -2221,58 +2330,66 @@ begin
             O_bus_request.data <= (others => '0');
             csr_transfer.address_to_mtval <= (others => '0');
         elsif rising_edge(I_clk) then
-            -- Create memory access strobe from core or DM
-            O_bus_request.stb <= id_ex.ismem or (I_dm_core_data_request.stb and boolean_to_std_logic(HAVE_OCD));
-            -- If current transaction is completed, reset the bus
-            if I_bus_response.ready = '1' then
+            if I_sreset = '1' then
+                O_bus_request.stb <= '0';
                 O_bus_request.size <= memsize_unknown;
                 O_bus_request.acc <= memaccess_nop;
                 O_bus_request.data <= (others => '0');
                 csr_transfer.address_to_mtval <= (others => '0');
-            -- else clock in the credentials for memory access
             else
-                -- Debug
-                if control.indebug = '1' and HAVE_OCD then
-                    if I_dm_core_data_request.readmem = '1' then
-                        O_bus_request.acc <= memaccess_read;
-                    elsif I_dm_core_data_request.writemem = '1' then
-                        O_bus_request.acc <= memaccess_write;
-                    else
-                        O_bus_request.acc <= memaccess_nop;
-                    end if;
-                    if (I_dm_core_data_request.readmem or I_dm_core_data_request.writemem) = '0' then
-                        O_bus_request.size <= memsize_unknown;
-                    elsif I_dm_core_data_request.size = "00" then
-                        O_bus_request.size <= memsize_byte;
-                    elsif I_dm_core_data_request.size = "01" then
-                        O_bus_request.size <= memsize_halfword;
-                    elsif I_dm_core_data_request.size = "10" then
-                        O_bus_request.size <= memsize_word;
-                    else
-                        O_bus_request.size <= memsize_unknown;
-                    end if;
-                -- Disable the bus when flushing or trap
-                elsif control.flush = '1' or control.trap_request = '1' or control.stall_on_trigger = '1' then
-                    O_bus_request.acc <= memaccess_nop;
+                -- Create memory access strobe from core or DM
+                O_bus_request.stb <= id_ex.ismem or (I_dm_core_data_request.stb and boolean_to_std_logic(HAVE_OCD));
+                -- If current transaction is completed, reset the bus
+                if I_bus_response.ready = '1' then
                     O_bus_request.size <= memsize_unknown;
+                    O_bus_request.acc <= memaccess_nop;
+                    O_bus_request.data <= (others => '0');
+                    csr_transfer.address_to_mtval <= (others => '0');
+                -- else clock in the credentials for memory access
                 else
-                    O_bus_request.acc <= id_ex.memaccess;
-                    O_bus_request.size <= id_ex.memsize;
-                end if;
+                    -- Debug
+                    if control.indebug = '1' and HAVE_OCD then
+                        if I_dm_core_data_request.readmem = '1' then
+                            O_bus_request.acc <= memaccess_read;
+                        elsif I_dm_core_data_request.writemem = '1' then
+                            O_bus_request.acc <= memaccess_write;
+                        else
+                            O_bus_request.acc <= memaccess_nop;
+                        end if;
+                        if (I_dm_core_data_request.readmem or I_dm_core_data_request.writemem) = '0' then
+                            O_bus_request.size <= memsize_unknown;
+                        elsif I_dm_core_data_request.size = "00" then
+                            O_bus_request.size <= memsize_byte;
+                        elsif I_dm_core_data_request.size = "01" then
+                            O_bus_request.size <= memsize_halfword;
+                        elsif I_dm_core_data_request.size = "10" then
+                            O_bus_request.size <= memsize_word;
+                        else
+                            O_bus_request.size <= memsize_unknown;
+                        end if;
+                    -- Disable the bus when flushing or trap
+                    elsif control.flush = '1' or control.trap_request = '1' or control.stall_on_trigger = '1' then
+                        O_bus_request.acc <= memaccess_nop;
+                        O_bus_request.size <= memsize_unknown;
+                    else
+                        O_bus_request.acc <= id_ex.memaccess;
+                        O_bus_request.size <= id_ex.memsize;
+                    end if;
 
-                -- In case of a trap, record the memory address in MTVAL CSR
-                csr_transfer.address_to_mtval <= std_logic_vector(address_v);
-                
-                -- Data out to memory
-                if control.indebug = '1' then
-                    O_bus_request.data <= I_dm_core_data_request.data;
-                elsif control.forwardb = '1' then
-                    O_bus_request.data <= ex_wb.rddata;
-                else
-                    O_bus_request.data <= id_ex.rs2data;
+                    -- In case of a trap, record the memory address in MTVAL CSR
+                    csr_transfer.address_to_mtval <= std_logic_vector(address_v);
+                    
+                    -- Data out to memory
+                    if control.indebug = '1' then
+                        O_bus_request.data <= I_dm_core_data_request.data;
+                    elsif control.forwardb = '1' then
+                        O_bus_request.data <= ex_wb.rddata;
+                    else
+                        O_bus_request.data <= id_ex.rs2data;
+                    end if;
                 end if;
-            end if;
-        end if;
+            end if; -- sreset
+        end if; -- posedge
     end process;
     -- Address of the memory operation, this is a simple copy
     -- outside the rising edge to make 1 register instead of 2
@@ -2697,298 +2814,21 @@ begin
             csr_reg.tdata2 <= (others => '0');
             control.nmi_lockout <= '0';
         elsif rising_edge(I_clk) then
-            --  Do we count cycles?
-            if csr_reg.mcountinhibit(0) = '0' then
-                csr_reg.mcycle <= std_logic_vector(unsigned(csr_reg.mcycle) + 1);
-                if csr_reg.mcycle = all_ones_c then
-                    csr_reg.mcycleh <= std_logic_vector(unsigned(csr_reg.mcycleh) + 1);
-                end if;
-            end if;
-            -- Instruction retired?
-            if control.instret = '1' then
-                -- Do we count instructions retired?
-                if csr_reg.mcountinhibit(2) = '0' then
-                    csr_reg.minstret <= std_logic_vector(unsigned(csr_reg.minstret) + 1);
-                    if csr_reg.minstret = all_ones_c then
-                        csr_reg.minstreth <= std_logic_vector(unsigned(csr_reg.minstreth) + 1);
-                    end if;
-                end if;
-            end if;
-            -- Do we have performance counters?
-            if HAVE_ZIHPM then
-                if event3_v then
-                    -- Do we count?
-                    if csr_reg.mcountinhibit(3) = '0' then
-                        csr_reg.mhpmcounter3 <= std_logic_vector(unsigned(csr_reg.mhpmcounter3) + 1);
-                        if csr_reg.mhpmcounter3 = all_ones_c then
-                            csr_reg.mhpmcounter3h <= std_logic_vector(unsigned(csr_reg.mhpmcounter3h) + 1);
-                        end if;
-                    end if;
-                end if;
-                if event4_v then
-                    -- Do we count?
-                    if csr_reg.mcountinhibit(4) = '0' then
-                        csr_reg.mhpmcounter4 <= std_logic_vector(unsigned(csr_reg.mhpmcounter4) + 1);
-                        if csr_reg.mhpmcounter4 = all_ones_c then
-                            csr_reg.mhpmcounter4h <= std_logic_vector(unsigned(csr_reg.mhpmcounter4h) + 1);
-                        end if;
-                    end if;
-                end if;
-                if event5_v then
-                    -- Do we count?
-                    if csr_reg.mcountinhibit(5) = '0' then
-                        csr_reg.mhpmcounter5 <= std_logic_vector(unsigned(csr_reg.mhpmcounter5) + 1);
-                        if csr_reg.mhpmcounter5 = all_ones_c then
-                            csr_reg.mhpmcounter5h <= std_logic_vector(unsigned(csr_reg.mhpmcounter5h) + 1);
-                        end if;
-                    end if;
-                end if;
-                if event6_v then
-                    -- Do we count?
-                    if csr_reg.mcountinhibit(6) = '0' then
-                        csr_reg.mhpmcounter6 <= std_logic_vector(unsigned(csr_reg.mhpmcounter6) + 1);
-                        if csr_reg.mhpmcounter6 = all_ones_c then
-                            csr_reg.mhpmcounter6h <= std_logic_vector(unsigned(csr_reg.mhpmcounter6h) + 1);
-                        end if;
-                    end if;
-                end if;
-                if event7_v then
-                    -- Do we count?
-                    if csr_reg.mcountinhibit(7) = '0' then
-                        csr_reg.mhpmcounter7 <= std_logic_vector(unsigned(csr_reg.mhpmcounter7) + 1);
-                        if csr_reg.mhpmcounter7 = all_ones_c then
-                            csr_reg.mhpmcounter7h <= std_logic_vector(unsigned(csr_reg.mhpmcounter7h) + 1);
-                        end if;
-                    end if;
-                end if;
-                if event8_v then
-                    -- Do we count?
-                    if csr_reg.mcountinhibit(8) = '0' then
-                        csr_reg.mhpmcounter8 <= std_logic_vector(unsigned(csr_reg.mhpmcounter8) + 1);
-                        if csr_reg.mhpmcounter8 = all_ones_c then
-                            csr_reg.mhpmcounter8h <= std_logic_vector(unsigned(csr_reg.mhpmcounter8h) + 1);
-                        end if;
-                    end if;
-                end if;
-                if event9_v then
-                    -- Do we count?
-                    if csr_reg.mcountinhibit(9) = '0' then
-                        csr_reg.mhpmcounter9 <= std_logic_vector(unsigned(csr_reg.mhpmcounter9) + 1);
-                        if csr_reg.mhpmcounter9 = all_ones_c then
-                            csr_reg.mhpmcounter9h <= std_logic_vector(unsigned(csr_reg.mhpmcounter9h) + 1);
-                        end if;
-                    end if;
-                end if;
-            end if;   -- /HAVE_ZIHPM
-            
-            -- If no trap is pending, then update the selected csr_reg.
-            -- Needed because the instruction is restarted after MRET
-            if csr_access.op /= csr_nop and control.trap_request = '0' and control.indebug = '0' and control.stall_on_trigger = '0' then
-                -- Select the CSR
-                case csr_addr_v is
-                    when mcycle_addr => csr_content_v := csr_reg.mcycle;
-                    when mcycleh_addr => csr_content_v := csr_reg.mcycleh;
-                    when minstret_addr => csr_content_v := csr_reg.minstret;
-                    when minstreth_addr => csr_content_v := csr_reg.minstreth;
-                    when mhpmevent3_addr => csr_content_v := csr_reg.mhpmevent3;
-                    when mhpmevent5_addr => csr_content_v := csr_reg.mhpmevent5;
-                    when mhpmevent6_addr => csr_content_v := csr_reg.mhpmevent6;
-                    when mhpmevent7_addr => csr_content_v := csr_reg.mhpmevent7;
-                    when mhpmevent8_addr => csr_content_v := csr_reg.mhpmevent8;
-                    when mhpmevent9_addr => csr_content_v := csr_reg.mhpmevent9;
-                    when mhpmcounter3_addr => csr_content_v := csr_reg.mhpmcounter3;
-                    when mhpmcounter4_addr => csr_content_v := csr_reg.mhpmcounter4;
-                    when mhpmcounter5_addr => csr_content_v := csr_reg.mhpmcounter5;
-                    when mhpmcounter6_addr => csr_content_v := csr_reg.mhpmcounter6;
-                    when mhpmcounter7_addr => csr_content_v := csr_reg.mhpmcounter7;
-                    when mhpmcounter8_addr => csr_content_v := csr_reg.mhpmcounter8;
-                    when mhpmcounter9_addr => csr_content_v := csr_reg.mhpmcounter9;
-                    when mhpmcounter3h_addr => csr_content_v := csr_reg.mhpmcounter3h;
-                    when mhpmcounter4h_addr => csr_content_v := csr_reg.mhpmcounter4h;
-                    when mhpmcounter5h_addr => csr_content_v := csr_reg.mhpmcounter5h;
-                    when mhpmcounter6h_addr => csr_content_v := csr_reg.mhpmcounter6h;
-                    when mhpmcounter7h_addr => csr_content_v := csr_reg.mhpmcounter7h;
-                    when mhpmcounter8h_addr => csr_content_v := csr_reg.mhpmcounter8h;
-                    when mhpmcounter9h_addr => csr_content_v := csr_reg.mhpmcounter9h;
-                    when mstatus_addr => csr_content_v := csr_reg.mstatus;
-                    when mie_addr => csr_content_v := csr_reg.mie;
-                    when mtvec_addr => csr_content_v := csr_reg.mtvec;
-                    when mcountinhibit_addr => csr_content_v := csr_reg.mcountinhibit;
-                    when mscratch_addr => csr_content_v := csr_reg.mscratch;
-                    when mepc_addr => csr_content_v := csr_reg.mepc;
-                    when mcause_addr => csr_content_v := csr_reg.mcause;
-                    when mtval_addr => csr_content_v := csr_reg.mtval;
-                    when tselect_addr => csr_content_v := csr_reg.tselect;
-                    when tdata1_addr => csr_content_v := csr_reg.tdata1;
-                    when tdata2_addr => csr_content_v := csr_reg.tdata2;
-                    when others => csr_content_v := (others => '-');
-                end case;
-                -- Do the operation
-                -- Some bits should be ignored or hard wired to 0
-                -- but we just ignore them
-                case csr_access.op is
-                    when csr_rw =>
-                        csr_content_v := csr_access.dataout;
-                    when csr_rs =>
-                        csr_content_v := csr_content_v or csr_access.dataout;
-                    when csr_rc =>
-                        csr_content_v := csr_content_v and not csr_access.dataout;
-                    when csr_rwi =>
-                        csr_content_v(csr_content_v'left downto 5) := (others => '0');
-                        csr_content_v(4 downto 0) := csr_access.immrs1;
-                    when csr_rsi =>
-                        csr_content_v(4 downto 0) := csr_content_v(4 downto 0) or csr_access.immrs1(4 downto 0);
-                    when csr_rci =>
-                        csr_content_v(4 downto 0) := csr_content_v(4 downto 0) and not csr_access.immrs1(4 downto 0);
-                    when others =>
-                        null;
-                end case;
-                -- Write back
-                case csr_addr_v is
-                    when mcycle_addr => csr_reg.mcycle <= csr_content_v;
-                    when mcycleh_addr => csr_reg.mcycleh <= csr_content_v;
-                    when minstret_addr => csr_reg.minstret <= csr_content_v;
-                    when minstreth_addr => csr_reg.minstreth <= csr_content_v;
-                    when mhpmevent3_addr => csr_reg.mhpmevent3 <= csr_content_v;
-                    when mhpmevent4_addr => csr_reg.mhpmevent4 <= csr_content_v;
-                    when mhpmevent5_addr => csr_reg.mhpmevent5 <= csr_content_v;
-                    when mhpmevent6_addr => csr_reg.mhpmevent6 <= csr_content_v;
-                    when mhpmevent7_addr => csr_reg.mhpmevent7 <= csr_content_v;
-                    when mhpmevent8_addr => csr_reg.mhpmevent8 <= csr_content_v;
-                    when mhpmevent9_addr => csr_reg.mhpmevent9 <= csr_content_v;
-                    when mhpmcounter3_addr => csr_reg.mhpmcounter3 <= csr_content_v;
-                    when mhpmcounter4_addr => csr_reg.mhpmcounter4 <= csr_content_v;
-                    when mhpmcounter5_addr => csr_reg.mhpmcounter5 <= csr_content_v;
-                    when mhpmcounter6_addr => csr_reg.mhpmcounter6 <= csr_content_v;
-                    when mhpmcounter7_addr => csr_reg.mhpmcounter7 <= csr_content_v;
-                    when mhpmcounter8_addr => csr_reg.mhpmcounter8 <= csr_content_v;
-                    when mhpmcounter9_addr => csr_reg.mhpmcounter9 <= csr_content_v;
-                    when mhpmcounter3h_addr => csr_reg.mhpmcounter3h <= csr_content_v;
-                    when mhpmcounter4h_addr => csr_reg.mhpmcounter4h <= csr_content_v;
-                    when mhpmcounter5h_addr => csr_reg.mhpmcounter5h <= csr_content_v;
-                    when mhpmcounter6h_addr => csr_reg.mhpmcounter6h <= csr_content_v;
-                    when mhpmcounter7h_addr => csr_reg.mhpmcounter7h <= csr_content_v;
-                    when mhpmcounter8h_addr => csr_reg.mhpmcounter8h <= csr_content_v;
-                    when mhpmcounter9h_addr => csr_reg.mhpmcounter9h <= csr_content_v;
-                    when mstatus_addr => csr_reg.mstatus <= csr_content_v;
-                    when mie_addr => csr_reg.mie <= csr_content_v;
-                    when mtvec_addr => csr_reg.mtvec <= csr_content_v;
-                    when mcountinhibit_addr => csr_reg.mcountinhibit <= csr_content_v;
-                    when mscratch_addr => csr_reg.mscratch <= csr_content_v;
-                    when mepc_addr => csr_reg.mepc <= csr_content_v;
-                    when mcause_addr => csr_reg.mcause <= csr_content_v;
-                    when mtval_addr => csr_reg.mtval <= csr_content_v;
-                    when tdata1_addr => csr_reg.tdata1 <= csr_content_v;
-                    when tdata2_addr => csr_reg.tdata2 <= csr_content_v;
-                    when others => null;
-                end case;
-            end if;
-
-            -- Set the cause for halting in DCSR
-            -- cause(3) is load flag
-            if csr_reg.dcsr_cause(3) = '1' and HAVE_OCD then
-                csr_reg.dcsr(8 downto 6) <= csr_reg.dcsr_cause(2 downto 0);
-                if csr_reg.dcsr_cause(2 downto 0) = "010" then
-                    csr_reg.tdata1(22) <= '1';  -- hit0
-                end if;
-            end if;
-            -- If a halt/break/step, load DPC with PC
-            if control.load_dpc = '1' and HAVE_OCD then
-                csr_reg.dpc <= id_ex.pc;
-            end if;
-
-            -- When we're in debug mode ...
-            if control.indebug = '1' and I_dm_core_data_request.writecsr = '1' and HAVE_OCD then
-                case csr_addr_v is
-                    when mcycle_addr => csr_reg.mcycle <= I_dm_core_data_request.data;
-                    when mcycleh_addr => csr_reg.mcycleh <= I_dm_core_data_request.data;
-                    when minstret_addr => csr_reg.minstret <= I_dm_core_data_request.data;
-                    when minstreth_addr => csr_reg.minstreth <= I_dm_core_data_request.data;
-                    when mhpmevent3_addr => csr_reg.mhpmevent3 <= I_dm_core_data_request.data;
-                    when mhpmevent4_addr => csr_reg.mhpmevent4 <= I_dm_core_data_request.data;
-                    when mhpmevent5_addr => csr_reg.mhpmevent5 <= I_dm_core_data_request.data;
-                    when mhpmevent6_addr => csr_reg.mhpmevent6 <= I_dm_core_data_request.data;
-                    when mhpmevent7_addr => csr_reg.mhpmevent7 <= I_dm_core_data_request.data;
-                    when mhpmevent8_addr => csr_reg.mhpmevent8 <= I_dm_core_data_request.data;
-                    when mhpmevent9_addr => csr_reg.mhpmevent9 <= I_dm_core_data_request.data;
-                    when mhpmcounter3_addr => csr_reg.mhpmcounter3 <= I_dm_core_data_request.data;
-                    when mhpmcounter4_addr => csr_reg.mhpmcounter4 <= I_dm_core_data_request.data;
-                    when mhpmcounter5_addr => csr_reg.mhpmcounter5 <= I_dm_core_data_request.data;
-                    when mhpmcounter6_addr => csr_reg.mhpmcounter6 <= I_dm_core_data_request.data;
-                    when mhpmcounter7_addr => csr_reg.mhpmcounter7 <= I_dm_core_data_request.data;
-                    when mhpmcounter8_addr => csr_reg.mhpmcounter8 <= I_dm_core_data_request.data;
-                    when mhpmcounter9_addr => csr_reg.mhpmcounter9 <= I_dm_core_data_request.data;
-                    when mhpmcounter3h_addr => csr_reg.mhpmcounter3h <= I_dm_core_data_request.data;
-                    when mhpmcounter4h_addr => csr_reg.mhpmcounter4h <= I_dm_core_data_request.data;
-                    when mhpmcounter5h_addr => csr_reg.mhpmcounter5h <= I_dm_core_data_request.data;
-                    when mhpmcounter6h_addr => csr_reg.mhpmcounter6h <= I_dm_core_data_request.data;
-                    when mhpmcounter7h_addr => csr_reg.mhpmcounter7h <= I_dm_core_data_request.data;
-                    when mhpmcounter8h_addr => csr_reg.mhpmcounter8h <= I_dm_core_data_request.data;
-                    when mhpmcounter9h_addr => csr_reg.mhpmcounter9h <= I_dm_core_data_request.data;
-                    when mstatus_addr => csr_reg.mstatus <= I_dm_core_data_request.data;
-                    when mie_addr => csr_reg.mie <= I_dm_core_data_request.data;
-                    when mtvec_addr => csr_reg.mtvec <= I_dm_core_data_request.data;
-                    when mcountinhibit_addr => csr_reg.mcountinhibit <= I_dm_core_data_request.data;
-                    when mscratch_addr => csr_reg.mscratch <= I_dm_core_data_request.data;
-                    when mepc_addr => csr_reg.mepc <= I_dm_core_data_request.data;
-                    when mcause_addr => csr_reg.mcause <= I_dm_core_data_request.data;
-                    when mtval_addr => csr_reg.mtval <= I_dm_core_data_request.data;
-                    when dcsr_addr => csr_reg.dcsr <= I_dm_core_data_request.data;
-                    when dpc_addr => csr_reg.dpc <= I_dm_core_data_request.data;
-                    when tdata1_addr => csr_reg.tdata1 <= I_dm_core_data_request.data;
-                    when tdata2_addr => csr_reg.tdata2 <= I_dm_core_data_request.data;
-                    when others => null;
-                end case;
-            end if;
-
-            
-            -- Set all bits hard to 0 except MTIE (7), MSIE (3)
-            csr_reg.mie(csr_reg.mie'left downto 8) <= (others => '0');
-            csr_reg.mie(6 downto 4) <= (others => '0');
-            csr_reg.mie(2 downto 0) <= (others => '0');
-
-            -- Set most bits of mstatus to 0
-            csr_reg.mstatus(csr_reg.mstatus'left downto 13) <= (others => '0');
-            csr_reg.mstatus(10 downto 8) <= (others => '0');
-            csr_reg.mstatus(4 downto 4) <= (others => '0');
-            csr_reg.mstatus(2 downto 0) <= (others => '0');
-            
-            -- Set most bits of mcountinhibit to 0
-            if HAVE_ZIHPM then
-                csr_reg.mcountinhibit(csr_reg.mcountinhibit'left downto 10) <= (others => '0');
-            else
-                csr_reg.mcountinhibit(csr_reg.mcountinhibit'left downto 3) <= (others => '0');
-            end if;
-            
-            -- TI bit always 0
-            csr_reg.mcountinhibit(1) <= '0';
-            
-            -- Bit 1 of mtvec should always be 0
-            csr_reg.mtvec(1) <= '0';
-            
-            -- MCAUSE doesn't use that many bits...
-            -- Only Interrupt Bit and 5 LSB are needed
-            csr_reg.mcause(30 downto 5) <= (others => '0');
-
-            -- Not al bits are used
-            -- Only 40 bits are used in the counters
-            -- There are only 6 events that can be counted
-            if HAVE_ZIHPM then
-                csr_reg.mhpmcounter3h(csr_reg.mhpmcounter3h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent3(csr_reg.mhpmevent3'left downto 7) <= (others => '0');
-                csr_reg.mhpmcounter4h(csr_reg.mhpmcounter3h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent4(csr_reg.mhpmevent4'left downto 7) <= (others => '0');
-                csr_reg.mhpmcounter5h(csr_reg.mhpmcounter5h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent5(csr_reg.mhpmevent5'left downto 7) <= (others => '0');
-                csr_reg.mhpmcounter6h(csr_reg.mhpmcounter6h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent6(csr_reg.mhpmevent6'left downto 7) <= (others => '0');
-                csr_reg.mhpmcounter7h(csr_reg.mhpmcounter7h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent7(csr_reg.mhpmevent7'left downto 7) <= (others => '0');
-                csr_reg.mhpmcounter8h(csr_reg.mhpmcounter8h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent8(csr_reg.mhpmevent8'left downto 7) <= (others => '0');
-                csr_reg.mhpmcounter9h(csr_reg.mhpmcounter9h'left downto 8) <= (others => '0');
-                csr_reg.mhpmevent9(csr_reg.mhpmevent9'left downto 7) <= (others => '0');
-            else
+            if I_Sreset = '1' then
+                -- Reset the lot
+                csr_reg.mstatus <= (others => '0');
+                csr_reg.mie <= (others => '0');
+                csr_reg.mtvec <= (others => '0');
+                csr_reg.mcountinhibit <= (others => '0');
+                csr_reg.mscratch <= (others => '0');
+                csr_reg.mepc <= (others => '0');
+                csr_reg.mcause <= (others => '0');
+                csr_reg.mtval <= (others => '0');
+                csr_reg.mtval <= (others => '0');
+                csr_reg.mcycle <= (others => '0');
+                csr_reg.mcycleh <= (others => '0');
+                csr_reg.minstret <= (others => '0');
+                csr_reg.minstreth <= (others => '0');
                 csr_reg.mhpmcounter3 <= (others => '0');
                 csr_reg.mhpmcounter3h <= (others => '0');
                 csr_reg.mhpmevent3 <= (others => '0');
@@ -3010,96 +2850,416 @@ begin
                 csr_reg.mhpmcounter9 <= (others => '0');
                 csr_reg.mhpmcounter9h <= (others => '0');
                 csr_reg.mhpmevent9 <= (others => '0');
-            end if;
-
-            if HAVE_OCD then
-                -- Debug registers
-                csr_reg.dcsr(1 downto 0) <= "11";                -- Alwyas M-mode
-                csr_reg.dcsr(3) <= '0';                          -- NMI interrupt pending not used
-                csr_reg.dcsr(4) <= '0';                          -- mpriven not used
-                csr_reg.dcsr(5) <= '0';                          -- v not used
-                csr_reg.dcsr(9) <= '0';                          -- stoptime not used
-                csr_reg.dcsr(10) <= '0';                         -- stopcount not used
-                csr_reg.dcsr(11) <= '0';                         -- stepie not used
-                csr_reg.dcsr(12) <= '0';                         -- ebreaku not used
-                csr_reg.dcsr(13) <= '0';                         -- ebreaks not used
-                csr_reg.dcsr(14) <= '0';                         -- reserved
-                csr_reg.dcsr(16) <= '0';                         -- ebreakvu not used
-                csr_reg.dcsr(17) <= '0';                         -- ebreakvs not used
-                csr_reg.dcsr(27 downto 18) <= (others => '0');   -- reserved
-                csr_reg.dcsr(31 downto 28) <= "0100";            -- version 1.0
-
-                csr_reg.tdata1(31 downto 28) <= x"6";            -- always type 6 (mcontrol6)
-                csr_reg.tdata1(26) <= '0';                       -- uncertain
-                csr_reg.tdata1(25) <= '0';                       -- hit1 = 0
-                csr_reg.tdata1(24) <= '0';                       -- vs
-                csr_reg.tdata1(23) <= '0';                       -- vu
-                csr_reg.tdata1(20) <= '0';                       -- 0
-                csr_reg.tdata1(19) <= '0';                       -- 0
-                csr_reg.tdata1(5) <= '0';                        -- uncertainen
-                csr_reg.tdata1(4) <= '0';                        -- S mode
-                csr_reg.tdata1(3) <= '0';                        -- U mode
-                csr_reg.tdata1(1) <= '0';                        -- no store
-                csr_reg.tdata1(0) <= '0';                        -- no load
-                csr_reg.dpc(0) <= '0';                           -- LSB always 0
-                csr_reg.tselect <= (others => '0');              -- Only 1 hw breakpoint
-                -- Debug tinfo
-                csr_reg.tinfo <= x"01000006";
-            else
                 csr_reg.dcsr <= (others => '0');
                 csr_reg.dpc <= (others => '0');
                 csr_reg.tdata1 <= (others => '0');
                 csr_reg.tdata2 <= (others => '0');
-                csr_reg.tinfo <= (others => '0');
-                csr_reg.tselect <= (others => '0');
-            end if;
-            
-            -- Interrupt handling takes priority over possible user
-            -- update of the CSRs.
-            -- The LIC checks if exceptions/interrupts are enabled.
-            if control.trap_request = '1' and control.stall_on_trigger = '0' then
-                -- Copy mie to mpie
-                csr_reg.mstatus(7) <= csr_reg.mstatus(3);
-                -- Set M mode
-                csr_reg.mstatus(12 downto 11) <= "11";
-                -- Disable interrupts
-                csr_reg.mstatus(3) <= '0';
-                -- Copy mcause
-                csr_reg.mcause <= control.trap_mcause;
-                -- Save PC at the point of interrupt
-                csr_reg.mepc <= id_ex.pc;
-                -- Set MTVAL
-                if control.trap_mcause = x"00000000" then
-                    -- Instruction misaligned fault, set MTVAL to all zeros
-                    csr_reg.mtval <= (others => '0');
-                elsif control.trap_mcause = x"00000001" then
-                    -- Instruction access fault, set MTVAL to all zeros
-                    csr_reg.mtval <= (others => '0');
-                elsif control.trap_mcause = x"00000002" then
-                    -- Illegal instruction fault, set MTVAL to all zeros
-                    csr_reg.mtval <= (others => '0');
-                elsif control.trap_mcause = x"00000003" then
-                    -- Breakpoint, set MTVAL to all zeros
-                    csr_reg.mtval <= (others => '0');
-                else
-                    -- Latch address from address bus
-                    csr_reg.mtval <= csr_transfer.address_to_mtval;
-                end if;
-                -- Lock out further NMI interrupts
-                if I_intrio(31) = '1' then
-                    control.nmi_lockout <= '1';
-                end if;
-            elsif control.trap_release = '1' then
-                -- Copy mpie to mie
-                csr_reg.mstatus(3) <= csr_reg.mstatus(7);
-                -- ??
-                csr_reg.mstatus(7) <= '1';
-                -- Keep M mode
-                csr_reg.mstatus(12 downto 11) <= "11";
-             -- Enable further NMI interrupts
                 control.nmi_lockout <= '0';
-            end if;
-        end if;
+            else
+                --  Do we count cycles?
+                if csr_reg.mcountinhibit(0) = '0' then
+                    csr_reg.mcycle <= std_logic_vector(unsigned(csr_reg.mcycle) + 1);
+                    if csr_reg.mcycle = all_ones_c then
+                        csr_reg.mcycleh <= std_logic_vector(unsigned(csr_reg.mcycleh) + 1);
+                    end if;
+                end if;
+                -- Instruction retired?
+                if control.instret = '1' then
+                    -- Do we count instructions retired?
+                    if csr_reg.mcountinhibit(2) = '0' then
+                        csr_reg.minstret <= std_logic_vector(unsigned(csr_reg.minstret) + 1);
+                        if csr_reg.minstret = all_ones_c then
+                            csr_reg.minstreth <= std_logic_vector(unsigned(csr_reg.minstreth) + 1);
+                        end if;
+                    end if;
+                end if;
+                -- Do we have performance counters?
+                if HAVE_ZIHPM then
+                    if event3_v then
+                        -- Do we count?
+                        if csr_reg.mcountinhibit(3) = '0' then
+                            csr_reg.mhpmcounter3 <= std_logic_vector(unsigned(csr_reg.mhpmcounter3) + 1);
+                            if csr_reg.mhpmcounter3 = all_ones_c then
+                                csr_reg.mhpmcounter3h <= std_logic_vector(unsigned(csr_reg.mhpmcounter3h) + 1);
+                            end if;
+                        end if;
+                    end if;
+                    if event4_v then
+                        -- Do we count?
+                        if csr_reg.mcountinhibit(4) = '0' then
+                            csr_reg.mhpmcounter4 <= std_logic_vector(unsigned(csr_reg.mhpmcounter4) + 1);
+                            if csr_reg.mhpmcounter4 = all_ones_c then
+                                csr_reg.mhpmcounter4h <= std_logic_vector(unsigned(csr_reg.mhpmcounter4h) + 1);
+                            end if;
+                        end if;
+                    end if;
+                    if event5_v then
+                        -- Do we count?
+                        if csr_reg.mcountinhibit(5) = '0' then
+                            csr_reg.mhpmcounter5 <= std_logic_vector(unsigned(csr_reg.mhpmcounter5) + 1);
+                            if csr_reg.mhpmcounter5 = all_ones_c then
+                                csr_reg.mhpmcounter5h <= std_logic_vector(unsigned(csr_reg.mhpmcounter5h) + 1);
+                            end if;
+                        end if;
+                    end if;
+                    if event6_v then
+                        -- Do we count?
+                        if csr_reg.mcountinhibit(6) = '0' then
+                            csr_reg.mhpmcounter6 <= std_logic_vector(unsigned(csr_reg.mhpmcounter6) + 1);
+                            if csr_reg.mhpmcounter6 = all_ones_c then
+                                csr_reg.mhpmcounter6h <= std_logic_vector(unsigned(csr_reg.mhpmcounter6h) + 1);
+                            end if;
+                        end if;
+                    end if;
+                    if event7_v then
+                        -- Do we count?
+                        if csr_reg.mcountinhibit(7) = '0' then
+                            csr_reg.mhpmcounter7 <= std_logic_vector(unsigned(csr_reg.mhpmcounter7) + 1);
+                            if csr_reg.mhpmcounter7 = all_ones_c then
+                                csr_reg.mhpmcounter7h <= std_logic_vector(unsigned(csr_reg.mhpmcounter7h) + 1);
+                            end if;
+                        end if;
+                    end if;
+                    if event8_v then
+                        -- Do we count?
+                        if csr_reg.mcountinhibit(8) = '0' then
+                            csr_reg.mhpmcounter8 <= std_logic_vector(unsigned(csr_reg.mhpmcounter8) + 1);
+                            if csr_reg.mhpmcounter8 = all_ones_c then
+                                csr_reg.mhpmcounter8h <= std_logic_vector(unsigned(csr_reg.mhpmcounter8h) + 1);
+                            end if;
+                        end if;
+                    end if;
+                    if event9_v then
+                        -- Do we count?
+                        if csr_reg.mcountinhibit(9) = '0' then
+                            csr_reg.mhpmcounter9 <= std_logic_vector(unsigned(csr_reg.mhpmcounter9) + 1);
+                            if csr_reg.mhpmcounter9 = all_ones_c then
+                                csr_reg.mhpmcounter9h <= std_logic_vector(unsigned(csr_reg.mhpmcounter9h) + 1);
+                            end if;
+                        end if;
+                    end if;
+                end if;   -- /HAVE_ZIHPM
+                
+                -- If no trap is pending, then update the selected csr_reg.
+                -- Needed because the instruction is restarted after MRET
+                if csr_access.op /= csr_nop and control.trap_request = '0' and control.indebug = '0' and control.stall_on_trigger = '0' then
+                    -- Select the CSR
+                    case csr_addr_v is
+                        when mcycle_addr => csr_content_v := csr_reg.mcycle;
+                        when mcycleh_addr => csr_content_v := csr_reg.mcycleh;
+                        when minstret_addr => csr_content_v := csr_reg.minstret;
+                        when minstreth_addr => csr_content_v := csr_reg.minstreth;
+                        when mhpmevent3_addr => csr_content_v := csr_reg.mhpmevent3;
+                        when mhpmevent5_addr => csr_content_v := csr_reg.mhpmevent5;
+                        when mhpmevent6_addr => csr_content_v := csr_reg.mhpmevent6;
+                        when mhpmevent7_addr => csr_content_v := csr_reg.mhpmevent7;
+                        when mhpmevent8_addr => csr_content_v := csr_reg.mhpmevent8;
+                        when mhpmevent9_addr => csr_content_v := csr_reg.mhpmevent9;
+                        when mhpmcounter3_addr => csr_content_v := csr_reg.mhpmcounter3;
+                        when mhpmcounter4_addr => csr_content_v := csr_reg.mhpmcounter4;
+                        when mhpmcounter5_addr => csr_content_v := csr_reg.mhpmcounter5;
+                        when mhpmcounter6_addr => csr_content_v := csr_reg.mhpmcounter6;
+                        when mhpmcounter7_addr => csr_content_v := csr_reg.mhpmcounter7;
+                        when mhpmcounter8_addr => csr_content_v := csr_reg.mhpmcounter8;
+                        when mhpmcounter9_addr => csr_content_v := csr_reg.mhpmcounter9;
+                        when mhpmcounter3h_addr => csr_content_v := csr_reg.mhpmcounter3h;
+                        when mhpmcounter4h_addr => csr_content_v := csr_reg.mhpmcounter4h;
+                        when mhpmcounter5h_addr => csr_content_v := csr_reg.mhpmcounter5h;
+                        when mhpmcounter6h_addr => csr_content_v := csr_reg.mhpmcounter6h;
+                        when mhpmcounter7h_addr => csr_content_v := csr_reg.mhpmcounter7h;
+                        when mhpmcounter8h_addr => csr_content_v := csr_reg.mhpmcounter8h;
+                        when mhpmcounter9h_addr => csr_content_v := csr_reg.mhpmcounter9h;
+                        when mstatus_addr => csr_content_v := csr_reg.mstatus;
+                        when mie_addr => csr_content_v := csr_reg.mie;
+                        when mtvec_addr => csr_content_v := csr_reg.mtvec;
+                        when mcountinhibit_addr => csr_content_v := csr_reg.mcountinhibit;
+                        when mscratch_addr => csr_content_v := csr_reg.mscratch;
+                        when mepc_addr => csr_content_v := csr_reg.mepc;
+                        when mcause_addr => csr_content_v := csr_reg.mcause;
+                        when mtval_addr => csr_content_v := csr_reg.mtval;
+                        when tselect_addr => csr_content_v := csr_reg.tselect;
+                        when tdata1_addr => csr_content_v := csr_reg.tdata1;
+                        when tdata2_addr => csr_content_v := csr_reg.tdata2;
+                        when others => csr_content_v := (others => '-');
+                    end case;
+                    -- Do the operation
+                    -- Some bits should be ignored or hard wired to 0
+                    -- but we just ignore them
+                    case csr_access.op is
+                        when csr_rw =>
+                            csr_content_v := csr_access.dataout;
+                        when csr_rs =>
+                            csr_content_v := csr_content_v or csr_access.dataout;
+                        when csr_rc =>
+                            csr_content_v := csr_content_v and not csr_access.dataout;
+                        when csr_rwi =>
+                            csr_content_v(csr_content_v'left downto 5) := (others => '0');
+                            csr_content_v(4 downto 0) := csr_access.immrs1;
+                        when csr_rsi =>
+                            csr_content_v(4 downto 0) := csr_content_v(4 downto 0) or csr_access.immrs1(4 downto 0);
+                        when csr_rci =>
+                            csr_content_v(4 downto 0) := csr_content_v(4 downto 0) and not csr_access.immrs1(4 downto 0);
+                        when others =>
+                            null;
+                    end case;
+                    -- Write back
+                    case csr_addr_v is
+                        when mcycle_addr => csr_reg.mcycle <= csr_content_v;
+                        when mcycleh_addr => csr_reg.mcycleh <= csr_content_v;
+                        when minstret_addr => csr_reg.minstret <= csr_content_v;
+                        when minstreth_addr => csr_reg.minstreth <= csr_content_v;
+                        when mhpmevent3_addr => csr_reg.mhpmevent3 <= csr_content_v;
+                        when mhpmevent4_addr => csr_reg.mhpmevent4 <= csr_content_v;
+                        when mhpmevent5_addr => csr_reg.mhpmevent5 <= csr_content_v;
+                        when mhpmevent6_addr => csr_reg.mhpmevent6 <= csr_content_v;
+                        when mhpmevent7_addr => csr_reg.mhpmevent7 <= csr_content_v;
+                        when mhpmevent8_addr => csr_reg.mhpmevent8 <= csr_content_v;
+                        when mhpmevent9_addr => csr_reg.mhpmevent9 <= csr_content_v;
+                        when mhpmcounter3_addr => csr_reg.mhpmcounter3 <= csr_content_v;
+                        when mhpmcounter4_addr => csr_reg.mhpmcounter4 <= csr_content_v;
+                        when mhpmcounter5_addr => csr_reg.mhpmcounter5 <= csr_content_v;
+                        when mhpmcounter6_addr => csr_reg.mhpmcounter6 <= csr_content_v;
+                        when mhpmcounter7_addr => csr_reg.mhpmcounter7 <= csr_content_v;
+                        when mhpmcounter8_addr => csr_reg.mhpmcounter8 <= csr_content_v;
+                        when mhpmcounter9_addr => csr_reg.mhpmcounter9 <= csr_content_v;
+                        when mhpmcounter3h_addr => csr_reg.mhpmcounter3h <= csr_content_v;
+                        when mhpmcounter4h_addr => csr_reg.mhpmcounter4h <= csr_content_v;
+                        when mhpmcounter5h_addr => csr_reg.mhpmcounter5h <= csr_content_v;
+                        when mhpmcounter6h_addr => csr_reg.mhpmcounter6h <= csr_content_v;
+                        when mhpmcounter7h_addr => csr_reg.mhpmcounter7h <= csr_content_v;
+                        when mhpmcounter8h_addr => csr_reg.mhpmcounter8h <= csr_content_v;
+                        when mhpmcounter9h_addr => csr_reg.mhpmcounter9h <= csr_content_v;
+                        when mstatus_addr => csr_reg.mstatus <= csr_content_v;
+                        when mie_addr => csr_reg.mie <= csr_content_v;
+                        when mtvec_addr => csr_reg.mtvec <= csr_content_v;
+                        when mcountinhibit_addr => csr_reg.mcountinhibit <= csr_content_v;
+                        when mscratch_addr => csr_reg.mscratch <= csr_content_v;
+                        when mepc_addr => csr_reg.mepc <= csr_content_v;
+                        when mcause_addr => csr_reg.mcause <= csr_content_v;
+                        when mtval_addr => csr_reg.mtval <= csr_content_v;
+                        when tdata1_addr => csr_reg.tdata1 <= csr_content_v;
+                        when tdata2_addr => csr_reg.tdata2 <= csr_content_v;
+                        when others => null;
+                    end case;
+                end if;
+
+                -- Set the cause for halting in DCSR
+                -- cause(3) is load flag
+                if csr_reg.dcsr_cause(3) = '1' and HAVE_OCD then
+                    csr_reg.dcsr(8 downto 6) <= csr_reg.dcsr_cause(2 downto 0);
+                    if csr_reg.dcsr_cause(2 downto 0) = "010" then
+                        csr_reg.tdata1(22) <= '1';  -- hit0
+                    end if;
+                end if;
+                -- If a halt/break/step, load DPC with PC
+                if control.load_dpc = '1' and HAVE_OCD then
+                    csr_reg.dpc <= id_ex.pc;
+                end if;
+
+                -- When we're in debug mode ...
+                if control.indebug = '1' and I_dm_core_data_request.writecsr = '1' and HAVE_OCD then
+                    case csr_addr_v is
+                        when mcycle_addr => csr_reg.mcycle <= I_dm_core_data_request.data;
+                        when mcycleh_addr => csr_reg.mcycleh <= I_dm_core_data_request.data;
+                        when minstret_addr => csr_reg.minstret <= I_dm_core_data_request.data;
+                        when minstreth_addr => csr_reg.minstreth <= I_dm_core_data_request.data;
+                        when mhpmevent3_addr => csr_reg.mhpmevent3 <= I_dm_core_data_request.data;
+                        when mhpmevent4_addr => csr_reg.mhpmevent4 <= I_dm_core_data_request.data;
+                        when mhpmevent5_addr => csr_reg.mhpmevent5 <= I_dm_core_data_request.data;
+                        when mhpmevent6_addr => csr_reg.mhpmevent6 <= I_dm_core_data_request.data;
+                        when mhpmevent7_addr => csr_reg.mhpmevent7 <= I_dm_core_data_request.data;
+                        when mhpmevent8_addr => csr_reg.mhpmevent8 <= I_dm_core_data_request.data;
+                        when mhpmevent9_addr => csr_reg.mhpmevent9 <= I_dm_core_data_request.data;
+                        when mhpmcounter3_addr => csr_reg.mhpmcounter3 <= I_dm_core_data_request.data;
+                        when mhpmcounter4_addr => csr_reg.mhpmcounter4 <= I_dm_core_data_request.data;
+                        when mhpmcounter5_addr => csr_reg.mhpmcounter5 <= I_dm_core_data_request.data;
+                        when mhpmcounter6_addr => csr_reg.mhpmcounter6 <= I_dm_core_data_request.data;
+                        when mhpmcounter7_addr => csr_reg.mhpmcounter7 <= I_dm_core_data_request.data;
+                        when mhpmcounter8_addr => csr_reg.mhpmcounter8 <= I_dm_core_data_request.data;
+                        when mhpmcounter9_addr => csr_reg.mhpmcounter9 <= I_dm_core_data_request.data;
+                        when mhpmcounter3h_addr => csr_reg.mhpmcounter3h <= I_dm_core_data_request.data;
+                        when mhpmcounter4h_addr => csr_reg.mhpmcounter4h <= I_dm_core_data_request.data;
+                        when mhpmcounter5h_addr => csr_reg.mhpmcounter5h <= I_dm_core_data_request.data;
+                        when mhpmcounter6h_addr => csr_reg.mhpmcounter6h <= I_dm_core_data_request.data;
+                        when mhpmcounter7h_addr => csr_reg.mhpmcounter7h <= I_dm_core_data_request.data;
+                        when mhpmcounter8h_addr => csr_reg.mhpmcounter8h <= I_dm_core_data_request.data;
+                        when mhpmcounter9h_addr => csr_reg.mhpmcounter9h <= I_dm_core_data_request.data;
+                        when mstatus_addr => csr_reg.mstatus <= I_dm_core_data_request.data;
+                        when mie_addr => csr_reg.mie <= I_dm_core_data_request.data;
+                        when mtvec_addr => csr_reg.mtvec <= I_dm_core_data_request.data;
+                        when mcountinhibit_addr => csr_reg.mcountinhibit <= I_dm_core_data_request.data;
+                        when mscratch_addr => csr_reg.mscratch <= I_dm_core_data_request.data;
+                        when mepc_addr => csr_reg.mepc <= I_dm_core_data_request.data;
+                        when mcause_addr => csr_reg.mcause <= I_dm_core_data_request.data;
+                        when mtval_addr => csr_reg.mtval <= I_dm_core_data_request.data;
+                        when dcsr_addr => csr_reg.dcsr <= I_dm_core_data_request.data;
+                        when dpc_addr => csr_reg.dpc <= I_dm_core_data_request.data;
+                        when tdata1_addr => csr_reg.tdata1 <= I_dm_core_data_request.data;
+                        when tdata2_addr => csr_reg.tdata2 <= I_dm_core_data_request.data;
+                        when others => null;
+                    end case;
+                end if;
+
+                
+                -- Set all bits hard to 0 except MTIE (7), MSIE (3)
+                csr_reg.mie(csr_reg.mie'left downto 8) <= (others => '0');
+                csr_reg.mie(6 downto 4) <= (others => '0');
+                csr_reg.mie(2 downto 0) <= (others => '0');
+
+                -- Set most bits of mstatus to 0
+                csr_reg.mstatus(csr_reg.mstatus'left downto 13) <= (others => '0');
+                csr_reg.mstatus(10 downto 8) <= (others => '0');
+                csr_reg.mstatus(4 downto 4) <= (others => '0');
+                csr_reg.mstatus(2 downto 0) <= (others => '0');
+                
+                -- Set most bits of mcountinhibit to 0
+                if HAVE_ZIHPM then
+                    csr_reg.mcountinhibit(csr_reg.mcountinhibit'left downto 10) <= (others => '0');
+                else
+                    csr_reg.mcountinhibit(csr_reg.mcountinhibit'left downto 3) <= (others => '0');
+                end if;
+                
+                -- TI bit always 0
+                csr_reg.mcountinhibit(1) <= '0';
+                
+                -- Bit 1 of mtvec should always be 0
+                csr_reg.mtvec(1) <= '0';
+                
+                -- MCAUSE doesn't use that many bits...
+                -- Only Interrupt Bit and 5 LSB are needed
+                csr_reg.mcause(30 downto 5) <= (others => '0');
+
+                -- Not al bits are used
+                -- Only 40 bits are used in the counters
+                -- There are only 6 events that can be counted
+                if HAVE_ZIHPM then
+                    csr_reg.mhpmcounter3h(csr_reg.mhpmcounter3h'left downto 8) <= (others => '0');
+                    csr_reg.mhpmevent3(csr_reg.mhpmevent3'left downto 7) <= (others => '0');
+                    csr_reg.mhpmcounter4h(csr_reg.mhpmcounter3h'left downto 8) <= (others => '0');
+                    csr_reg.mhpmevent4(csr_reg.mhpmevent4'left downto 7) <= (others => '0');
+                    csr_reg.mhpmcounter5h(csr_reg.mhpmcounter5h'left downto 8) <= (others => '0');
+                    csr_reg.mhpmevent5(csr_reg.mhpmevent5'left downto 7) <= (others => '0');
+                    csr_reg.mhpmcounter6h(csr_reg.mhpmcounter6h'left downto 8) <= (others => '0');
+                    csr_reg.mhpmevent6(csr_reg.mhpmevent6'left downto 7) <= (others => '0');
+                    csr_reg.mhpmcounter7h(csr_reg.mhpmcounter7h'left downto 8) <= (others => '0');
+                    csr_reg.mhpmevent7(csr_reg.mhpmevent7'left downto 7) <= (others => '0');
+                    csr_reg.mhpmcounter8h(csr_reg.mhpmcounter8h'left downto 8) <= (others => '0');
+                    csr_reg.mhpmevent8(csr_reg.mhpmevent8'left downto 7) <= (others => '0');
+                    csr_reg.mhpmcounter9h(csr_reg.mhpmcounter9h'left downto 8) <= (others => '0');
+                    csr_reg.mhpmevent9(csr_reg.mhpmevent9'left downto 7) <= (others => '0');
+                else
+                    csr_reg.mhpmcounter3 <= (others => '0');
+                    csr_reg.mhpmcounter3h <= (others => '0');
+                    csr_reg.mhpmevent3 <= (others => '0');
+                    csr_reg.mhpmcounter4 <= (others => '0');
+                    csr_reg.mhpmcounter4h <= (others => '0');
+                    csr_reg.mhpmevent4 <= (others => '0');
+                    csr_reg.mhpmcounter5 <= (others => '0');
+                    csr_reg.mhpmcounter5h <= (others => '0');
+                    csr_reg.mhpmevent5 <= (others => '0');
+                    csr_reg.mhpmcounter6 <= (others => '0');
+                    csr_reg.mhpmcounter6h <= (others => '0');
+                    csr_reg.mhpmevent6 <= (others => '0');
+                    csr_reg.mhpmcounter7 <= (others => '0');
+                    csr_reg.mhpmcounter7h <= (others => '0');
+                    csr_reg.mhpmevent7 <= (others => '0');
+                    csr_reg.mhpmcounter8 <= (others => '0');
+                    csr_reg.mhpmcounter8h <= (others => '0');
+                    csr_reg.mhpmevent8 <= (others => '0');
+                    csr_reg.mhpmcounter9 <= (others => '0');
+                    csr_reg.mhpmcounter9h <= (others => '0');
+                    csr_reg.mhpmevent9 <= (others => '0');
+                end if;
+
+                if HAVE_OCD then
+                    -- Debug registers
+                    csr_reg.dcsr(1 downto 0) <= "11";                -- Alwyas M-mode
+                    csr_reg.dcsr(3) <= '0';                          -- NMI interrupt pending not used
+                    csr_reg.dcsr(4) <= '0';                          -- mpriven not used
+                    csr_reg.dcsr(5) <= '0';                          -- v not used
+                    csr_reg.dcsr(9) <= '0';                          -- stoptime not used
+                    csr_reg.dcsr(10) <= '0';                         -- stopcount not used
+                    csr_reg.dcsr(11) <= '0';                         -- stepie not used
+                    csr_reg.dcsr(12) <= '0';                         -- ebreaku not used
+                    csr_reg.dcsr(13) <= '0';                         -- ebreaks not used
+                    csr_reg.dcsr(14) <= '0';                         -- reserved
+                    csr_reg.dcsr(16) <= '0';                         -- ebreakvu not used
+                    csr_reg.dcsr(17) <= '0';                         -- ebreakvs not used
+                    csr_reg.dcsr(27 downto 18) <= (others => '0');   -- reserved
+                    csr_reg.dcsr(31 downto 28) <= "0100";            -- version 1.0
+
+                    csr_reg.tdata1(31 downto 28) <= x"6";            -- always type 6 (mcontrol6)
+                    csr_reg.tdata1(26) <= '0';                       -- uncertain
+                    csr_reg.tdata1(25) <= '0';                       -- hit1 = 0
+                    csr_reg.tdata1(24) <= '0';                       -- vs
+                    csr_reg.tdata1(23) <= '0';                       -- vu
+                    csr_reg.tdata1(20) <= '0';                       -- 0
+                    csr_reg.tdata1(19) <= '0';                       -- 0
+                    csr_reg.tdata1(5) <= '0';                        -- uncertainen
+                    csr_reg.tdata1(4) <= '0';                        -- S mode
+                    csr_reg.tdata1(3) <= '0';                        -- U mode
+                    csr_reg.tdata1(1) <= '0';                        -- no store
+                    csr_reg.tdata1(0) <= '0';                        -- no load
+                    csr_reg.dpc(0) <= '0';                           -- LSB always 0
+                    csr_reg.tselect <= (others => '0');              -- Only 1 hw breakpoint
+                    -- Debug tinfo
+                    csr_reg.tinfo <= x"01000006";
+                else
+                    csr_reg.dcsr <= (others => '0');
+                    csr_reg.dpc <= (others => '0');
+                    csr_reg.tdata1 <= (others => '0');
+                    csr_reg.tdata2 <= (others => '0');
+                    csr_reg.tinfo <= (others => '0');
+                    csr_reg.tselect <= (others => '0');
+                end if;
+                
+                -- Interrupt handling takes priority over possible user
+                -- update of the CSRs.
+                -- The LIC checks if exceptions/interrupts are enabled.
+                if control.trap_request = '1' and control.stall_on_trigger = '0' then
+                    -- Copy mie to mpie
+                    csr_reg.mstatus(7) <= csr_reg.mstatus(3);
+                    -- Set M mode
+                    csr_reg.mstatus(12 downto 11) <= "11";
+                    -- Disable interrupts
+                    csr_reg.mstatus(3) <= '0';
+                    -- Copy mcause
+                    csr_reg.mcause <= control.trap_mcause;
+                    -- Save PC at the point of interrupt
+                    csr_reg.mepc <= id_ex.pc;
+                    -- Set MTVAL
+                    if control.trap_mcause = x"00000000" then
+                        -- Instruction misaligned fault, set MTVAL to all zeros
+                        csr_reg.mtval <= (others => '0');
+                    elsif control.trap_mcause = x"00000001" then
+                        -- Instruction access fault, set MTVAL to all zeros
+                        csr_reg.mtval <= (others => '0');
+                    elsif control.trap_mcause = x"00000002" then
+                        -- Illegal instruction fault, set MTVAL to all zeros
+                        csr_reg.mtval <= (others => '0');
+                    elsif control.trap_mcause = x"00000003" then
+                        -- Breakpoint, set MTVAL to all zeros
+                        csr_reg.mtval <= (others => '0');
+                    else
+                        -- Latch address from address bus
+                        csr_reg.mtval <= csr_transfer.address_to_mtval;
+                    end if;
+                    -- Lock out further NMI interrupts
+                    if I_intrio(31) = '1' then
+                        control.nmi_lockout <= '1';
+                    end if;
+                elsif control.trap_release = '1' then
+                    -- Copy mpie to mie
+                    csr_reg.mstatus(3) <= csr_reg.mstatus(7);
+                    -- ??
+                    csr_reg.mstatus(7) <= '1';
+                    -- Keep M mode
+                    csr_reg.mstatus(12 downto 11) <= "11";
+                 -- Enable further NMI interrupts
+                    control.nmi_lockout <= '0';
+                end if;
+            end if; -- sreset
+        end if; -- posedge
 
         -- Calculate the MTVEC to be loaded in the PC on trap
         if VECTORED_MTVEC and csr_reg.mtvec(0) = '1' and csr_reg.mcause(31) = '1' then

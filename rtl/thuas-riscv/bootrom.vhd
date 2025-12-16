@@ -53,6 +53,7 @@ entity bootrom is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- To fetch an instruction
           I_instr_request : in instr_request_type;
           O_instr_response : out instr_response2_type;
@@ -113,7 +114,11 @@ begin
             if I_areset = '1' then
                 stb_dly <= '0';
             elsif rising_edge(I_clk) then
-                stb_dly <= I_mem_request.stb and not I_mem_request.wren;
+                if I_sreset = '1' then
+                    stb_dly <= '0';
+                else
+                    stb_dly <= I_mem_request.stb and not I_mem_request.wren;
+                end if;
             end if;
             
             O_mem_response.load_misaligned_error <= '0';

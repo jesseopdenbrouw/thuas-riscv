@@ -26,8 +26,9 @@ entity dtm is
           IDCODE_PARTID  : std_logic_vector(15 downto 0) := x"face"; -- part number
           IDCODE_MANID   : std_logic_vector(10 downto 0) := "00000000000" -- manufacturer id
          );
-    port (I_clk    : in  std_logic;
-          I_areset : in  std_logic;
+    port (I_clk    : in std_logic;
+          I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- JTAG connection
           I_trst : in  std_logic;
           I_tck  : in  std_logic;
@@ -114,10 +115,17 @@ begin
             tap_sync.tdi_ff  <= (others => '0');
             tap_sync.tms_ff  <= (others => '0');
         elsif rising_edge(I_clk) then
-            tap_sync.trst_ff <= tap_sync.trst_ff(1 downto 0) & I_trst;
-            tap_sync.tms_ff  <= tap_sync.tms_ff( 1 downto 0) & I_tms;
-            tap_sync.tck_ff  <= tap_sync.tck_ff( 1 downto 0) & I_tck;
-            tap_sync.tdi_ff  <= tap_sync.tdi_ff( 1 downto 0) & I_tdi;
+            if I_sreset = '1' then
+                tap_sync.trst_ff <= (others => '0');
+                tap_sync.tck_ff  <= (others => '0');
+                tap_sync.tdi_ff  <= (others => '0');
+                tap_sync.tms_ff  <= (others => '0');
+            else
+                tap_sync.trst_ff <= tap_sync.trst_ff(1 downto 0) & I_trst;
+                tap_sync.tms_ff  <= tap_sync.tms_ff( 1 downto 0) & I_tms;
+                tap_sync.tck_ff  <= tap_sync.tck_ff( 1 downto 0) & I_tck;
+                tap_sync.tdi_ff  <= tap_sync.tdi_ff( 1 downto 0) & I_tdi;
+            end if;
         end if;
     end process tap_synchronizer;
 
@@ -141,7 +149,9 @@ begin
         if I_areset = '1' then
             tap_ctrl_state <= LOGIC_RESET;
         elsif rising_edge(I_clk) then
-            if tap_sync.trst = '0' then -- reset
+            if I_sreset = '1' then
+                tap_ctrl_state <= LOGIC_RESET;
+            elsif tap_sync.trst = '0' then -- reset
                 tap_ctrl_state <= LOGIC_RESET;
             elsif tap_sync.tck_rising = '1' then -- clock pulse (evaluate TMS on the rising edge of TCK)
                 case tap_ctrl_state is -- JTAG state machine
@@ -173,12 +183,16 @@ begin
         if I_areset = '1' then
             dr_trigger.sreg <= "00";
         elsif rising_edge(I_clk) then
-            if tap_ctrl_state = DR_UPDATE then
-                dr_trigger.sreg(0) <= '1';
+            if I_sreset = '1' then
+                dr_trigger.sreg <= "00";
             else
-                dr_trigger.sreg(0) <= '0';
+                if tap_ctrl_state = DR_UPDATE then
+                    dr_trigger.sreg(0) <= '1';
+                else
+                    dr_trigger.sreg(0) <= '0';
+                end if;
+                dr_trigger.sreg(1) <= dr_trigger.sreg(0);
             end if;
-            dr_trigger.sreg(1) <= dr_trigger.sreg(0);
         end if;
     end process update_trigger;
 
@@ -196,50 +210,57 @@ begin
             tap_reg.bypass <= '0';
             O_tdo          <= '0';
         elsif rising_edge(I_clk) then
-
-            -- Serial data input: instruction register
-            if tap_ctrl_state = LOGIC_RESET or tap_ctrl_state = IR_CAPTURE then -- preload phase
-                tap_reg.ireg <= addr_idcode_c;
-            elsif tap_ctrl_state = IR_SHIFT then -- access phase
-                if tap_sync.tck_rising = '1' then -- [JTAG-SYNC] evaluate TDI on rising edge of TCK
-                    tap_reg.ireg <= tap_sync.tdi & tap_reg.ireg(tap_reg.ireg'left downto 1);
+            if I_sreset = '1' then
+                tap_reg.ireg   <= (others => '0');
+                tap_reg.idcode <= (others => '0');
+                tap_reg.dtmcs  <= (others => '0');
+                tap_reg.dmi    <= (others => '0');
+                tap_reg.bypass <= '0';
+                O_tdo          <= '0';
+            else
+                -- Serial data input: instruction register
+                if tap_ctrl_state = LOGIC_RESET or tap_ctrl_state = IR_CAPTURE then -- preload phase
+                    tap_reg.ireg <= addr_idcode_c;
+                elsif tap_ctrl_state = IR_SHIFT then -- access phase
+                    if tap_sync.tck_rising = '1' then -- [JTAG-SYNC] evaluate TDI on rising edge of TCK
+                        tap_reg.ireg <= tap_sync.tdi & tap_reg.ireg(tap_reg.ireg'left downto 1);
+                    end if;
                 end if;
-            end if;
 
-            -- serial data input: data register
-            if tap_ctrl_state = DR_CAPTURE then -- preload phase
-                case tap_reg.ireg is
-                    when addr_idcode_c => tap_reg.idcode <= IDCODE_VERSION & IDCODE_PARTID & IDCODE_MANID & '1'; -- identifier (LSB has to be set)
-                    when addr_dtmcs_c  => tap_reg.dtmcs  <= tap_reg.dtmcs_nxt; -- status register
-                    when addr_dmi_c    => tap_reg.dmi    <= tap_reg.dmi_nxt; -- register interface
-                    when others        => tap_reg.bypass <= '0'; -- pass through
-                end case;
-            elsif tap_ctrl_state = DR_SHIFT then -- access phase
-                if tap_sync.tck_rising = '1' then -- [JTAG-SYNC] evaluate TDI on rising edge of TCK
+                -- serial data input: data register
+                if tap_ctrl_state = DR_CAPTURE then -- preload phase
                     case tap_reg.ireg is
-                        when addr_idcode_c => tap_reg.idcode <= tap_sync.tdi & tap_reg.idcode(tap_reg.idcode'left downto 1);
-                        when addr_dtmcs_c  => tap_reg.dtmcs  <= tap_sync.tdi & tap_reg.dtmcs(tap_reg.dtmcs'left downto 1);
-                        when addr_dmi_c    => tap_reg.dmi    <= tap_sync.tdi & tap_reg.dmi(tap_reg.dmi'left downto 1);
-                        when others        => tap_reg.bypass <= tap_sync.tdi;
+                        when addr_idcode_c => tap_reg.idcode <= IDCODE_VERSION & IDCODE_PARTID & IDCODE_MANID & '1'; -- identifier (LSB has to be set)
+                        when addr_dtmcs_c  => tap_reg.dtmcs  <= tap_reg.dtmcs_nxt; -- status register
+                        when addr_dmi_c    => tap_reg.dmi    <= tap_reg.dmi_nxt; -- register interface
+                        when others        => tap_reg.bypass <= '0'; -- pass through
                     end case;
+                elsif tap_ctrl_state = DR_SHIFT then -- access phase
+                    if tap_sync.tck_rising = '1' then -- [JTAG-SYNC] evaluate TDI on rising edge of TCK
+                        case tap_reg.ireg is
+                            when addr_idcode_c => tap_reg.idcode <= tap_sync.tdi & tap_reg.idcode(tap_reg.idcode'left downto 1);
+                            when addr_dtmcs_c  => tap_reg.dtmcs  <= tap_sync.tdi & tap_reg.dtmcs(tap_reg.dtmcs'left downto 1);
+                            when addr_dmi_c    => tap_reg.dmi    <= tap_sync.tdi & tap_reg.dmi(tap_reg.dmi'left downto 1);
+                            when others        => tap_reg.bypass <= tap_sync.tdi;
+                        end case;
+                    end if;
                 end if;
-            end if;
 
-            -- Serial data output
-            if tap_sync.tck_falling = '1' then -- [JTAG-SYNC] update TDO on falling edge of TCK
-                if tap_ctrl_state = IR_SHIFT then
-                    O_tdo <= tap_reg.ireg(0);
-                else
-                    case tap_reg.ireg is
-                        when addr_idcode_c => O_tdo <= tap_reg.idcode(0);
-                        when addr_dtmcs_c  => O_tdo <= tap_reg.dtmcs(0);
-                        when addr_dmi_c    => O_tdo <= tap_reg.dmi(0);
-                        when others        => O_tdo <= tap_reg.bypass;
-                    end case;
+                -- Serial data output
+                if tap_sync.tck_falling = '1' then -- [JTAG-SYNC] update TDO on falling edge of TCK
+                    if tap_ctrl_state = IR_SHIFT then
+                        O_tdo <= tap_reg.ireg(0);
+                    else
+                        case tap_reg.ireg is
+                            when addr_idcode_c => O_tdo <= tap_reg.idcode(0);
+                            when addr_dtmcs_c  => O_tdo <= tap_reg.dtmcs(0);
+                            when addr_dmi_c    => O_tdo <= tap_reg.dmi(0);
+                            when others        => O_tdo <= tap_reg.bypass;
+                        end case;
+                    end if;
                 end if;
-            end if;
-
-        end if;
+            end if; -- sreset
+        end if;  -- posedge
     end process reg_access;
 
     -- Create next DTMCS
@@ -271,41 +292,52 @@ begin
             dmi_ctrl.wdata        <= (others => '0');
             dmi_ctrl.addr         <= (others => '0');
         elsif rising_edge(I_clk) then
-            -- DMI reset control
-            if dr_trigger.valid = '1' and tap_reg.ireg = addr_dtmcs_c then
-                dmi_ctrl.dmireset     <= tap_reg.dtmcs(16);
-                dmi_ctrl.dmihardreset <= tap_reg.dtmcs(17);
-            elsif dmi_ctrl.busy = '0' then
-                dmi_ctrl.dmihardreset <= '0';
+            if I_sreset = '1' then
+                dmi_ctrl.busy         <= '0';
+                dmi_ctrl.op           <= "00";
+                dmi_ctrl.dmihardreset <= '1';
                 dmi_ctrl.dmireset     <= '0';
-            end if;
+                dmi_ctrl.err          <= '0';
+                dmi_ctrl.rdata        <= (others => '0');
+                dmi_ctrl.wdata        <= (others => '0');
+                dmi_ctrl.addr         <= (others => '0');
+            else
+                -- DMI reset control
+                if dr_trigger.valid = '1' and tap_reg.ireg = addr_dtmcs_c then
+                    dmi_ctrl.dmireset     <= tap_reg.dtmcs(16);
+                    dmi_ctrl.dmihardreset <= tap_reg.dtmcs(17);
+                elsif dmi_ctrl.busy = '0' then
+                    dmi_ctrl.dmihardreset <= '0';
+                    dmi_ctrl.dmireset     <= '0';
+                end if;
 
-            -- Sticky error
-            if dmi_ctrl.dmireset = '1' or dmi_ctrl.dmihardreset = '1' then
-                dmi_ctrl.err <= '0';
-            elsif dmi_ctrl.busy = '1' and dr_trigger.valid = '1' and tap_reg.ireg = addr_dmi_c then -- access attempt while DMI is busy
-                dmi_ctrl.err <= '1';
-            end if;
+                -- Sticky error
+                if dmi_ctrl.dmireset = '1' or dmi_ctrl.dmihardreset = '1' then
+                    dmi_ctrl.err <= '0';
+                elsif dmi_ctrl.busy = '1' and dr_trigger.valid = '1' and tap_reg.ireg = addr_dmi_c then -- access attempt while DMI is busy
+                    dmi_ctrl.err <= '1';
+                end if;
 
-            -- DMI interface
-            dmi_ctrl.op <= dmi_req_nop_c;
-            if dmi_ctrl.busy = '0' then
-                if dmi_ctrl.dmihardreset = '0' then
-                    if dr_trigger.valid = '1' and tap_reg.ireg = addr_dmi_c then
-                        dmi_ctrl.addr  <= tap_reg.dmi(40 downto 34);
-                        dmi_ctrl.wdata <= tap_reg.dmi(33 downto 02);
-                        if tap_reg.dmi(1 downto 0) = dmi_req_rd_c or tap_reg.dmi(1 downto 0) = dmi_req_wr_c then
-                            dmi_ctrl.op   <= tap_reg.dmi(1 downto 0);
-                            dmi_ctrl.busy <= '1';
+                -- DMI interface
+                dmi_ctrl.op <= dmi_req_nop_c;
+                if dmi_ctrl.busy = '0' then
+                    if dmi_ctrl.dmihardreset = '0' then
+                        if dr_trigger.valid = '1' and tap_reg.ireg = addr_dmi_c then
+                            dmi_ctrl.addr  <= tap_reg.dmi(40 downto 34);
+                            dmi_ctrl.wdata <= tap_reg.dmi(33 downto 02);
+                            if tap_reg.dmi(1 downto 0) = dmi_req_rd_c or tap_reg.dmi(1 downto 0) = dmi_req_wr_c then
+                                dmi_ctrl.op   <= tap_reg.dmi(1 downto 0);
+                                dmi_ctrl.busy <= '1';
+                            end if;
                         end if;
                     end if;
+                else -- busy: read/write access in progress
+                    dmi_ctrl.rdata <= I_dmi_response.data;
+                    if I_dmi_response.ack = '1' then
+                        dmi_ctrl.busy <= '0';
+                    end if;
                 end if;
-            else -- busy: read/write access in progress
-                dmi_ctrl.rdata <= I_dmi_response.data;
-                if I_dmi_response.ack = '1' then
-                    dmi_ctrl.busy <= '0';
-                end if;
-            end if;
+            end if;  -- sreset
         end if;
     end process dmi_controller;
 

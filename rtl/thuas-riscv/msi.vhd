@@ -44,6 +44,7 @@ use work.processor_common.all;
 entity msi is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -77,16 +78,20 @@ begin
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            if I_mem_request.stb = '1' and isword then
-                if I_mem_request.wren = '1' then
-                    -- Set trigger bit
-                    msi.trig <= I_mem_request.data(0);
-                else
-                    -- Read trigger bit
-                    O_mem_response.data(0) <= msi.trig;
+            if I_sreset = '1' then
+                msi.trig <= '0';
+            else
+                if I_mem_request.stb = '1' and isword then
+                    if I_mem_request.wren = '1' then
+                        -- Set trigger bit
+                        msi.trig <= I_mem_request.data(0);
+                    else
+                        -- Read trigger bit
+                        O_mem_response.data(0) <= msi.trig;
+                    end if;
+                    O_mem_response.ready <= '1';
                 end if;
-                O_mem_response.ready <= '1';
-            end if;
+            end if; -- sreset
         end if;
     end process;
 

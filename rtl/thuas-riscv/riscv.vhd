@@ -224,6 +224,7 @@ component core is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- Instruction request from ROM
           O_instr_request : out instr_request_type;
           I_instr_response : in instr_response_type;
@@ -260,8 +261,7 @@ component address_decode is
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble
          );
-    port (I_clk : in std_logic;
-          I_areset : in std_logic;
+    port ( 
           -- From and to core
           I_bus_request : in bus_request_type;
           O_bus_response : out bus_response_type; 
@@ -302,6 +302,7 @@ component rom is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- To fetch an instruction
           I_instr_request : in instr_request_type;
           O_instr_response : out instr_response2_type;
@@ -316,6 +317,7 @@ component ram is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- From address decoder
           I_mem_request : in mem_request_type;
           -- To address decoder
@@ -328,6 +330,7 @@ component bootrom is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- From core
           I_instr_request : in instr_request_type;
           O_instr_response : out instr_response2_type;
@@ -347,6 +350,7 @@ component dtm is
          );
     port (I_clk       : in  std_logic;
           I_areset    : in  std_logic;
+          I_sreset : in std_logic;
           -- JTAG connection
           I_trst : in  std_logic;
           I_tck  : in  std_logic;
@@ -364,6 +368,7 @@ component dm is
          );
     port (I_clk : std_logic;
           I_areset : std_logic;
+          I_sreset : in std_logic;
           -- Debug module interface (DMI)
           I_dmi_request : in dmi_request_type;
           O_dmi_response : out dmi_response_type;
@@ -392,6 +397,7 @@ component io_bus_switch is
     port (
           I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           --
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -450,6 +456,7 @@ end component io_bus_switch;
 component gpio is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -468,6 +475,7 @@ component mtime is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -482,6 +490,7 @@ end component mtime;
 component wdt is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -495,6 +504,7 @@ end component wdt;
 component msi is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -507,6 +517,7 @@ end component msi;
 component timera is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -522,6 +533,7 @@ component uart is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -540,6 +552,7 @@ component i2c is
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -554,6 +567,7 @@ end component i2c;
 component spi is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -569,6 +583,7 @@ end component spi;
 component timerb is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -586,6 +601,7 @@ end component timerb;
 component crc is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type
@@ -596,6 +612,7 @@ end component crc;
 component stub is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type
@@ -640,6 +657,8 @@ signal break_from_uart1_int : std_logic;
 signal reset_from_wdt_int : std_logic;
 signal areset_debug_sync_int : std_logic_vector(1 downto 0);
 signal areset_debug_int : std_logic;
+signal sreset_sys_int : std_logic;
+signal sreset_debug_int : std_logic;
 
 -- Signals between DTM and DM
 signal dmi_request_int : dmi_request_type;
@@ -701,6 +720,8 @@ signal irq_timer1_int : std_logic;
 signal irq_timer2_int : std_logic;
 signal irq_uart2_int : std_logic;
 
+-- Have synchronous reset?
+constant HAVE_SYN_RESET : boolean := false;
 
 begin
 
@@ -711,26 +732,51 @@ begin
     -- Synchronize the asynchronous reset.
     -- Implements global reset (all modules)
     -- Implements system reset (all modules except DM and DTM)
-    process (I_clk, I_areset) is
-    begin
-        if I_areset = '1' then
-            areset_sys_sync_int   <= (others => '0');
-            areset_sys_int        <= '1';
-            areset_debug_sync_int <= (others => '0');
-            areset_debug_int      <= '1';
-        elsif rising_edge(I_clk) then
-            -- Reset for the debug units
-            areset_debug_sync_int <= areset_debug_sync_int(areset_debug_sync_int'left-1 downto 0) & '1';
-            areset_debug_int <= not and_reduce(areset_debug_sync_int);
-            -- If a UART1 BREAK is detected or watchdog reset or debug reset, reset the system
-            if break_from_uart1_int = '1' or reset_from_wdt_int = '1' or reset_req_int = '1' then
-                areset_sys_sync_int <= (others => '0');
-            else
-                areset_sys_sync_int <= areset_sys_sync_int(areset_sys_sync_int'left-1 downto 0) & '1';
+    async_reset_gen: if not HAVE_SYN_RESET generate
+        process (I_clk, I_areset) is
+        begin
+            if I_areset = '1' then
+                areset_sys_sync_int   <= (others => '0');
+                areset_sys_int        <= '1';
+                areset_debug_sync_int <= (others => '0');
+                areset_debug_int      <= '1';
+            elsif rising_edge(I_clk) then
+                -- Reset for the debug units
+                areset_debug_sync_int <= areset_debug_sync_int(areset_debug_sync_int'left-1 downto 0) & '1';
+                areset_debug_int <= not and_reduce(areset_debug_sync_int);
+                -- If a UART1 BREAK is detected or watchdog reset or debug reset, reset the system
+                if break_from_uart1_int = '1' or reset_from_wdt_int = '1' or reset_req_int = '1' then
+                    areset_sys_sync_int <= (others => '0');
+                else
+                    areset_sys_sync_int <= areset_sys_sync_int(areset_sys_sync_int'left-1 downto 0) & '1';
+                end if;
+                areset_sys_int <= not and_reduce(areset_sys_sync_int);
             end if;
-            areset_sys_int <= not and_reduce(areset_sys_sync_int);
-        end if;
-    end process;
+        end process;
+        sreset_debug_int <= '0';
+        sreset_sys_int <= '0';
+    end generate;
+
+    -- Use synchronous reset
+    -- sreset_debug_int implements reset for debug modules
+    -- sreset_sys_int implements reset for other modules
+    syn_reset_gen: if HAVE_SYN_RESET generate
+        -- Synchronize the asynchronous reset
+        process (clk_int, I_areset) is
+        begin
+            if rising_edge(clk_int) then
+                areset_sys_sync_int <= areset_sys_sync_int(areset_sys_sync_int'left-1 downto 0) & I_areset;
+            end if;
+        end process;
+        -- Synchronous reset for debug modules
+        sreset_debug_int <= areset_sys_sync_int(areset_sys_sync_int'left);
+        -- Synchronous reset from external reset or UART1 break detect or watchdog or debug modules
+        sreset_sys_int <= sreset_debug_int or break_from_uart1_int or reset_from_wdt_int or reset_req_int;
+        -- Disable asynchronous reset
+
+        areset_sys_int <= '0';
+        areset_debug_int <= '0';
+    end generate;
     
     core0: core
     generic map (
@@ -767,6 +813,7 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               -- Instruction fetch
               O_instr_request => instr_request_int,
               I_instr_response => instr_response_int,
@@ -797,9 +844,7 @@ begin
               RAM_HIGH_NIBBLE => RAM_HIGH_NIBBLE,
               IO_HIGH_NIBBLE => IO_HIGH_NIBBLE
              )
-    port map (I_clk => clk_int,
-              I_areset => areset_sys_int,
-              --
+    port map (              --
               I_bus_request => bus_request_int,
               O_bus_response => bus_response_int,
               --
@@ -838,6 +883,7 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               -- fetch instruction
               I_instr_request => instr_request_rom_int,
               O_instr_response => instr_response_rom_int,
@@ -851,6 +897,7 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               --
               I_instr_request => instr_request_boot_int,
               O_instr_response => instr_response_boot_int,
@@ -865,6 +912,7 @@ begin
              )
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               --
               I_mem_request => mem_request_ram_int,
               O_mem_response => mem_response_ram_int
@@ -880,6 +928,7 @@ begin
                  )
         port map (I_clk => I_clk,
                   I_areset => areset_debug_int,
+                  I_sreset => sreset_debug_int,
                   I_trst => I_trst,
                   I_tck => I_tck,
                   I_tms => I_tms,
@@ -897,6 +946,7 @@ begin
                  )
         port map (I_clk => I_clk,
                   I_areset => areset_debug_int,
+                  I_sreset => sreset_debug_int,
                   --
                   I_dmi_request => dmi_request_int,
                   O_dmi_response => dmi_response_int,
@@ -943,6 +993,7 @@ begin
     port map (
               I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               -- The request
               I_mem_request => mem_request_io_int,
               O_mem_response => mem_response_io_int,
@@ -1001,6 +1052,7 @@ begin
     port map (
               I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               --
               I_mem_request => gpioa_request_int,
               O_mem_response => gpioa_response_int,
@@ -1019,6 +1071,7 @@ begin
     port map (
               I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               --
               I_mem_request => mtime_request_int,
               O_mem_response => mtime_response_int,
@@ -1034,6 +1087,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => wdt_request_int,
                   O_mem_response => wdt_response_int,
@@ -1047,6 +1101,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => wdt_request_int,
                   O_mem_response => wdt_response_int
@@ -1061,6 +1116,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => msi_request_int,
                   O_mem_response => msi_response_int,
@@ -1073,6 +1129,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => msi_request_int,
                   O_mem_response => msi_response_int
@@ -1086,6 +1143,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => timer1_request_int,
                   O_mem_response => timer1_response_int,
@@ -1098,6 +1156,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => timer1_request_int,
                   O_mem_response => timer1_response_int
@@ -1114,6 +1173,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => uart1_request_int,
                   O_mem_response => uart1_response_int,
@@ -1129,6 +1189,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => uart1_request_int,
                   O_mem_response => uart1_response_int
@@ -1147,6 +1208,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => i2c1_request_int,
                   O_mem_response => i2c1_response_int,
@@ -1161,6 +1223,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => i2c1_request_int,
                   O_mem_response => i2c1_response_int
@@ -1179,6 +1242,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => i2c2_request_int,
                   O_mem_response => i2c2_response_int,
@@ -1193,6 +1257,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => i2c2_request_int,
                   O_mem_response => i2c2_response_int
@@ -1208,6 +1273,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => spi1_request_int,
                   O_mem_response => spi1_response_int,
@@ -1223,6 +1289,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => spi1_request_int,
                   O_mem_response => spi1_response_int
@@ -1238,6 +1305,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => spi2_request_int,
                   O_mem_response => spi2_response_int,
@@ -1253,6 +1321,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => spi2_request_int,
                   O_mem_response => spi2_response_int
@@ -1268,6 +1337,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   -- 
                   I_mem_request => timer2_request_int,
                   O_mem_response => timer2_response_int,
@@ -1284,6 +1354,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   -- 
                   I_mem_request => timer2_request_int,
                   O_mem_response => timer2_response_int
@@ -1304,6 +1375,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => uart2_request_int,
                   O_mem_response => uart2_response_int,
@@ -1319,6 +1391,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => uart2_request_int,
                   O_mem_response => uart2_response_int
@@ -1333,6 +1406,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => crc_request_int,
                   O_mem_response => crc_response_int
@@ -1343,6 +1417,7 @@ begin
         port map (
                   I_clk => clk_int,
                   I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
                   --
                   I_mem_request => crc_request_int,
                   O_mem_response => crc_response_int
@@ -1354,6 +1429,7 @@ begin
     port map (
               I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               --
               I_mem_request => stub13_request_int,
               O_mem_response => stub13_response_int
@@ -1362,6 +1438,7 @@ begin
     port map (
               I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               --
               I_mem_request => stub14_request_int,
               O_mem_response => stub14_response_int
@@ -1370,6 +1447,7 @@ begin
     port map (
               I_clk => clk_int,
               I_areset => areset_sys_int,
+              I_sreset => sreset_sys_int,
               --
               I_mem_request => stub15_request_int,
               O_mem_response => stub15_response_int

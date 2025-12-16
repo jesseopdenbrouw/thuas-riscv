@@ -58,9 +58,7 @@ entity address_decode is
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble
          );
-    port (I_clk : in std_logic;
-          I_areset : in std_logic;
-          -- From and to core
+    port (-- From and to core
           I_bus_request : in bus_request_type;
           O_bus_response : out bus_response_type; 
           -- To and tp memory

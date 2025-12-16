@@ -102,7 +102,7 @@ begin
               -- Do we have integer hardware multiply/divide?
               HAVE_MULDIV => TRUE,
               -- Do we have the fast divider?
-              FAST_DIVIDE => TRUE,
+              FAST_DIVIDE => false,
               -- Do we have the Zba extension?
               HAVE_ZBA => false,
               -- Do we have Zbb (bit instructions)?
@@ -217,7 +217,7 @@ begin
         -- RxD input is idle high
         uart1rxd <= '1';
         gpioapin <= x"ffffff40";
-        wait for 15 ns;
+        wait for 102 ns;
         areset <= '0';
         --wait for 40000 ns;
         wait for 23*20 ns;

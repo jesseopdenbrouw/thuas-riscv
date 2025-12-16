@@ -46,6 +46,7 @@ use work.processor_common.all;
 entity stub is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type
@@ -70,8 +71,12 @@ begin
             O_mem_response.ready <= '0';
         elsif rising_edge(I_clk) then
             O_mem_response.ready <= '0';
-            if I_mem_request.stb = '1' and isword then
-                O_mem_response.ready <= '1';
+            if I_sreset = '1' then
+                null;
+            else
+                if I_mem_request.stb = '1' and isword then
+                    O_mem_response.ready <= '1';
+                end if;
             end if;
         end if;
     end process;

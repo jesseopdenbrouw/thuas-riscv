@@ -45,6 +45,7 @@ use work.processor_common.all;
 entity crc is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type
@@ -88,50 +89,60 @@ begin
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';
-            if I_mem_request.stb = '1' and isword then
-                if I_mem_request.wren = '1' then
-                    -- Write
-                    case I_mem_request.addr(4 downto 2) is
-                        when "000" => crc.size <= I_mem_request.data(5 downto 4);
-                        when "001" => crc.tc <= I_mem_request.data(3);
-                        when "010" => crc.poly <= I_mem_request.data;
-                        when "011" => crc.sreg <= I_mem_request.data;
-                        when "100" => crc.data <= I_mem_request.data(7 downto 0);
-                                      crc.counter <= 7;
-                                      crc.tc <= '0';
-                        when others => null;
-                    end case;
-                else
-                    -- Read
-                    case I_mem_request.addr(4 downto 2) is
-                        when "000" => O_mem_response.data(5 downto 4) <= crc.size;
-                        when "001" => O_mem_response.data(3) <= crc.tc;
-                        when "010" => O_mem_response.data <= crc.poly;
-                        when "011" => O_mem_response.data <= crc.sreg;
-                        when "100" => crc.tc <= '0';
-                        when others => null;
-                    end case;
-                end if;
-                O_mem_response.ready <= '1';
-            end if;
             
-            -- Galois type CRC-32 generator
-            -- Figure 1 in https://www.ti.com/lit/an/spra530/spra530.pdf
-            -- See https://www.allegromicro.com/-/media/files/application-notes/an296177-crc-algorithms-in-sensor-communication.pdf
-            -- Pre-multiply LFSR
-            
-            if crc.counter > 0 then
-                if crc.msb /= crc.data(7) then
-                    crc.sreg <= (crc.sreg(30 downto 0) & '0') xor crc.poly;
-                else
-                    crc.sreg <= crc.sreg(30 downto 0) & '0';
-                end if;
-                crc.counter <= crc.counter - 1;
-                crc.data <= crc.data(6 downto 0) & '0';
+            if I_sreset = '1' then
+                crc.sreg <= (others => '0');
+                crc.poly <= (others => '0');
+                crc.data <= (others => '0');
+                crc.size <= "00";
                 crc.tc <= '0';
+                crc.counter <= 0;
             else
-                crc.tc <= '1';
-            end if;
+                if I_mem_request.stb = '1' and isword then
+                    if I_mem_request.wren = '1' then
+                        -- Write
+                        case I_mem_request.addr(4 downto 2) is
+                            when "000" => crc.size <= I_mem_request.data(5 downto 4);
+                            when "001" => crc.tc <= I_mem_request.data(3);
+                            when "010" => crc.poly <= I_mem_request.data;
+                            when "011" => crc.sreg <= I_mem_request.data;
+                            when "100" => crc.data <= I_mem_request.data(7 downto 0);
+                                          crc.counter <= 7;
+                                          crc.tc <= '0';
+                            when others => null;
+                        end case;
+                    else
+                        -- Read
+                        case I_mem_request.addr(4 downto 2) is
+                            when "000" => O_mem_response.data(5 downto 4) <= crc.size;
+                            when "001" => O_mem_response.data(3) <= crc.tc;
+                            when "010" => O_mem_response.data <= crc.poly;
+                            when "011" => O_mem_response.data <= crc.sreg;
+                            when "100" => crc.tc <= '0';
+                            when others => null;
+                        end case;
+                    end if;
+                    O_mem_response.ready <= '1';
+                end if;
+                
+                -- Galois type CRC-32 generator
+                -- Figure 1 in https://www.ti.com/lit/an/spra530/spra530.pdf
+                -- See https://www.allegromicro.com/-/media/files/application-notes/an296177-crc-algorithms-in-sensor-communication.pdf
+                -- Pre-multiply LFSR
+                
+                if crc.counter > 0 then
+                    if crc.msb /= crc.data(7) then
+                        crc.sreg <= (crc.sreg(30 downto 0) & '0') xor crc.poly;
+                    else
+                        crc.sreg <= crc.sreg(30 downto 0) & '0';
+                    end if;
+                    crc.counter <= crc.counter - 1;
+                    crc.data <= crc.data(6 downto 0) & '0';
+                    crc.tc <= '0';
+                else
+                    crc.tc <= '1';
+                end if;
+            end if; -- sreset
         end if;
     end process;
 

@@ -117,6 +117,8 @@ add wave            -label break_from_uart1_int dut/break_from_uart1_int
 add wave            -label reset_from_wdt dut/reset_from_wdt_int
 add wave            -label areset_debug_sync_int dut/areset_debug_sync_int
 add wave            -label areset_debug_int dut/areset_debug_int
+add wave            -label sreset_debug_int dut/sreset_debug_int
+add wave            -label sreset_sys_int dut/sreset_sys_int
 add wave -divider "Core Internals - Control"
 add wave            -label control dut/core0/control
 add wave -divider "Core Internals - Instruction Fetch"

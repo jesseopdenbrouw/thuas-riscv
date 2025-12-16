@@ -44,6 +44,7 @@ use work.processor_common.all;
 entity wdt is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
+          I_sreset : in std_logic;
           -- 
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
@@ -96,62 +97,71 @@ begin
             --
             wdt.mustreset <= '0';
             wdt.mustrestart <= '0';
-            if I_mem_request.stb = '1' and isword then
-                -- Control register
-                if I_mem_request.wren = '1' then
-                    if I_mem_request.addr(2) = '0' then
-                        -- Write control register
-                        -- Test if not locked
-                        if wdt.lock = '0' then
-                            wdt.en <= I_mem_request.data(0);
-                            wdt.nmi <= I_mem_request.data(1);
-                            wdt.lock <= I_mem_request.data(7);
-                            wdt.prescaler <= I_mem_request.data(31 downto 8);
-                            wdt.mustrestart <= '1';
-                        -- Locked!
+            
+            if I_sreset = '1' then
+                wdt.en <= '0';
+                wdt.nmi <= '0';
+                wdt.lock <= '0';
+                wdt.prescaler <= (others => '0');
+                wdt.counter <= (others =>'0');
+            else
+                if I_mem_request.stb = '1' and isword then
+                    -- Control register
+                    if I_mem_request.wren = '1' then
+                        if I_mem_request.addr(2) = '0' then
+                            -- Write control register
+                            -- Test if not locked
+                            if wdt.lock = '0' then
+                                wdt.en <= I_mem_request.data(0);
+                                wdt.nmi <= I_mem_request.data(1);
+                                wdt.lock <= I_mem_request.data(7);
+                                wdt.prescaler <= I_mem_request.data(31 downto 8);
+                                wdt.mustrestart <= '1';
+                            -- Locked!
+                            else
+                                wdt.mustreset <= '1';
+                            end if;
+                        -- Password register
                         else
-                            wdt.mustreset <= '1';
+                            -- Write reset (trigger) register
+                            -- Test for correct password
+                            if I_mem_request.data = wdt_password_c then
+                                wdt.mustrestart <= '1';
+                            else
+                                wdt.mustreset <= '1';
+                            end if;
                         end if;
-                    -- Password register
+                    -- Read
                     else
-                        -- Write reset (trigger) register
-                        -- Test for correct password
-                        if I_mem_request.data = wdt_password_c then
-                            wdt.mustrestart <= '1';
+                        if I_mem_request.addr(2) = '0' then
+                            -- Read control register
+                            O_mem_response.data <= all_zeros_c;
+                            O_mem_response.data(0) <= wdt.en;
+                            O_mem_response.data(1) <= wdt.nmi;
+                            O_mem_response.data(7) <= wdt.lock;
+                            O_mem_response.data(31 downto 8) <= wdt.prescaler;
                         else
-                            wdt.mustreset <= '1';
+                            -- Read zeros from reset (trigger) register
+                            O_mem_response.data <= all_zeros_c;
                         end if;
                     end if;
-                -- Read
-                else
-                    if I_mem_request.addr(2) = '0' then
-                        -- Read control register
-                        O_mem_response.data <= all_zeros_c;
-                        O_mem_response.data(0) <= wdt.en;
-                        O_mem_response.data(1) <= wdt.nmi;
-                        O_mem_response.data(7) <= wdt.lock;
-                        O_mem_response.data(31 downto 8) <= wdt.prescaler;
-                    else
-                        -- Read zeros from reset (trigger) register
-                        O_mem_response.data <= all_zeros_c;
-                    end if;
+                    O_mem_response.ready <= '1';
                 end if;
-                O_mem_response.ready <= '1';
-            end if;
 
-            -- If enabled ...
-            if wdt.en = '1' then
-                -- If we must restart the counter ...
-                if wdt.mustrestart = '1' then
-                    wdt.counter <= (others => '1');
-                    wdt.counter(31 downto 8) <= wdt.prescaler;
-                -- If time's up...
-                elsif wdt.counter = all_zeros_c then
-                    wdt.mustreset <= '1';
-                else
-                    wdt.counter <= std_logic_vector(unsigned(wdt.counter) - 1);
+                -- If enabled ...
+                if wdt.en = '1' then
+                    -- If we must restart the counter ...
+                    if wdt.mustrestart = '1' then
+                        wdt.counter <= (others => '1');
+                        wdt.counter(31 downto 8) <= wdt.prescaler;
+                    -- If time's up...
+                    elsif wdt.counter = all_zeros_c then
+                        wdt.mustreset <= '1';
+                    else
+                        wdt.counter <= std_logic_vector(unsigned(wdt.counter) - 1);
+                    end if;
                 end if;
-            end if;
+            end if; -- sreset
         end if;
     end process;
     

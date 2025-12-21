@@ -57,4 +57,5 @@ All dates are in dd.mm.yyyy format.
 | 16.10.2025 | 1.1.3.2  | [dm] timeout is now 16 system clocks, timeout sets cmderr to 5. | |
 | 23.11.2025 | 1.1.3.3  | [gpio] inputs are now double synchronized. | |
 | 05.12.2025 | 1.1.3.4  | [gpio] fixed an issue with double synchronization, edge detect now after 3 clocks. | |
+| 16.12.2025 | 1.1.3.5  | [all] implemented synchronous reset (selectable in code) | |
 

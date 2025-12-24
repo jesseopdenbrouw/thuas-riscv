@@ -39,12 +39,12 @@ The RISC-V processor consists of one core and some building blocks:
 
 * The core handles program execution.
 * The ROM contains the program instructions and constant data. When the bootloader or the on-chip debugger is implemented, the ROM may be written.
-* The bootloader ROM contains the bootloader program instructions and constant (read-only) data. The bootloader ROM may be excluded from the design
+* The bootloader ROM contains the bootloader program instructions and constant (read-only) data. The bootloader ROM may be excluded from the design. The bootloader ROM cannot be written.
 * The RAM contains read-write data (mutable data).
 * The I/O (multiple files) is an interface with the outside world.
 * The Address Decoder and Data Router is an interface between the memory (ROM, boot ROM, RAM, I/O) and the core
 * The instruction router routes instructions from the ROM and the boot ROM (if enabled).
-* The debug module (DM) is an interface between the core and the debug module interface (DMI).
+* The debug module (DM) is an interface between the core and the Debug Module Interface (DMI).
 * The debug transport module (DTM) is an interface between the DMI and the external debug hardware.
 
 
@@ -185,7 +185,7 @@ For trap handling, the following registers are implemented:
 
 * `mstatus` -- the only implemented bits are `MIE`, `MPIE` and `MPP`, all other bits are hardwired zero.
 * `mie` -- for the lower 16 bits, only `MTIE` and `MSI` are implemented, all other bits are hardwired zero. The upper 16 bits are hardwired zero.
-* `mtvec` -- contains the trap handler (vector) address, can be used in direct and vectored mode, and bit 1 is always 0.
+* `mtvec` -- contains the trap handler (vector) address on a word boundary, can be used in direct and vectored mode, and bit 1 is always 0.
 * `mstatush` -- this register is hardwired to all zero bits.
 * `mscratch` -- can be used by software trap handlers.
 * `mepc` -- contains the PC at point of trap of the *currently* executing instruction.
@@ -259,7 +259,7 @@ For the processor, all RV32IM Unprivileged instructions are implemented but the 
 
 == Reset
 
-There are two types resets. A system wide reset resets the complete processor, including I/O and debug units. The debug reset resets the core and the I/O. The asynchronous reset is active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition. It is also possible to reset the processor when the watchdog (WDT) times out.
+There are two flavors of resets. The processes can be reset asynchronous or synchronous. Furthermore, each flavor has two types of reset. A system wide reset resets the complete processor, including I/O and debug units. The debug unit generated reset resets the core and the I/O. The resets are active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition. It is also possible to reset the processor when the watchdog (WDT) times out.
 
 
 == Memories
@@ -292,7 +292,7 @@ The Instruction Router routes instructions from the ROM and the boot ROM. If the
 
 === ROM
 
-The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. Reading ROM (as data) requires three cycles. This is automatically handled by the processor. The pipeline is stalled for two clock cycles when reading from ROM (data). Reading instructions requires two clock cycles.
+The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are stored in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. Reading ROM (as data) requires three cycles. This is automatically handled by the processor. The pipeline is stalled when reading from ROM (data). Reading instructions requires two clock cycles.
 
 When the bootloader hardware is installed or the on-chip debugger is enabled, the ROM is writable as words only. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. A write requires two clock cycles.
 
@@ -304,7 +304,7 @@ The bootloader ROM contains a small program to upload S-record files in the ROM.
 
 === RAM
 
-The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns undefined data if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM cannot be used for program data.
+The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns undefined data if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM cannot be used for program data.
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
@@ -320,11 +320,11 @@ GPIOA has separate inputs and output, both 32 bits. Because of that, there is no
 
 UART1 can transmit and receive data at 7, 8 or 9 bits, no/even/odd parity and 1 or 2 stop bits. Tested speeds are 9600 bps, 115200 bps and 230400 bps. Several status flags are implemented to guide transmission. Receive, transmitted and BREAK character (local) interrupts are provided (one vector). These interrupt requests must be negated by software. A BREAK condition is found if UART1 samples 1 start bit + number of data bits + 1 stop bit to be low. UART1 does not provide hardware flow control. UART1 can generate a system wide reset when a BREAK condition is found.
 
-UART2 is an exact copy of UART1 but with a different interrupt priority. Also, UART2 cannot reset the core on a BREAK condition.
+UART2 is a copy of UART1 but with a different interrupt priority. Also, UART2 cannot reset the core on a BREAK condition.
 
 TIMER1 has a 32-bit count register and increments on every clock cycle. It does not have a prescaler. It counts up to compare match T register, after which is will be loaded with 0 again. A compare match (local) interrupt is provided (one vector). Whenever the timer count register is greater than or equal to the compare match T register, an interrupt request is asserted in the next clock cycle. The interrupt request has to be negated by software. A value of 0 in the compare match T register is valid: the counter does not count, but the compare match (local) interrupt is asserted.
 
-TIMER2 has a 16-bit count register and a 16-bit prescaler, and increments on every clock cycle. The counter can be used to generate signals (Output Compare/PWM) or detect incoming signal edges (Input Capture). When in output mode. the timer counts up to compare match T register, after which is will be loaded with 0 again. Compare match (local) interrupts are provided (one vector). Whenever the timer count register is greater than or equal to the compare match T register, an interrupt request is asserted. The interrupt request has to be negated by software. The timer provides three Channels with compare registers (A, B, C). Whenever the timer count register is greater than or equal to a compare register (A, B, C) the respective interrupt request is asserted. The interrupt requests have to be negated by software. A value of 0 in the compare match T register is valid: the counter does not count, but the compare match T (local) interrupt is asserted and the compare match interrupts (A, B, C) are asserted whenever the respective compare match register is 0. The prescaler is always preloaded: if the timer is off, the shadow prescaler register is directly written, if the timer is running, the preload register is written and the shadow register is updated at the the next CMPT match. The CMPT/A/B/C registers may optionally use a preload register. If preload is off, the shadow registers are directly written, if preload is on, the preload registers are written and the shadow registers are updated at the next CMPT match. In Input Capture mode, the Channels A, B and C can be selected to trigger on a positive or negative edge. When an edge is detected, the current value of CNTR is copied to the accompanying CMPx register and the accompanying interrupt flag is asserted. Note that Channel T cannot be used for PWM and input capture. The input capture circuits use a two-stage synchronizer. 
+TIMER2 has a 16-bit count register and a 16-bit prescaler, and increments on every clock cycle. The counter can be used to generate signals (Output Compare/PWM) or detect incoming signal edges (Input Capture). When in output mode. the timer counts up to compare match T register, after which is will be loaded with 0 again. Compare match (local) interrupts are provided (one vector). Whenever the timer count register is greater than or equal to the compare match T register, an interrupt request is asserted. The interrupt request has to be negated by software. The timer provides three Channels with compare registers (A, B, C). Whenever the timer count register is greater than or equal to a compare register (A, B, C) the respective interrupt request is asserted. The interrupt requests have to be negated by software. A value of 0 in the compare match T register is valid: the counter does not count, but the compare match T (local) interrupt is asserted and the compare match interrupts (A, B, C) are asserted whenever the respective compare match register is 0. The prescaler is always preloaded: if the timer is off, the shadow prescaler register is directly written, if the timer is running, the preload register is written and the shadow register is updated at the the next CMPT match. The CMPT/A/B/C registers may optionally use a preload register. If preload is off, the shadow registers are directly written, if preload is on, the preload registers are written and the shadow registers are updated at the next CMPT match. In Input Capture mode, the Channels A, B and C can be selected to trigger on a positive or negative edge. When an edge is detected, the current value of count register is copied to the accompanying CMPx register and the accompanying interrupt flag is asserted. Note that Channel T cannot be used for PWM and input capture. The input capture circuits use a two-stage synchronizer. 
 
 I2C1 is a minimal I2C controller peripheral (master-only). It can react to clock stretching, but not clock synchronisation and lost arbitration, so older targets (slaves) can be connected in a one-master-only system. Both Standard mode (Sm) with a transmission speed of up to 100 kbps and Fast mode (Fm) with a transmission speed up to 400 kbps are implemented. Only 7-bit addresses are supported. Before sending the address byte, the send-start bit must be set and a START condition is send to the target when the address is written to the I2C1 data register. Before sending or receiving the last data byte, the send-stop bit must be set and a STOP condition is send to the target after the byte is send or received by the controller. The last byte received will not be acknowledged by the controller. When receiving intermediate bytes, the controller must acknowledge the reception with an ACK. This is controlled by the MACK bit in the control register. Sending a byte is straightforward: just write the byte to the data register. When receiving a byte, a dummy byte (data value of 0xff) must be send to the target. This way, the processor can create a pause in the transmission if needed. Note that the SCL line is kept low between byte transmissions. The baud rate prescaler must be loaded with the number of system clock cycles of *one-half* bit time minus 1 for Standard mode and *one-third* bit time minus 1 for Fast mode. Note that the prescaler is part of the control register CTRL and its value must be preserved when setting or clearing other bits. The SCL and SDA inputs are synchronized to the system clock using two 2-bit shift registers.
 
@@ -342,7 +342,7 @@ The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Wh
 
 The CRC unit can calculate 8-bit, 16-bit, 24-bit and 32-bit CRCs with arbitrary polynomals. The CRCs are calculated on byte data with the msb of the bytes rirst. The polynomal has the same width as the calculated CRC. The CRC value can be loaded with a start value (often 0x00000000 or 0xffffffff).
 
-Note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
+When writing your own I/O modules, note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
 
 == Debug Module and Debug Transport Module
 
@@ -359,7 +359,7 @@ The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 308
 [[fig_de0cv]]
 image::images/image-de0-cv.jpg[The DE0-CV Board]
 
-Disabling the bootloader saves one copy of the ROM and the bootloader ROM. Then the used RAM is 786,432 bits (25%). Disabling registers in RAM saves 2048 bits, but increases the ALM count. You may see some warnings from the synthesizer.
+Disabling the bootloader *and* on-chip debugger saves one copy of the ROM and the bootloader ROM. Then the used RAM is 786,432 bits (25%). Disabling registers in RAM saves 2048 bits, but increases the ALM count. You may see some warnings from the synthesizer.
 
 Disabling the boot ROM and enabling the on-chip debugger increases the ALM count to 3200 (17%).
 
@@ -655,7 +655,7 @@ image::images/de0-cv-gpio.svg[DE0-CV GPIO pin layout]
 
 === Simulation
 
-The design can be simulated fully, using QuestaSim Intel Starter or ModelSim Intel Starter. You need a (free) license for QuestaSim. During simulation, all essential signals can be viewed, as is the RAM. The RAM is viewed as 32-bit entries, so we need to do some manual calculations to correctly find byte, half word and word accesses. Simulation can be started from Quartus. Please note that the bootloader is normally disabled when simulating.
+The design can be fully simulated, using QuestaSim Intel Starter or ModelSim Intel Starter. You need a (free) license for QuestaSim. During simulation, all essential signals can be viewed, as is the RAM. The RAM is viewed as 32-bit entries, so we need to do some manual calculations to correctly find byte, half word and word accesses. Simulation can be started from Quartus. Please note that the bootloader is normally disabled when simulating.
 
 === Customizing the design
 
@@ -1055,7 +1055,7 @@ When using floats and doubles in `sprintf`/`printf`, you need to supply the link
 
 Note that `sprintf`/`printf` do not print 64-bit integers (a.k.a. `long long`) because of lack of support in the `nano` library.
 
-Note that enabling the Zba, Zbb and Zbs extensions (B extension), the floating point operations perform around 20% better, but has a severe impact on the $f_{max}$.
+Note that enabling the Zba, Zbb and Zbs extensions (B extension), the floating point operations perform around 20% better, but have a severe impact on the $f_{max}$.
 
 
 === srec2vhdl
@@ -1220,7 +1220,7 @@ The on-chip debugger (OCD) follows the guidelines of the https://github.com/risc
 * Read/write all core registers (GPR and CSR),
 * Read/write memory.
 
-The OCD is an all-hardware solution. Accessing core registers and memory is done by Abstract Commands. There is no support for program buffer (progbuf) and System Bus Access. This means that the debugger cannot execute the `fence` instruction (or any other instruction). That is not a problem, since the core will wait for a memory operation to be completedi before entering denug state. Note that the program buffer is optional.
+The OCD is an all-hardware solution. Accessing core registers and memory is done by Abstract Commands. There is no support for program buffer (progbuf) and System Bus Access. This means that the debugger cannot execute the `fence` instruction (or any other instruction). That is not a problem, since the core will wait for a memory operation to be completedi before entering denug state. Note that from the debug specification, the program buffer is optional.
 
 From the debug specification, Chapter 3, there is a list of requirements. Some are mandatory, others are optional. All requirements for multiple harts are not applicable.
 
@@ -1245,7 +1245,7 @@ From the debug specification, Chapter 3, there is a list of requirements. Some a
 |Signal an external trigger when a hart in a group halts.         | Optional | n.a.
 |===
 
-The hart can be in five "states": resetting, running, halting, halted and resuming. When resetting, the reset synchronizer creates a three-clock-cycle reset signal after the reset signal is deasserted. It takes two clock cycles for the first instruction to be executed. In running, the hart executes instructions. Then, it is not possible to examine registers or memory. When a halt request is asserted, the core does not execute the current instruction, but enters the halted state. In the halted state (coined "debug"), the hart is not executing instructions, and registers and memory may be examined. When resuming, the hart flushes the pipeline and starts executing instructions. All transitions take up a few clock cycles, except when an integer division is in progress. Then, halting takes about 20 clock cycles.
+The hart can be in five "states": resetting, running, halting, halted and resuming. When resetting, the reset synchronizer creates a three-clock-cycle reset signal after the reset signal is deasserted. It takes two clock cycles for the first instruction to be executed. In running, the hart executes instructions. Then, it is not possible to examine registers or memory. When a halt request is asserted, the core does not execute the current instruction, but enters the halted state. In the halted state (coined "debug"), the hart is not executing instructions, and registers and memory may be examined. When resuming, the hart flushes the pipeline and starts executing instructions. All transitions take up a few clock cycles, except when an integer division is in progress. Then, halting takes about 36 clock cycles.
 
 *Reset Control* The hart can be reset, even from the very first instruction. In OpenOCD, just issue the command `reset halt` and the hart will be reset and halted. Note that registers and RAM memory retain their last committed value, I/O memory is reset. Resetting the hart takes a few clock cycles.
 
@@ -1259,9 +1259,9 @@ The hart can be in five "states": resetting, running, halting, halted and resumi
 
 *WFI Instruction* When the hart is halting when executing the WFI instruction, the hart enters debug mode. When stepping, the WFI instruction is treated as a NOP instruction.
 
-To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while there isn't. If the VHDL generic `OCD_AAMPOSTINCREMENT` is set to true, bulk memory accesses will use the auto post-increment feature for the address register, e.g. when uploading a binary executable with GDB. When using OCD, the bootloader is usually disabled.
+To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented CSR register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while there isn't. If the VHDL generic `OCD_AAMPOSTINCREMENT` is set to true, bulk memory accesses will use the auto post-increment feature for the address register, e.g. when uploading a binary executable with GDB. When using OCD, the bootloader is usually disabled.
 
-Registers and CSRs are directly accessed via the core. Memory operations are handled by the core's memory interface. If a memory operation times out, the DM will report error code 7. This is not standard.
+Registers and CSRs are directly accessed via the core. Memory operations are handled by the core's memory interface. If a memory operation times out, the DM will report error code 5.
 
 Tests with the OCD were conducted with an https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE]. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB and Eclipse-CDT.
 

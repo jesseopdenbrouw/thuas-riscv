@@ -123,8 +123,6 @@ package processor_common is
     type bus_response_type is record
         data : data_type;
         ready : std_logic;
-        load_access_error : std_logic;
-        store_access_error : std_logic;
         load_misaligned_error : std_logic;
         store_misaligned_error : std_logic;
     end record;

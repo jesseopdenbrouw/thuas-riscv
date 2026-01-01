@@ -3,7 +3,7 @@
  *
  * For use with the THUAS RISC-V processor
  *
- * (c)2025, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c)2026, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  * This program converts a file with Motorola S-records to
  * a series of VHDL table statements.
@@ -57,7 +57,7 @@
 
 #endif
 
-#define VERSION "v0.4.2"
+#define VERSION "v0.4.3"
 
 /* 1000 should be enough */
 #define LEN_BUFFER (1000)
@@ -216,7 +216,6 @@ int main(int argc, char *argv[]) {
 				asboot = 1;
 				break;
 	        default: /* '?' */
-		    	fprintf(stderr, "Unknown option '%c'\n", opt);
 	            exit(EXIT_FAILURE);
 	        }
 	}

@@ -11,6 +11,7 @@ TARGET = coremark
 
 # Put your optimization here
 EFFORT ?= -O3
+#EFFORT ?= -O3 -funroll-all-loops
 
 
 #-----

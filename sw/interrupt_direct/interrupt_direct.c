@@ -16,7 +16,7 @@
 /* Set to 1 to use printf(), uses system calls.
  * Set to 0 to use sprintf()/uart1_puts(), uses
  * at most sbrk system call */
-#define USE_PRINTF (0)
+#define USEPRINTF (0)
 
 /* Should be loaded by the Makefile */
 #ifndef F_CPU
@@ -88,7 +88,7 @@ int main(int argc, char *argv[], char *envp[])
 		printf("%s\r\n", *argv++);
 	}
 
-	printf("\nClock frequency: %u", fsys);
+	printf("\nClock frequency: %lu\r\n", fsys);
 #else
 	uart1_puts("\r\n");
 	while(argc-- > 0) {
@@ -102,7 +102,7 @@ int main(int argc, char *argv[], char *envp[])
 	printhwversion();
 	uart1_puts("\r\n\nDisplaying the time passed since reset\r\n\n");
 	if (has_ocd) {
-		uart1_puts("On-chip debugger found, skipping EBREAK instruction\r\n\r\n");
+		uart1_puts("On-chip debugger found, skipping EBREAK instruction\r\n\n");
 	}
 
 	while (1) {

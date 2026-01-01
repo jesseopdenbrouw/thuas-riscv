@@ -14,6 +14,13 @@ This version uses mtvec vectored mode.
 * The UART1 receive interrupt is also active.
 * Button `KEY3` of the DE0-CV board is connected to the external input interrupt.
 
+Use the macro USEPRINTF to use `printf` instead of `uart_puts`.
+
+## Note
+
+When using `printf` the interrupts are processed really slow, especially TIMER1 and the external timer.
+This is because `printf` uses the `write` system call that in turn uses blocking `uart_putc` to transmit characters, i.e. stalling in the trap handler.
+
 ## Status
 
 Works on the DE0-CV board.

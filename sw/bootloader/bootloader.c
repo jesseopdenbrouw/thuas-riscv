@@ -2,7 +2,7 @@
  *
  * bootloader.c -- a simple bootloader for THUAS RISC-V
  *
- * (c)2024, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl
+ * (c)2026, J.E.J. op den Brouw <J.E.J.opdenBrouw@hhs.nl
  *
  */
 
@@ -27,7 +27,7 @@
 #define BAUD_RATE (115200UL)
 #endif
 
-#define VERSION "v0.6.4"
+#define VERSION "v0.6.5"
 #define BUFLEN (41)
 #define BOOTWAIT (10)
 
@@ -288,9 +288,11 @@ int main(int argc, char *argv[], char *envp[]) {
 }
 
 /* The trap handler handles incoming traps,
- * for now only eceptions. The offending
- * is bypassed by setting the return address
- * one instruction further */
+ * support for interrupts and exceptions.
+ * With execptions, the offending instruction
+ * is bypassed by setting the mepv CSR to
+ * one instrction location further.
+ */
 __attribute__ ((interrupt,used))
 void trap_handler(void)
 {
@@ -301,6 +303,9 @@ void trap_handler(void)
 	printhex(mcause, 8);
 	uart1_puts("\r\n");
 
-	mepc += 4;
+	/* Check for exception */
+	if ((int32_t) mcause >= 0) {
+		mepc += 4;
+	}
 	csr_write(mepc, mepc);
 }

@@ -31,7 +31,7 @@ clocks, the microcontroller does not support branch prediction.
 All other instructions require 1 clock.
 
 Current Coremark testbench shows a CPI of 1.73 and a score
-of 1.93 coremark/MHz.
+of 1.94 coremark/MHz.
 
 Software is written in C, ({cpp} is supported but there are
 some limitations) and compiled using the RISC-V GNU C/{cpp}

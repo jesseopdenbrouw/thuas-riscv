@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_03_05#;
+    constant HW_VERSION : integer := 16#01_01_03_06#;
 
     
     -- Used data types
@@ -142,6 +142,8 @@ package processor_common is
     type mem_response_type is record
         data : data_type;
         ready : std_logic;
+        load_access_error : std_logic;
+        store_access_error : std_logic;
         load_misaligned_error : std_logic;
         store_misaligned_error : std_logic;
     end record;
@@ -156,6 +158,8 @@ package processor_common is
     constant mem_response_terminate_c : mem_response_type := (
         data => (others => '0'),
         ready => '0',
+        load_access_error => '0',
+        store_access_error => '0',
         load_misaligned_error => '0',
         store_misaligned_error => '0'
        );

@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -721,7 +721,8 @@ signal irq_timer2_int : std_logic;
 signal irq_uart2_int : std_logic;
 
 -- Have synchronous reset?
-constant HAVE_SYN_RESET : boolean := false;
+type reset_type is (full_async, full_sync, mixed);
+constant RESET_METHOD : reset_type := full_async;
 
 begin
 
@@ -729,10 +730,10 @@ begin
     clk_int <= I_clk;
 
     
-    -- Synchronize the asynchronous reset.
+    -- Use full asynchronous reset.
     -- Implements global reset (all modules)
     -- Implements system reset (all modules except DM and DTM)
-    async_reset_gen: if not HAVE_SYN_RESET generate
+    async_reset_gen: if RESET_METHOD = full_async generate
         process (I_clk, I_areset) is
         begin
             if I_areset = '1' then
@@ -757,10 +758,10 @@ begin
         sreset_sys_int <= '0';
     end generate;
 
-    -- Use synchronous reset
+    -- Use full synchronous reset
     -- sreset_debug_int implements reset for debug modules
     -- sreset_sys_int implements reset for other modules
-    syn_reset_gen: if HAVE_SYN_RESET generate
+    syn_reset_gen: if RESET_METHOD = full_sync generate
         -- Synchronize the asynchronous reset
         process (clk_int, I_areset) is
         begin
@@ -884,9 +885,10 @@ begin
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
               I_sreset => sreset_sys_int,
-              -- fetch instruction
+              -- Fetch instruction
               I_instr_request => instr_request_rom_int,
               O_instr_response => instr_response_rom_int,
+              -- Fetch data
               I_mem_request => mem_request_rom_int,
               O_mem_response => mem_response_rom_int
              );
@@ -898,10 +900,10 @@ begin
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
               I_sreset => sreset_sys_int,
-              --
+              -- Fetch instruction
               I_instr_request => instr_request_boot_int,
               O_instr_response => instr_response_boot_int,
-              --
+              -- Fetch  data
               I_mem_request => mem_request_boot_int,
               O_mem_response => mem_response_boot_int
              );
@@ -913,7 +915,7 @@ begin
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
               I_sreset => sreset_sys_int,
-              --
+              -- Fetch data
               I_mem_request => mem_request_ram_int,
               O_mem_response => mem_response_ram_int
              );

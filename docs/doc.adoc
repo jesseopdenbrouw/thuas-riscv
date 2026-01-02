@@ -1,5 +1,5 @@
 = The THUAS RISC-V 32-bit Processor in VHDL
-Jesse op den Brouw <j.e.j.opdenbrouw@hhs.nl>
+Jesse op den Brouw <J.E.J.opdenBrouw@hhs.nl>
 :toc:
 
 
@@ -25,7 +25,7 @@ This document describes the buildup of a simple, one core, RISC-V processor, com
 
 The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. A multiplication takes 3 clocks. Trap taken and return take 3 clocks.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests shows an average CPI of 1.76 with a throughput of 1.94 coremark/MHz (GCC 15.1, 4000 runs).
+The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests shows an average CPI of 1.76 with a throughput of 1.94 coremark/MHz (GCC 15.2, 4000 runs).
 
 == The Processor
 
@@ -741,7 +741,7 @@ Compilation of the hardware design is independent of the size of the software pr
 
 == Setting up the GNU C compiler for _this_ RISC-V
 
-The processor can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 15.1.0. Building the C/{cpp} compiler for Linux is straightforward:
+The processor can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 15.2.0. Building the C/{cpp} compiler for Linux is straightforward:
 
 You need a current GNU C/{cpp} compiler installed or your Linux box. You also need all essential building tools:
 [source,subs=attributes+]
@@ -893,7 +893,7 @@ __attribute__ ((naked))
 void trap_handler_jump_table(void)
 {
     /* Handlers for RISC-V interrupts. Only Machine
-     * Timer Interrupt is available. */
+     * Timer Interrupt and Software Interrupt are available. */
     __asm__ volatile ("j trap_handler_vectored;");
     __asm__ volatile ("j default_handler;");
     __asm__ volatile ("j default_handler;");
@@ -1170,9 +1170,17 @@ If within the 5 seconds grace period a character is received by the bootloader, 
 
 Run the program at address 0x00000000.
 
+`rb <address>` +
+`rh <address>` +
 `rw <address>`
 
-Read and print word at address. Address must be on a 4-byte boundary. Data is presented in big endian.
+Read and print byte/halfword/word at address. Address must be natural aligned, otherwise an exception will be generated. Data is presented in big endian.
+
+`wb <address> <8-bit data>` +
+`wh <address> <16-bit data>` +
+`ww <address> <32-bit data>`
+
+Write byte/halfword/word data at address. Address must be natural aligned, otherwise an exception will be generated. Data must be in big endian.
 
 `dw <address>`
 
@@ -1181,10 +1189,6 @@ Dump 16 words from memory to the terminal. Address must be on a 4-byte boundary.
 `n`
 
 Dump next 16 words from memory to the terminal, and ASCII characters.
-
-`ww <address> <data>`
-
-Write 4-byte data at address. Address must be on a 4-byte boundary. Data must be in big endian.
 
 `h`
 
@@ -1448,7 +1452,7 @@ Before `main` is called, the C Runtime startup code (file `startup.c` in the `cr
 * Call the global destructors (if enabled).
 * Call `exit`
 
-Although this is a bare metal processor, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in the code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copied to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
+Although this is a bare metal processor, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in the code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and must be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copied to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
 
 [source,c,subs=attributes+]
 ----

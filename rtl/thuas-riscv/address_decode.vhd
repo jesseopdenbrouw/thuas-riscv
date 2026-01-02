@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -111,8 +111,15 @@ begin
         O_mem_request_io.data <= I_bus_request.data;
         O_mem_request_io.size <= I_bus_request.size;
         
-        O_bus_response.load_access_error <= '0';
-        O_bus_response.store_access_error <= '0';
+        O_bus_response.load_access_error <= I_mem_response_rom.load_access_error or
+                                            I_mem_response_boot.load_access_error or
+                                            I_mem_response_ram.load_access_error or
+                                            I_mem_response_io.load_access_error; 
+        
+        O_bus_response.store_access_error <= I_mem_response_rom.store_access_error or
+                                             I_mem_response_boot.store_access_error or
+                                             I_mem_response_ram.store_access_error or
+                                             I_mem_response_io.store_access_error; 
         
         O_bus_response.load_misaligned_error <= I_mem_response_rom.load_misaligned_error or
                                                 I_mem_response_boot.load_misaligned_error or
@@ -137,13 +144,13 @@ begin
             O_bus_response.ready <= I_mem_response_rom.ready;
         -- Bootloader ROM @ 1xxxxxxx, 256M space, read only
         elsif I_bus_request.addr(31 downto 28) = BOOT_HIGH_NIBBLE and HAVE_BOOTLOADER_ROM then
-            if I_bus_request.acc = memaccess_read then
+            if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
                 O_mem_request_boot.cs <= '1';
                 O_mem_request_boot.stb <= I_bus_request.stb;
             end if;
-            -- The boot ROM cannot be written
+            -- The boot ROM cannot be written, but just try it, it will result in an exception
             if I_bus_request.acc = memaccess_write then
-                O_bus_response.store_access_error <= '1';
+                O_mem_request_boot.wren <= '1';
             end if;            
             O_bus_response.data <= I_mem_response_boot.data;
             O_bus_response.ready <= I_mem_response_boot.ready;

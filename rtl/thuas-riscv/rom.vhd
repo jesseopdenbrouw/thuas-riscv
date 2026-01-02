@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -82,6 +82,14 @@ signal rom : memory_type(0 to rom_size-1) := initialize_memory(rom_contents, rom
 signal stb_dly : std_logic;
 
 begin
+
+    -- Never access error
+    O_mem_response.store_access_error <= '0';
+    O_mem_response.load_access_error <= '0';
+    -- Never store misaligned error even there is a misalignment,
+    -- Data will just not be written. FIXME
+    O_mem_response.store_misaligned_error <= '0';
+        
     
     -- ROM, for both instructions and read-write data
     process (I_clk, I_areset, I_instr_request, I_mem_request, stb_dly) is
@@ -96,13 +104,6 @@ begin
         address_instr_v := to_integer(unsigned(I_instr_request.pc(ROM_ADDRESS_BITS-1 downto 2)));
         address_data_v := to_integer(unsigned(I_mem_request.addr(ROM_ADDRESS_BITS-1 downto 2)));
  
-        -- Set store misaligned error
-        if I_mem_request.stb = '1' and I_mem_request.wren = '1' and I_mem_request.size /= memsize_word then
-            O_mem_response.store_misaligned_error <= '1';
-        else
-            O_mem_response.store_misaligned_error <= '0';
-        end if;
-        
         -- Quartus will detect ROM table and uses onboard RAM
         -- Do NOT use an asynchronous reset
         if rising_edge(I_clk) then

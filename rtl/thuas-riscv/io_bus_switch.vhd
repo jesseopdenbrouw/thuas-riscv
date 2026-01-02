@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -358,9 +358,47 @@ begin
                                                          I_dev13_response.store_misaligned_error or
                                                          I_dev14_response.store_misaligned_error or
                                                          I_dev15_response.store_misaligned_error;
+
+                -- Fuse all response access errors
+                O_mem_response.load_access_error <= I_dev0_response.load_access_error or
+                                                    I_dev1_response.load_access_error or
+                                                    I_dev2_response.load_access_error or
+                                                    I_dev3_response.load_access_error or
+                                                    I_dev4_response.load_access_error or
+                                                    I_dev5_response.load_access_error or
+                                                    I_dev6_response.load_access_error or
+                                                    I_dev7_response.load_access_error or
+                                                    I_dev8_response.load_access_error or
+                                                    I_dev9_response.load_access_error or
+                                                    I_dev10_response.load_access_error or
+                                                    I_dev11_response.load_access_error or
+                                                    I_dev12_response.load_access_error or
+                                                    I_dev13_response.load_access_error or
+                                                    I_dev14_response.load_access_error or
+                                                    I_dev15_response.load_access_error;
+                
+                O_mem_response.store_access_error <= I_dev0_response.store_access_error or
+                                                     I_dev1_response.store_access_error or
+                                                     I_dev2_response.store_access_error or
+                                                     I_dev3_response.store_access_error or
+                                                     I_dev4_response.store_access_error or
+                                                     I_dev5_response.store_access_error or
+                                                     I_dev6_response.store_access_error or
+                                                     I_dev7_response.store_access_error or
+                                                     I_dev8_response.store_access_error or
+                                                     I_dev9_response.store_access_error or
+                                                     I_dev10_response.store_access_error or
+                                                     I_dev11_response.store_access_error or
+                                                     I_dev12_response.store_access_error or
+                                                     I_dev13_response.store_access_error or
+                                                     I_dev14_response.store_access_error or
+                                                     I_dev15_response.store_access_error;
+                
                 if I_sreset = '1' then
                     O_mem_response.data  <= all_zeros_c;
                     O_mem_response.ready <= '0';
+                    O_mem_response.load_access_error <= '0';
+                    O_mem_response.store_access_error <= '0';
                     O_mem_response.load_misaligned_error <= '0';
                     O_mem_response.store_misaligned_error <= '0';
                 end if;
@@ -444,6 +482,41 @@ begin
                                                  I_dev13_response.store_misaligned_error or
                                                  I_dev14_response.store_misaligned_error or
                                                  I_dev15_response.store_misaligned_error;
+
+        -- Fuse all response access errors
+        O_mem_response.load_access_error <= I_dev0_response.load_access_error or
+                                            I_dev1_response.load_access_error or
+                                            I_dev2_response.load_access_error or
+                                            I_dev3_response.load_access_error or
+                                            I_dev4_response.load_access_error or
+                                            I_dev5_response.load_access_error or
+                                            I_dev6_response.load_access_error or
+                                            I_dev7_response.load_access_error or
+                                            I_dev8_response.load_access_error or
+                                            I_dev9_response.load_access_error or
+                                            I_dev10_response.load_access_error or
+                                            I_dev11_response.load_access_error or
+                                            I_dev12_response.load_access_error or
+                                            I_dev13_response.load_access_error or
+                                            I_dev14_response.load_access_error or
+                                            I_dev15_response.load_access_error;
+        
+        O_mem_response.store_access_error <= I_dev0_response.store_access_error or
+                                             I_dev1_response.store_access_error or
+                                             I_dev2_response.store_access_error or
+                                             I_dev3_response.store_access_error or
+                                             I_dev4_response.store_access_error or
+                                             I_dev5_response.store_access_error or
+                                             I_dev6_response.store_access_error or
+                                             I_dev7_response.store_access_error or
+                                             I_dev8_response.store_access_error or
+                                             I_dev9_response.store_access_error or
+                                             I_dev10_response.store_access_error or
+                                             I_dev11_response.store_access_error or
+                                             I_dev12_response.store_access_error or
+                                             I_dev13_response.store_access_error or
+                                             I_dev14_response.store_access_error or
+                                             I_dev15_response.store_access_error;
 
 end generate;
 end architecture rtl;

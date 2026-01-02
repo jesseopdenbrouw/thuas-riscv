@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -82,6 +82,9 @@ signal stb_dly : std_logic;
 begin
 
     bootromgen : if HAVE_BOOTLOADER_ROM generate
+    
+        O_mem_response.load_access_error <= '0';
+        O_mem_response.store_access_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' else '0';
 
         -- Boot ROM, for both instructions and read-only data
         process (I_clk, I_areset, I_instr_request, I_mem_request) is
@@ -169,6 +172,8 @@ begin
         O_instr_response.instr  <= (others => 'X');
         O_mem_response.data <= (others => 'X');
         O_mem_response.ready <= '0';
+        O_mem_response.load_access_error <= '0';
+        O_mem_response.store_access_error <= '0';
         O_mem_response.load_misaligned_error <= '0';
         O_mem_response.store_misaligned_error <= '0';
     end generate;

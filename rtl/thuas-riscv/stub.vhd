@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -59,10 +59,15 @@ signal isword : boolean;
 
 begin
 
-    -- Should we really check for alignments for non-used I/O?
-    O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and (I_mem_request.size /= memsize_word or I_mem_request.addr(1 downto 0) /= "00") else '0';
-    O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and (I_mem_request.size /= memsize_word  or I_mem_request.addr(1 downto 0) /= "00") else '0';
-    isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00" ;
+    -- Check for misaligned access
+    O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) /= "00" else '0';
+    O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) /= "00" else '0';
+    -- Check for unsuppored data size
+    O_mem_response.load_access_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and I_mem_request.size /= memsize_word else '0';
+    O_mem_response.store_access_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and I_mem_request.size /= memsize_word  else '0';
+    
+    -- Correct size and address boundary
+    isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00";
 
     -- This process just creates a ready signal so that the core will not hang
     process (I_clk, I_areset) is

@@ -27,13 +27,15 @@
 #define BAUD_RATE (115200UL)
 #endif
 
-#define VERSION "v0.6.5"
+#define VERSION "v0.7"
 #define BUFLEN (41)
 #define BOOTWAIT (10)
 
 /* Prototype of the trap handler */
 __attribute__ ((interrupt,used))
 void trap_handler(void);
+/* Prototype of getline() */
+int getline(char buffer[], int size);
 
 /* The bootloader */
 int main(int argc, char *argv[], char *envp[]) {
@@ -199,13 +201,17 @@ int main(int argc, char *argv[], char *envp[]) {
 
 		/* Send prompt and read input */
 		uart1_puts("> ");
-		int len = uart1_gets(buffer, BUFLEN);
+		int len = getline(buffer, BUFLEN);
 
 		if (strcmp(buffer, "h") == 0) {
 			/* Print help */
 			uart1_puts("Help:\r\n"
 				   " h                - this help\r\n"
 				   " r                - run application\r\n"
+				   " rb <addr>        - read byte from addr\r\n"
+				   " wb <addr> <data> - write byte data at addr\r\n"
+				   " rh <addr>        - read halfword from addr\r\n"
+				   " wh <addr> <data> - write halfword data at addr\r\n"
 				   " rw <addr>        - read word from addr\r\n"
 				   " ww <addr> <data> - write word data at addr\r\n"
 				   " dw <addr>        - dump 16 words\r\n"
@@ -217,63 +223,83 @@ int main(int argc, char *argv[], char *envp[]) {
 			GPIOA->POUT = 0;
 			set_mtvec(0, TRAP_DIRECT_MODE);
 			(*app_start)();
+		} else if (strncmp(buffer, "rb ", 3) == 0) {
+			/* Read byte */
+			uint8_t v;
+			addr = parsehex(buffer+3, NULL);
+			v = *(uint8_t *) addr;
+			printhex(addr,8);
+			uart1_puts(": ");
+			printhex(v,2);
+		} else if (strncmp(buffer, "wb ", 3) == 0) {
+			/* Write byte */
+			char *s;
+			uint32_t v;
+			addr = parsehex(buffer+3, &s);
+			v = parsehex(s, NULL);
+			*(uint8_t *) addr = (uint8_t) v;
+		} else if (strncmp(buffer, "rh ", 3) == 0) {
+			/* Read halfword */
+			uint16_t v;
+			addr = parsehex(buffer+3, NULL);
+			v = *(uint16_t *) addr;
+			printhex(addr,8);
+			uart1_puts(": ");
+			printhex(v,4);
+		} else if (strncmp(buffer, "wh ", 3) == 0) {
+			/* Write halfword */
+			char *s;
+			uint32_t v;
+			addr = parsehex(buffer+3, &s);
+			v = parsehex(s, NULL);
+			*(uint16_t *) addr = (uint16_t) v;
 		} else if (strncmp(buffer, "rw ", 3) == 0) {
 			/* Read word */
 			uint32_t v;
 			addr = parsehex(buffer+3, NULL);
-			if ((addr & 0x3) == 0) {
-				printhex(addr,8);
-				uart1_puts(": ");
-				v = *(uint32_t *) addr;
-				printhex(v,8);
-			} else {
-				uart1_puts("Not on 4-byte boundary!");
-			}
+			v = *(uint32_t *) addr;
+			printhex(addr,8);
+			uart1_puts(": ");
+			printhex(v,8);
 		} else if (strncmp(buffer, "ww ", 3) == 0) {
 			/* Write word */
 			char *s;
 			uint32_t v;
 			addr = parsehex(buffer+3, &s);
-			if ((addr & 0x3) == 0) {
-				v = parsehex(s, NULL);
-				*(uint32_t *) addr = v;
-			} else {
-				uart1_puts("Not on 4-byte boundary!");
-			}
-		} else if ((strncmp(buffer, "dw ", 3) == 0) || (buffer[0] == 'n')) {
+			v = parsehex(s, NULL);
+			*(uint32_t *) addr = v;
+		} else if ((strncmp(buffer, "dw ", 3) == 0) || (strcmp(buffer, "n") == 0)) {
 			/* Dump 16 words */
 			uint32_t v, mask;
 			if (buffer[0] != 'n') {
 				addr = parsehex(buffer+3, NULL);
 			}
-			int c;
-			if ((addr & 0x3) == 0) {
-				for (int i = 0; i < 16; i++) {
-					/* Iterate over 16 words */
-					printhex(addr,8);
-					uart1_puts(": ");
-					v = *(uint32_t *) addr;
-					printhex(v,8);
-					uart1_puts("  ");
-					/* Print ASCII code for bytes */
-					mask = 0xff000000;
-					for (int j = 3; j > -1; j--) {
-						c = (v & mask) >> (j*8);
-						if (isprint(c)) {
-							uart1_putc(c);
-						} else {
-							uart1_putc('.');
-						}
-						mask >>= 8;
+			uint32_t c;
+			/* Set to 4-byte boundary */
+			addr &= ~0x3;
+			for (int i = 0; i < 16; i++) {
+				/* Iterate over 16 words */
+				printhex(addr,8);
+				uart1_puts(": ");
+				v = *(uint32_t *) addr;
+				printhex(v,8);
+				uart1_puts("  ");
+				/* Print ASCII code for bytes */
+				mask = 0xff000000;
+				for (int j = 3; j > -1; j--) {
+					c = (v & mask) >> (j*8);
+					if (c>0x1f && c<0x7f) {
+						uart1_putc(c);
+					} else {
+						uart1_putc('.');
 					}
-					addr += 4;
-					uart1_puts("\r\n");
+					mask >>= 8;
 				}
-				/* Signal suppression of \r\n */
-				len = 0;
-			} else {
-				uart1_puts("Not on 4-byte boundary!");
+				addr += 4;
+				uart1_puts("\r\n");
 			}
+			/* Signal suppression of \r\n */
+			len = 0;
 		} else if (len == 0) {
 			/* do nothing */
 		} else {
@@ -285,6 +311,52 @@ int main(int argc, char *argv[], char *envp[]) {
 	}
 
 	while(1);
+}
+
+/* Gets a string terminated by a newline character from UART1
+ * The newline character is not part of the returned string.
+ * The string is null-terminated.
+ * A maximum of size-1 characters are read.
+ * Some simple line handling is implemented.
+ * This is a stripped-down version of uart1_gets().
+ */
+int getline(char buffer[], int size)
+{
+	int index = 0;
+	char c;
+	const int maxlen = size - 1;
+
+	while (1) {
+		c = uart1_getc();
+		switch (c) {
+			case '\n':
+			case '\r':	buffer[index] = '\0';
+						uart1_puts("\r\n");
+						return index;
+			/* Backspace key */
+			case 0x7f:
+			case '\b':	if (index > 0) {
+							uart1_putc(0x7f);
+							index--;
+						}
+						break;
+			/* control-U */
+			case 21:	while (index > 0) {
+							uart1_putc(0x7f);
+							index--;
+						}
+						break;
+			default:	if (index < maxlen) {
+							if (c>0x1f && c<0x7f) {
+								buffer[index] = c;
+								index++;
+								uart1_putc(c);
+							}
+						}
+						break;
+		}
+	}
+	return index;
 }
 
 /* The trap handler handles incoming traps,

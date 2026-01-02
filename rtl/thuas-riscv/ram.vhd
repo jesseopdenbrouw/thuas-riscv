@@ -5,7 +5,7 @@
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
--- # Copyright (c) 2025, Jesse op den Brouw. All rights reserved.                                  #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
 -- #                                                                                               #
 -- # Redistribution and use in source and binary forms, with or without modification, are          #
 -- # permitted provided that the following conditions are met:                                     #
@@ -84,6 +84,11 @@ signal ram_alt : ram_alt_type;
 signal stb_dly : std_logic;
 
 begin 
+
+    -- Never access error
+    O_mem_response.store_access_error <= '0';
+    O_mem_response.load_access_error <= '0';
+
     -- RAM + Input & output recoding
     -- The RAM is 32 bits, Big Endian, so we have to recode the inputs
     -- to support Little Endian

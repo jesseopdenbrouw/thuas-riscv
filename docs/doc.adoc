@@ -894,7 +894,7 @@ void trap_handler_jump_table(void)
 {
     /* Handlers for RISC-V interrupts. Only Machine
      * Timer Interrupt and Software Interrupt are available. */
-    __asm__ volatile ("j trap_handler_vectored;");
+    __asm__ volatile ("j exception_handler;");
     __asm__ volatile ("j default_handler;");
     __asm__ volatile ("j default_handler;");
     __asm__ volatile ("j software_interrupt_handler;");

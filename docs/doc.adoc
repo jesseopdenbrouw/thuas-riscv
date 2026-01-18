@@ -11,7 +11,7 @@ J.E.J.opdenBrouw@hhs.nl
 
 == Abstract
 
-This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba, Zbb and Zbs (bit operations), Zihpm (extra counters) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 23.1 and QuestaSim Intel Starter Edition 2023.3. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
+This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba, Zbb and Zbs (bit operations), Zicnd (conditional operations), Zihpm (extra counters) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 23.1 and QuestaSim Intel Starter Edition 2023.3. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
 
 The processor has a three-stage pipelined core and executes each instruction in three clock cycles, but the next instructions are fetched and decoded while the current instruction is executed. Jump/branches taken require three clock cycles. Memory reads need three clock cycles, writes take two clock cycles, except for I/O where writes take three clock cycles. This processor also has a basic Control and Status Registers (CSR) set, suitable to handle traps, and a hardware integer multiplier/divider.
 
@@ -23,7 +23,7 @@ This is work in progress. Things will certainly change in the future.
 
 This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zihpm, Zba, Zbb, Zbs, Sdext and Sdtrig extensions are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
 
-The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. A multiplication takes 3 clocks. Trap taken and return take 3 clocks.
+The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic and performance counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. Trap taken and return take 3 clocks.
 
 The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests shows an average CPI of 1.76 with a throughput of 1.94 coremark/MHz (GCC 15.2, 4000 runs).
 
@@ -91,7 +91,7 @@ A register can be written to, and two register can be selected for data and/or b
 | `x28-x31` | `t3-t6`  | Temporaries                       | Caller
 |===
 
-The register can optionally be put in ALM flip-flops. This increases the ALM count, but may have a positive effect in the clock speed.
+The registers can optionally be put in ALM flip-flops. This increases the ALM count, but may have a positive effect in the clock speed.
 
 === ALU
 
@@ -241,7 +241,7 @@ The Local Interrupt Controller is responsible for selecting which trap request m
 
 The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7) and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, SPI2, I2C2, UART1, TIMER2, TIMER1, UART2, EXTI external input interrupt, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
 
-Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture'': instruction access fault, instruction address misaligned, ECALL (M mode only), EBREAK, load/store address misaligned, load/store access fault. Note that ECALL and EBREAK are user instructions and can be interrupted by an interrupt (i.e. when the ECALL or EBREAK instruction is about to be executed).
+Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture'': instruction access fault, instruction address misaligned, ECALL (M mode only), EBREAK, load/store access fault, load/store misaligned fault. Note that ECALL and EBREAK are user instructions and can be interrupted by an interrupt (i.e. when the ECALL or EBREAK instruction is about to be executed).
 
 
 === Multiply/Divide Unit
@@ -251,11 +251,11 @@ The processor is equipped with a hardware integer multiply/divide unit. All mult
 
 === Trigger Module
 
-The core is equipped with a trigger module +(TM)+ that can be used with on-chip debugging. The TM makes it possible the halt, reset and resume the core. The TM implements one hardware breakpoint. Also, the TM is used to access the registers, including CSRs.
+The core is equipped with a trigger module +(TM)+ that can be used with on-chip debugging. The TM makes it possible the halt, reset and resume the core. The TM implements one hardware breakpoint.
 
 === Implemented instructions
 
-For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. Also, the Zicsr, Zba, Zbb, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
+For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. From Zicsr, all instructions are implemented. Also, the Zba, Zbb, Zbs and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
 
 == Reset
 
@@ -267,13 +267,13 @@ There are two flavors of resets. The processes can be reset asynchronous or sync
 The memories are accessed through the address decoder and data router and the instruction router.
 The are four memories: ROM, boot ROM, RAM and I/O.
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. In the first cycle of the memory access, a strobe signal is present. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. Currently a memory access must at least take two clock cyclesi (one external cycle. See figure.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. In the first cycle of the memory access, a strobe signal is present. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles. See figure.
 
 .Timing diagram of a read operation.
 [[fig_read]]
 image::images/read.svg[Image of the read operation]
 
-The memories are responsible for handling different data sizes and rearranging half word and byte access. When reading, the core expects half word data on the lower 16 bits of the data bus and bytes on the lower 8 bits of the databus. When writing the core puts half words on the lower 16 bits of the data bus and bytes on the lower 8 bits of the data bus. The memories are also responsible for signaling misaligned accesses. Sign and zero extension is handled by the core.
+The memories are responsible for handling different data sizes and rearranging half word and byte access. When reading, the core expects half word data on the lower 16 bits of the data bus and bytes on the lower 8 bits of the databus. When writing the core puts half words on the lower 16 bits of the data bus and bytes on the lower 8 bits of the data bus. The memories are also responsible for signaling misaligned accesses. Sign and zero extension is handled by the core. The memories are also responsible for generating access and misaligned exceptions.
 
 === Address Decoder and Data Router
 
@@ -294,13 +294,13 @@ The Instruction Router routes instructions from the ROM and the boot ROM. If the
 
 The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are stored in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. Reading ROM (as data) requires three cycles. This is automatically handled by the processor. The pipeline is stalled when reading from ROM (data). Reading instructions requires two clock cycles.
 
-When the bootloader hardware is installed or the on-chip debugger is enabled, the ROM is writable as words only. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. A write requires two clock cycles.
+When the bootloader hardware and/or the on-chip debugger is enabled, the ROM is writable as words only. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. A write requires two clock cycles. When the write size is not a word, or the bootloader and the on-chip debugging are disabled, an access exception will be generated.
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
 === Bootloader ROM
 
-The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is places in onboard immutable RAM blocks. The bootloader may be excluded from synthesis. Note that the bootloader firmware is generated with RV32IM.
+The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is places in onboard immutable RAM blocks. The bootloader may be excluded from synthesis. Note that the bootloader firmware is generated for RV32IM. A write will result in an access exception.
 
 === RAM
 
@@ -736,7 +736,7 @@ Now start Quartus and start the compilation. After a successful compilation, you
 
 The design is targeted for a clock speed of 85 MHz. Depending on how ''good'' the device is fabricated, higher clock speeds may be obtained. With one device, we could speed up the clock to 133 MHz.
 
-Compilation of the hardware design is independent of the size of the software program. Several design goals may be selected, such as highest clock speed, minimum power or minimum area. Depending on the compilation settings, compilation time may decrease or increase.
+Compilation of the hardware design is independent of the size of the software programs. Several design goals may be selected, such as highest clock speed, minimum power or minimum area. Depending on the compilation settings, compilation time may decrease or increase.
 
 
 == Setting up the GNU C compiler for _this_ RISC-V
@@ -809,12 +809,12 @@ It should say something like:
 ----
 Using built-in specs.
 COLLECT_GCC=riscv32-unknown-elf-gcc
-COLLECT_LTO_WRAPPER=/opt/riscv32/libexec/gcc/riscv32-unknown-elf/15.1.0/lto-wrapper
+COLLECT_LTO_WRAPPER=/opt/riscv32-15.2/bin/../libexec/gcc/riscv32-unknown-elf/15.2.0/lto-wrapper
 Target: riscv32-unknown-elf
-Configured with: /mnt/d/PROJECTS/RISCVDEV/riscv-gnu-toolchain/build/../gcc/configure --target=riscv32-unknown-elf --prefix=/opt/riscv32 --disable-shared --disable-threads --enable-languages=c,c++ --with-pkgversion= --with-system-zlib --enable-tls --with-newlib --with-sysroot=/opt/riscv32/riscv32-unknown-elf --with-native-system-header-dir=/include --disable-libmudflap --disable-libssp --disable-libquadmath --disable-libgomp --disable-nls --disable-tm-clone-registry --src=../../gcc --enable-multilib --with-multilib-generator='rv32im_zicsr_zba_zbb_zbs_zicond-ilp32--;rv32e-ilp32e--' --with-abi=ilp32 --with-arch=rv32im --with-tune=rocket --with-isa-spec=20191213 'CFLAGS_FOR_TARGET=-Os    -mcmodel=medlow' 'CXXFLAGS_FOR_TARGET=-Os    -mcmodel=medlow'
+Configured with: /mnt/d/PROJECTS/RISCVDEV/riscv-gnu-toolchain/build/../gcc/configure --target=riscv32-unknown-elf --prefix=/opt/riscv32 --disable-shared --disable-threads --enable-languages=c,c++ --with-pkgversion=g5115c7e44 --with-system-zlib --enable-tls --with-newlib --with-sysroot=/opt/riscv32/riscv32-unknown-elf --with-native-system-header-dir=/include --disable-libmudflap --disable-libssp --disable-libquadmath --disable-libgomp --disable-nls --disable-tm-clone-registry --src=../../gcc --enable-multilib --with-multilib-generator='rv32im_zicsr_zba_zbb_zbs_zicond-ilp32--;rv32e-ilp32e--' --with-abi=ilp32 --with-arch=rv32im --with-isa-spec=20191213 'CFLAGS_FOR_TARGET=-Os    -mcmodel=medlow' 'CXXFLAGS_FOR_TARGET=-Os    -mcmodel=medlow'
 Thread model: single
 Supported LTO compression algorithms: zlib
-gcc version 15.1.0 () 
+gcc version 15.2.0 (g5115c7e44) 
 ----
 
 When using Windows, best is to use precompiled binaries. See <<sec_win>>.

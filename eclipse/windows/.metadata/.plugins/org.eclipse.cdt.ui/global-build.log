@@ -4598,3 +4598,11 @@ Finished building: coremark.siz
 Finished building: coremark.hex
  
  
+14:33:38 **** Build of configuration Debug for project coremark ****
+make -j16 all 
+Invoking: GNU RISC-V Cross Print Size
+riscv-none-elf-size.cmd --format=berkeley "coremark.elf"
+   text	   data	    bss	    dec	    hex	filename
+  34632	     36	   2044	  36712	   8f68	coremark.elf
+Finished building: coremark.siz
+ 

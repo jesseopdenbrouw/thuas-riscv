@@ -83,15 +83,21 @@ signal stb_dly : std_logic;
 
 begin
 
-    -- Never access error
-    O_mem_response.store_access_error <= '0';
+    -- Access error when no OCD or boot ROM, or when there is a write and it is not a word access
+    O_mem_response.store_access_error <= '1' when not (HAVE_OCD or HAVE_BOOTLOADER_ROM) and I_mem_request.stb = '1'
+                                                  and I_mem_request.wren = '1' else 
+                                         '1' when (HAVE_OCD or HAVE_BOOTLOADER_ROM) and I_mem_request.stb = '1'
+                                                  and I_mem_request.wren = '1'
+                                                  and I_mem_request.size /= memsize_word else '0';
+    -- There is never a load access error
     O_mem_response.load_access_error <= '0';
-    -- Never store misaligned error even there is a misalignment,
-    -- Data will just not be written. FIXME
-    O_mem_response.store_misaligned_error <= '0';
+    -- Store misaligned error if we have OCD or boot ROM, and there is a write on byte or halfword
+    O_mem_response.store_misaligned_error <= '1' when (HAVE_OCD or HAVE_BOOTLOADER_ROM) and I_mem_request.stb = '1' 
+                                                      and I_mem_request.wren = '1'
+                                                      and I_mem_request.addr(1 downto 0) /= "00"
+                                                      and I_mem_request.size = memsize_word else '0';
         
-    
-    -- ROM, for both instructions and read-write data
+    -- ROM, for both instructions and read-write data (if OCD and/or boot RAM are enabled)
     process (I_clk, I_areset, I_instr_request, I_mem_request, stb_dly) is
     variable address_instr_v : integer range 0 to rom_size-1;
     variable address_data_v : integer range 0 to rom_size-1;

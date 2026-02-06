@@ -3,7 +3,7 @@
  * upload.c - upload an S-record file to the THUAS RISC-V
  *            processor in the Cyclone V FPGA
  *
- * (c) 2024, Jesse E. J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
+ * (c) 2026, Jesse E. J. op den Brouw <J.E.J.opdenBrouw@hhs.nl>
  *
  * Usage: upload -vnqrB -d <device> -b <baud> -t <timeout> -s <sleep> filename
  *        upload -l

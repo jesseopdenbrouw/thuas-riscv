@@ -91,7 +91,7 @@ https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyc
 (5CEBA4F23C7) with the use of the
 https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[DE0-CV board]
 by Terasic and Intel Quartus Prime
-Lite 24.1. Simulation is possible with QuestaSim Intel Starter Edition.
+Lite 25.1. Simulation is possible with QuestaSim Intel Starter Edition.
 You need a (free) license for that. The processor uses about
 3200 ALMs of 18480, depending on the settings. In the default
 settings, ROM, BOOT, RAM and registers uses 43% of the available RAM blocks.

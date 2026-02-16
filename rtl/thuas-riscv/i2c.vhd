@@ -101,8 +101,6 @@ end record;
 
 signal i2c : i2c_type;
 signal isword : boolean;
--- For strobing
-signal cs_sync : std_logic;
 
 begin
 

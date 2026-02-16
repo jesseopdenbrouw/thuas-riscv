@@ -1430,6 +1430,9 @@ begin
                                         id_ex.rd_en <= '1';
                                         id_ex.csr_addr <= imm_i_v(11 downto 0);
                                         id_ex.csr_immrs1 <= rs1_v; -- imm
+                                    when "100" => -- MOP (may be operations)
+                                        id_ex.alu_op <= alu_mop;
+                                        id_ex.rd_en <= '1';
                                     when others =>
                                         control.illegal_instruction_decode <= '1';
                                 end case;
@@ -1654,7 +1657,7 @@ begin
         
         case id_ex.alu_op is
             -- No operation
-            when alu_nop | alu_unknown | alu_sw | alu_sh | alu_sb | alu_trap =>
+            when alu_nop | alu_unknown | alu_sw | alu_sh | alu_sb | alu_trap | alu_mop =>
                 null;
 
             -- Return from trap
@@ -3336,8 +3339,8 @@ begin
 
     -- The Local Interrupt Controller (LIC) determines which
     -- trap is to be served. Note that interrupts will only
-    -- be served if the processor is in the exec state.
-    -- Exceptions will be served in the exec en mem states,
+    -- be served if the processor is in the exec and wfi states.
+    -- Exceptions will be served in the exec and mem states,
     process (I_clk, I_areset, I_intrio, I_bus_response,
              I_instr_response.instr_access_error, control, csr_reg) is
     begin
@@ -3485,7 +3488,13 @@ begin
         end if;
     end process;
 
+
+    --
     -- Communication to and from DM
+    --
+    
+    -- These assignments regulate the data transfer to and from the Debug Module (DM)
+    -- Data response from core to DM
     O_dm_core_data_response.data <= csr_access.datain when I_dm_core_data_request.readcsr = '1' else
                                     data_from_gpr when I_dm_core_data_request.readgpr = '1' else
                                     I_bus_response.data when I_dm_core_data_request.readmem = '1' else
@@ -3496,10 +3505,12 @@ begin
                                   (control.indebug and 
                                   (I_bus_response.load_misaligned_error or I_bus_response.store_misaligned_error or
                                    I_bus_response.load_access_error or I_bus_response.store_access_error));
+
     -- Send bus error if there is a data memory error
     O_dm_core_data_response.buserr <= control.indebug and
                                      (I_bus_response.load_misaligned_error or I_bus_response.store_misaligned_error or
                                       I_bus_response.load_access_error or I_bus_response.store_access_error);
+
     -- Send an exception if there is an illegal instruction executed
     O_dm_core_data_response.excep <= control.indebug and
                                     (control.illegal_instruction_csr or control.illegal_instruction_decode);

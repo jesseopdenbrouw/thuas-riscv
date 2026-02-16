@@ -267,13 +267,13 @@ There are two flavors of resets. The processes can be reset asynchronous or sync
 The memories are accessed through the address decoder and data router and the instruction router.
 The are four memories: ROM, boot ROM, RAM and I/O.
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. In the first cycle of the memory access, a strobe signal is present. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles. See figure.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. All these signals are held stable during the acces. In the first cycle of the memory access, a strobe signal is present. The access is terminated when an acknowledge from the memory is sampled, or when an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles. See figure.
 
 .Timing diagram of a read operation.
 [[fig_read]]
 image::images/read.svg[Image of the read operation]
 
-The memories are responsible for handling different data sizes and rearranging half word and byte access. When reading, the core expects half word data on the lower 16 bits of the data bus and bytes on the lower 8 bits of the databus. When writing the core puts half words on the lower 16 bits of the data bus and bytes on the lower 8 bits of the data bus. The memories are also responsible for signaling misaligned accesses. Sign and zero extension is handled by the core. The memories are also responsible for generating access and misaligned exceptions.
+The memories are responsible for handling different data sizes and rearranging half word and byte access. When reading, the core expects half word data on the lower 16 bits of the data bus and bytes on the lower 8 bits of the databus. When writing the core puts half words on the lower 16 bits of the data bus and bytes on the lower 8 bits of the data bus. Sign and zero extension (for loads) is handled by the core. The memories are also responsible for generating access exceptions and misaligned exceptions.
 
 === Address Decoder and Data Router
 
@@ -367,7 +367,7 @@ It is possible to add the Quartus' Signal Tap (embedded) Logic Analyzer. Follow 
 
 To find the best compilation result for speed and/or area, we have to tweak the compiler setting for the synthesizer and the fitter. Best is to do a design space exploration, and randomize the seed. Tweaking the seed may show a difference of 5 MHz on the clock speed.
 
-Table <<tab_metrics>> gives some estimates on the design. In all cases, the seed is set to 1 and the optimization is set to balanced. The total amount of ALMs is 18480. The total amount of RAM bits is 3153920.
+Table <<tab_metrics>> gives some estimates on the design, using Quartus Prime Lite 25.1. In all cases, the seed is set to 1 and the optimization is set to balanced. The total amount of ALMs is 18480. The total amount of RAM bits is 3153920.
 
 .FPGA resource utilization for the DE0-CV board (Slow 1100mV 85C model, v1.1.3.0).
 [[tab_metrics]]

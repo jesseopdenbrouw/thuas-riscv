@@ -300,7 +300,8 @@ component rom is
           HAVE_OCD : boolean;
           ROM_ADDRESS_BITS : integer
          );
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- To fetch an instruction
@@ -315,7 +316,8 @@ component ram is
     generic (
           RAM_ADDRESS_BITS : integer
          );
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- From address decoder
@@ -328,7 +330,8 @@ component bootrom is
     generic (
           HAVE_BOOTLOADER_ROM : boolean
          );
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- From core
@@ -348,7 +351,8 @@ component dtm is
           IDCODE_PARTID  : std_logic_vector(15 downto 0); -- part number
           IDCODE_MANID   : std_logic_vector(10 downto 0)  -- manufacturer id
          );
-    port (I_clk       : in  std_logic;
+    port (
+          I_clk       : in  std_logic;
           I_areset    : in  std_logic;
           I_sreset : in std_logic;
           -- JTAG connection
@@ -366,7 +370,8 @@ component dm is
     generic (
           OCD_AAMPOSTINCREMENT : boolean
          );
-    port (I_clk : std_logic;
+    port (
+          I_clk : std_logic;
           I_areset : std_logic;
           I_sreset : in std_logic;
           -- Debug module interface (DMI)
@@ -454,7 +459,8 @@ end component io_bus_switch;
 
 -- General Purpose I/O with one external interrupt
 component gpio is
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -473,7 +479,8 @@ component mtime is
           SYSTEM_FREQUENCY : integer;
           CLOCK_FREQUENCY : integer
          );
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -488,7 +495,8 @@ end component mtime;
 
 -- Watchdog timer
 component wdt is
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -502,7 +510,8 @@ end component wdt;
 
 -- Machine mode Software Interrupt
 component msi is
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -515,7 +524,8 @@ end component msi;
 
 -- Simple timer
 component timera is
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -531,7 +541,8 @@ component uart is
     generic (
           UART_BREAK_RESETS : boolean
          );
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -550,7 +561,8 @@ component i2c is
     generic (
           SYSTEM_FREQUENCY : integer
          );
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -565,7 +577,8 @@ end component i2c;
 
 -- SPI
 component spi is
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -581,7 +594,8 @@ end component spi;
 
 -- A more elaborate timer
 component timerb is
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -599,7 +613,8 @@ end component timerb;
 
 -- CRC unit
 component crc is
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 
@@ -610,7 +625,8 @@ end component crc;
 
 --Generic stub for I/O
 component stub is
-    port (I_clk : in std_logic;
+    port (
+          I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- 

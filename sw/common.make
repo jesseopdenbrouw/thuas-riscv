@@ -57,7 +57,7 @@ LIBTHUASRV32STRING = -L../lib
 # Architecture and ABI
 MARCHABISTRING = -march=rv32im_zicsr -mabi=ilp32
 # With B extension and Zicond
-#MARCHABISTRING = -march=rv32im_zicsr_zba_zbb_zbs_zicond -mabi=ilp32
+#MARCHABISTRING = -march=rv32im_zicsr_zimop_zba_zbb_zbs_zicond -mabi=ilp32
 
 # Linker specs files
 SPECSSTRING = --specs=../lib/thuas.specs --specs=../lib/nano.specs

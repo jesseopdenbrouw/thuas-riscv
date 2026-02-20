@@ -759,7 +759,7 @@ In your home directory, enter the command
 git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
 ----
 (The `--recursive` option may be omitted, in which case the `make` process will fetch the submodules.)
-Wait for the cloning to end (takes a long time, about 30 minutes on a Zbook G5 2020 with a 10 MB/s internet connection).
+Wait for the cloning to end (takes a long time, about 20 minutes on a Zbook G8 2024 with a 30 MB/s internet connection).
 Note: the toolchain is about 6.65 GB of data!
 Change to the directory with:
 [source,subs=attributes+]
@@ -790,10 +790,10 @@ Enter:
 Now enter the `make` command:
 [source,subs=attributes+]
 ----
-sudo make -j 6
+sudo make -j 12
 ----
 
-Here `make` has to run with supervisor privilege, because the toolchain is put in `/opt/riscv32`. This takes a some time (about 15 minutes on a Zbook G5). At some points the compilation seems to hang, but it is just compiling big source files. By the way, you will see a lot of warnings.
+Here `make` has to run with supervisor privilege, because the toolchain is put in `/opt/riscv32`. This takes a some time (about 20 minutes on a Zbook G8). At some points the compilation seems to hang, but it is just compiling big source files. By the way, you will see a lot of warnings.
 Now that the toolchain is setup, we have to put the path into the `$PATH` environment variable so enter
 [source,subs=attributes+]
 ----

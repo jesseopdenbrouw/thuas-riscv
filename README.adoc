@@ -1,7 +1,6 @@
 = The THUAS RISC-V 32-bit processor in VHDL
 
-xref:CHANGELOG.md[Change Log]
-xref:docs/doc.adoc[Full Documentation]
+xref:CHANGELOG.md[Change Log] | xref:docs/doc.adoc[Full Documentation]
 
 A RISC-V 32-bit microcontroller written in VHDL targeted
 for an FPGA.

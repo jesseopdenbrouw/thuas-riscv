@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_03_08#;
+    constant HW_VERSION : integer := 16#01_01_03_09#;
 
     
     -- Used data types
@@ -474,6 +474,8 @@ package processor_common is
                   HAVE_ZBS : boolean;
                   -- Do we have Zicond (czero.{eqz|nez})?
                   HAVE_ZICOND : boolean;
+                  -- Have Zimop?
+                  HAVE_ZIMOP : boolean;
                   -- Do we have HPM counters?
                   HAVE_ZIHPM : boolean;
                   -- Do we enable vectored mode for mtvec?

@@ -74,6 +74,8 @@ entity riscv is
           HAVE_ZBS : boolean;
           -- Do we have Zicond (czero.{eqz|nez})?
           HAVE_ZICOND : boolean;
+          -- Have Zimop?
+          HAVE_ZIMOP : boolean;
           -- Do we have HPM counters?
           HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -183,6 +185,8 @@ component core is
           HAVE_ZBS : boolean;
           -- Do we have Zicnd (czero.{eqz|nez})?
           HAVE_ZICOND : boolean;
+          -- Have Zimop?
+          HAVE_ZIMOP : boolean;
           -- Do we have HPM counters?
           HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -808,6 +812,7 @@ begin
               HAVE_ZBB => HAVE_ZBB,
               HAVE_ZBS => HAVE_ZBS,
               HAVE_ZICOND => HAVE_ZICOND,
+              HAVE_ZIMOP => HAVE_ZIMOP,
               HAVE_ZIHPM => HAVE_ZIHPM,
               VECTORED_MTVEC => VECTORED_MTVEC,
               HAVE_REGISTERS_IN_RAM => HAVE_REGISTERS_IN_RAM,

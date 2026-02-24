@@ -111,7 +111,7 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_MXHW_BOOT      (1 << 18)
 #define CSR_MXHW_REGRAM    (1 << 19)
 #define CSR_MXHW_ZBA       (1 << 20)
-/* #define CSR_MXHW_FASTSTORE (1 << 21) */
+#define CSR_MXHW_ZIMOP     (1 << 21)
 #define CSR_MXHW_ZICOND    (1 << 22)
 #define CSR_MXHW_ZBS       (1 << 23)
 #define CSR_MXHW_BREAK     (1 << 24)

@@ -61,4 +61,5 @@ All dates are in dd.mm.yyyy format.
 | 02.01.2026 | 1.1.3.6  | [io/mem] implemented correct handling of load/store access exception | |
 | 22.01.2026 | 1.1.3.7  | [rom] generate correct access and misaligned exception based on synthesized hardware | |
 | 16.02.2026 | 1.1.3.8  | [core] provision for Zimop (maybe operations) | |
+| 24.02.2026 | 1.1.3.9  | [de0_cv/riscv/core] implement Zimop (selectable) | |
 

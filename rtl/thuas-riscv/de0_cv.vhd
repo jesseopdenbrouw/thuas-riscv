@@ -120,6 +120,8 @@ begin
               HAVE_ZBS => false,
               -- Do we have Zicond (czero.{eqz|nez})?
               HAVE_ZICOND => false,
+              -- Have Zimop?
+              HAVE_ZIMOP => false,
               -- Do we have HPM counters?
               HAVE_ZIHPM => false,
               -- Do we have vectored MTVEC (for interrupts)?

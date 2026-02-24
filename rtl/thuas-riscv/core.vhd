@@ -72,6 +72,8 @@ entity core is
           HAVE_ZBS : boolean;
           -- Do we have Zicond (czero.{eqz|nez})?
           HAVE_ZICOND : boolean;
+          -- Have Zimop?
+          HAVE_ZIMOP : boolean;
           -- Do we have HPM counters?
           HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -1431,8 +1433,16 @@ begin
                                         id_ex.csr_addr <= imm_i_v(11 downto 0);
                                         id_ex.csr_immrs1 <= rs1_v; -- imm
                                     when "100" => -- MOP (may be operations)
-                                        id_ex.alu_op <= alu_mop;
-                                        id_ex.rd_en <= '1';
+                                        if HAVE_ZIMOP and
+                                           I_instr_response.instr(31) = '1' and
+                                           I_instr_response.instr(29 downto 28) = "00" and
+                                          (I_instr_response.instr(25) = '1' or 
+                                           I_instr_response.instr(25 downto 22) = "0111") then
+                                            id_ex.alu_op <= alu_mop;
+                                            id_ex.rd_en <= '1';
+                                         else
+                                            control.illegal_instruction_decode <= '1';
+                                         end if;
                                     when others =>
                                         control.illegal_instruction_decode <= '1';
                                 end case;
@@ -3313,7 +3323,7 @@ begin
     csr_reg.mxhw(18) <= boolean_to_std_logic(HAVE_BOOTLOADER_ROM);
     csr_reg.mxhw(19) <= boolean_to_std_logic(HAVE_REGISTERS_IN_RAM);
     csr_reg.mxhw(20) <= boolean_to_std_logic(HAVE_ZBA);
-    csr_reg.mxhw(21) <= '0'; -- reserved
+    csr_reg.mxhw(21) <= boolean_to_std_logic(HAVE_ZIMOP);
     csr_reg.mxhw(22) <= boolean_to_std_logic(HAVE_ZICOND);
     csr_reg.mxhw(23) <= boolean_to_std_logic(HAVE_ZBS);
     csr_reg.mxhw(24) <= boolean_to_std_logic(UART1_BREAK_RESETS);

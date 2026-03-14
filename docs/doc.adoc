@@ -678,6 +678,7 @@ Using VHDL generics, the design can be customized.
 |HAVE_ZBB              | boolean   | false    | Use Zbb extension 
 |HAVE_ZBS              | boolean   | false    | Use Zbs extension
 |HAVE_ZICOND           | boolean   | false    | Use Zicond extension
+|HAVE_ZIMOP            | boolean   | false    | Use Zimop extension
 |HAVE_ZIHPM            | boolean   | false    | Use Zihpm extension
 |VECTORED_MTVEC        | boolean   | TRUE     | Use vectored interrupts
 |HAVE_REGISTERS_IN_RAM | boolean   | TRUE     | Use registers is onboard RAM

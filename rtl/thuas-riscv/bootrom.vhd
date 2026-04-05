@@ -87,7 +87,7 @@ begin
         O_mem_response.store_access_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' else '0';
 
         -- Boot ROM, for both instructions and read-only data
-        process (I_clk, I_areset, I_instr_request, I_mem_request) is
+        process (I_clk, I_areset, I_instr_request, I_mem_request, stb_dly) is
         variable address_instr_v : integer range 0 to bootrom_size-1;
         variable address_data_v : integer range 0 to bootrom_size-1;
         variable instr_v : data_type;

@@ -25,7 +25,7 @@ This document describes the buildup of a simple, one core, RISC-V processor, com
 
 The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic and performance counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. Trap taken and return take 3 clocks.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark tests shows an average CPI of 1.76 with a throughput of 1.94 coremark/MHz (GCC 15.2, 4000 runs).
+The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark test shows an average CPI of 1.73 with a throughput of 1.98 coremark/MHz (GCC 15.2, -O3, 4000 runs).
 
 == The Processor
 
@@ -411,7 +411,7 @@ The processor hardware is composed of the following VHDL files:
 * `instr_router.vhd` -- Description of the instruction router.
 * `rom.vhd` -- Description of the ROM. Will be placed in onboard, initialized RAM blocks. 
 * `rom_image.vhd` -- Description of the ROM contents.
-* `bootloader.vhd` -- Description of the bootloader ROM. The bootloader program will be placed in onboard, initialized RAM blocks.
+* `bootrom.vhd` -- Description of the bootloader ROM. The bootloader program will be placed in onboard, initialized RAM blocks.
 * `bootrom_image.vhd` -- Description of the boot ROM contents.
 * `ram.vhd` -- Description of the RAM. Will be placed in onboard, uninitialized RAM blocks. 
 * `io_bus_switch.vhd` -- Description of the I/O bus switch. Connects the I/O (GPIO, UART, I2C, ...) with address decoder and data router.
@@ -658,6 +658,9 @@ image::images/de0-cv-gpio.svg[DE0-CV GPIO pin layout]
 === Simulation
 
 The design can be fully simulated, using QuestaSim Intel Starter or ModelSim Intel Starter. You need a (free) license for QuestaSim. During simulation, all essential signals can be viewed, as is the RAM. The RAM is viewed as 32-bit entries, so we need to do some manual calculations to correctly find byte, half word and word accesses. Simulation can be started from Quartus. Please note that the bootloader is normally disabled when simulating.
+
+The design can also be simulated with http://ghdl.free.fr/[GHDL]. See the `ghdl` sub-directory. After simulating with GHDL, the wavevorms can be viewed with https://gtkwave.sourceforge.net/[GTKWave].
+
 
 === Customizing the design
 

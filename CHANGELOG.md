@@ -63,4 +63,5 @@ All dates are in dd.mm.yyyy format.
 | 16.02.2026 | 1.1.3.8  | [core] provision for Zimop (maybe operations) | |
 | 24.02.2026 | 1.1.3.9  | [de0_cv/riscv/core] implement Zimop (selectable) | |
 | 27.03.2026 | 1.1.3.10 | [gpio] rework the GPIO | |
+| 06.04.2026 | 1.1.3.11 | [core] fix ready signal for multiply, added writing of simulation output file | |
 

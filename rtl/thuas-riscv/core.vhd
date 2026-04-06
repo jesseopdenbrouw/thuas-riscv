@@ -42,6 +42,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+-- synthesis translate_off
+use ieee.std_logic_textio.all;
+use std.textio.all;
+-- synthesis translate_on
 
 library work;
 use work.processor_common.all;
@@ -141,6 +145,9 @@ architecture rtl of core is
 
 -- Number of registers: 16 for E, 32 for I
 constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16, 32);
+
+-- Do we want the extra simulation output file?
+constant SIMULATION : boolean := false;
 
 -- The Program Counter
 -- Not part of any record.
@@ -2004,19 +2011,17 @@ begin
         begin
             if I_areset = '1' then
                 md.mul_rd_int <= (others => '0');
-                md.mul_ready <= '0';
             elsif rising_edge (I_clk) then
                 if I_sreset = '1' then
                     md.mul_rd_int <= (others => '0');
-                    md.mul_ready <= '0';
                 else
                     -- Do the multiplication and store in embedded registers
                     md.mul_rd_int <= signed(md.rdata_a) * signed(md.rdata_b);
-                    md.mul_ready <= md.mul_running;
                 end if; -- sreset
             end if; -- posedge
         end process;
-        
+        md.mul_ready <= md.mul_running;
+
         -- Output multiplier result
         process (md, id_ex) is
         begin
@@ -3524,5 +3529,36 @@ begin
     -- Send an exception if there is an illegal instruction executed
     O_dm_core_data_response.excep <= control.indebug and
                                     (control.illegal_instruction_csr or control.illegal_instruction_decode);
+
+
+-- synthesis translate_off
+    -- This process waits for a rising edge of the clock
+    -- and then outputs the time, the PC in de EX stage, the
+    -- instruction, the state of the controller and the ALU
+    -- operation to the file `output.txt`.
+    simgen: if SIMULATION generate
+        process is
+        file outfile : text open write_mode is "output.txt";
+        variable line_buf : line;
+        begin
+            -- Wait for rising edge and write time
+            wait until I_clk = '1';
+            write(line_buf, string'("TI = "));
+            write(line_buf, now, right, 10);
+            -- Needed to stabilize signals
+            wait for 2 ns;
+            -- Write the rest
+            write(line_buf, string'(", PC = "));
+            hwrite(line_buf, id_ex.pc);
+            write(line_buf, string'(", IN = "));
+            hwrite(line_buf, id_ex.instr);
+            write(line_buf, string'(", ST = "));
+            write(line_buf, state_type'image(control.state), left, 12);
+            write(line_buf, string'(", OP = "));
+            write(line_buf, alu_op_type'image(id_ex.alu_op));
+            writeline(outfile, line_buf);
+        end process;
+    end generate;
+-- synthesis translate_on
 
 end architecture rtl;

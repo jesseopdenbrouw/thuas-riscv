@@ -253,16 +253,22 @@ begin
                                 dm_reg.command <= I_dmi_request.data;
                             end if;
                         when addr_data0_c =>
-                            dm_reg.data0 <= I_dmi_request.data;
+                            if dm_reg.busy = '0' then
+                                dm_reg.data0 <= I_dmi_request.data;
+                            end if;
                         when addr_data1_c =>
-                            dm_reg.data1 <= I_dmi_request.data;
+                            if dm_reg.busy = '0' then
+                                dm_reg.data1 <= I_dmi_request.data;
+                            end if;
                         when others =>
                             null;
                     end case;
                     --Write during abstract command executing, see p. 36
                     if dm_reg.busy = '1' then
                         if I_dmi_request.addr = addr_abstractcs_c or
-                           I_dmi_request.addr = addr_command_c then
+                           I_dmi_request.addr = addr_command_c or
+                           I_dmi_request.addr = addr_data0_c or
+                           I_dmi_request.addr = addr_data1_c then
                             dm_reg.write_acc_fault <= '1';
                         end if;
                     end if;

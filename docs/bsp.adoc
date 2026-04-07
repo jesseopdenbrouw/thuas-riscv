@@ -189,7 +189,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 `I2C_MACK` +
 
-* When used to set CTRL, this macro sets Master Acknowledge.
+* When used to set CTRL, this macro sets Master Acknowledge. Needed when receiving data.
 
 `I2C_HARDSTOP` +
 
@@ -230,6 +230,8 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 == SPI
 
 === Functions
+
+Note: these functions work with 8-bit data.
 
 `void spi1_init(uint32_t value)` +
 `void spi2_init(uint32_t value)`

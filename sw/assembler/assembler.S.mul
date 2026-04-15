@@ -12,9 +12,8 @@ _start:
 .option norelax
 
 	la gp, __global_pointer$
-        la sp, __stack_pointer$ 
+	la sp, __stack_pointer$ 
 
-	li x9,1
 	li x5,4000
 	li x6,33
 

@@ -12,7 +12,7 @@ _start:
 .option norelax
 
 	la gp, __global_pointer$
-        la sp, __stack_pointer$ 
+	la sp, __stack_pointer$ 
 
 	la t0, Universal_Handler
 	csrw mtvec,t0
@@ -59,10 +59,6 @@ _start:
 	nop
 	nop
 
-	div     x3,x4,x5
-	nop
-	nop
-
 	lw      x3,0(x5)
 	nop
 	nop     
@@ -82,7 +78,6 @@ Universal_Handler:
 	nop
 	nop
 	mret
-#	j Universal_Handler
 
 .option pop
 

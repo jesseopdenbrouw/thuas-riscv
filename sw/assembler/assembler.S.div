@@ -12,13 +12,13 @@ _start:
 .option norelax
 
 	la gp, __global_pointer$
-        la sp, __stack_pointer$ 
+	la sp, __stack_pointer$ 
 
 	li x5,4000
 	li x6,33
 
 	div x7,x5,x6
-
+	rem x7,x5,x6
 	nop
 	nop
 

@@ -31,7 +31,7 @@ Original Author: Shay Gal-on
 #include <stdio.h>
 /* Currenly. the [m]instret counter cannot be cleared */
 uint64_t start_instret = 0;
-
+void trap_handler(void);
 
 #if VALIDATION_RUN
 volatile ee_s32 seed1_volatile = 0x3415;
@@ -160,6 +160,7 @@ void
 portable_init(core_portable *p, int *argc, char *argv[])
 {
 	/* THUASRV32-specific */
+	set_mtvec(trap_handler, TRAP_DIRECT_MODE);
 	speed = csr_read(0xfc1);
 
 	uart1_init(BAUD_RATE, UART_CTRL_EN);
@@ -205,4 +206,16 @@ portable_fini(core_portable *p)
 	ee_printf("\r\nTHUASRV32: Avg CPI: %f clock/instr\r\n", (double)exe_time/(double)exe_inst);
 	ee_printf("THUASRV32: Avg IPC: %f instr/clock\r\n", (double)exe_inst/(double)exe_time);
 
+}
+
+void trap_handler(void)
+{
+	uint32_t mcause = csr_read(mcause);
+	ee_printf("THUASRV32: trap detected!\n");
+	ee_printf("mcause: %lu\n", mcause);
+	ee_printf("Halting!\n");
+
+	while(1) {
+		nop();
+	}
 }

@@ -1,7 +1,7 @@
 //
-// SSD1315 (or SSD1306) implementation
+// SSD1315 driver implementation
 //
-// (c) 20212,  J. op den Brouw
+// (c) 2026,  J. op den Brouw
 
 // Since the device is using I2C, no reads
 // of the SSD1315 RAM can be done

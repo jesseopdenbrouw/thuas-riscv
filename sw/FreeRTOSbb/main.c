@@ -64,26 +64,7 @@
 /* THUASRV32 includes. */
 #include <thuasrv32.h>
 
-/* misc */
-//#include "driver_wrapper/uart_serial.h"
-
-/* Set mainCREATE_SIMPLE_BLINKY_DEMO_ONLY to 1 to run the simple blinky demo,
-or 0 to run the more comprehensive test and demo application. */
-#ifndef mainCREATE_SIMPLE_BLINKY_DEMO_ONLY
-#define mainCREATE_SIMPLE_BLINKY_DEMO_ONLY	1
-#endif
-
-/*-----------------------------------------------------------*/
-
-/*
- * main_blinky() is used when mainCREATE_SIMPLE_BLINKY_DEMO_ONLY is set to 1.
- * main_full() is used when mainCREATE_SIMPLE_BLINKY_DEMO_ONLY is set to 0.
- */
-#if( mainCREATE_SIMPLE_BLINKY_DEMO_ONLY == 1 )
-	extern void main_blinky( void );
-#else
-	extern void main_full( void );
-#endif /* #if mainCREATE_SIMPLE_BLINKY_DEMO_ONLY == 1 */
+extern void boundedbuffer( void );
 
 extern void freertos_risc_v_trap_handler( void );
 
@@ -114,13 +95,8 @@ int main( void )
     uart1_puts( tskKERNEL_VERSION_NUMBER );
     uart1_puts( " running on THUASRV32!\r\n\n" );
 
-	/* The mainCREATE_SIMPLE_BLINKY_DEMO_ONLY setting is described at the top
-	of this file. */
-#if( mainCREATE_SIMPLE_BLINKY_DEMO_ONLY == 1 )
-  main_blinky();
-#else
-  main_full();
-#endif
+    /* Start the bounded buffer demo */
+	boundedbuffer();
 }
 
 /*-----------------------------------------------------------*/
@@ -237,13 +213,6 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 
 void vApplicationTickHook( void )
 {
-    /* The tests in the full demo expect some interaction with interrupts. */
-#if( mainCREATE_SIMPLE_BLINKY_DEMO_ONLY != 1 )
-    {
-        extern void vFullDemoTickHook( void );
-        vFullDemoTickHook();
-    }
-#endif
 }
 
 /*-----------------------------------------------------------*/

@@ -29,6 +29,7 @@ SUBDIRS = add64 \
           fatfs \
           flash \
           float \
+          FreeRTOSbb \
           FreeRTOSdemo \
           gamma \
           global \

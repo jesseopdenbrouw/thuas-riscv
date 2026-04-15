@@ -106,13 +106,15 @@ begin
               -- Do we have the Zba extension?
               HAVE_ZBA => false,
               -- Do we have Zbb (bit instructions)?
-              HAVE_ZBB => TRUE,
+              HAVE_ZBB => false,
               -- Do we have Zbs (bit instructions)?
               HAVE_ZBS => false,
               -- Do we have Zicond (czero.{eqz|nez})?
               HAVE_ZICOND => false,
               -- Have Zimop?
               HAVE_ZIMOP => false,
+              -- Have Zbkb (bitmanip instructions for cryptography)
+              HAVE_ZBKB => false,
               -- Do we have HPM counters?
               HAVE_ZIHPM => false,
               -- Do we have vectored MTVEC (for interrupts)?

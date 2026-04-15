@@ -16,6 +16,7 @@ OBJCOPY = $(PREFIX)-objcopy
 AR = $(PREFIX)-ar
 SIZE = $(PREFIX)-size
 SREC2VHDL = ../bin/srec2vhdl
+SREC2MIF = ../bin/srec2mif
 UPLOAD = ../bin/upload
 OPENOCD = openocd
 
@@ -56,8 +57,8 @@ LIBTHUASRV32STRING = -L../lib
 
 # Architecture and ABI
 MARCHABISTRING = -march=rv32im_zicsr -mabi=ilp32
-# With B extension and Zicond
-#MARCHABISTRING = -march=rv32im_zicsr_zimop_zba_zbb_zbs_zicond -mabi=ilp32
+# With B extension (Zba, Zbb, Zbs), Zimop, Zbkb and Zicond
+#MARCHABISTRING = -march=rv32im_zicsr_zimop_zba_zbb_zbs_zicond_zbkb -mabi=ilp32
 
 # Linker specs files
 SPECSSTRING = --specs=../lib/thuas.specs --specs=../lib/nano.specs
@@ -72,3 +73,4 @@ endif
 
 # OpenOCD config file from software examples
 OPENOCDCFG = "../../openocd/openocd.cfg"
+

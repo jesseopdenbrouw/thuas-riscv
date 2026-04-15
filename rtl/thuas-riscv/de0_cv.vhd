@@ -34,8 +34,8 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
--- This is the top-level file wrapping around the RISC-V core. The RISC-V is
--- instantiated with default generics.
+-- This is the top-level file wrapping around the RISC-V Soc.
+-- The RISC-V Soc is instantiated with generics.
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -122,6 +122,8 @@ begin
               HAVE_ZICOND => false,
               -- Have Zimop?
               HAVE_ZIMOP => false,
+              -- Have Zbkb (bitmanip instructions for cryptography)
+              HAVE_ZBKB => false,
               -- Do we have HPM counters?
               HAVE_ZIHPM => false,
               -- Do we have vectored MTVEC (for interrupts)?

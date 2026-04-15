@@ -26,7 +26,7 @@ is in the PATH environment variable.
 
 ## Support for Windows tools
 
-There is support for Windows tools. `srec2vhdl` and
+There is support for Windows tools. `srec2vhdl`, `srec2mif` and
 `upload` can be build with GCC MinGW and Visual Studio.
 For building the RISC-V programs, a RISC-V GNU GCC compiler
 is needed.

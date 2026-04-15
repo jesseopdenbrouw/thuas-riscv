@@ -66,4 +66,5 @@ All dates are in dd.mm.yyyy format.
 | 06.04.2026 | 1.1.3.11 | [core] fix ready signal for multiply, added writing of simulation output file | |
 | 07.04.2026 | 1.1.3.12 | [dm] data0 and data0 are only written if not busy, if busy then cmderr is set to 1 | |
 | 08.04.2026 | 1.1.4.0  | New version 1.1.4 | |
+| 15.04.2026 | 1.1.4.1  | [core] added Zbkb extension | |
 

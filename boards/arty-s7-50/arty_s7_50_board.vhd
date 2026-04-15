@@ -102,7 +102,7 @@ begin
 
     riscv0: riscv
     generic map (
-              -- Oscillator at 50 MHz
+              -- Oscillator at 100 MHz
               SYSTEM_FREQUENCY => 100000000,
               -- Frequency of clock() et al. KEEP THIS TO 1M
               CLOCK_FREQUENCY => 1000000,
@@ -130,6 +130,8 @@ begin
               HAVE_ZICOND => false,
               -- Do we have Zimop?
               HAVE_ZIMOP => false,
+              -- Do we have Zbkb (bitmanip for cryptography)?
+              HAVE_ZBKB => false,
               -- Do we have HPM counters?
               HAVE_ZIHPM => false,
               -- Do we have vectored MTVEC (for interrupts)?

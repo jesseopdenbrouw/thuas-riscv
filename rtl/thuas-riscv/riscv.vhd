@@ -34,7 +34,7 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
--- This file contains the description of a RISC-V RV32IM microcontroller
+-- This file contains the description of a RISC-V RV32IM microcontroller SoC
 -- including the core (using a three-stage pipeline), and address
 -- decoding unit, RAM, ROM, boot ROM, I/O and debug modules.
 
@@ -76,6 +76,8 @@ entity riscv is
           HAVE_ZICOND : boolean;
           -- Have Zimop?
           HAVE_ZIMOP : boolean;
+          -- Have Zbkb (bitmanip instructions for cryptography)
+          HAVE_ZBKB : boolean;
           -- Do we have HPM counters?
           HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -187,6 +189,8 @@ component core is
           HAVE_ZICOND : boolean;
           -- Have Zimop?
           HAVE_ZIMOP : boolean;
+          -- Have Zbkb (bitmanip instructions for Cryptography)
+          HAVE_ZBKB : boolean;
           -- Do we have HPM counters?
           HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -813,6 +817,7 @@ begin
               HAVE_ZBS => HAVE_ZBS,
               HAVE_ZICOND => HAVE_ZICOND,
               HAVE_ZIMOP => HAVE_ZIMOP,
+              HAVE_ZBKB => HAVE_ZBKB,
               HAVE_ZIHPM => HAVE_ZIHPM,
               VECTORED_MTVEC => VECTORED_MTVEC,
               HAVE_REGISTERS_IN_RAM => HAVE_REGISTERS_IN_RAM,

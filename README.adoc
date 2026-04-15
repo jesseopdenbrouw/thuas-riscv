@@ -8,9 +8,9 @@ for an FPGA.
 == Quick info
 
 This RISC-V microcontroller uses the RV32IM instruction set
-and the Zicsr, Zicntr, Zicond, Zimop, Zihpm, Zba, Zbb, Zbs, Sdext and
-Sdtrig extensions. The microcontroller is build around a
-three-stage pipelined core.
+and the Zicsr, Zicntr, Zicond, Zimop, Zihpm, Zba, Zbb, Zbs,
+Zbkb, Sdext and Sdtrig extensions. The microcontroller is
+build around a three-stage pipelined core.
 
 All instructions from the "The RISC-V
 Instruction Set Manual Volume I, Unprivileged Architecture,

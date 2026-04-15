@@ -1,6 +1,6 @@
 -- srec2vhdl table generator
 -- for input file 'interrupt_direct.srec'
--- date: Sun Nov 23 17:20:28 2025
+-- date: Thu Apr  9 12:24:59 2026
 
 
 library ieee;
@@ -3859,7 +3859,7 @@ package rom_image is
         3845 => x"696e7374",
         3846 => x"72756374",
         3847 => x"696f6e0d",
-        3848 => x"0a0d0a00",
+        3848 => x"0a0a0000",
         3849 => x"2530356c",
         3850 => x"643a2530",
         3851 => x"366c6420",

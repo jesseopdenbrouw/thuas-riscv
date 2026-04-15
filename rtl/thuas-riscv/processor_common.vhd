@@ -35,6 +35,7 @@
 -- #################################################################################################
 
 -- This file contains the used data types and constants used in the design.
+-- This file contains functions used in the design.
 -- This file contains the component description of the `riscv` microcontroller.
 
 library ieee;
@@ -44,7 +45,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_04_00#;
+    constant HW_VERSION : integer := 16#01_01_04_01#;
 
     
     -- Used data types
@@ -93,20 +94,22 @@ package processor_common is
                          alu_sw, alu_sh, alu_sb,
                          alu_jal_jalr,
                          alu_beq, alu_bne, alu_blt, alu_bge, alu_bltu, alu_bgeu,
-                         alu_trap, alu_mret,
-                         alu_multiply, alu_divrem,                 -- M standard
-                         alu_csr,                                  -- Zicsr
-                         alu_sh1add, alu_sh2add, alu_sh3add,       -- Zba
-                         alu_bclr, alu_bclri, alu_bext, alu_bexti, -- Zbs
-                         alu_binv, alu_binvi, alu_bset, alu_bseti, -- Zbs
-                         alu_czeroeqz, alu_czeronez,               -- Zicond
-                         alu_andn, alu_orn, alu_xnor,              -- Zbb
-                         alu_clz, alu_ctz, alu_cpop,               -- Zbb
-                         alu_max, alu_maxu, alu_min, alu_minu,     -- Zbb
-                         alu_sextb, alu_sexth, alu_zexth,          -- Zbb
-                         alu_rol, alu_ror, alu_rori,               -- Zbb
-                         alu_orcb, alu_rev8,                       -- Zbb
-                         alu_mop                                   -- Zimop
+                         alu_trap, alu_mret,                                -- trap = ECALL/EBREAK
+                         alu_multiply, alu_divrem,                          -- M standard
+                         alu_csr,                                           -- Zicsr
+                         alu_sh1add, alu_sh2add, alu_sh3add,                -- Zba
+                         alu_bclr, alu_bclri, alu_bext, alu_bexti,          -- Zbs
+                         alu_binv, alu_binvi, alu_bset, alu_bseti,          -- Zbs
+                         alu_czeroeqz, alu_czeronez,                        -- Zicond
+                         alu_andn, alu_orn, alu_xnor,                       -- Zbb + Zbkb
+                         alu_clz, alu_ctz, alu_cpop,                        -- Zbb
+                         alu_max, alu_maxu, alu_min, alu_minu,              -- Zbb
+                         alu_sextb, alu_sexth, alu_zexth,                   -- Zbb
+                         alu_rol, alu_ror, alu_rori,                        -- Zbb + Zbkb
+                         alu_orcb,                                          -- Zbb
+                         alu_rev8,                                          -- Zbb + Zbkb
+                         alu_mop,                                           -- Zimop
+                         alu_pack, alu_packh, alu_brev8, alu_zip, alu_unzip -- Zbkb
                         );
                         
     -- Control and State register operations
@@ -476,6 +479,8 @@ package processor_common is
                   HAVE_ZICOND : boolean;
                   -- Have Zimop?
                   HAVE_ZIMOP : boolean;
+                  -- Have Zbkb (bitmanip instructions for cryptography)
+                  HAVE_ZBKB : boolean;
                   -- Do we have HPM counters?
                   HAVE_ZIHPM : boolean;
                   -- Do we enable vectored mode for mtvec?
@@ -633,10 +638,10 @@ package body processor_common is
 
     -- Function to reverse bits in std_logic_vector
     function bit_reverse(input : std_logic_vector) return std_logic_vector is
-    variable output : std_logic_vector(input'range);
+    variable output : std_logic_vector(input'length-1 downto 0);
     begin
-        for i in input'range loop
-            output(input'length-i-1) := input(i);
+        for i in input'length-1 downto 0 loop
+            output(input'length-i-1) := input(input'left+1-input'length+i);
         end loop;
         return output;
     end function bit_reverse;

@@ -78,6 +78,8 @@ entity core is
           HAVE_ZICOND : boolean;
           -- Have Zimop?
           HAVE_ZIMOP : boolean;
+          -- Have Zbkb (bitmanip instructions for cryptography)
+          HAVE_ZBKB : boolean;
           -- Do we have HPM counters?
           HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -147,7 +149,7 @@ architecture rtl of core is
 constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16, 32);
 
 -- Do we want the extra simulation output file?
-constant SIMULATION : boolean := false;
+constant SIMULATION_EXTRA : boolean := false;
 
 -- The Program Counter
 -- Not part of any record.
@@ -1136,19 +1138,31 @@ begin
                                     id_ex.alu_op <= alu_ctz;
                                     id_ex.rd_en <= '1';
                                 -- REV8, extra code in instructionm bit 24 to 20 (== RS2)
-                                elsif func3_v = "101" and func7_v = "0110100" and rs2_v = "11000" and HAVE_ZBB then
+                                elsif func3_v = "101" and func7_v = "0110100" and rs2_v = "11000" and (HAVE_ZBB or HAVE_ZBKB) then
                                     id_ex.alu_op <= alu_rev8;
                                     id_ex.rd_en <= '1';
+                                -- BREV8 extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "101" and func7_v = "0110100" and rs2_v = "00111" and HAVE_ZBKB then
+                                    id_ex.alu_op <= alu_brev8;
+                                    id_ex.rd_en <= '1';
                                 -- ORC.B, extra code in instructionm bit 24 to 20 (== RS2)
-                                elsif func3_v = "101" and func7_v = "0010100" and rs2_v = "00111" and HAVE_ZBB then
+                                elsif func3_v = "101" and func7_v = "0010100" and rs2_v = "00111" and (HAVE_ZBB or HAVE_ZBKB) then
                                     id_ex.alu_op <= alu_orcb;
                                     id_ex.rd_en <= '1';
                                 -- RORI
-                                elsif func3_v = "101" and func7_v = "0110000" and HAVE_ZBB then
+                                elsif func3_v = "101" and func7_v = "0110000" and (HAVE_ZBB or HAVE_ZBKB) then
                                     id_ex.alu_op <= alu_rori;
                                     id_ex.rd_en <= '1';
                                     id_ex.imm <= imm_shamt_v;
                                     id_ex.isimm <= '1';
+                                -- ZIP extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "001" and func7_v = "0000100" and rs2_v = "01111" and HAVE_ZBKB then
+                                    id_ex.alu_op <= alu_zip;
+                                    id_ex.rd_en <= '1';
+                                -- UNZIP extra code in instructionm bit 24 to 20 (== RS2)
+                                elsif func3_v = "101" and func7_v = "0000100" and rs2_v = "01111" and HAVE_ZBKB then
+                                    id_ex.alu_op <= alu_unzip;
+                                    id_ex.rd_en <= '1';
                                 else
                                     control.illegal_instruction_decode <= '1';
                                 end if;
@@ -1233,15 +1247,15 @@ begin
                                     id_ex.alu_op <= alu_czeronez;
                                     id_ex.rd_en <= '1';
                                 -- ANDN
-                                elsif func3_v = "111" and func7_v = "0100000" and HAVE_ZBB then
+                                elsif func3_v = "111" and func7_v = "0100000" and (HAVE_ZBB or HAVE_ZBKB) then
                                     id_ex.alu_op <= alu_andn;
                                     id_ex.rd_en <= '1';
                                 -- ORN
-                                elsif func3_v = "110" and func7_v = "0100000" and HAVE_ZBB then
+                                elsif func3_v = "110" and func7_v = "0100000" and (HAVE_ZBB or HAVE_ZBKB) then
                                     id_ex.alu_op <= alu_orn;
                                     id_ex.rd_en <= '1';
                                 -- XNOR
-                                elsif func3_v = "100" and func7_v = "0100000" and HAVE_ZBB then
+                                elsif func3_v = "100" and func7_v = "0100000" and (HAVE_ZBB or HAVE_ZBKB) then
                                     id_ex.alu_op <= alu_xnor;
                                     id_ex.rd_en <= '1';
                                 -- ZEXT.H, extra code in instructionm bit 24 to 20 (== RS2)
@@ -1267,12 +1281,20 @@ begin
                                     id_ex.rd_en <= '1';
                                     id_ex.isunsigned <= '1';
                                 -- ROL
-                                elsif func3_v = "001" and func7_v = "0110000" and HAVE_ZBB then
+                                elsif func3_v = "001" and func7_v = "0110000" and (HAVE_ZBB or HAVE_ZBKB) then
                                     id_ex.alu_op <= alu_rol;
                                     id_ex.rd_en <= '1';
                                 -- ROR
-                                elsif func3_v = "101" and func7_v = "0110000" and HAVE_ZBB then
+                                elsif func3_v = "101" and func7_v = "0110000" and (HAVE_ZBB or HAVE_ZBKB) then
                                     id_ex.alu_op <= alu_ror;
+                                    id_ex.rd_en <= '1';
+                                -- PACK
+                                elsif func3_v = "100" and func7_v = "0000100" and HAVE_ZBKB then
+                                    id_ex.alu_op <= alu_pack;
+                                    id_ex.rd_en <= '1';
+                                -- PACKH
+                                elsif func3_v = "111" and func7_v = "0000100" and HAVE_ZBKB then
+                                    id_ex.alu_op <= alu_packh;
                                     id_ex.rd_en <= '1';
                                 -- Multiply, divide, remainder
                                 elsif func7_v = "0000001" then
@@ -1696,21 +1718,21 @@ begin
             when alu_sub =>
                 r_v := std_logic_vector(unsigned(a_v) - unsigned(b_v));
             when alu_and | alu_andi | alu_andn =>
-                if HAVE_ZBB then
+                if HAVE_ZBB or HAVE_ZBKB then
                     if id_ex.alu_op = alu_andn then
                         b_v := not b_v;
                     end if;
                 end if;
                 r_v := a_v and b_v;
             when alu_or | alu_ori | alu_orn =>
-                if HAVE_ZBB then
+                if HAVE_ZBB or HAVE_ZBKB then
                     if id_ex.alu_op = alu_orn then
                         b_v := not b_v;
                     end if;
                 end if;
                 r_v := a_v or b_v;
             when alu_xor | alu_xori | alu_xnor =>
-                if HAVE_ZBB then
+                if HAVE_ZBB or HAVE_ZBKB then
                     if id_ex.alu_op = alu_xnor then
                         b_v := not b_v;
                     end if;
@@ -1798,7 +1820,7 @@ begin
             -- Shift/rotate left
             when alu_sll | alu_slli | alu_rol =>
                 signs_v := all_zeros_c;
-                if HAVE_ZBB then
+                if HAVE_ZBB or HAVE_ZBKB then
                     if id_ex.alu_op = alu_rol then
                         signs_v := a_v;
                     end if;
@@ -1827,7 +1849,7 @@ begin
             when alu_sra | alu_srai | alu_srl | alu_srli | alu_ror | alu_rori =>
                 if id_ex.alu_op = alu_srl or id_ex.alu_op = alu_srli then
                     signs_v := all_zeros_c;
-                elsif (id_ex.alu_op = alu_ror or id_ex.alu_op = alu_rori) and HAVE_ZBB then
+                elsif (id_ex.alu_op = alu_ror or id_ex.alu_op = alu_rori) and (HAVE_ZBB or HAVE_ZBKB) then
                     signs_v := a_v;
                 else
                     signs_v := (others => a_v(a_v'left));
@@ -1855,10 +1877,42 @@ begin
 
             -- REV8
             when alu_rev8 =>
-                if HAVE_ZBB then
+                if HAVE_ZBB or HAVE_ZBKB then
                     r_v := a_v(7 downto 0) & a_v(15 downto 8) & a_v(23 downto 16) & a_v(31 downto 24);
                 end if;
-                
+            
+            -- BREV8
+            when alu_brev8 =>
+                if HAVE_ZBKB then
+                    r_v := bit_reverse(a_v(31 downto 24)) & bit_reverse(a_v(23 downto 16)) & bit_reverse(a_v(15 downto 8)) & bit_reverse(a_v(7 downto 0));
+                end if;
+            -- PACK
+            when alu_pack =>
+                if HAVE_ZBKB then
+                    r_v := b_v(15 downto 0) & a_v(15 downto 0);
+                end if;
+            -- PACKH
+            when alu_packh =>
+                if HAVE_ZBKB then
+                    r_v(15 downto 0) := b_v(7 downto 0) & a_v(7 downto 0);
+                end if;
+            -- ZIP
+            when alu_zip =>
+                if HAVE_ZBKB then
+                    for i in 0 to 15 loop
+                        r_v(2*i)   := a_v(i);
+                        r_v(2*i+1) := a_v(16+i);
+                    end loop;
+                end if;
+            -- UNZIP
+            when alu_unzip =>
+                if HAVE_ZBKB then
+                    for i in 0 to 15 loop
+                        r_v(i)    := a_v(2*i);
+                        r_v(16+i) := a_v(2*i+1);
+                    end loop;
+                end if;
+
             -- Counting bits
             when alu_cpop =>
                 if HAVE_ZBB then
@@ -3309,7 +3363,7 @@ begin
     -- Custom read-only hardware description
     csr_reg.mxhw(00) <= '1'; --gpioa, always present
     csr_reg.mxhw(01) <= '0'; --reserved
-    csr_reg.mxhw(02) <= '0'; --reserved
+    csr_reg.mxhw(02) <= boolean_to_std_logic(HAVE_ZBKB);
     csr_reg.mxhw(03) <= '0'; --reserved
     csr_reg.mxhw(04) <= boolean_to_std_logic(HAVE_UART1);
     csr_reg.mxhw(05) <= boolean_to_std_logic(HAVE_UART2);
@@ -3536,7 +3590,7 @@ begin
     -- and then outputs the time, the PC in de EX stage, the
     -- instruction, the state of the controller and the ALU
     -- operation to the file `output.txt`.
-    simgen: if SIMULATION generate
+    simgen: if SIMULATION_EXTRA generate
         process is
         file outfile : text open write_mode is "output.txt";
         variable line_buf : line;

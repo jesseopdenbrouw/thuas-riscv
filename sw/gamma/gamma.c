@@ -59,7 +59,7 @@ int main(void)
 	sprintf(buffer, "Number of iterations = %d\r\n", ITERATIONS);
 	uart1_puts(buffer);
 
-	sprintf(buffer, "Time: %lu\r\n", start);
+	sprintf(buffer, "Time: %lu us\r\n", start);
 	uart1_puts(buffer);
 
 

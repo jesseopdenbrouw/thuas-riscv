@@ -34,6 +34,9 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
+-- This is a complex timer with Output Compare/PWM generation and Input Capture capabilities.
+-- It has three channels and a prescaler. All registers are 16 bits wide.
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

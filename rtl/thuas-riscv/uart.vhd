@@ -34,6 +34,8 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
+-- Standard UART, with 7/8/9 bits, odd/even/none parity and one or two stop bits.
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

@@ -34,6 +34,10 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
+-- External System Timer. The timer is 64-bit wide and counts with a frequency of 1 MHz.
+-- Interrupt is asserted when TIME >= TIMECMP. Note that the registers are 32 bits wide,
+-- so care must be taken when reading or writing.
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

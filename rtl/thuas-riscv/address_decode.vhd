@@ -84,7 +84,8 @@ begin
         O_mem_request_boot.stb <= '0';
         O_mem_request_ram.stb <= '0';
         O_mem_request_io.stb <= '0';    
-        
+
+        -- The Chip Select wires are not used anymore.
         O_mem_request_rom.cs <= '0';
         O_mem_request_boot.cs <= '0';
         O_mem_request_ram.cs <= '0';

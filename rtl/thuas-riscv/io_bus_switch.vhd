@@ -34,6 +34,9 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
+-- This file contains the I/O bus switcher. It selectS the correct I/O modules
+-- based on the address and routes the response to the address decoder and data router.
+
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -518,5 +521,6 @@ begin
                                              I_dev14_response.store_access_error or
                                              I_dev15_response.store_access_error;
 
-end generate;
+    end generate;
+
 end architecture rtl;

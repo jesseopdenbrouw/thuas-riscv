@@ -38,7 +38,7 @@
 -- placed in mutable onboard RAM blocks and can be changed
 -- by writing to it. The ROM can only be written on word
 -- boundaries when the bootloader and/or the on-chip debugger
--- is/are synthesized. A read takes one clock cycles for
+-- is/are synthesized. A read takes one clock cycle for
 -- instructions and two clock cycles for data. A write takes
 -- one clock cycle. The ROM contents is placed in a file
 -- named rom_image.vhd. Instruction reads can only be on

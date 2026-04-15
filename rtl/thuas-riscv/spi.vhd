@@ -34,6 +34,9 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
+-- Full-fletched master-only SPI device. All four versions of CPOL and CPHA are
+-- supported. Data cam be 8, 16, 24 or 32 bits.
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

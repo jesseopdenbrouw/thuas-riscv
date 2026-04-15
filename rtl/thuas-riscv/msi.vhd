@@ -34,6 +34,9 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
+-- Machine Software Interrupt. Writing a 1 to the register will set the interrupt pending.
+-- Must be cleared by writing a 0.
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

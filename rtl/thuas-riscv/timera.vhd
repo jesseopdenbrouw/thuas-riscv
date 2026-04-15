@@ -34,7 +34,7 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
--- This is the description of a simple 32-bits up counter with interrupt generation.
+-- This is the description of a simple 32-bit up counter with interrupt generation.
 
 library ieee;
 use ieee.std_logic_1164.all;

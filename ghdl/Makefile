@@ -1,6 +1,13 @@
 #
 # makefile to run the GHDL simulator
 #
+# make - compiles and simulates the VHDL code and start GTKwave
+#
+# make run - compiles and simulates the VHDL code
+#
+# Note: ghdl logs all signals so the wave file will become
+#       very big with simulation times > 1 ms
+#
 
 
 BUILDDIR = build
@@ -21,7 +28,7 @@ endif
 
 .PHONY: all clean build run wave
 
-all: run wave
+all: wave
 
 build: $(SRCS)
 	mkdir -p $(BUILDDIR)
@@ -31,7 +38,7 @@ build: $(SRCS)
 run: build
 	$(GHDL) -r -fsynopsys --workdir=$(BUILDDIR) $(TOPLEVEL) --ieee-asserts=disable --max-stack-alloc=0 --stop-time=$(RUNTIME) $(WAVEFLAGS)
 
-wave:
+wave: run
 	$(GTKWAVE) -S tb_riscv.tcl $(BUILDDIR)/tb_riscv.ghw
 
 clean:

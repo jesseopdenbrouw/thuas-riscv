@@ -1,8 +1,7 @@
 #
 # Makefile to build target
 #
-# This makefile is adapted, because of compiling rules
-# and printing floats
+# Adapt EFFORT to your needs
 #
 
 
@@ -51,7 +50,7 @@ $(CRT):
 	cp $(CRT_PATH)/$(CRT) .
 	$(CC) $(CFLAGS) -c $(CRT) -o $(OBJCRT)
 
-# Compile a C files
+# Compile all C files
 %.o: %.c $(HFILES) $(COMMON_FILE)
 	$(CC) $(CFLAGS) -c $< -o $@
 

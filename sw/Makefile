@@ -1,7 +1,7 @@
 #
 # General makefile that makes all targets
 #
-# First the `srec2vhdl` and `upload`
+# First the `srec2vhdl`, `srec2mif` and `upload`
 # are made. `srec2vhdl` is needed for the
 # next build steps. Next is the library.
 # Other targets depend on it.
@@ -11,6 +11,7 @@
 #
 # NOTE: set your RISC-V compiler executable
 # names in file commom.make
+# NOTE: adjust the settings in file common.make
 #
 
 SUBDIRS = add64 \
@@ -65,7 +66,7 @@ SUBDIRS = add64 \
           timer2pwm \
           trig \
           uart1_cpp \
-		  uart1_interrupt \
+          uart1_interrupt \
           uart1_printf \
           uart1_printlonglong \
           uart1_sprintf \
@@ -86,21 +87,26 @@ MKDIRCMD  = if [ ! -d bin ]; then mkdir bin; fi
 FORCLEAN  = for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
 endif
 
-.PHONY: all bin $(SUBDIRS) clean
+.PHONY: all bin $(SUBDIRS) clean makebin
 
-all: bin $(SUBDIRS)
+all: $(SUBDIRS)
 
-bin:
+makebin: 
 	$(MKDIRCMD)
-	$(MAKE) -C srec2vhdl all
-	cp srec2vhdl/srec2vhdl$(EXESUFFIX) bin
-	$(MAKE) -C srec2mif all
-	cp srec2mif/srec2mif$(EXESUFFIX) bin
-	$(MAKE) -C upload all
-	cp upload/upload$(EXESUFFIX) bin
+
+srec2vhdl: makebin
+	$(MAKE) -C srec2vhdl all && cp srec2vhdl/srec2vhdl$(EXESUFFIX) bin
+
+srec2mif: makebin
+	$(MAKE) -C srec2mif all && cp srec2mif/srec2mif$(EXESUFFIX) bin
+
+upload: makebin
+	$(MAKE) -C upload all && cp upload/upload$(EXESUFFIX) bin
+
+lib: makebin
 	$(MAKE) -C lib all
 
-$(SUBDIRS): bin
+$(SUBDIRS): srec2vhdl srec2mif upload lib
 	$(MAKE) -C $@ all
 
 clean:

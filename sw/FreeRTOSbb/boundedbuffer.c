@@ -14,6 +14,7 @@
 
 // Shared buffer
 int buffer[BUFFER_SIZE];
+// In and out index, must be global if multiple producers and or consumers
 int in = 0;
 int out = 0;
 
@@ -49,7 +50,7 @@ void vProducer( void *pvParameters )
         printdec( in );
         vSendString( "\r\n" );
         vToggleLED();
-        in = (in + 1) % BUFFER_SIZE;
+        in = ( in + 1 ) % BUFFER_SIZE;
 
         // Exit critical section
         xSemaphoreGive( mutex );
@@ -81,7 +82,7 @@ void vConsumer( void *pvParameters )
         vSendString( " at index " );
         printdec( out );
         vSendString( "\r\n" );
-        out = (out + 1) % BUFFER_SIZE;
+        out = ( out + 1 ) % BUFFER_SIZE;
 
         // Exit critical section
         xSemaphoreGive( mutex );

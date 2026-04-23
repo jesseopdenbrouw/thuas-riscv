@@ -63,9 +63,6 @@ APP_SRC += full_demo/main_full.c
 APP_SRC += full_demo/RegTest.s
 
 
-# Modify this variable to fit your THUASRV32 setup (THUASRV32 home folder)
-THUASRV32_HOME ?= ../
-
 # Program name
 PROG_NAME = \"$(TARGET)\"
 

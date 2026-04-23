@@ -48,10 +48,6 @@ ASM_INC += -I chip_specific_extensions/thuasrv32
 # BB application
 APP_SRC += boundedbuffer.c
 
-
-# Modify this variable to fit your THUASRV32 setup (THUASRV32 home folder)
-THUASRV32_HOME ?= ../
-
 # Program name
 PROG_NAME = \"$(TARGET)\"
 

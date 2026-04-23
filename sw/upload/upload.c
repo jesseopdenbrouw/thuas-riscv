@@ -378,7 +378,7 @@ int main(int argc, char *argv[]) {
         printf("-b <baud>    -- set baudrate (9600, 115200 or 230400)\n");
         printf("-t <timeout> -- timeout in deci seconds\n");
         printf("-s <sleep>   -- sleep milli seconds after each character\n");
-        printf("filename is a S-record file\n\n");
+        printf("filename is an S-record file\n\n");
         printf("-l           -- list available serial devices\n");
         printf("-v           -- verbose\n\n");
         printf("Default device is %s\n", portname);

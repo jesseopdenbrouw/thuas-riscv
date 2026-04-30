@@ -68,7 +68,7 @@ image::images/core.svg[Image of the core]
 === Registers
 
 The register file consists of thirty-two 32-bit registers denoted by `x0` to `x31`. Internally, the registers use Big Endian format. Register `x0` (alias `zero`) is hardwired to all zeros. Writing this register has no effect. Reading this register returns all zero bits. Normally, the `x` names are not used but may be handy when simulating the designs. See <<tab_reg>>.
-A register can be written to, and two register can be selected for data and/or base address.
+A register can be written to, and two register can be selected for data and/or base address. All registers are loaded with all zero bits during reconfiguration.
 
 .RISC-V registers
 [[tab_reg]]
@@ -259,7 +259,7 @@ For the processor, all RV32IM Unprivileged instructions are implemented but the 
 
 == Reset
 
-There are two flavors of resets. The processes can be reset asynchronous or synchronous. Furthermore, each flavor has two types of reset. A system wide reset resets the complete processor, including I/O and debug units. The debug unit generated reset resets the core and the I/O. The resets are active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition. It is also possible to reset the processor when the watchdog (WDT) times out.
+There are two flavors of resets. The SoC can be reset asynchronous or synchronous. Furthermore, each flavor has two types of reset. A system wide reset resets the complete processor, including I/O and debug units. The debug unit generated reset resets the core and the I/O. The resets are active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition. It is also possible to reset the processor when the watchdog (WDT) times out.
 
 
 == Memories

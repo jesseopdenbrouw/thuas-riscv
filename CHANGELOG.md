@@ -68,4 +68,5 @@ All dates are in dd.mm.yyyy format.
 | 08.04.2026 | 1.1.4.0  | New version 1.1.4 | |
 | 15.04.2026 | 1.1.4.1  | [core] added Zbkb extension | |
 | 20.04.2026 | 1.1.4.2  | [core[ IALIGN = 32, so mepc(1) and mepc(0) must be 0 | |
+| 30.04.2026 | 1.1.4.3  | [core] all GPRs are loaded with all zero bits when reconfiguring the Cyclone V | |
 

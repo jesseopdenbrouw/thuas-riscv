@@ -205,9 +205,13 @@ signal ex_wb : ex_wb_type;
 
 -- The registers
 type regs_array_type is array (0 to NUMBER_OF_REGISTERS-1) of data_type;
+-- After reconfiguration, all the registers are loaded with null-bits
+constant reg_contents : regs_array_type := (  (others => (others => '0')) );
 -- Quartus will not generate RAM blocks for registers when they are in a record
 -- Also, Quartus will not generate RAM blocks when one set of registers is to be copied three times
-signal regs_rs1, regs_rs2, regs_debug : regs_array_type;
+signal regs_rs1 : regs_array_type := reg_contents;
+signal regs_rs2 : regs_array_type := reg_contents;
+signal regs_debug : regs_array_type := reg_contents;
 -- Used with on-chip debugger
 signal data_from_gpr : data_type;
 
@@ -239,8 +243,6 @@ type control_type is record
     -- Forwarding latest result
     forwarda : std_logic;
     forwardb : std_logic;
-    -- Write x0 with 0 at startup if regs are in RAM
-    reg0_write_once : std_logic;
     -- Instruction problem
     illegal_instruction_decode : std_logic;
     illegal_instruction_csr : std_logic;
@@ -872,7 +874,6 @@ begin
             control.mret_request <= '0';
             control.wfi_request <= '0';
             control.illegal_instruction_decode <= '0';
-            control.reg0_write_once <= '0';
         elsif rising_edge(I_clk) then
             if I_sreset = '1' then
                 id_ex.pc <= (others => '0');
@@ -899,7 +900,6 @@ begin
                 control.mret_request <= '0';
                 control.wfi_request <= '0';
                 control.illegal_instruction_decode <= '0';
-                control.reg0_write_once <= '0';
             else
                 id_ex.instr <= I_instr_response.instr;
                 id_ex.ismem <= '0';
@@ -983,7 +983,6 @@ begin
                     control.mret_request <= '0';
                     control.wfi_request <= '0';
                     control.illegal_instruction_decode <= '0';
-                    control.reg0_write_once <= '1';
 
                     -- If we flush the pipeline, don't execute the instruction
                     if control.flush = '1' or control.state = state_debugflush or control.state = state_debugflush2 then
@@ -1490,16 +1489,11 @@ begin
                                 control.illegal_instruction_decode <= '1';
                         end case;
                         
-                        -- When the registers use onboard RAM, the registers
-                        -- cannot be reset. In that case, we must write register
-                        -- x0 (zero) with 0x00000000. This needs to be done only
-                        -- once when the processor starts up. After that, register
-                        -- x0 is not written anymore. When the processor starts,
-                        -- it executes an `alu_nop`, which sets the result to 0 so
-                        -- register x0 is written with 0x00000000.
-                        if control.reg0_write_once = '0' and HAVE_REGISTERS_IN_RAM then
-                            id_ex.rd_en <= '1';
-                        elsif rd_v = "00000" then
+                        -- If the destination register is x0, block any write
+                        -- to it. x0 (zero) is loaded with all null-bits at
+                        -- reconfiguration time and is never written. So the
+                        -- contents is always null-bits.
+                        if rd_v = "00000" then
                             id_ex.rd_en <= '0';
                         end if;
                    end if; -- flush

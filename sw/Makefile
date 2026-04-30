@@ -87,7 +87,7 @@ MKDIRCMD  = if [ ! -d bin ]; then mkdir bin; fi
 FORCLEAN  = for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
 endif
 
-.PHONY: all bin $(SUBDIRS) clean makebin
+.PHONY: all bin $(SUBDIRS) clean makebin srec2vhdl srec2mif lib
 
 all: $(SUBDIRS)
 

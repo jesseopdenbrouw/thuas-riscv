@@ -62,7 +62,7 @@ entity core is
           HAVE_BOOTLOADER_ROM : boolean;
           -- Disable CSR address check when in debug mode
           OCD_CSR_CHECK_DISABLE : boolean;
-          -- RISCV E (embedded) of RISCV I (full)
+          -- RISCV E (embedded) or RISCV I (full)
           HAVE_RISCV_E : boolean;
           -- Do we have the integer multiply/divide unit?
           HAVE_MULDIV : boolean;
@@ -284,7 +284,9 @@ type md_type is record
     outsign : std_logic;
     div_ready : std_logic;
     div : data_type;
+-- synthesis translate_off
     count: integer range 0 to 32;
+-- synthesis translate_on
 end record md_type;
 signal md : md_type;
 alias md_buf1 is md.buf(63 downto 32);
@@ -903,6 +905,7 @@ begin
             else
                 id_ex.instr <= I_instr_response.instr;
                 id_ex.ismem <= '0';
+                -- If in debug...
                 if control.stall_on_trigger = '1' then
                     -- Set all registers to default
                     id_ex.rd <= (others => '0');
@@ -926,7 +929,7 @@ begin
                     control.mret_request <= '0';
                     control.wfi_request <= '0';
                     control.illegal_instruction_decode <= '0';
-                -- if a trap is requested
+                -- If a trap is requested
                 elsif control.trap_request = '1' then
                     -- ALU does nothing
                     id_ex.alu_op <= alu_nop;

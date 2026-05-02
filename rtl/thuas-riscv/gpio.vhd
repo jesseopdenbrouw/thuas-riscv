@@ -34,7 +34,7 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
--- Genera Porpuse I/O. There are 32 inputs and 32 outputs.
+-- General Porpuse I/O. There are 32 inputs and 32 outputs.
 -- Inputs are double synchronized. One input pin can be
 -- attached to an edge detector with interrupt capability.
 

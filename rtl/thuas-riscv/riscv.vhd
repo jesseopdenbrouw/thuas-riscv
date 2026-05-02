@@ -1222,7 +1222,7 @@ begin
                   I_mem_request => uart1_request_int,
                   O_mem_response => uart1_response_int
                  );
-        O_uart1txd <= '0';
+        O_uart1txd <= 'Z';
         break_from_uart1_int <= '0';
         irq_uart1_int <= '0';
     end generate;
@@ -1322,8 +1322,8 @@ begin
                   I_mem_request => spi1_request_int,
                   O_mem_response => spi1_response_int
                  );
-        O_spi1sck <= '0';
-        O_spi1mosi <= '0';
+        O_spi1sck <= 'Z';
+        O_spi1mosi <= 'Z';
         irq_spi1_int <= '0';
     end generate;
 
@@ -1354,8 +1354,8 @@ begin
                   I_mem_request => spi2_request_int,
                   O_mem_response => spi2_response_int
                  );
-        O_spi2sck <= '0';
-        O_spi2mosi <= '0';
+        O_spi2sck <= 'Z';
+        O_spi2mosi <= 'Z';
         irq_spi2_int <= '0';
     end generate;
 
@@ -1387,7 +1387,7 @@ begin
                   I_mem_request => timer2_request_int,
                   O_mem_response => timer2_response_int
                  );
-        O_timer2oct <= '0';
+        O_timer2oct <= 'Z';
         IO_timer2icoca <= 'Z';
         IO_timer2icocb <= 'Z';
         IO_timer2icocc <= 'Z';
@@ -1424,7 +1424,7 @@ begin
                   I_mem_request => uart2_request_int,
                   O_mem_response => uart2_response_int
                  );
-        O_uart2txd <= '0';
+        O_uart2txd <= 'Z';
         irq_uart2_int <= '0';
     end generate;
 

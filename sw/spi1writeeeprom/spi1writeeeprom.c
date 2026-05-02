@@ -4,10 +4,11 @@
  *
  * Program to write data to the 25AA010A serial EEPROM.
  *
- * This program writes the first few bytes of a 25AA101A
+ * This program writes the first few bytes of a 25AA010A
  * bit-serial 128 bytes EEPROM. It writes the buffer `wbuf`
  * to the device, waits for the EEPROM to finish the write,
  * reads the bytes back and prints them on the terminal.
+ * The program also works with 25AA020A 256-byte EEPROM.
  *
  */
 

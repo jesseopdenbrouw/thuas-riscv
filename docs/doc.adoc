@@ -1020,6 +1020,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `i2c1lis3dh` -- program to read acceleration data from a LIS3DH accelerometer. Uses I2C1 and UART1. Works on the board.
 * `i2c1ssd1315` -- program to test the SSD1315 OLED display driver. Uses I2C1 and UART1. Works on the board.
 * `i2c1tmp102` -- program that uses the I2C1 peripheral to fetch the temperature data of a TMP102 temperature sensor and displays the raw data on the terminal. Works on the board.
+* `i2c2adxl345` -- program to read acceleration data from a ADXL345 accelerometer. Uses *I2C2* and UART1. Works on the DE10-Lite board.
 * `interrupt_direct` -- program to test the interrupt handling using direct mode and prints out the elapsed time. Uses UART1. Works on the board.
 * `interrupt_vectored` -- program to test the interrupt handling using vectored mode and prints out the elapsed time. Uses UART1. Works on the board.
 * `interval` -- program that uses the `clock` C library function to time 5 seconds since last read. Uses UART1. Works on the board.

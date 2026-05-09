@@ -98,9 +98,9 @@ settings, ROM, BOOT, RAM and registers uses 43% of the available RAM blocks.
 
 The design is also tested on a
 https://digilent.com/reference/programmable-logic/arty-s7/start[Digilent Arty S7/50]
-and a
+, a
 https://digilent.com/reference/programmable-logic/cmod-s7/start[Cmod S7/25]
-(Spartan 7) board.
+(Spartan 7 boards) and a https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=234&No=1021[DE10-Lite] board.
 
 == Software
 

@@ -14,6 +14,9 @@
 # NOTE: adjust the settings in file common.make
 #
 
+# comment next if FreeRTOS is not available
+HAS_FREERTOS := true
+
 SUBDIRS = add64 \
           assembler \
           basel_problem \
@@ -30,8 +33,6 @@ SUBDIRS = add64 \
           fatfs \
           flash \
           float \
-          FreeRTOSbb \
-          FreeRTOSdemo \
           gamma \
           global \
           hex_display \
@@ -76,6 +77,12 @@ SUBDIRS = add64 \
           wfitest \
           whetstone
 
+ifdef HAS_FREERTOS
+SUBDIRS := \
+          FreeRTOSbb \
+          FreeRTOSdemo \
+          $(SUBDIRS)
+endif
 ifeq ($(OS),Windows_NT)
 $(info Windows detected)
 EXESUFFIX = .exe

@@ -91,7 +91,7 @@ A register can be written to, and two register can be selected for data and/or b
 | `x28-x31` | `t3-t6`  | Temporaries                       | Caller
 |===
 
-The registers can optionally be put in ALM flip-flops. This increases the ALM count, but may have a positive effect in the clock speed.
+The registers can optionally be put in ALM flip-flops. This increases the ALM count, but may have a positive effect in the clock speed, or when the design suffers from undefined read-during-write behavior.
 
 === ALU
 
@@ -396,10 +396,11 @@ Performance options: balanced, Advanced Fitter Settings:
 
 === Other boards
 
-We also tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../boards[here]. The fabric of these FPGAs is faster that of the Cyclone V and speeds of 100+ MHz may be obtained.
+We tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../boards[here]. The fabric of these FPGAs is faster that of the Cyclone V and speeds of 100+ MHz may be obtained.
 
 We find good speed results when the synthesis is set to Default and the implementation is set to Performance+Explore.
 
+We also tested the processor on a DE10-Lite board. The fabric is the MAX10 devices is slower than that of the Cyclone V, so the Fmax is lower.
 
 == Processor hardware
 

@@ -18,3 +18,5 @@ copied to the simulation directory.
 When using Questsim or Modelsim Altera Starter Edition, simulation
 of the altsyncram is possible.
 
+Also works on the DE10-Lite board.
+

@@ -216,7 +216,8 @@ void trap_handler(void)
 			}
 
 		}
-
-	} /* mcause */
+	} else {
+		uart1_puts("BUG:\r\n");
+	}/* mcause */
 
 }

@@ -40,6 +40,7 @@ SUBDIRS = add64 \
           i2c1lis3dh \
           i2c1ssd1315 \
           i2c1tmp102 \
+          i2c2adxl345 \
           interrupt_direct \
           interrupt_vectored \
           interval \

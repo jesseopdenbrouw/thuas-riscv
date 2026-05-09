@@ -151,6 +151,9 @@ constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16,
 -- Do we want the extra simulation output file?
 constant SIMULATION_EXTRA : boolean := false;
 
+-- Doe we have fast access memory?
+constant FAST_MEM : boolean := false;
+
 -- The Program Counter
 -- Not part of any record.
 signal pc : data_type;
@@ -1637,7 +1640,7 @@ begin
     
     --
     -- The execute block
-    -- Contains the ALU, the MD unit and result retire unit
+    -- Contains the ALU, the MD unit and result forwarding unit
     --
     
     -- ALU
@@ -2375,49 +2378,44 @@ begin
 
     -- This is the interface between the core and the memory (ROM, boot ROM, RAM, I/O)
     -- Memory access type and size are computed in the instruction decoding unit
-    process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb, I_dm_core_data_request) is
-    variable address_v : unsigned(31 downto 0);
-    begin
-        
-        -- If we're in debug
-        if control.indebug = '1' then
-            address_v := unsigned(I_dm_core_data_request.address);
-        -- Check if we need forward or not
-        else
-            if control.forwarda = '1' then
-                address_v := unsigned(ex_wb.rddata);
-            else
-                address_v := unsigned(id_ex.rs1data);
-            end if;
-            address_v := address_v + unsigned(id_ex.imm);
-        end if;
 
-        if I_areset = '1' then
-            O_bus_request.stb <= '0';
-            O_bus_request.size <= memsize_unknown;
-            O_bus_request.acc <= memaccess_nop;
-            O_bus_request.data <= (others => '0');
-            csr_transfer.address_to_mtval <= (others => '0');
-        elsif rising_edge(I_clk) then
-            if I_sreset = '1' then
+    fastmemnot: if not FAST_MEM generate
+        process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb, I_dm_core_data_request) is
+        variable address_v : unsigned(31 downto 0);
+        begin
+            
+            -- If we're in debug
+            if control.indebug = '1' then
+                address_v := unsigned(I_dm_core_data_request.address);
+            -- Check if we need forward or not
+            else
+                if control.forwarda = '1' then
+                    address_v := unsigned(ex_wb.rddata);
+                else
+                    address_v := unsigned(id_ex.rs1data);
+                end if;
+                address_v := address_v + unsigned(id_ex.imm);
+            end if;
+
+            if I_areset = '1' then
                 O_bus_request.stb <= '0';
                 O_bus_request.size <= memsize_unknown;
                 O_bus_request.acc <= memaccess_nop;
                 O_bus_request.data <= (others => '0');
                 csr_transfer.address_to_mtval <= (others => '0');
-            else
-                -- Create memory access strobe from core or DM
-                O_bus_request.stb <= id_ex.ismem or (I_dm_core_data_request.stb and boolean_to_std_logic(HAVE_OCD));
-                -- If current transaction is completed, reset the bus
-                if I_bus_response.ready = '1' then
+            elsif rising_edge(I_clk) then
+                if I_sreset = '1' then
+                    O_bus_request.stb <= '0';
                     O_bus_request.size <= memsize_unknown;
                     O_bus_request.acc <= memaccess_nop;
                     O_bus_request.data <= (others => '0');
                     csr_transfer.address_to_mtval <= (others => '0');
-                -- else clock in the credentials for memory access
                 else
-                    -- Debug
+                    -- Create memory access strobe from core or DM
+                    O_bus_request.stb <= id_ex.ismem or (I_dm_core_data_request.stb and boolean_to_std_logic(HAVE_OCD));
+                    -- If debug is active...
                     if control.indebug = '1' and HAVE_OCD then
+                        -- Set read or write (or nop)
                         if I_dm_core_data_request.readmem = '1' then
                             O_bus_request.acc <= memaccess_read;
                         elsif I_dm_core_data_request.writemem = '1' then
@@ -2425,6 +2423,7 @@ begin
                         else
                             O_bus_request.acc <= memaccess_nop;
                         end if;
+                        -- Translate memory size
                         if (I_dm_core_data_request.readmem or I_dm_core_data_request.writemem) = '0' then
                             O_bus_request.size <= memsize_unknown;
                         elsif I_dm_core_data_request.size = "00" then
@@ -2456,13 +2455,82 @@ begin
                     else
                         O_bus_request.data <= id_ex.rs2data;
                     end if;
+                end if; -- sreset
+            end if; -- posedge
+        end process;
+        -- Address of the memory operation, this is a simple copy
+        -- outside the rising edge to make 1 register instead of 2
+        O_bus_request.addr <= csr_transfer.address_to_mtval;
+    end generate;
+
+    fastmem: if FAST_MEM generate
+        process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb, I_dm_core_data_request) is
+        variable address_v : unsigned(31 downto 0);
+        begin
+            
+            -- If we're in debug
+            if control.indebug = '1' then
+                address_v := unsigned(I_dm_core_data_request.address);
+            -- Check if we need forward or not
+            else
+                if control.forwarda = '1' then
+                    address_v := unsigned(ex_wb.rddata);
+                else
+                    address_v := unsigned(id_ex.rs1data);
                 end if;
-            end if; -- sreset
-        end if; -- posedge
-    end process;
-    -- Address of the memory operation, this is a simple copy
-    -- outside the rising edge to make 1 register instead of 2
-    O_bus_request.addr <= csr_transfer.address_to_mtval;
+                address_v := address_v + unsigned(id_ex.imm);
+            end if;
+            -- Create memory access strobe from core or DM
+            O_bus_request.stb <= id_ex.ismem or (I_dm_core_data_request.stb and boolean_to_std_logic(HAVE_OCD));
+            -- If debug is active...
+            if control.indebug = '1' and HAVE_OCD then
+                -- Set read or write (or nop)
+                if I_dm_core_data_request.readmem = '1' then
+                    O_bus_request.acc <= memaccess_read;
+                elsif I_dm_core_data_request.writemem = '1' then
+                    O_bus_request.acc <= memaccess_write;
+                else
+                    O_bus_request.acc <= memaccess_nop;
+                end if;
+                -- Translate memory size
+                if (I_dm_core_data_request.readmem or I_dm_core_data_request.writemem) = '0' then
+                    O_bus_request.size <= memsize_unknown;
+                elsif I_dm_core_data_request.size = "00" then
+                    O_bus_request.size <= memsize_byte;
+                elsif I_dm_core_data_request.size = "01" then
+                    O_bus_request.size <= memsize_halfword;
+                elsif I_dm_core_data_request.size = "10" then
+                    O_bus_request.size <= memsize_word;
+                else
+                    O_bus_request.size <= memsize_unknown;
+                end if;
+            -- Disable the bus when flushing or interrupt
+            -- Do not disable on access/misaligned error, otherwise there will be combinational loops,
+            -- so we check the interrupt bit of the trap_mcause signal
+            elsif control.flush = '1' or control.trap_mcause(31) = '1' or control.stall_on_trigger = '1' then
+                O_bus_request.acc <= memaccess_nop;
+                O_bus_request.size <= memsize_unknown;
+            else
+                O_bus_request.acc <= id_ex.memaccess;
+                O_bus_request.size <= id_ex.memsize;
+            end if;
+
+            -- In case of a trap, record the memory address in MTVAL CSR
+            csr_transfer.address_to_mtval <= std_logic_vector(address_v);
+            
+            -- Data out to memory
+            if control.indebug = '1' then
+                O_bus_request.data <= I_dm_core_data_request.data;
+            elsif control.forwardb = '1' then
+                O_bus_request.data <= ex_wb.rddata;
+            else
+                O_bus_request.data <= id_ex.rs2data;
+            end if;
+        end process;
+        O_bus_request.addr <= csr_transfer.address_to_mtval;
+    end generate;
+
+
     
     
     --
@@ -3358,10 +3426,10 @@ begin
     csr_reg.mip <= I_intrio;
 
     -- Custom read-only hardware description
-    csr_reg.mxhw(00) <= '1'; --gpioa, always present
-    csr_reg.mxhw(01) <= '0'; --reserved
+    csr_reg.mxhw(00) <= '1'; -- GPIOA, always present
+    csr_reg.mxhw(01) <= '0'; -- reserved
     csr_reg.mxhw(02) <= boolean_to_std_logic(HAVE_ZBKB);
-    csr_reg.mxhw(03) <= '0'; --reserved
+    csr_reg.mxhw(03) <= boolean_to_std_logic(FAST_MEM);
     csr_reg.mxhw(04) <= boolean_to_std_logic(HAVE_UART1);
     csr_reg.mxhw(05) <= boolean_to_std_logic(HAVE_UART2);
     csr_reg.mxhw(06) <= boolean_to_std_logic(HAVE_I2C1);
@@ -3546,7 +3614,7 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(6, control.trap_mcause'length));
         end if;
-        control.trap_mcause(30 downto 5) <= (others => '0');
+        --control.trap_mcause(30 downto 5) <= (others => '0');
 
         -- Signal interrupt release
         if control.mret_request_delay = '1' then

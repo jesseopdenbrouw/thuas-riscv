@@ -13,7 +13,7 @@ In this directory, three files are present:
 
 Please complete the following steps:
 
-* Copy all design VHDL files, except the DE0-CV top level file, into this directory.
+* Copy all design VHDL files, including the testbenc files, except the DE0-CV top level file, into this directory.
 
 * Start Quartus by clicking on the QPF-file.
 
@@ -27,7 +27,7 @@ Note the following:
 
 * The onboard ADXL345 G-sensor is connected to the I2C2 peripheral.
 
-* This design has two extra outputs: `O_GSENSOR_CS_n` (output high, so I2C) and `O_GSENSOR_SDO` (output low, so the device has address 0x53).
+* This design has two extra outputs: `O_GSENSOR_CS_n` (output high, so I2C) and `O_GSENSOR_SDO` (output low, so the device has address 0x53). These are necessary for correct usage of the on=PCB G-sensor.
 
 * The pinout of the peripherals is the same as for the DE0-CV board, except for I2C2.
 

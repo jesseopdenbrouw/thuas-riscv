@@ -1,0 +1,383 @@
+Exploration report for de23_lite
+Sat Nov 22 20:30:39 2025
+Quartus Prime Version 25.3.0 Build 109 09/24/2025 SC Pro Edition
+
+
++------------------+
+; Table of Contents;
++------------------+
+  1. Legal Notice
+  2. Exploration Summary
+  3. DSE Messages
+
++-------------+
+; Legal Notice;
++-------------+
+Copyright (C) 1991-2025 Intel Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+
+
++-------------------------------------------------------------------------------------------------------------------+
+; Exploration Summary                                                                                               ;
++-----------------+--------------+--------------+---------------+--------------+------------------+-----------------+
+;Exploration Point;Quality of Fit;f(MAX) Geomean;WC Slack: Setup;WC Slack: Hold;WC Slack: Recovery;WC Slack: Removal;
++-----------------+--------------+--------------+---------------+--------------+------------------+-----------------+
+;dse1_1           ;    -10000.000;No Data       ;No Data        ;No Data       ;No Data           ;No Data          ;
+;dse1_2           ;    -10000.000;No Data       ;No Data        ;No Data       ;No Data           ;No Data          ;
+;dse1_3           ;    -10000.000;No Data       ;No Data        ;No Data       ;No Data           ;No Data          ;
+;dse1_4           ;    -10000.000;No Data       ;No Data        ;No Data       ;No Data           ;No Data          ;
+;dse1_5           ;    -10000.000;No Data       ;No Data        ;No Data       ;No Data           ;No Data          ;
+;dse1_6           ;    -10000.000;No Data       ;No Data        ;No Data       ;No Data           ;No Data          ;
+;dse1_7           ;    -10000.000;No Data       ;No Data        ;No Data       ;No Data           ;No Data          ;
+;dse1_base        ;    -10000.000;No Data       ;No Data        ;No Data       ;No Data           ;No Data          ;
++-----------------+--------------+--------------+---------------+--------------+------------------+-----------------+
+
++-------------+
+; DSE Messages;
++-------------+
+Info: Listening on: 127.0.0.1
+Info: Starting web server at: http://127.0.0.1:40445
+Info: Synthesis command: ['quartus_sh', '--ipc_json', '--flow', 'compile', '/mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite.qpf', '-c', 'de23_lite', '-end', 'synthesis']
+Info: Synthesis /mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite.qpf revision de23_lite ...
+Info: archiver reported: *******************************************************************
+Info: archiver reported: Running Quartus Prime Shell
+Info: archiver reported: Command: quartus_sh --flow compile /mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite.qpf -c de23_lite -end synthesis
+Info: archiver reported: Quartus(args): compile /mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite.qpf -c de23_lite -end synthesis
+Info: archiver reported: Project Name = /mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite
+Info: archiver reported: Revision Name = de23_lite
+Info: archiver reported: 2025-11-22 20:24:55 worker[0] started.
+Info: archiver reported: Run task: IP Generation
+Info: archiver reported: *******************************************************************
+Info: archiver reported: Running Quartus Prime IP Generation Tool
+Info: archiver reported: Command: quartus_ipgenerate de23_lite -c de23_lite --run_default_mode_op
+Info: archiver reported: Found 2 IP file(s) in the project.
+Info: archiver reported: Finished generating IP file(s) in the project.
+Info: archiver reported: Quartus Prime IP Generation Tool was successful. 0 errors, 0 warnings
+Info: archiver reported: Run task: Analysis & Synthesis
+Info: archiver reported: *******************************************************************
+Info: archiver reported: Running Quartus Prime Synthesis
+Info: archiver reported: Command: quartus_syn --read_settings_files=on --write_settings_files=off de23_lite -c de23_lite
+Info: archiver reported: qis_default_flow_script.tcl version: #2
+Info: archiver reported: Initializing Synthesis...
+Info: archiver reported: Project = "de23_lite"
+Info: archiver reported: Revision = "de23_lite"
+Info: archiver reported (21958): Initialized Quartus Message Database
+Info: archiver reported (16303): High Performance Effort optimization mode selected -- timing performance will be prioritized at the potential cost of increased compilation time
+Info: archiver reported: Analyzing source files
+Info: archiver reported: Elaborating from top-level entity "de23_lite"
+Info: archiver reported (18235): Library search order is as follows: "altera_iopll_2100; altera_s10_user_rst_clkgate_1949; reset; pll". Quartus will look for undefined design units in your libraries in that order. To modify the ordering, please specify a semi-colon separated library list using the assignment LIBRARY_SEARCH_ORDER.
+Info: archiver reported (19337): VHDL info at de23_lite.vhd(47): executing entity "de23_lite" with architecture "toplevel"
+Info: archiver reported (19337): VHDL info at altera_agilex_config_reset_release_endpoint.vhd(122): executing entity "altera_agilex_config_reset_release_endpoint" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at altera_fabric_endpoint.vhd(126): executing entity "altera_fabric_endpoint(send_width=0,receive_width=1,settings="{fabric agilex_config_reset_release dir agent psig 142e1a3c}")(1,60)" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at pll.vhd(10): executing entity "pll" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at riscv.vhd(49): executing entity "riscv(system_frequency=150000000,clock_frequency=1000000,have_ocd=true,have_bootloader_rom=false,ocd_csr_check_disable=false,ocd_aampostincrement=true,have_riscv_e=false,have_muldiv=true,fast_divide=false,have_zba=false,have_zbb=false,have_zbs=false,have_zicond=false,have_zihpm=false,vectored_mtvec=true,have_registers_in_ram=true,rom_address_bits=16,ram_address_bits=15,rom_high_nibble="0000",boot_high_nibble="0001",ram_high_nibble="0010",io_high_nibble="1111",buffer_io_response=false,have_uart1=true,have_uart2=false,have_spi1=true,have_spi2=true,have_i2c1=true,have_i2c2=true,have_timer1=true,have_timer2=true,have_msi=true,have_wdt=true,have_crc=true,uart1_break_resets=false)" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at core.vhd(49): executing entity "core(system_frequency=150000000,hw_version=16843523,have_ocd=true,have_bootloader_rom=false,ocd_csr_check_disable=false,have_riscv_e=false,have_muldiv=true,fast_divide=false,have_zba=false,have_zbb=false,have_zbs=false,have_zicond=false,have_zihpm=false,vectored_mtvec=true,have_registers_in_ram=true,rom_high_nibble="0000",boot_high_nibble="0001",buffer_io_response=false,have_uart1=true,have_uart2=false,have_spi1=true,have_spi2=true,have_i2c1=true,have_i2c2=true,have_timer1=true,have_timer2=true,have_msi=true,have_wdt=true,have_crc=true,uart1_break_resets=false)" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at core.vhd(550): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at core.vhd(720): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at core.vhd(1218): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at core.vhd(1863): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at address_decode.vhd(48): executing entity "address_decode(have_bootloader_rom=false,rom_high_nibble="0000",boot_high_nibble="0001",ram_high_nibble="0010",io_high_nibble="1111")" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at instr_router.vhd(47): executing entity "instr_router(have_bootloader_rom=false,rom_high_nibble="0000",boot_high_nibble="0001")" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at rom.vhd(56): executing entity "rom(have_bootloader_rom=false,have_ocd=true,rom_address_bits=16)" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at rom.vhd(146): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at bootrom.vhd(50): executing entity "bootrom(have_bootloader_rom=false)" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at ram.vhd(50): executing entity "ram(ram_address_bits=15)" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at ram.vhd(117): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at ram.vhd(185): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at dtm.vhd(23): executing entity "dtm" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at dtm.vhd(164): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at dm.vhd(49): executing entity "dm(ocd_aampostincrement=true)" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at dm.vhd(441): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at io_bus_switch.vhd(43): executing entity "io_bus_switch(buffer_io_response=false)" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at io_bus_switch.vhd(247): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at io_bus_switch.vhd(271): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at gpio.vhd(44): executing entity "gpio" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at mtime.vhd(44): executing entity "mtime(system_frequency=150000000,clock_frequency=1000000)" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at mtime.vhd(108): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at mtime.vhd(116): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at wdt.vhd(44): executing entity "wdt" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at msi.vhd(44): executing entity "msi" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at timera.vhd(46): executing entity "timera" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at timera.vhd(108): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at timera.vhd(126): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at uart.vhd(44): executing entity "uart(uart_break_resets=false)" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at uart.vhd(281): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at uart.vhd(398): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at i2c.vhd(47): executing entity "i2c(system_frequency=150000000)" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at i2c.vhd(399): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at spi.vhd(44): executing entity "spi" with architecture "rtl"
+Info: archiver reported (13734): VHDL Case Statement information at spi.vhd(153): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at spi.vhd(189): OTHERS choice is never selected
+Info: archiver reported (13734): VHDL Case Statement information at spi.vhd(278): OTHERS choice is never selected
+Info: archiver reported (19337): VHDL info at timerb.vhd(44): executing entity "timerb" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at stub.vhd(46): executing entity "stub" with architecture "rtl"
+Info: archiver reported (19337): VHDL info at crc.vhd(45): executing entity "crc" with architecture "rtl"
+Info: archiver reported: Found 28 design entities
+Info: archiver reported: There are 33 partitions after elaboration.
+Info: archiver reported: Running rule checking for Agilex5 protocol IPs...
+Info: archiver reported (11170): Starting IP generation for the debug fabric: alt_sld_fab_0.
+Info: archiver reported (11172): ***************************************************************
+Info: archiver reported (11172): Quartus is a registered trademark of Intel Corporation in the
+Info: archiver reported (11172): US and other countries.  Portions of the Quartus Prime software
+Info: archiver reported (11172): Code, and other portions of the code included in this download
+Info: archiver reported (11172): Or on this DVD, are licensed to Intel Corporation and are the
+Info: archiver reported (11172): Copyrighted property of third parties. For license details,
+Info: archiver reported (11172): Refer to the End User License Agreement at
+Info: archiver reported (11172): Http://fpgasoftware.intel.com/eula.
+Info: archiver reported (11172): ***************************************************************
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Deploying alt_sld_fab_0 to /mnt/d/PROJECTS/RISCVDEV/de23-lite/dni/sandboxes/JESSE-PC_324698_0/sld/ipgen/alt_sld_fab_0.ip
+Info: archiver reported (11172): ***************************************************************
+Info: archiver reported (11172): Quartus is a registered trademark of Intel Corporation in the
+Info: archiver reported (11172): US and other countries.  Portions of the Quartus Prime software
+Info: archiver reported (11172): Code, and other portions of the code included in this download
+Info: archiver reported (11172): Or on this DVD, are licensed to Intel Corporation and are the
+Info: archiver reported (11172): Copyrighted property of third parties. For license details,
+Info: archiver reported (11172): Refer to the End User License Agreement at
+Info: archiver reported (11172): Http://fpgasoftware.intel.com/eula.
+Info: archiver reported (11172): ***************************************************************
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Saving generation log to /mnt/d/PROJECTS/RISCVDEV/de23-lite/dni/sandboxes/JESSE-PC_324698_0/sld/ipgen/alt_sld_fab_0/alt_sld_fab_0_generation.rpt
+Info: archiver reported (11172): Generated by version: 25.3 build 109
+Info: archiver reported (11172): Starting: Create HDL design files for synthesis
+Info: archiver reported (11172): Qsys-generate /mnt/d/PROJECTS/RISCVDEV/de23-lite/dni/sandboxes/JESSE-PC_324698_0/sld/ipgen/alt_sld_fab_0.ip --synthesis=VERILOG --output-directory=/mnt/d/PROJECTS/RISCVDEV/de23-lite/dni/sandboxes/JESSE-PC_324698_0/sld/ipgen/alt_sld_fab_0 --family="Agilex 3" --part=A3CZ135BB18AE7S
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Add_instance splitter altera_sld_splitter
+Info: archiver reported (11172): Set_instance_parameter_value splitter ADD_INTERFACE_ASGN 1
+Info: archiver reported (11172): Add_instance agilexconfigreset intel_agilex_reset_release_from_sdm
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset SETTINGS {{type_name 0 instance_name 0} }
+Info: archiver reported (11172): Set_instance_parameter_value agilexconfigreset COUNT 1
+Info: archiver reported (11172): Set_instance_parameter_value splitter FRAGMENTS {{{name conf_reset type reset dir end ports { {conf_reset reset in 1 0} } properties { {synchronousEdges {None} } } } } }
+Info: archiver reported (11172): Add_connection agilexconfigreset.conf_reset_0 splitter.conf_reset_0 reset
+Info: archiver reported (11172): Set_parameter_value COMPOSED_SETTINGS {{fabric agilex_config_reset_release dir agent type_name 0 instance_name 0} }
+Info: archiver reported (11172): Alt_sld_fab_0: "Transforming system: alt_sld_fab_0"
+Info: archiver reported (11172): Alt_sld_fab_0: "Naming system components in system: alt_sld_fab_0"
+Info: archiver reported (11172): Alt_sld_fab_0: "Processing generation queue"
+Info: archiver reported (11172): Alt_sld_fab_0: "Generating: alt_sld_fab_0"
+Info: archiver reported (11172): Alt_sld_fab_0: "Generating: alt_sld_fab_0_alt_sld_fab_0_10_fkimwiy"
+Info: archiver reported (11172): Alt_sld_fab_0: "Generating: alt_sld_fab_0_alt_sld_fab_1920_jtet2za"
+Info: archiver reported (11172): Alt_sld_fab_0: "Generating: alt_sld_fab_0_altera_sld_splitter_1920_tbvre7y"
+Info: archiver reported (11172): Alt_sld_fab_0: "Generating: alt_sld_fab_0_intel_agilex_reset_release_from_sdm_203_poqcpxq"
+Info: archiver reported (11172): Alt_sld_fab_0: Done "alt_sld_fab_0" with 5 modules, 6 files
+Info: archiver reported (11172): Finished: Create HDL design files for synthesis
+Info: archiver reported (11172): Generation of /mnt/d/PROJECTS/RISCVDEV/de23-lite/dni/sandboxes/JESSE-PC_324698_0/sld/ipgen/alt_sld_fab_0.ip (alt_sld_fab_0) took 335 ms
+Info: archiver reported (11171): Finished IP generation for the debug fabric: alt_sld_fab_0.
+Info: archiver reported: DA report generation in native DNI mode
+Info: archiver reported (21615): Running Design Assistant Rules for snapshot 'partitioned'
+Info: archiver reported: No waiver waived any violations
+Info: archiver reported (22360): Design Assistant Results: 28 of 29 enabled rules passed, and 1 rules was disabled, in snapshot 'partitioned'
+Info: archiver reported (21660): Design Assistant Results: 0 of 19 Critical severity rules issued violations in snapshot 'partitioned'
+Info: archiver reported (21661): Design Assistant Results: 0 of 1 High severity rules issued violations in snapshot 'partitioned'
+Info: archiver reported (21621): Design Assistant Results: 1 of 1 Medium severity rules issued violations in snapshot 'partitioned'. Please refer to DRC report '/mnt/d/PROJECTS/RISCVDEV/de23-lite/output_files/de23_lite.drc.partitioned.rpt' for more information
+Info: archiver reported (21622): Design Assistant Results: 0 of 8 Low severity rules issued violations in snapshot 'partitioned'
+Warning: archiver reported (23762): Hierarchies were optimized away during sweep. For details, refer to " Hierarchies Optimized Away During Sweep " report.
+Warning: archiver reported (14131): Reduced register "riscv0|core0|csr_reg.tinfo[24]" with stuck data_in port to stuck value VCC -- power-up level has changed
+Warning: archiver reported (14131): Reduced register "riscv0|core0|csr_reg.tinfo[2]" with stuck data_in port to stuck value VCC -- power-up level has changed
+Warning: archiver reported (14131): Reduced register "riscv0|core0|csr_reg.tinfo[1]" with stuck data_in port to stuck value VCC -- power-up level has changed
+Info: archiver reported: Synthesizing partition "root_partition"
+Info: archiver reported (19000): Inferred 9 megafunctions from design logic
+Info: archiver reported (284007): State machine "riscv0|spi2gen.spi2|spi.state" will be implemented as a safe state machine.
+Info: archiver reported (284007): State machine "riscv0|spi1gen.spi1|spi.state" will be implemented as a safe state machine.
+Info: archiver reported (284007): State machine "riscv0|uart1gen.uart1|uart.txstate" will be implemented as a safe state machine.
+Info: archiver reported (284007): State machine "riscv0|core0|O_bus_request.size" will be implemented as a safe state machine.
+Info: archiver reported (284007): State machine "riscv0|core0|O_bus_request.acc" will be implemented as a safe state machine.
+Info: archiver reported (284007): State machine "riscv0|core0|id_ex.memsize" will be implemented as a safe state machine.
+Info: archiver reported (284007): State machine "riscv0|core0|id_ex.memaccess" will be implemented as a safe state machine.
+Warning: archiver reported (14130): Reduced register "riscv0|core0|id_ex.alu_op.alu_andn" with stuck data_in port to stuck value GND
+Warning: archiver reported (14130): Reduced register "riscv0|crcgen.crc1|crc.counter[3]" with stuck data_in port to stuck value GND
+Warning: archiver reported (13024): Output pins are stuck at VCC or GND
+Info: archiver reported (17049): 97 registers lost all their fanouts during netlist optimizations.
+Info: archiver reported (21057): Implemented 7402 device resources after synthesis - the final resource count might be different
+Info: archiver reported: Successfully synthesized partition
+Info: archiver reported: Synthesizing partition "auto_fab_0"
+Info: archiver reported (21057): Implemented 2 device resources after synthesis - the final resource count might be different
+Info: archiver reported: Successfully synthesized partition
+Info: archiver reported: Saving post-synthesis snapshots for 2 partition(s)
+Info: archiver reported (21615): Running Design Assistant Rules for snapshot 'synthesized'
+Info: archiver reported: No waiver waived any violations
+Info: archiver reported (22360): Design Assistant Results: 12 of 13 enabled rules passed, and 7 rules was disabled, in snapshot 'synthesized'
+Info: archiver reported (21661): Design Assistant Results: 0 of 1 High severity rules issued violations in snapshot 'synthesized'
+Info: archiver reported (21621): Design Assistant Results: 0 of 6 Medium severity rules issued violations in snapshot 'synthesized'
+Info: archiver reported (21622): Design Assistant Results: 1 of 6 Low severity rules issued violations in snapshot 'synthesized'. Please refer to DRC report '/mnt/d/PROJECTS/RISCVDEV/de23-lite/output_files/de23_lite.drc.synthesized.rpt' for more information
+Info: archiver reported: Quartus Prime Synthesis was successful. 0 errors, 2 warnings
+Info: archiver reported (21793): Quartus Prime Full Compilation was successful. 0 errors, 3 warnings
+Info: archiver reported (23030): Evaluation of Tcl script /opt/altera_pro/25.3/quartus/common/tcl/internal/qsh_flowengine.tcl was successful
+Info: archiver reported: Quartus Prime Shell was successful. 0 errors, 3 warnings
+Info: Archive command: ['quartus_sh', '--ipc_json', '--archive', '-use_file_set', 'full_db', '-output', '/mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1/de23_lite.qar', '-revision', 'de23_lite', '/mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite.qpf']
+Info: Archiving /mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite.qpf revision de23_lite ...
+Info: archiver reported: *******************************************************************
+Info: archiver reported: Running Quartus Prime Shell
+Info: archiver reported: Command: quartus_sh --archive -use_file_set full_db -output /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1/de23_lite.qar -revision de23_lite /mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite.qpf
+Info: archiver reported: Quartus(args): -qar -use_file_set full_db -output /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1/de23_lite.qar -revision de23_lite /mnt/d/PROJECTS/RISCVDEV/de23-lite/de23_lite.qpf
+Info: archiver reported: qar.tcl version #2
+Info: archiver reported: File Set 'Compilation database and output' contains:
+Info: archiver reported: Loading elaborated checkpoint under DNI mode
+Info: archiver reported: Archive will store files relative to the closest common parent directory
+Info: archiver reported (13213): Using common directory /mnt/d/PROJECTS/RISCVDEV/de23-lite/
+Info: archiver reported: ----------------------------------------------------------
+Info: archiver reported: ----------------------------------------------------------
+Info: archiver reported: Generated archive '/mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1/de23_lite.qar'
+Info: archiver reported: ----------------------------------------------------------
+Info: archiver reported: ----------------------------------------------------------
+Info: archiver reported: Generated report 'de23_lite.archive.rpt'
+Info: archiver reported (23030): Evaluation of Tcl script /opt/altera_pro/25.3/quartus/common/tcl/apps/qpm/qar.tcl was successful
+Info: archiver reported: Quartus Prime Shell was successful. 0 errors, 0 warnings
+Info: Created worker  exploration_point:dse1_base, point_id: 0
+Info: Job 1 : quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Created worker  exploration_point:dse1_1, point_id: 1
+Info: Job 2 : quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Created worker  exploration_point:dse1_2, point_id: 2
+Info: Job 3 : quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Created worker  exploration_point:dse1_3, point_id: 3
+Info: Job 4 : quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Created worker  exploration_point:dse1_4, point_id: 4
+Info: Job 5 : quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Created worker  exploration_point:dse1_5, point_id: 5
+Info: Job 6 : quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Created worker  exploration_point:dse1_6, point_id: 6
+Info: Job 7 : quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Created worker  exploration_point:dse1_7, point_id: 7
+Info: Job 8 : quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Explorer server: http://127.0.0.1:40445 started.
+Info: Starting seed sweep only exploration
+Info: Submitting: quartus_worker --server http://127.0.0.1:40445 --id 0 --msg-bundle-size 200 --msg-level error  --archive on --archive-file de23_lite.qar --work-root dse/dse1/dse1_base --exploration-point dse1_base --revision de23_lite --time-limit 24h0m --save-results all --command "quartus_py -m quartus.dse.fit_sta de23_lite.qsf"
+Info: Submitting: quartus_worker --server http://127.0.0.1:40445 --id 1 --msg-bundle-size 200 --msg-level error  --archive on --archive-file de23_lite.qar --work-root dse/dse1/dse1_1 --exploration-point dse1_1 --revision de23_lite --time-limit 24h0m --save-results all --command "quartus_py -m quartus.dse.fit_sta de23_lite.qsf"
+Info: Launched local subprocess 325078
+Info: Launched local subprocess 325079
+Info: Revision: dse1_1 will be compiled on compute node: JESSE-PC
+Info: Revision: dse1_base will be compiled on compute node: JESSE-PC
+Info: Exploration Point dse1_1 reported: Registering self with server http://127.0.0.1:40445/api/v1.0/broker/server/
+Info: Exploration Point dse1_1 reported: Successfully registered with server.
+Info: Request for de23_lite.qar.sha256 from /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1
+Info: Request for de23_lite.qar.sha256 from /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1
+Info: Exploration Point dse1_base reported: Registering self with server http://127.0.0.1:40445/api/v1.0/broker/server/
+Info: Exploration Point dse1_base reported: Successfully registered with server.
+Info: Request for de23_lite.qar from /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1
+Info: Request for de23_lite.qar from /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1
+Info: Exploration Point dse1_1 reported: Starting compilation quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Exploration Point dse1_1 reported: Sent timestamps successfully
+Info: Exploration Point dse1_1 reported: Using HTTP as communication
+Info: Exploration Point dse1_1 reported: Preparing to compile de23_lite ...
+Info: Exploration Point dse1_1 reported: Downloading de23_lite.qar.sha256 ...
+Info: Exploration Point dse1_1 reported: Finished download.
+Info: Exploration Point dse1_1 reported: Verified dse/dse1/dse1_1/de23_lite.qar.sha256 exists.
+Info: Exploration Point dse1_1 reported: Downloading de23_lite.qar ...
+Info: Exploration Point dse1_1 reported: Finished download.
+Info: Exploration Point dse1_1 reported: Verified dse/dse1/dse1_1/de23_lite.qar exists.
+Info: Exploration Point dse1_1 reported: Download successful. Checksum matched expected value.
+Info: Exploration Point dse1_1 reported: Unarchive command: ['quartus_sh', '--ipc_json', '--restore', '-output', 'dse/dse1/dse1_1', 'dse/dse1/dse1_1/de23_lite.qar']
+Info: Exploration Point dse1_base reported: Starting compilation quartus_py -m quartus.dse.fit_sta de23_lite.qsf
+Info: Exploration Point dse1_base reported: Sent timestamps successfully
+Info: Exploration Point dse1_base reported: Using HTTP as communication
+Info: Exploration Point dse1_base reported: Preparing to compile de23_lite ...
+Info: Exploration Point dse1_base reported: Downloading de23_lite.qar.sha256 ...
+Info: Exploration Point dse1_base reported: Finished download.
+Info: Exploration Point dse1_base reported: Verified dse/dse1/dse1_base/de23_lite.qar.sha256 exists.
+Info: Exploration Point dse1_base reported: Downloading de23_lite.qar ...
+Info: Exploration Point dse1_base reported: Finished download.
+Info: Exploration Point dse1_base reported: Verified dse/dse1/dse1_base/de23_lite.qar exists.
+Info: Exploration Point dse1_base reported: Download successful. Checksum matched expected value.
+Info: Exploration Point dse1_base reported: Unarchive command: ['quartus_sh', '--ipc_json', '--restore', '-output', 'dse/dse1/dse1_base', 'dse/dse1/dse1_base/de23_lite.qar']
+Info: Request for dse1_base.qsf from /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1
+Info: Request for dse1_base.qpf from /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1
+Info: Request for dse1_1.qsf from /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1
+Info: Request for dse1_1.qpf from /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1
+Info: Exploration Point dse1_1 reported: Downloading dse1_1.qsf ...
+Info: Exploration Point dse1_1 reported: Finished download.
+Info: Exploration Point dse1_1 reported: Verified /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1/dse1_1/de23_lite.qsf exists.
+Info: Exploration Point dse1_1 reported: Downloading dse1_1.qpf ...
+Info: Exploration Point dse1_1 reported: Finished download.
+Info: Exploration Point dse1_1 reported: Verified dse/dse1/dse1_1/de23_lite.qpf exists.
+Info: Exploration Point dse1_1 reported: Sent timestamps successfully
+Info: Exploration Point dse1_1 reported: Sent timestamps successfully
+Info: Exploration Point dse1_base reported: Downloading dse1_base.qsf ...
+Info: Exploration Point dse1_base reported: Finished download.
+Info: Exploration Point dse1_base reported: Verified /mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1/dse1_base/de23_lite.qsf exists.
+Info: Exploration Point dse1_base reported: Downloading dse1_base.qpf ...
+Info: Exploration Point dse1_base reported: Finished download.
+Info: Exploration Point dse1_base reported: Verified dse/dse1/dse1_base/de23_lite.qpf exists.
+Info: Exploration Point dse1_base reported: Sent timestamps successfully
+Info: Exploration Point dse1_base reported: Sent timestamps successfully
+Info: Exploration Point dse1_1 reported: Compilation finished. 0 msgs
+Info: Exploration Point dse1_base reported: Compilation finished. 0 msgs
+Info: Exploration Point dse1_1 reported: Processing keep results option: all
+Info: Exploration Point dse1_1 reported: No result files to upload.
+Info: Exploration Point dse1_base reported: Processing keep results option: all
+Info: Exploration Point dse1_base reported: No result files to upload.
+Error: Completed exploration. Results: 0 passed; 2 failed; 6 stopped.
+Info: Processing ended: Sat Nov 22 20:30:27 2025
+Info: Elapsed time: 0:05:33
+

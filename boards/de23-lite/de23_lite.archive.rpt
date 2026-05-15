@@ -1,0 +1,423 @@
+Archive Project report for de23_lite
+Sat Nov 22 20:25:49 2025
+Quartus Prime Version 25.3.0 Build 109 09/24/2025 SC Pro Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Archive Project Summary
+  3. Archive Project Messages
+  4. Files Archived
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+
+
+
++----------------------------------------------------------------+
+; Archive Project Summary                                        ;
++------------------------+---------------------------------------+
+; Archive Project Status ; Successful - Sat Nov 22 20:25:48 2025 ;
+; Revision Name          ; de23_lite                             ;
+; Top-level Entity Name  ; de23_lite                             ;
+; Family                 ; Agilex 3                              ;
++------------------------+---------------------------------------+
+
+
++--------------------------+
+; Archive Project Messages ;
++--------------------------+
+Info: File Set 'Compilation database and output' contains:
+    Info: Project source and settings files
+    Info: Automatically detected source files
+    Info: Report files
+    Info: Programming output files
+    Info: Version-incompatible compilation database files
+    Info: IP cache
+Info: Loading elaborated checkpoint under DNI mode
+Info: Archive will store files relative to the closest common parent directory
+Info (13213): Using common directory /mnt/d/PROJECTS/RISCVDEV/de23-lite/
+Info: ----------------------------------------------------------
+Info: ----------------------------------------------------------
+Info: Generated archive '/mnt/d/PROJECTS/RISCVDEV/de23-lite/dse/dse1/de23_lite.qar'
+Info: ----------------------------------------------------------
+Info: ----------------------------------------------------------
+Info: Generated report 'de23_lite.archive.rpt'
+Info (23030): Evaluation of Tcl script /opt/altera_pro/25.3/quartus/common/tcl/apps/qpm/qar.tcl was successful
+Info: Quartus Prime Shell was successful. 0 errors, 0 warnings
+    Info: Peak virtual memory: 1517 megabytes
+    Info: Processing ended: Sat Nov 22 20:25:49 2025
+    Info: Elapsed time: 00:00:02
+    Info: System process ID: 325061
+
+
++---------------------------------------------------------------------------------------------------------------------+
+; Files Archived                                                                                                      ;
++---------------------------------------------------------------------------------------------------------------------+
+; File Name                                                                                                           ;
++---------------------------------------------------------------------------------------------------------------------+
+; /opt/altera_pro/25.3/quartus/linux64/assignment_defaults.qdf                                                        ;
+; address_decode.vhd                                                                                                  ;
+; bootrom.vhd                                                                                                         ;
+; bootrom_image.vhd                                                                                                   ;
+; core.vhd                                                                                                            ;
+; crc.vhd                                                                                                             ;
+; da_drc.ini                                                                                                          ;
+; de23_lite.dse                                                                                                       ;
+; de23_lite.qpf                                                                                                       ;
+; de23_lite.qpta                                                                                                      ;
+; de23_lite.qsf                                                                                                       ;
+; de23_lite.vhd                                                                                                       ;
+; dm.vhd                                                                                                              ;
+; dni/checkpoints/.properties.folder.kvp                                                                              ;
+; dni/checkpoints/de23_lite/.properties.folder.kvp                                                                    ;
+; dni/checkpoints/de23_lite/manifest.txt                                                                              ;
+; dni/checkpoints/de23_lite/user_runs/.properties.folder.kvp                                                          ;
+; dni/checkpoints/de23_lite/user_runs/default_run/.properties.folder.kvp                                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/.properties.folder.kvp                                  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/.properties.setting.json                                ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/design/.properties.auto_fab_0.ddm                       ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/design/.properties.folder.kvp                           ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/design/.properties.root_partition.ddm                   ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/design/auto_fab_0.ddm                                   ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/design/manifest.txt                                     ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/design/root_partition.ddm                               ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/manifest.txt                                            ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/reports/.properties.default_msg                         ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/reports/.properties.default_rdb                         ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/reports/.properties.folder.kvp                          ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/reports/default_msg                                     ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/reports/default_msg.qmsgdb                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/reports/default_rdb.model                               ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/reports/default_rdb.rdb                                 ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/reports/manifest.txt                                    ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/setting.json                                            ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/.properties.folder.kvp                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/ipgen/.properties.folder.kvp                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/ipgen/manifest.txt                                  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/manifest.txt                                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/sld_sysconfiles/.properties.alt_sld_fab_0.sopcinfo  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/sld_sysconfiles/.properties.folder.kvp              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/sld_sysconfiles/.properties.pll.sopcinfo            ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/sld_sysconfiles/.properties.reset.sopcinfo          ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/sld_sysconfiles/alt_sld_fab_0.sopcinfo              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/sld_sysconfiles/manifest.txt                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/sld_sysconfiles/pll.sopcinfo                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/constrained/sld/sld_sysconfiles/reset.sopcinfo                      ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/.properties.folder.kvp                                   ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/.properties.setting.json                                 ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/design/.properties.folder.kvp                            ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/design/.properties.root_partition.ddm                    ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/design/manifest.txt                                      ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/design/root_partition.ddm                                ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/manifest.txt                                             ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/reports/.properties.default_msg                          ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/reports/.properties.default_rdb                          ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/reports/.properties.folder.kvp                           ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/reports/default_msg                                      ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/reports/default_msg.qmsgdb                               ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/reports/default_rdb.model                                ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/reports/default_rdb.rdb                                  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/reports/manifest.txt                                     ;
+; dni/checkpoints/de23_lite/user_runs/default_run/elaborated/setting.json                                             ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/.properties.folder.kvp                                 ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/.properties.setting.json                               ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/design/.properties.auto_fab_0.ddm                      ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/design/.properties.folder.kvp                          ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/design/.properties.root_partition.ddm                  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/design/auto_fab_0.ddm                                  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/design/manifest.txt                                    ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/design/root_partition.ddm                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/manifest.txt                                           ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/reports/.properties.default_msg                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/reports/.properties.default_rdb                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/reports/.properties.folder.kvp                         ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/reports/default_msg                                    ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/reports/default_msg.qmsgdb                             ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/reports/default_rdb.model                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/reports/default_rdb.rdb                                ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/reports/manifest.txt                                   ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/setting.json                                           ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/.properties.folder.kvp                             ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/ipgen/.properties.folder.kvp                       ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/ipgen/manifest.txt                                 ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/manifest.txt                                       ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/sld_sysconfiles/.properties.alt_sld_fab_0.sopcinfo ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/sld_sysconfiles/.properties.folder.kvp             ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/sld_sysconfiles/.properties.pll.sopcinfo           ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/sld_sysconfiles/.properties.reset.sopcinfo         ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/sld_sysconfiles/alt_sld_fab_0.sopcinfo             ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/sld_sysconfiles/manifest.txt                       ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/sld_sysconfiles/pll.sopcinfo                       ;
+; dni/checkpoints/de23_lite/user_runs/default_run/instrumented/sld/sld_sysconfiles/reset.sopcinfo                     ;
+; dni/checkpoints/de23_lite/user_runs/default_run/manifest.txt                                                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/.properties.folder.kvp                                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/.properties.setting.json                                      ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/.properties.sweep_records                                     ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/design/.properties.auto_fab_0.ddm                             ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/design/.properties.folder.kvp                                 ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/design/.properties.root_partition.ddm                         ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/design/auto_fab_0.ddm                                         ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/design/manifest.txt                                           ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/design/root_partition.ddm                                     ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/manifest.txt                                                  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/reports/.properties.default_msg                               ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/reports/.properties.default_rdb                               ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/reports/.properties.folder.kvp                                ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/reports/default_msg                                           ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/reports/default_msg.qmsgdb                                    ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/reports/default_rdb.model                                     ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/reports/default_rdb.rdb                                       ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/reports/manifest.txt                                          ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/setting.json                                                  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/.properties.folder.kvp                                    ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/ipgen/.properties.folder.kvp                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/ipgen/manifest.txt                                        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/manifest.txt                                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/sld_sysconfiles/.properties.alt_sld_fab_0.sopcinfo        ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/sld_sysconfiles/.properties.folder.kvp                    ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/sld_sysconfiles/.properties.pll.sopcinfo                  ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/sld_sysconfiles/.properties.reset.sopcinfo                ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/sld_sysconfiles/alt_sld_fab_0.sopcinfo                    ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/sld_sysconfiles/manifest.txt                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/sld_sysconfiles/pll.sopcinfo                              ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sld/sld_sysconfiles/reset.sopcinfo                            ;
+; dni/checkpoints/de23_lite/user_runs/default_run/swept/sweep_records.sqlite3                                         ;
+; dni/checkpoints/de23_lite/user_runs/manifest.txt                                                                    ;
+; dni/checkpoints/manifest.txt                                                                                        ;
+; dtm.vhd                                                                                                             ;
+; generate_pin_config.tcl                                                                                             ;
+; gpio.vhd                                                                                                            ;
+; i2c.vhd                                                                                                             ;
+; instr_router.vhd                                                                                                    ;
+; io_bus_switch.vhd                                                                                                   ;
+; msi.vhd                                                                                                             ;
+; mtime.vhd                                                                                                           ;
+; output_files/de23_lite.asm.rpt                                                                                      ;
+; output_files/de23_lite.drc.partitioned.rpt                                                                          ;
+; output_files/de23_lite.drc.synthesized.rpt                                                                          ;
+; output_files/de23_lite.fit.finalize.rpt                                                                             ;
+; output_files/de23_lite.fit.place.rpt                                                                                ;
+; output_files/de23_lite.fit.plan.rpt                                                                                 ;
+; output_files/de23_lite.fit.retime.rpt                                                                               ;
+; output_files/de23_lite.fit.route.rpt                                                                                ;
+; output_files/de23_lite.fit.rpt                                                                                      ;
+; output_files/de23_lite.fit.summary                                                                                  ;
+; output_files/de23_lite.flow.rpt                                                                                     ;
+; output_files/de23_lite.ipg.rpt                                                                                      ;
+; output_files/de23_lite.pin                                                                                          ;
+; output_files/de23_lite.sdc_constraints.rpt                                                                          ;
+; output_files/de23_lite.sld                                                                                          ;
+; output_files/de23_lite.sof                                                                                          ;
+; output_files/de23_lite.sta.rpt                                                                                      ;
+; output_files/de23_lite.sta.summary                                                                                  ;
+; output_files/de23_lite.syn.ae.rpt                                                                                   ;
+; output_files/de23_lite.syn.rpt                                                                                      ;
+; output_files/de23_lite.syn.summary                                                                                  ;
+; output_files/de23_lite.tq.drc.final.rpt                                                                             ;
+; output_files/de23_lite.tq.drc.signoff.rpt                                                                           ;
+; pll.ip                                                                                                              ;
+; pll/../pll.ip                                                                                                       ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_rvyb6ua.sdc                                                       ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_rvyb6ua.v                                                         ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_rvyb6ua_all_ip_params.tcl                                         ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_rvyb6ua_parameters.tcl                                            ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_rvyb6ua_pin_map.tcl                                               ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_xblamry.sdc                                                       ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_xblamry.v                                                         ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_xblamry_all_ip_params.tcl                                         ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_xblamry_parameters.tcl                                            ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_xblamry_pin_map.tcl                                               ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_zso3vma.sdc                                                       ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_zso3vma.v                                                         ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_zso3vma_all_ip_params.tcl                                         ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_zso3vma_parameters.tcl                                            ;
+; pll/altera_iopll_2100/synth/pll_altera_iopll_2100_zso3vma_pin_map.tcl                                               ;
+; pll/pll.bsf                                                                                                         ;
+; pll/pll.cmp                                                                                                         ;
+; pll/pll.html                                                                                                        ;
+; pll/pll.ppf                                                                                                         ;
+; pll/pll.qgsynthc                                                                                                    ;
+; pll/pll.qip                                                                                                         ;
+; pll/pll.sopcinfo                                                                                                    ;
+; pll/pll.xml                                                                                                         ;
+; pll/pll_bb.v                                                                                                        ;
+; pll/pll_generation.rpt                                                                                              ;
+; pll/pll_generation_previous.rpt                                                                                     ;
+; pll/pll_inst.v                                                                                                      ;
+; pll/pll_inst.vhd                                                                                                    ;
+; pll/synth/pll.vhd                                                                                                   ;
+; processor_common.vhd                                                                                                ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.asm.model                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.asm.rdb                                                          ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.cmp.model                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.cmp.rdb                                                          ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.fit.model                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.fit.rdb                                                          ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.ipg.model                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.ipg.rdb                                                          ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.routing.model                                                    ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.routing.rdb                                                      ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.rtm.model                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.rtm.rdb                                                          ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.sta.model                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.sta.rdb                                                          ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.syn.model                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.syn.rdb                                                          ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.taw.model                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/_all/1/report.taw.rdb                                                          ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/da_report_quartus_sta_final.sqlite3                                   ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/da_report_quartus_syn_partitioned.sqlite3                             ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/da_report_quartus_syn_synthesized.sqlite3                             ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/da_report_timing_signoff_final.sqlite3                                ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.archive.qmsgdb                                              ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.asm.qmsgdb                                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.db_info                                                     ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.dse1.rcomp.db                                               ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.dse1.rcomp.db-shm                                           ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.dse1.rcomp.db-wal                                           ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.finalize.header.qmsgdb                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.finalize.qmsgdb                                         ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.place.header.qmsgdb                                     ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.place.qmsgdb                                            ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.plan.qmsgdb                                             ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.qmsgdb                                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.retime.header.qmsgdb                                    ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.retime.qmsgdb                                           ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.route.header.qmsgdb                                     ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.fit.route.qmsgdb                                            ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.ipg.qmsgdb                                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.npp.qmsgdb                                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.smp_dump.txt                                                ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.sta.qmsgdb                                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.syn.ae.header.qmsgdb                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.syn.ae.qmsgdb                                               ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.syn.ls.header.qmsgdb                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.syn.ls.qmsgdb                                               ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/de23_lite.syn.qmsgdb                                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/legacy/1/runlog.db                                                             ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/partitioned/1/chip.chip.cdb                                                    ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/partitioned/1/chip.model                                                       ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/partitioned/1/constraints.cdb                                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/partitioned/1/constraints.model                                                ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/partitioned/1/mifs.model                                                       ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/partitioned/1/names.hdb                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/partitioned/1/names.model                                                      ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/partitioned/1/state.meta                                                       ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/source/1/.temp/cpt_proxy/.hidden                                               ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/source/1/.temp/cpt_proxy/alt_sld_fab_0_alt_sld_fab_0_10_fkimwiy.v              ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/source/1/.temp/cpt_proxy/alt_sld_fab_0_alt_sld_fab_1920_cx3wxyy.v              ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/source/1/.temp/cpt_proxy/alt_sld_fab_0_alt_sld_fab_1920_dcy6fny.v              ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/source/1/.temp/cpt_proxy/alt_sld_fab_0_alt_sld_fab_1920_jtet2za.v              ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/source/1/.temp/cpt_proxy/alt_sld_fab_0_altera_sld_splitter_1920_tbvre7y.sv     ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/source/1/cpt_proxy.model                                                       ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/synthesized/1/chip.chip.cdb                                                    ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/synthesized/1/chip.model                                                       ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/synthesized/1/constraints.cdb                                                  ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/synthesized/1/constraints.model                                                ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/synthesized/1/names.hdb                                                        ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/synthesized/1/names.model                                                      ;
+; qdb/_compiler/de23_lite/_flat/25.3.0/synthesized/1/state.meta                                                       ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/mifs.model                                                  ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/mifs/.hidden                                                ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/names.hdb                                                   ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/names.model                                                 ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/sdc.cdb                                                     ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/sdc.model                                                   ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/sgate_netlist.model                                         ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/sgate_netlist.sgate.cdb                                     ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/sld_sysconfiles.model                                       ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/sld_sysconfiles/.hidden                                     ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/sld_sysconfiles/alt_sld_fab_0.sopcinfo                      ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/partitioned/1/state.meta                                                  ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/dynrconf.model                                              ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/dynrconf.src                                                ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/names.hdb                                                   ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/names.model                                                 ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/netlist.atom.cdb                                            ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/netlist.model                                               ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/sdc.cdb                                                     ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/sdc.model                                                   ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/sld_sysconfiles.model                                       ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/sld_sysconfiles/.hidden                                     ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/sld_sysconfiles/alt_sld_fab_0.sopcinfo                      ;
+; qdb/_compiler/de23_lite/auto_fab_0/25.3.0/synthesized/1/state.meta                                                  ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/mifs.model                                              ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/mifs/.hidden                                            ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/mifs/ram0_de23_lite_e20ed75a.hdl.mif                    ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/names.hdb                                               ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/names.model                                             ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/sdc.cdb                                                 ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/sdc.model                                               ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/sgate_netlist.model                                     ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/sgate_netlist.sgate.cdb                                 ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/sld_sysconfiles.model                                   ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/sld_sysconfiles/.hidden                                 ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/sld_sysconfiles/pll.sopcinfo                            ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/sld_sysconfiles/reset.sopcinfo                          ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/partitioned/1/state.meta                                              ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/dynrconf.model                                          ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/dynrconf.src                                            ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/names.hdb                                               ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/names.model                                             ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/netlist.atom.cdb                                        ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/netlist.model                                           ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/sdc.cdb                                                 ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/sdc.model                                               ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/sld_sysconfiles.model                                   ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/sld_sysconfiles/.hidden                                 ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/sld_sysconfiles/pll.sopcinfo                            ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/sld_sysconfiles/reset.sopcinfo                          ;
+; qdb/_compiler/de23_lite/root_partition/25.3.0/synthesized/1/state.meta                                              ;
+; qdb/de23_lite_save_color.json                                                                                       ;
+; qdb/de23_lite_save_highlight.json                                                                                   ;
+; qdb/de23_lite_user_runs_default_run_elaborated_unbundled_save_view.txt                                              ;
+; qdb/de23_lite_user_runs_default_run_swept_unbundled_save_view.txt                                                   ;
+; ram.vhd                                                                                                             ;
+; reset.ip                                                                                                            ;
+; reset/../reset.ip                                                                                                   ;
+; reset/altera_s10_user_rst_clkgate_1949/synth/altera_s10_user_rst_clkgate.sv                                         ;
+; reset/altera_s10_user_rst_clkgate_1949/synth/altera_s10_user_rst_clkgate_fm.sdc                                     ;
+; reset/reset.cmp                                                                                                     ;
+; reset/reset.html                                                                                                    ;
+; reset/reset.qgsynthc                                                                                                ;
+; reset/reset.qip                                                                                                     ;
+; reset/reset.sopcinfo                                                                                                ;
+; reset/reset.xml                                                                                                     ;
+; reset/reset_bb.v                                                                                                    ;
+; reset/reset_generation.rpt                                                                                          ;
+; reset/reset_inst.v                                                                                                  ;
+; reset/reset_inst.vhd                                                                                                ;
+; reset/synth/reset.v                                                                                                 ;
+; riscv.sdc                                                                                                           ;
+; riscv.vhd                                                                                                           ;
+; rom.vhd                                                                                                             ;
+; rom_image.vhd                                                                                                       ;
+; spi.vhd                                                                                                             ;
+; stub.vhd                                                                                                            ;
+; timera.vhd                                                                                                          ;
+; timerb.vhd                                                                                                          ;
+; uart.vhd                                                                                                            ;
+; wdt.vhd                                                                                                             ;
++---------------------------------------------------------------------------------------------------------------------+
+
+

@@ -1,0 +1,15 @@
+BLOCK                         START ADDRESS   END ADDRESS     
+
+BOOT_INFO                     0x00000000      0x001FFFFF
+P1                            0x00200000      0x002D6FFF
+
+
+Configuration device: A3CZ135BB18A
+Configuration mode: Active Serial x4
+
+
+Notes:
+
+- Data checksum for this conversion is 0xE7B09A05
+
+- All the addresses in this file are byte addresses

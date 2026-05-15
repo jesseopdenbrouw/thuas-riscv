@@ -1,0 +1,236 @@
+
+State Machine - Summary
+
+State Machine - riscv0|spi2gen.spi2|spi.state
+Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
+spi.state.idle 0 0 0 0 
+spi.state.first 0 0 1 1 
+spi.state.second 0 1 0 1 
+spi.state.leadout 1 0 0 1 
+
+State Machine - riscv0|spi1gen.spi1|spi.state
+Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
+spi.state.idle 0 0 0 0 
+spi.state.first 0 0 1 1 
+spi.state.second 0 1 0 1 
+spi.state.leadout 1 0 0 1 
+
+State Machine - riscv0|i2c2gen.i2c2|i2c.state
+Name i2c.state.stretch i2c.state.send_stopbit_third i2c.state.send_stopbit_second i2c.state.send_stopbit_first i2c.state.send_data_second i2c.state.send_data_first i2c.state.send_startbit i2c.state.idle 
+i2c.state.idle 0 0 0 0 0 0 0 0 
+i2c.state.send_startbit 0 0 0 0 0 0 1 1 
+i2c.state.send_data_first 0 0 0 0 0 1 0 1 
+i2c.state.send_data_second 0 0 0 0 1 0 0 1 
+i2c.state.send_stopbit_first 0 0 0 1 0 0 0 1 
+i2c.state.send_stopbit_second 0 0 1 0 0 0 0 1 
+i2c.state.send_stopbit_third 0 1 0 0 0 0 0 1 
+i2c.state.stretch 1 0 0 0 0 0 0 1 
+
+State Machine - riscv0|i2c1gen.i2c1|i2c.state
+Name i2c.state.stretch i2c.state.send_stopbit_third i2c.state.send_stopbit_second i2c.state.send_stopbit_first i2c.state.send_data_second i2c.state.send_data_first i2c.state.send_startbit i2c.state.idle 
+i2c.state.idle 0 0 0 0 0 0 0 0 
+i2c.state.send_startbit 0 0 0 0 0 0 1 1 
+i2c.state.send_data_first 0 0 0 0 0 1 0 1 
+i2c.state.send_data_second 0 0 0 0 1 0 0 1 
+i2c.state.send_stopbit_first 0 0 0 1 0 0 0 1 
+i2c.state.send_stopbit_second 0 0 1 0 0 0 0 1 
+i2c.state.send_stopbit_third 0 1 0 0 0 0 0 1 
+i2c.state.stretch 1 0 0 0 0 0 0 1 
+
+State Machine - riscv0|uart1gen.uart1|uart.rxstate
+Name uart.rxstate.rx_fail uart.rxstate.rx_ready uart.rxstate.rx_break uart.rxstate.rx_parity uart.rxstate.rx_iter uart.rxstate.rx_wait uart.rxstate.rx_idle 
+uart.rxstate.rx_idle 0 0 0 0 0 0 0 
+uart.rxstate.rx_wait 0 0 0 0 0 1 1 
+uart.rxstate.rx_iter 0 0 0 0 1 0 1 
+uart.rxstate.rx_parity 0 0 0 1 0 0 1 
+uart.rxstate.rx_break 0 0 1 0 0 0 1 
+uart.rxstate.rx_ready 0 1 0 0 0 0 1 
+uart.rxstate.rx_fail 1 0 0 0 0 0 1 
+
+State Machine - riscv0|uart1gen.uart1|uart.txstate
+Name uart.txstate.tx_ready uart.txstate.tx_iter uart.txstate.tx_idle 
+uart.txstate.tx_idle 0 0 0 
+uart.txstate.tx_iter 0 1 1 
+uart.txstate.tx_ready 1 0 1 
+
+State Machine - riscv0|debuggen.dm0|dm_reg.state
+Name dm_reg.state.cmd_error dm_reg.state.cmd_writemem1 dm_reg.state.cmd_readmem1 dm_reg.state.cmd_writereg1 dm_reg.state.cmd_readreg2 dm_reg.state.cmd_readreg1 dm_reg.state.cmd_preparemem dm_reg.state.cmd_preparegprcsr dm_reg.state.cmd_check dm_reg.state.cmd_idle 
+dm_reg.state.cmd_idle 0 0 0 0 0 0 0 0 0 0 
+dm_reg.state.cmd_check 0 0 0 0 0 0 0 0 1 1 
+dm_reg.state.cmd_preparegprcsr 0 0 0 0 0 0 0 1 0 1 
+dm_reg.state.cmd_preparemem 0 0 0 0 0 0 1 0 0 1 
+dm_reg.state.cmd_readreg1 0 0 0 0 0 1 0 0 0 1 
+dm_reg.state.cmd_readreg2 0 0 0 0 1 0 0 0 0 1 
+dm_reg.state.cmd_writereg1 0 0 0 1 0 0 0 0 0 1 
+dm_reg.state.cmd_readmem1 0 0 1 0 0 0 0 0 0 1 
+dm_reg.state.cmd_writemem1 0 1 0 0 0 0 0 0 0 1 
+dm_reg.state.cmd_error 1 0 0 0 0 0 0 0 0 1 
+
+State Machine - riscv0|debuggen.dtm0|tap_ctrl_state
+Name tap_ctrl_state.ir_update tap_ctrl_state.ir_exit2 tap_ctrl_state.ir_pause tap_ctrl_state.ir_exit1 tap_ctrl_state.ir_shift tap_ctrl_state.ir_capture tap_ctrl_state.ir_scan tap_ctrl_state.run_idle tap_ctrl_state.dr_update tap_ctrl_state.dr_exit2 tap_ctrl_state.dr_pause tap_ctrl_state.dr_exit1 tap_ctrl_state.dr_shift tap_ctrl_state.dr_capture tap_ctrl_state.dr_scan tap_ctrl_state.logic_reset 
+tap_ctrl_state.logic_reset 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+tap_ctrl_state.dr_scan 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+tap_ctrl_state.dr_capture 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+tap_ctrl_state.dr_shift 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+tap_ctrl_state.dr_exit1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+tap_ctrl_state.dr_pause 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+tap_ctrl_state.dr_exit2 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+tap_ctrl_state.dr_update 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+tap_ctrl_state.run_idle 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+tap_ctrl_state.ir_scan 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+tap_ctrl_state.ir_capture 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+tap_ctrl_state.ir_shift 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+tap_ctrl_state.ir_exit1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+tap_ctrl_state.ir_pause 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+tap_ctrl_state.ir_exit2 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+tap_ctrl_state.ir_update 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - riscv0|core0|O_bus_request.size
+Name O_bus_request.size.memsize_word O_bus_request.size.memsize_halfword O_bus_request.size.memsize_byte O_bus_request.size.memsize_unknown 
+O_bus_request.size.memsize_unknown 0 0 0 0 
+O_bus_request.size.memsize_byte 0 0 1 1 
+O_bus_request.size.memsize_halfword 0 1 0 1 
+O_bus_request.size.memsize_word 1 0 0 1 
+
+State Machine - riscv0|core0|O_bus_request.acc
+Name O_bus_request.acc.memaccess_read O_bus_request.acc.memaccess_write O_bus_request.acc.memaccess_nop 
+O_bus_request.acc.memaccess_nop 0 0 0 
+O_bus_request.acc.memaccess_write 0 1 1 
+O_bus_request.acc.memaccess_read 1 0 1 
+
+State Machine - riscv0|core0|id_ex.csr_op
+Name id_ex.csr_op.csr_rci id_ex.csr_op.csr_rsi id_ex.csr_op.csr_rwi id_ex.csr_op.csr_rc id_ex.csr_op.csr_rs id_ex.csr_op.csr_rw id_ex.csr_op.csr_nop 
+id_ex.csr_op.csr_nop 0 0 0 0 0 0 0 
+id_ex.csr_op.csr_rw 0 0 0 0 0 1 1 
+id_ex.csr_op.csr_rs 0 0 0 0 1 0 1 
+id_ex.csr_op.csr_rc 0 0 0 1 0 0 1 
+id_ex.csr_op.csr_rwi 0 0 1 0 0 0 1 
+id_ex.csr_op.csr_rsi 0 1 0 0 0 0 1 
+id_ex.csr_op.csr_rci 1 0 0 0 0 0 1 
+
+State Machine - riscv0|core0|id_ex.pc_op
+Name id_ex.pc_op.pc_load_mtvec id_ex.pc_op.pc_load_mepc id_ex.pc_op.pc_branch id_ex.pc_op.pc_loadoffsetregister id_ex.pc_op.pc_loadoffset id_ex.pc_op.pc_hold id_ex.pc_op.pc_incr 
+id_ex.pc_op.pc_incr 0 0 0 0 0 0 0 
+id_ex.pc_op.pc_hold 0 0 0 0 0 1 1 
+id_ex.pc_op.pc_loadoffset 0 0 0 0 1 0 1 
+id_ex.pc_op.pc_loadoffsetregister 0 0 0 1 0 0 1 
+id_ex.pc_op.pc_branch 0 0 1 0 0 0 1 
+id_ex.pc_op.pc_load_mepc 0 1 0 0 0 0 1 
+id_ex.pc_op.pc_load_mtvec 1 0 0 0 0 0 1 
+
+State Machine - riscv0|core0|id_ex.memsize
+Name id_ex.memsize.memsize_word id_ex.memsize.memsize_halfword id_ex.memsize.memsize_byte id_ex.memsize.memsize_unknown 
+id_ex.memsize.memsize_unknown 0 0 0 0 
+id_ex.memsize.memsize_byte 0 0 1 1 
+id_ex.memsize.memsize_halfword 0 1 0 1 
+id_ex.memsize.memsize_word 1 0 0 1 
+
+State Machine - riscv0|core0|id_ex.memaccess
+Name id_ex.memaccess.memaccess_read id_ex.memaccess.memaccess_write id_ex.memaccess.memaccess_nop 
+id_ex.memaccess.memaccess_nop 0 0 0 
+id_ex.memaccess.memaccess_write 0 1 1 
+id_ex.memaccess.memaccess_read 1 0 1 
+
+State Machine - riscv0|core0|id_ex.alu_op
+Name id_ex.alu_op.alu_unzip id_ex.alu_op.alu_zip id_ex.alu_op.alu_brev8 id_ex.alu_op.alu_packh id_ex.alu_op.alu_pack id_ex.alu_op.alu_mop id_ex.alu_op.alu_rev8 id_ex.alu_op.alu_orcb id_ex.alu_op.alu_rori id_ex.alu_op.alu_ror id_ex.alu_op.alu_rol id_ex.alu_op.alu_zexth id_ex.alu_op.alu_sexth id_ex.alu_op.alu_sextb id_ex.alu_op.alu_minu id_ex.alu_op.alu_min id_ex.alu_op.alu_maxu id_ex.alu_op.alu_max id_ex.alu_op.alu_cpop id_ex.alu_op.alu_ctz id_ex.alu_op.alu_clz id_ex.alu_op.alu_xnor id_ex.alu_op.alu_orn id_ex.alu_op.alu_andn id_ex.alu_op.alu_czeronez id_ex.alu_op.alu_czeroeqz id_ex.alu_op.alu_bseti id_ex.alu_op.alu_bset id_ex.alu_op.alu_binvi id_ex.alu_op.alu_binv id_ex.alu_op.alu_bexti id_ex.alu_op.alu_bext id_ex.alu_op.alu_bclri id_ex.alu_op.alu_bclr id_ex.alu_op.alu_sh3add id_ex.alu_op.alu_sh2add id_ex.alu_op.alu_sh1add id_ex.alu_op.alu_csr id_ex.alu_op.alu_divrem id_ex.alu_op.alu_multiply id_ex.alu_op.alu_mret id_ex.alu_op.alu_trap id_ex.alu_op.alu_bgeu id_ex.alu_op.alu_bltu id_ex.alu_op.alu_bge id_ex.alu_op.alu_blt id_ex.alu_op.alu_bne id_ex.alu_op.alu_beq id_ex.alu_op.alu_jal_jalr id_ex.alu_op.alu_sb id_ex.alu_op.alu_sh id_ex.alu_op.alu_sw id_ex.alu_op.alu_lbu id_ex.alu_op.alu_lb id_ex.alu_op.alu_lhu id_ex.alu_op.alu_lh id_ex.alu_op.alu_lw id_ex.alu_op.alu_auipc id_ex.alu_op.alu_lui id_ex.alu_op.alu_srai id_ex.alu_op.alu_srli id_ex.alu_op.alu_slli id_ex.alu_op.alu_sra id_ex.alu_op.alu_srl id_ex.alu_op.alu_sll id_ex.alu_op.alu_sltiu id_ex.alu_op.alu_slti id_ex.alu_op.alu_xori id_ex.alu_op.alu_ori id_ex.alu_op.alu_andi id_ex.alu_op.alu_addi id_ex.alu_op.alu_sltu id_ex.alu_op.alu_slt id_ex.alu_op.alu_xor id_ex.alu_op.alu_or id_ex.alu_op.alu_and id_ex.alu_op.alu_sub id_ex.alu_op.alu_add id_ex.alu_op.alu_nop id_ex.alu_op.alu_unknown 
+id_ex.alu_op.alu_unknown 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+id_ex.alu_op.alu_nop 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+id_ex.alu_op.alu_add 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+id_ex.alu_op.alu_sub 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+id_ex.alu_op.alu_and 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+id_ex.alu_op.alu_or 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+id_ex.alu_op.alu_xor 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+id_ex.alu_op.alu_slt 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sltu 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_addi 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_andi 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_ori 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_xori 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_slti 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sltiu 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sll 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_srl 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sra 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_slli 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_srli 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_srai 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_lui 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_auipc 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_lw 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_lh 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_lhu 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_lb 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_lbu 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sw 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sh 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sb 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_jal_jalr 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_beq 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bne 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_blt 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bge 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bltu 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bgeu 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_trap 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_mret 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_multiply 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_divrem 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_csr 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sh1add 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sh2add 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sh3add 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bclr 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bclri 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bext 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bexti 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_binv 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_binvi 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bset 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_bseti 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_czeroeqz 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_czeronez 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_andn 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_orn 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_xnor 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_clz 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_ctz 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_cpop 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_max 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_maxu 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_min 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_minu 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sextb 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_sexth 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_zexth 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_rol 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_ror 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_rori 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_orcb 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_rev8 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_mop 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_pack 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_packh 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_brev8 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_zip 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+id_ex.alu_op.alu_unzip 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - riscv0|core0|control.state
+Name control.state.state_debugflush3 control.state.state_debugflush2 control.state.state_debugflush control.state.state_debug control.state.state_wfi control.state.state_mret2 control.state.state_mret control.state.state_trap3 control.state.state_trap2 control.state.state_trap control.state.state_md2 control.state.state_md control.state.state_flush2 control.state.state_flush control.state.state_mem control.state.state_exec control.state.state_boot1 control.state.state_boot0 
+control.state.state_boot0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+control.state.state_boot1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+control.state.state_exec 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+control.state.state_mem 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+control.state.state_flush 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+control.state.state_flush2 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+control.state.state_md 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+control.state.state_md2 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+control.state.state_trap 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+control.state.state_trap2 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+control.state.state_trap3 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+control.state.state_mret 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+control.state.state_mret2 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+control.state.state_wfi 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+control.state.state_debug 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+control.state.state_debugflush 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+control.state.state_debugflush2 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+control.state.state_debugflush3 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 

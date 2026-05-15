@@ -1,0 +1,240 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 2025  Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and any partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera IP License Agreement, or other applicable license
+# agreement, including, without limitation, that your use is for
+# the sole purpose of programming logic devices manufactured by
+# Altera and sold by Altera or its authorized distributors.  Please
+# refer to the Altera Software License Subscription Agreements 
+# on the Quartus Prime software download page.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 25.3.0 Build 109 09/24/2025 SC Pro Edition
+# Date created = 13:04:34  September 30, 2025
+#
+# -------------------------------------------------------------------------- #
+set_global_assignment -name TOP_LEVEL_ENTITY de23_lite
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 25.3.0
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:04:34  SEPTEMBER 30, 2025"
+set_global_assignment -name LAST_QUARTUS_VERSION "26.1.0 Pro Edition"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
+set_global_assignment -name DEVICE A3CZ135BB18AE7S
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
+set_global_assignment -name ENABLE_INTERMEDIATE_SNAPSHOTS ON
+set_global_assignment -name FAST_PRESERVE OFF -entity de23_lite
+set_global_assignment -name VHDL_FILE de23_lite.vhd
+set_global_assignment -name VHDL_FILE riscv.vhd
+set_global_assignment -name VHDL_FILE processor_common.vhd
+set_global_assignment -name VHDL_FILE core.vhd
+set_global_assignment -name VHDL_FILE rom.vhd
+set_global_assignment -name VHDL_FILE rom_image.vhd
+set_global_assignment -name VHDL_FILE bootrom.vhd
+set_global_assignment -name VHDL_FILE bootrom_image.vhd
+set_global_assignment -name VHDL_FILE ram.vhd
+set_global_assignment -name VHDL_FILE address_decode.vhd
+set_global_assignment -name VHDL_FILE instr_router.vhd
+set_global_assignment -name VHDL_FILE io_bus_switch.vhd
+set_global_assignment -name VHDL_FILE dtm.vhd
+set_global_assignment -name VHDL_FILE dm.vhd
+set_global_assignment -name VHDL_FILE gpio.vhd
+set_global_assignment -name VHDL_FILE uart.vhd
+set_global_assignment -name VHDL_FILE i2c.vhd
+set_global_assignment -name VHDL_FILE spi.vhd
+set_global_assignment -name VHDL_FILE timerb.vhd
+set_global_assignment -name VHDL_FILE timera.vhd
+set_global_assignment -name VHDL_FILE stub.vhd
+set_global_assignment -name VHDL_FILE mtime.vhd
+set_global_assignment -name VHDL_FILE msi.vhd
+set_global_assignment -name VHDL_FILE crc.vhd
+set_global_assignment -name VHDL_FILE wdt.vhd
+set_global_assignment -name SDC_FILE riscv.sdc
+set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
+set_location_assignment PIN_K43 -to I_clk -comment IOBANK_3A_T
+set_location_assignment PIN_W12 -to I_gpioapin[15] -comment IOBANK_6C
+set_location_assignment PIN_BK10 -to I_gpioapin[14] -comment IOBANK_6E
+set_location_assignment PIN_K27 -to I_gpioapin[13] -comment IOBANK_6D
+set_location_assignment PIN_AP9 -to I_gpioapin[12] -comment IOBANK_6E
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[15] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[14] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[13] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[12] -entity de23_lite
+set_location_assignment PIN_A37 -to I_gpioapin[0] -comment IOBANK_3A_T
+set_location_assignment PIN_B37 -to I_gpioapin[1] -comment IOBANK_3A_T
+set_location_assignment PIN_B26 -to I_gpioapin[2] -comment IOBANK_3A_T
+set_location_assignment PIN_A42 -to I_gpioapin[3] -comment IOBANK_3A_T
+set_location_assignment PIN_K32 -to I_gpioapin[4] -comment IOBANK_3A_T
+set_location_assignment PIN_A26 -to I_gpioapin[5] -comment IOBANK_3A_T
+set_location_assignment PIN_B27 -to I_gpioapin[6] -comment IOBANK_3A_T
+set_location_assignment PIN_A29 -to I_gpioapin[7] -comment IOBANK_3A_T
+set_location_assignment PIN_D32 -to I_gpioapin[8] -comment IOBANK_3A_T
+set_location_assignment PIN_A34 -to I_gpioapin[9] -comment IOBANK_3A_T
+set_location_assignment PIN_K26 -to I_areset -comment IOBANK_6D
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_areset -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_clk -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[0] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[1] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[2] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[3] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[4] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[5] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[6] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[7] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[8] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to I_gpioapin[9] -entity de23_lite
+set_location_assignment PIN_D40 -to O_gpioapout[9] -comment IOBANK_3A_T
+set_location_assignment PIN_B34 -to O_gpioapout[8] -comment IOBANK_3A_T
+set_location_assignment PIN_A44 -to O_gpioapout[7] -comment IOBANK_3A_T
+set_location_assignment PIN_A24 -to O_gpioapout[6] -comment IOBANK_3A_T
+set_location_assignment PIN_B24 -to O_gpioapout[5] -comment IOBANK_3A_T
+set_location_assignment PIN_A19 -to O_gpioapout[4] -comment IOBANK_3A_T
+set_location_assignment PIN_F32 -to O_gpioapout[3] -comment IOBANK_3A_T
+set_location_assignment PIN_K35 -to O_gpioapout[2] -comment IOBANK_3A_T
+set_location_assignment PIN_B42 -to O_gpioapout[1] -comment IOBANK_3A_T
+set_location_assignment PIN_B39 -to O_gpioapout[0] -comment IOBANK_3A_T
+set_location_assignment PIN_L51 -to O_gpioapout[10] -comment IOBANK_3A_T
+set_location_assignment PIN_J51 -to O_gpioapout[11] -comment IOBANK_3A_T
+set_location_assignment PIN_G51 -to O_gpioapout[12] -comment IOBANK_3A_T
+set_location_assignment PIN_J52 -to O_gpioapout[13] -comment IOBANK_3A_T
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[0] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[1] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[2] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[3] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[4] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[5] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[6] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[13] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[12] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[11] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[10] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[9] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[8] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "1.2-V" -to O_gpioapout[7] -entity de23_lite
+set_location_assignment PIN_C2 -to IO_i2c1scl -comment IOBANK_6C
+set_location_assignment PIN_F3 -to IO_i2c1sda -comment IOBANK_6C
+set_location_assignment PIN_M2 -to IO_i2c2scl -comment IOBANK_6H
+set_location_assignment PIN_N2 -to IO_i2c2sda -comment IOBANK_6H
+set_location_assignment PIN_F13 -to IO_timer2icoca -comment IOBANK_6D
+set_location_assignment PIN_K13 -to IO_timer2icocb -comment IOBANK_6D
+set_location_assignment PIN_U9 -to IO_timer2icocc -comment IOBANK_6C
+set_location_assignment PIN_K10 -to O_timer2oct -comment IOBANK_6D
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_i2c1scl -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_i2c1sda -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_i2c2scl -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_i2c2sda -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_timer2icoca -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_timer2icocb -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_timer2icocc -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_timer2oct -entity de23_lite
+set_location_assignment PIN_P9 -to I_tck -comment IOBANK_6C
+set_location_assignment PIN_D26 -to I_tdi -comment IOBANK_6D
+set_location_assignment PIN_H21 -to I_tms -comment IOBANK_6D
+set_location_assignment PIN_F27 -to I_trst -comment IOBANK_6D
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tck -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tdi -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tms -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_trst -entity de23_lite
+set_location_assignment PIN_BH10 -to I_uart1rxd -comment IOBANK_6E
+set_location_assignment PIN_F10 -to I_uart2rxd -comment IOBANK_6D
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_uart1rxd -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_uart2rxd -entity de23_lite
+set_location_assignment PIN_J1 -to O_uart1txd -comment IOBANK_6H
+set_location_assignment PIN_D10 -to O_uart2txd -comment IOBANK_6D
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_uart1txd -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_uart2txd -entity de23_lite
+set_location_assignment PIN_K21 -to I_spi1miso -comment IOBANK_6D
+set_location_assignment PIN_F26 -to O_spi1mosi -comment IOBANK_6D
+set_location_assignment PIN_F18 -to O_spi1sck -comment IOBANK_6D
+set_location_assignment PIN_F21 -to O_tdo -comment IOBANK_6D
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_spi1mosi -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_spi1sck -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_tdo -entity de23_lite
+set_location_assignment PIN_K18 -to O_gpioapout[15] -comment IOBANK_6D
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout[15] -entity de23_lite
+set_location_assignment PIN_AW12 -to O_gpioapout[14] -comment IOBANK_6E
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout[14] -entity de23_lite
+set_location_assignment PIN_AT9 -to I_gpioapin[10] -comment IOBANK_6E
+set_location_assignment PIN_AT12 -to I_gpioapin[11] -comment IOBANK_6E
+set_location_assignment PIN_BK7 -to I_spi2miso -comment IOBANK_6E
+set_location_assignment PIN_BM2 -to O_spi2mosi -comment IOBANK_6E
+set_location_assignment PIN_BL2 -to O_spi2sck -comment IOBANK_6E
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[10] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[11] -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_spi2miso -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_spi2mosi -entity de23_lite
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS OFF
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+set_global_assignment -name PROJECT_IP_REGENERATION_POLICY NEVER_REGENERATE_IP
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_spi2sck -entity de23_lite
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_spi1miso -entity de23_lite
+set_instance_assignment -name PARTITION_COLOUR 4294942432 -to de23_lite -entity de23_lite
+set_global_assignment -name BOARD default
+set_global_assignment -name FLOW_DISABLE_ASSEMBLER OFF
+set_global_assignment -name IP_FILE reset.ip
+set_instance_assignment -name SLEW_RATE 2 -to IO_i2c1scl -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to IO_i2c1sda -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to IO_i2c2scl -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to IO_i2c2sda -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to IO_timer2icoca -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to IO_timer2icocb -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to IO_timer2icocc -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_uart2txd -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_uart1txd -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_timer2oct -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_tdo -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_spi2sck -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_spi2mosi -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_spi1sck -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_spi1mosi -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_gpioapout[14] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 2 -to O_gpioapout[15] -entity de23_lite
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to IO_i2c1scl
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to IO_i2c1sda
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to IO_i2c2sda
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to IO_timer2icocb
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to IO_timer2icocc
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_gpioapout[14]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_uart2txd
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_uart1txd
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_timer2oct
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_tdo
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_spi2sck
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_spi2mosi
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_spi1sck
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_spi1mosi
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to O_gpioapout[15]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to IO_i2c2scl
+set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to IO_timer2icoca
+set_global_assignment -name FLOW_ENABLE_HYPER_RETIMER_FAST_FORWARD OFF
+set_instance_assignment -name PARTITION_COLOUR 4284546931 -to auto_fab_0 -entity de23_lite
+set_global_assignment -name FLOW_ENABLE_POWER_ANALYZER OFF
+set_global_assignment -name POWER_DEFAULT_TOGGLE_RATE "25 %"
+set_global_assignment -name POWER_DEFAULT_INPUT_IO_TOGGLE_RATE "12.5 %"
+set_global_assignment -name IP_FILE pll.ip
+set_global_assignment -name RTL_ANALYSIS_DEBUG_MODE ON
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[1] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[13] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[12] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[11] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[10] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[9] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[8] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[7] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[6] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[5] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[4] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[3] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[2] -entity de23_lite
+set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[0]
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL

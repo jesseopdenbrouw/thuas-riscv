@@ -1,0 +1,82 @@
+# File saved with Nlview 7.9.1 2025-07-03 36fdeb9b55 VDI=45 GEI=38 GUI=QT:6.5.7
+#  -curmodule
+# non-default properties - (restore without -noprops)
+property -colorscheme classic
+property attrcolor #06476f
+property autobundle 129
+property backgroundcolor #ffffff
+property boxcolor0 #2d2d2d
+property boxhierpins 3
+property boxinstcolor #000000
+property boxpincolor #06476f
+property buscolor #2d2d2d
+property buswidthlimit 0
+property createnetattrdsp 1024
+property createvconn 65
+property decorate 1
+property elidetext 1
+property fillcolor1 #73acac
+property fillcolor2 #81bf5f
+property fillcolor3 #dce6dc
+property fillcolor4 #ffff00
+property fillcolor5 #c0c0c0
+property fillcolor6 #b3a9fe
+property fillcolor7 #f0b0d2
+property fillcolor8 #adadad
+property fillcolor9 #a9feff
+property fillcolor10 #e5ffff
+property instattrmax -1
+property netcolor #2d2d2d
+property netindicators 15
+property netindicatorsize 3
+property nohiernegpins 0
+property overlaycolor #2d2d2d
+property pbuscolor #0000ff
+property pbusnamecolor #000000
+property pinattrmax -1
+property portcolor #0000ff
+property portnamecolor #000000
+property ripattrmax -1
+property rippercolor #000000
+property rubberbandcolor #00aaff
+property selectionappearance 6
+property selectioncolor #aa1027
+property shadowstyle 1
+property sheetheight 34
+property sheetwidth 44
+property showpagenumbers 1
+property showripindex 1
+property showvconn 1
+#
+module new _1 filter_view
+load symbol iopll_0_3 {} HIERBOX pin alt_sld_fab_0:conf_reset_12587 input.left pin I_clk~input_15076 input.left pin tennm_ph2_iopll~O_LOCK_10854 output.right pin tennm_ph2_iopll~O_OUT_CLK0_10859 output.right fillcolor 2 fillregion 3
+load symbol tennm_ph2_iopll_8314 {} BOX pin PERMIT_CAL_48541 input.left pin REF_CLK0_48542 input.left pin RESET_48543 input.left pin LOCK_9183 output.right pin OUT_CLK_9184 output.right fillcolor 1
+load symbol tennm_ph2_iopll~refclk_8315 {} BOX pin SELF_CLK_IN_48544 input.left pin SELF_CLK_OUT_9185 output.right fillcolor 1
+load inst pll0_2|iopll_0_3 iopll_0_3 {} -autohide -attr @name iopll_0 -attr @cell (pll_altera_iopll_2110_sex5nqy) -pinAttr alt_sld_fab_0:conf_reset_12587 @name alt_sld_fab_0:conf_reset -pinAttr I_clk~input_15076 @name I_clk~input -pinAttr tennm_ph2_iopll~O_LOCK_10854 @name tennm_ph2_iopll~O_LOCK -pinAttr tennm_ph2_iopll~O_OUT_CLK0_10859 @name tennm_ph2_iopll~O_OUT_CLK0 -hierPinAttr alt_sld_fab_0:conf_reset_12587 @name alt_sld_fab_0:conf_reset -hierPinAttr I_clk~input_15076 @name I_clk~input -hierPinAttr tennm_ph2_iopll~O_LOCK_10854 @name tennm_ph2_iopll~O_LOCK -hierPinAttr tennm_ph2_iopll~O_OUT_CLK0_10859 @name tennm_ph2_iopll~O_OUT_CLK0 -pg 1 -lvl 1 -x 130 -y 50
+load inst pll0_2|iopll_0_3|tennm_ph2_iopll_8314 tennm_ph2_iopll_8314 {} -hier pll0_2|iopll_0_3 -attr @name tennm_ph2_iopll -attr @cell {} -pinAttr PERMIT_CAL_48541 @name PERMIT_CAL -pinAttr PERMIT_CAL_48541 @vconn 1'h1 -pinAttr REF_CLK0_48542 @name REF_CLK0 -pinAttr RESET_48543 @name RESET -pinAttr LOCK_9183 @name LOCK -pinAttr OUT_CLK_9184 @name OUT_CLK -pg 1 -lvl 2 -x 390 -y 40
+load inst pll0_2|iopll_0_3|tennm_ph2_iopll~refclk_8315 tennm_ph2_iopll~refclk_8315 {} -hier pll0_2|iopll_0_3 -attr @name tennm_ph2_iopll~refclk -attr @cell {} -pinAttr SELF_CLK_IN_48544 @name SELF_CLK_IN -pinAttr SELF_CLK_OUT_9185 @name SELF_CLK_OUT -pg 1 -lvl 1 -x 170 -y 60
+load net pll0_2|iopll_0_3|PERMIT_CAL_466 -power -attr @name {} -pin pll0_2|iopll_0_3|tennm_ph2_iopll_8314 PERMIT_CAL_48541
+load net pll0_2|iopll_0_3|LOCK_655 -attr @name tennm_ph2_iopll:LOCK -hierPin pll0_2|iopll_0_3 tennm_ph2_iopll~O_LOCK_10854 -pin pll0_2|iopll_0_3|tennm_ph2_iopll_8314 LOCK_9183
+netloc pll0_2|iopll_0_3|LOCK_655 1 2 1 NJ 50
+load net pll0_2|iopll_0_3|OUT_CLK_661 -attr @name tennm_ph2_iopll:OUT_CLK -hierPin pll0_2|iopll_0_3 tennm_ph2_iopll~O_OUT_CLK0_10859 -pin pll0_2|iopll_0_3|tennm_ph2_iopll_8314 OUT_CLK_9184
+netloc pll0_2|iopll_0_3|OUT_CLK_661 1 2 1 NJ 70
+load net pll0_2|iopll_0_3|COMBOUT_6038 -attr @name alt_sld_fab_0:conf_reset -hierPin pll0_2|iopll_0_3 alt_sld_fab_0:conf_reset_12587 -pin pll0_2|iopll_0_3|tennm_ph2_iopll_8314 RESET_48543
+netloc pll0_2|iopll_0_3|COMBOUT_6038 1 0 2 NJ 90 NJ
+load net pll0_2|iopll_0_3|COMBOUT_14050 -attr @name I_clk~input -hierPin pll0_2|iopll_0_3 I_clk~input_15076 -pin pll0_2|iopll_0_3|tennm_ph2_iopll~refclk_8315 SELF_CLK_IN_48544
+netloc pll0_2|iopll_0_3|COMBOUT_14050 1 0 1 NJ 70
+load net pll0_2|iopll_0_3|SELF_CLK_OUT_14162 -attr @name tennm_ph2_iopll~refclk:SELF_CLK_OUT -pin pll0_2|iopll_0_3|tennm_ph2_iopll_8314 REF_CLK0_48542 -pin pll0_2|iopll_0_3|tennm_ph2_iopll~refclk_8315 SELF_CLK_OUT_9185
+netloc pll0_2|iopll_0_3|SELF_CLK_OUT_14162 1 1 1 NJ 70
+levelinfo -pg 1 0 130 710
+levelinfo -hier pll0_2|iopll_0_3 * 170 390 *
+pagesize -pg 1 -db -bbox -sgen 0 0 710 140
+pagesize -hier pll0_2|iopll_0_3 -db -bbox -sgen 130 20 540 110
+show
+zoom 1.6
+scrollpos -124 -334
+#
+# initialize ictrl to current module _1 filter_view
+ictrl init _1 |
+ictrl property autohide 1
+ictrl property addSubpinInfo 1
+ictrl property addSubportInfo 1
+ictrl property addFillcolor12 0

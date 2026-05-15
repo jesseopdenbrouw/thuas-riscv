@@ -1,0 +1,45 @@
+# TCL commands history
+# Wed May 13 21:47:35 2026
+dni::trigger_gui -command gui_command::rtl_analyzer::unfold -options {"checkpoint":"user_runs/default_run/elaborated","object":"button @hier_unfold inst pll0 pll0 {}"}
+dni::trigger_gui -command gui_command::rtl_analyzer::unfold -options {"checkpoint":"user_runs/default_run/elaborated","object":"button @hier_unfold inst pll0|iopll_0 pll0|iopll_0 {}"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_in -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::selection -action set -object {unfolded_inst_port::de23_lite::pll0|iopll_0|refclk}
+dni::trigger_gui -command gui_command::rtl_analyzer::trace -options {"checkpoint":"user_runs/default_run/elaborated","direction":"fanin","display_new_tab":false,"expand_upto_logic_level_limit":1,"include_hier_ports":false,"source_objects":["unfolded_inst_port::de23_lite::pll0|iopll_0|refclk"],"stop_at_partition":true,"stop_at_register":true}
+dni::selection -action set -object {unfolded_inst_port::de23_lite::pll0|refclk unfolded_inst_port::de23_lite::pll0|iopll_0|refclk unfolded_port::de23_lite::I_clk unfolded_port::de23_lite::pll0|refclk unfolded_net::de23_lite::I_clk unfolded_net::de23_lite::pll0|refclk}
+dni::selection -action set -object {}
+dni::selection -action set -object {unfolded_inst_port::de23_lite::pll0|iopll_0|rst}
+dni::trigger_gui -command gui_command::rtl_analyzer::trace -options {"checkpoint":"user_runs/default_run/elaborated","direction":"fanin","display_new_tab":false,"expand_upto_logic_level_limit":1,"include_hier_ports":false,"source_objects":["unfolded_inst_port::de23_lite::pll0|iopll_0|rst"],"stop_at_partition":true,"stop_at_register":true}
+dni::selection -action set -object {unfolded_inst_port::de23_lite::reset0|ninit_done unfolded_inst_port::de23_lite::pll0|rst unfolded_inst_port::de23_lite::reset0|s10_user_rst_clkgate_0|ninit_done unfolded_inst_port::de23_lite::pll0|iopll_0|rst unfolded_inst_port::de23_lite::reset0|s10_user_rst_clkgate_0|config_reset_release_endpoint|conf_reset unfolded_inst_port::de23_lite::reset0|s10_user_rst_clkgate_0|config_reset_release_endpoint|ep|receive[0] unfolded_port::de23_lite::reset0|ninit_done unfolded_port::de23_lite::pll0|rst unfolded_port::de23_lite::reset0|s10_user_rst_clkgate_0|ninit_done unfolded_port::de23_lite::reset0|s10_user_rst_clkgate_0|config_reset_release_endpoint|conf_reset unfolded_net::de23_lite::ninit_done_int unfolded_net::de23_lite::reset0|ninit_done unfolded_net::de23_lite::pll0|rst unfolded_net::de23_lite::reset0|s10_user_rst_clkgate_0|ninit_done unfolded_net::de23_lite::reset0|s10_user_rst_clkgate_0|config_reset_release_endpoint|receive[0]}
+dni::trigger_gui -command gui_command::rtl_analyzer::show_in_single_page -options {"checkpoint":"user_runs/default_run/elaborated","single_page":true}
+dni::trigger_gui -command gui_command::rtl_analyzer::open_color_settings -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::open_color_settings -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::selection -action set -object {unfolded_module::de23_lite::}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_fit -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::fit_selection_in_window -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::fit_selection_in_window -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::refresh -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::back -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::selection -action set -object {}
+dni::trigger_gui -command gui_command::rtl_analyzer::back -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::back -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::back -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::back -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::back -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::back -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::back -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::selection -action set -object {unfolded_instance::de23_lite::riscv0}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_fit -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::selection -action set -object {}
+dni::selection -action set -object {unfolded_net::de23_lite::riscv0|areset_debug_int}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_fit -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::selection -action set -object {unfolded_net::de23_lite::riscv0|areset_sys_int}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}
+dni::trigger_gui -command gui_command::rtl_analyzer::zoom_out -options {"checkpoint":"user_runs/default_run/elaborated"}

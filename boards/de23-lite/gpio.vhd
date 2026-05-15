@@ -1,0 +1,179 @@
+-- #################################################################################################
+-- # gpio.vhd - General purpose I/O and edge detector                                              #
+-- # ********************************************************************************************* #
+-- # This file is part of the THUAS RISCV RV32 Project                                             #
+-- # ********************************************************************************************* #
+-- # BSD 3-Clause License                                                                          #
+-- #                                                                                               #
+-- # Copyright (c) 2026, Jesse op den Brouw. All rights reserved.                                  #
+-- #                                                                                               #
+-- # Redistribution and use in source and binary forms, with or without modification, are          #
+-- # permitted provided that the following conditions are met:                                     #
+-- #                                                                                               #
+-- # 1. Redistributions of source code must retain the above copyright notice, this list of        #
+-- #    conditions and the following disclaimer.                                                   #
+-- #                                                                                               #
+-- # 2. Redistributions in binary form must reproduce the above copyright notice, this list of     #
+-- #    conditions and the following disclaimer in the documentation and/or other materials        #
+-- #    provided with the distribution.                                                            #
+-- #                                                                                               #
+-- # 3. Neither the name of the copyright holder nor the names of its contributors may be used to  #
+-- #    endorse or promote products derived from this software without specific prior written      #
+-- #    permission.                                                                                #
+-- #                                                                                               #
+-- # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS   #
+-- # OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF               #
+-- # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE    #
+-- # COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,     #
+-- # EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE #
+-- # GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED    #
+-- # AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING     #
+-- # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED  #
+-- # OF THE POSSIBILITY OF SUCH DAMAGE.                                                            #
+-- # ********************************************************************************************* #
+-- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
+-- #################################################################################################
+
+-- General Porpuse I/O. There are 32 inputs and 32 outputs.
+-- Inputs are double synchronized. One input pin can be
+-- attached to an edge detector with interrupt capability.
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.processor_common.all;
+
+entity gpio is
+    port (I_clk : in std_logic;
+          -- Asynchrous reset
+          I_areset : in std_logic;
+          -- Synchronous reser
+          I_sreset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          I_pin : in data_type;
+          O_pout: out data_type;
+          O_irq : out std_logic
+         );
+end entity gpio;
+
+architecture rtl of gpio is
+
+type gpio_type is record
+    -- Input synchronization
+    pinsync : data_type;
+    pinsync2 : data_type;
+    -- Output
+    pout : data_type;
+    -- Edge to detect
+    edge : std_logic_vector(1 downto 0);
+    -- Pin number to detect from
+    pinnr : std_logic_vector(4 downto 0);
+    -- Detect bit
+    detect : std_logic;
+    -- Detection synchronization
+    detectsync : std_logic_vector(1 downto 0);
+end record;
+
+signal gpio : gpio_type;
+signal isword : boolean;
+
+begin
+
+    -- Check for misaligned access
+    O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) /= "00" else '0';
+    O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) /= "00" else '0';
+    -- Check for unsuppored data size
+    O_mem_response.load_access_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and I_mem_request.size /= memsize_word else '0';
+    O_mem_response.store_access_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and I_mem_request.size /= memsize_word  else '0';
+    
+    -- Correct size and address boundary
+    isword <= I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) = "00";
+    
+    process (I_clk, I_areset) is
+    begin
+        if I_areset = '1' then
+            -- GPIO reset everything
+            gpio.pout <= all_zeros_c;
+            gpio.pinsync <= all_zeros_c;
+            gpio.pinsync2 <= all_zeros_c;
+            gpio.edge <= (others => '0');
+            gpio.pinnr <= (others => '0');
+            gpio.detectsync <= (others => '0');
+            gpio.detect <= '0';
+            -- Bus resets
+            O_mem_response.data <= all_zeros_c;
+            O_mem_response.ready <= '0';
+        elsif rising_edge(I_clk) then
+            if I_sreset = '1' then
+                gpio.pout <= all_zeros_c;
+                gpio.pinsync <= all_zeros_c;
+                gpio.pinsync2 <= all_zeros_c;
+                gpio.edge <= (others => '0');
+                gpio.pinnr <= (others => '0');
+                gpio.detectsync <= (others => '0');
+                gpio.detect <= '0';
+                -- Bus resets
+                O_mem_response.data <= all_zeros_c;
+                O_mem_response.ready <= '0';
+            else
+                O_mem_response.data <= all_zeros_c;
+                O_mem_response.ready <= '0';
+                -- Double synchronization
+                gpio.pinsync <= I_pin;
+                gpio.pinsync2 <= gpio.pinsync;
+                gpio.detectsync <= gpio.detectsync(0) & gpio.pinsync(to_integer(unsigned(gpio.pinnr)));
+                if I_mem_request.stb = '1' and isword then
+                    -- Write
+                    if I_mem_request.wren = '1' then
+                        case I_mem_request.addr(4 downto 2) is
+                            -- Write on read-only GPIO inputs: ignore (0x00)
+                            when "000" => null;
+                            -- Write on GPIO outputs (0x04)
+                            when "001" => gpio.pout <= I_mem_request.data;
+                            -- Bit set (0x08)
+                            when "010" => gpio.pout <= gpio.pout or I_mem_request.data;
+                            -- Bit clear (0x0c)
+                            when "011" => gpio.pout <= gpio.pout and not I_mem_request.data;
+                            -- Write GPIO external interrupt ctrl register (0x18)
+                            when "110" => gpio.pinnr <= I_mem_request.data(7 downto 3);
+                                          gpio.edge <= I_mem_request.data(2 downto 1);
+                            -- Write GPIO external interrupt stat register (0x1c)
+                            when "111" => gpio.detect <= I_mem_request.data(0);
+                            when others => null;
+                        end case;
+                    -- Read
+                    else
+                        -- Note: A read from the Bit Set and Bit Clear registers returns all zero bits
+                        case I_mem_request.addr(4 downto 2) is
+                            -- Read from external inputs (0x00)
+                            when "000" => O_mem_response.data <= gpio.pinsync2;
+                            -- Read from external outputs (0x04)
+                            when "001" => O_mem_response.data <= gpio.pout;
+                            -- Read from external interrupt control register (0x18)
+                            when "110" => O_mem_response.data(7 downto 3) <= gpio.pinnr;
+                                          O_mem_response.data(2 downto 1) <= gpio.edge;
+                            -- Read from external interrupt status register (0x1c)
+                            when "111" =>  O_mem_response.data(0) <= gpio.detect;
+                            when others => null;
+                        end case;
+                    end if;
+                    O_mem_response.ready <= '1';
+                end if;
+               -- Detect rising edge or falling edge or both
+                if (gpio.edge(0) = '1' and gpio.detectsync(1) = '0' and gpio.detectsync(0) = '1') or
+                   (gpio.edge(1) = '1' and gpio.detectsync(1) = '1' and gpio.detectsync(0) = '0') then
+                    gpio.detect <= '1';
+                end if;
+            end if;
+        end if;
+    end process;
+
+    O_pout <= gpio.pout;
+    O_irq <= gpio.detect;
+    
+end architecture rtl;

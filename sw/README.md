@@ -16,13 +16,16 @@ Programs are translated by the RISC-V GNU C/C++ compiler.
 
 Executables are in ELF format, and are converted to
 S-record format, which can be uploaded with the `upload`
-program (when the bootloader is installed). S-record
+program (when the bootloader is installed) or with `openocd`
+when the On-chip Debugger is installed. S-record
 files are converted to a VHDL-suitable ROM table for
 inclusion in the processor hardware. See the documentation.
 
 Build the complete set of examples by starting `make` on
 the command line. Make sure that the RISC-V C/C++ compiler
 is in the PATH environment variable.
+
+Make sure to configure the file `common.make` to your needs.
 
 ## Support for Windows tools
 
@@ -35,6 +38,6 @@ Best is to use a precompiled compiler for Windows and
 build tools (make, rm, mkdir etc.). Please have a look
 at [xPack RISC-V Toolchain](https://xpack.github.io/dev-tools/riscv-none-elf-gcc/)
 and [Windows build tools](https://xpack.github.io/dev-tools/windows-build-tools/).
-For building `srec2vhdl` and `upload`, you need a GCC native compiler. Have a look
+For building `srec2vhdl`, `srec2mif` and `upload`, you need a GCC native compiler. Have a look
 at [The xPack GNU Compiler Collection (GCC)](https://xpack.github.io/dev-tools/gcc/).
 

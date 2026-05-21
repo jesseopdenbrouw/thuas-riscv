@@ -45,7 +45,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_04_05#;
+    constant HW_VERSION : integer := 16#01_01_04_06#;
 
     
     -- Used data types
@@ -419,6 +419,7 @@ package processor_common is
     constant tselect_addr : integer := 16#7a0#; --
     constant tdata1_addr : integer := 16#7a1#; --
     constant tdata2_addr : integer := 16#7a2#; --
+    constant tdata3_addr : integer := 16#7a3#; --
     constant tinfo_addr : integer := 16#7a4#; --
 
     -- M mode custom read-only

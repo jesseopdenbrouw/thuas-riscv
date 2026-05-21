@@ -11,3 +11,5 @@ Please note the following:
 * The board uses /dev/ttyUSB0 as serial device. You may have to set access rights.
 * The reset is connected to push-button KEY0.
 
+The pinout of the peripherals on GPIO_0 is the same as with the DE0-CB board,
+except for I2C2 which is connected to the on-print ADC and HDMI chips.

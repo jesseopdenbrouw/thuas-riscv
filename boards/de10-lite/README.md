@@ -25,9 +25,9 @@ Note the following:
 
 * The pin assignments can be viewed in the Pin Planner.
 
-* The onboard ADXL345 G-sensor is connected to the I2C2 peripheral.
+* The on-print ADXL345 G-sensor is connected to the I2C2 peripheral.
 
-* This design has two extra outputs: `O_GSENSOR_CS_n` (output high, so I2C) and `O_GSENSOR_SDO` (output low, so the device has address 0x53). These are necessary for correct usage of the on=PCB G-sensor.
+* This design has two extra outputs: `O_GSENSOR_CS_n` (output high, so I2C) and `O_GSENSOR_SDO` (output low, so the device has address 0x53). These are necessary for correct usage of the on-print G-sensor.
 
 * The pinout of the peripherals is the same as for the DE0-CV board, except for I2C2.
 

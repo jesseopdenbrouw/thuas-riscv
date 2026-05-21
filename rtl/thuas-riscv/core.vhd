@@ -151,7 +151,7 @@ constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16,
 -- Do we want the extra simulation output file?
 constant SIMULATION_EXTRA : boolean := false;
 
--- Doe we have fast access memory?
+-- Do we have fast access memory? Severly lowers Fmax.
 constant FAST_MEM : boolean := false;
 
 -- The Program Counter
@@ -569,6 +569,7 @@ begin
                             csr_reg.dcsr_cause <= "1000";   -- Clear DCSR.cause
                             control.load_pc <= '1';         -- Load PC with DPC
                             O_halt_ack <= '0';              -- Signal run
+                            O_resume_ack <= '0';            -- Temporary low
                             control.skip_match <= control.bpmatch;
                         elsif I_resume_req = '1' then
                             control.state <= state_debugflush;   -- Flush the pipeline
@@ -576,6 +577,7 @@ begin
                             csr_reg.dcsr_cause <= "1000";   -- Clear DCSR.cause
                             control.load_pc <= '1';         -- Load PC with DPC
                             O_halt_ack <= '0';              -- Signal run
+                            O_resume_ack <= '0';            -- Temporary low
                             control.skip_match <= control.bpmatch;
                         end if;
                     when others =>
@@ -2822,6 +2824,7 @@ begin
              (csr_addr_v = tselect_addr and HAVE_OCD) or
              (csr_addr_v = tdata1_addr and HAVE_OCD) or
              (csr_addr_v = tdata2_addr and HAVE_OCD) or
+             (csr_addr_v = tdata3_addr and HAVE_OCD) or
              (csr_addr_v = tinfo_addr and HAVE_OCD) or
              
               csr_addr_v = mxhw_addr or
@@ -3340,7 +3343,7 @@ begin
                     csr_reg.dpc(0) <= '0';                           -- LSB always 0
                     csr_reg.tselect <= (others => '0');              -- Only 1 hw breakpoint
                     -- Debug tinfo
-                    csr_reg.tinfo <= x"01000006";
+                    csr_reg.tinfo <= x"01000040";                    -- v1, only execute match
                 else
                     csr_reg.dcsr <= (others => '0');
                     csr_reg.dpc <= (others => '0');

@@ -63,6 +63,9 @@ end entity uart;
 
 architecture rtl of uart is
 
+-- Simple UART: 8N1
+constant UART_SIMPLE : boolean := false;
+
 type uart_txstate_type is (tx_idle, tx_iter, tx_ready);
 type uart_rxstate_type is (rx_idle, rx_wait, rx_iter, rx_parity, rx_break, rx_ready, rx_fail);
 
@@ -265,7 +268,14 @@ begin
                     end if;
                     O_mem_response.ready <= '1';
                 end if;
-                
+                -- Disable size, parity and 2nd stop bit
+                if UART_SIMPLE then
+                    uart.size <= "00";       -- 8 bit
+                    uart.sp2 <= '0';         -- 1 stop bit
+                    uart.parnevenodd <= '0'; -- no parity
+                    uart.paron <= '0';       -- no parity
+                end if;
+
                 -- Transmit a character
                 case uart.txstate is
                     -- Tx idle state, wait for start

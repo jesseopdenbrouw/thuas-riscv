@@ -1,4 +1,3 @@
-set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 # -------------------------------------------------------------------------- #
 #
 # Copyright (C) 2021  Intel Corporation. All rights reserved.
@@ -238,4 +237,28 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tck
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_spi2miso
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_spi1miso
 
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout[31]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[31]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[30]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[29]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[28]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[27]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[26]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[25]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[24]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[23]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[22]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[21]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[20]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[19]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[17]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[16]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_gpioapin[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout[23]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_gpioapout
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

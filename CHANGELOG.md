@@ -71,4 +71,5 @@ All dates are in dd.mm.yyyy format.
 | 30.04.2026 | 1.1.4.3  | [core] all GPRs are loaded with all zero bits when reconfiguring the Cyclone V | |
 | 02.05.2026 | 1.1.4.4  | [core] all disabled output are now High-Z | |
 | 09.05.2026 | 1.1.4.5  | [core] added an option to disable the memory buffer so that the memory accesses are reduced by one cycle, this has a severe inpact on the Fmax, this option is hidden in the file core.vhd | |
+| 21.05.2026 | 1.1.4.6  | [core] resume_ack is now low when resuming, high when running, tdata3 is added as CSR, fix tinfo CSR | |
 

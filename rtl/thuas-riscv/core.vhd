@@ -92,6 +92,8 @@ entity core is
           BOOT_HIGH_NIBBLE : memory_high_nibble;
           -- Buffer I/O response
           BUFFER_IO_RESPONSE : boolean;
+          -- Fast memory access (severly reduces Fmax)?
+          FAST_MEM : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have UART2?
@@ -150,9 +152,6 @@ constant NUMBER_OF_REGISTERS : integer := get_int_from_boolean(HAVE_RISCV_E, 16,
 
 -- Do we want the extra simulation output file?
 constant SIMULATION_EXTRA : boolean := false;
-
--- Do we have fast access memory? Severly lowers Fmax.
-constant FAST_MEM : boolean := false;
 
 -- The Program Counter
 -- Not part of any record.
@@ -2381,6 +2380,7 @@ begin
     -- This is the interface between the core and the memory (ROM, boot ROM, RAM, I/O)
     -- Memory access type and size are computed in the instruction decoding unit
 
+    -- !fast_mem: set up the registered memory interface
     fastmemnot: if not FAST_MEM generate
         process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb, I_dm_core_data_request) is
         variable address_v : unsigned(31 downto 0);
@@ -2465,6 +2465,7 @@ begin
         O_bus_request.addr <= csr_transfer.address_to_mtval;
     end generate;
 
+    -- fast_mem: set up unregistered memory interface
     fastmem: if FAST_MEM generate
         process (I_clk, I_areset, I_bus_response.ready, control, id_ex, ex_wb, I_dm_core_data_request) is
         variable address_v : unsigned(31 downto 0);

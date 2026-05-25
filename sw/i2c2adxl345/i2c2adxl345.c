@@ -34,7 +34,7 @@
 
 int main(void)
 {
-	/* Buffer for data, begin with all axis on, 10 Hz update rate */
+	/* Buffer for data */
 	uint8_t buf[10] = { 0x00 };
 	int16_t x, y, z;
 	uint32_t ret;

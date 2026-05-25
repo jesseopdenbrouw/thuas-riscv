@@ -98,6 +98,8 @@ uint64_t csr_get_mhpmcounter9(void);
 
 /* mxhw CSR */
 #define CSR_MXHW_GPIOA     (1 << 0)
+#define CSR_MXHW_FASTMEM   (1 << 2)
+#define CSR_MXHW_ZBKB      (1 << 3)
 #define CSR_MXHW_UART1     (1 << 4)
 #define CSR_MXHW_UART2     (1 << 5)
 #define CSR_MXHW_I2C1      (1 << 6)

@@ -34,6 +34,8 @@ int main(void)
 	uart1_printf("\r\nread CSR mxhw: 0x%08x\r\n", hw);
 
 	uart1_printf("has GPIOA: %s\r\n", (hw & CSR_MXHW_GPIOA) ? "yes" : "no");
+	uart1_printf("has Zbkb: %s\r\n", (hw & CSR_MXHW_ZBKB) ? "yes" : "no");
+	uart1_printf("has fast mem: %s\r\n", (hw & CSR_MXHW_FASTMEM) ? "yes" : "no");
 	uart1_printf("has UART1: %s\r\n", (hw & CSR_MXHW_UART1) ? "yes" : "no");
 	uart1_printf("has UART2: %s\r\n", (hw & CSR_MXHW_UART2) ? "yes" : "no");
 	uart1_printf("has I2C1: %s\r\n", (hw & CSR_MXHW_I2C1) ? "yes" : "no");

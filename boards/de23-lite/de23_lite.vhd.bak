@@ -87,20 +87,20 @@ end entity de23_lite;
 architecture toplevel of de23_lite is
 
 component pll is
-   port (
-        refclk   : in  std_logic := '0'; --  refclk.clk,    The reference clock source that drives the I/O PLL.
-        locked   : out std_logic;        --  locked.export, The IOPLL IP core drives this port high when the PLL acquires lock. The port remains high as long as the I/O PLL is locked. The I/O PLL asserts the locked port when the phases and frequencies of the reference clock and feedback clock are the same or within the lock circuit tolerance. When the difference between the two clock signals exceeds the lock circuit tolerance, the I/O PLL loses lock.
-        rst      : in  std_logic := '0'; --   reset.reset,  The asynchronous reset port for the output clocks. Drive this port high to reset all output clocks to the value of 0.
+	port (
+		refclk   : in  std_logic := '0'; --  refclk.clk,    The reference clock source that drives the I/O PLL.
+		locked   : out std_logic;        --  locked.export, The IOPLL IP core drives this port high when the PLL acquires lock. The port remains high as long as the I/O PLL is locked. The I/O PLL asserts the locked port when the phases and frequencies of the reference clock and feedback clock are the same or within the lock circuit tolerance. When the difference between the two clock signals exceeds the lock circuit tolerance, the I/O PLL loses lock.
+		rst      : in  std_logic := '0'; --   reset.reset,  The asynchronous reset port for the output clocks. Drive this port high to reset all output clocks to the value of 0.
         outclk_0 : out std_logic;            -- outclk0.clk,    Output clock Channel 0 from I/O PLL.
         outclk_1 : out std_logic;
         outclk_2 : out std_logic
-   );
+	);
 end component pll;
 
 component reset is
-   port (
-        ninit_done : out std_logic   -- ninit_done.ninit_done, You can use the nINIT_DONE signal in one of the following ways: To gate an external or internal reset; To gate the reset input to the transceiver and I/O PLLs; To gate the write enable of design blocks such as embedded memory blocks, state machine, and shift registers; To synchronously drive register reset input ports in your design.
-   );
+	port (
+		ninit_done : out std_logic   -- ninit_done.ninit_done, You can use the nINIT_DONE signal in one of the following ways: To gate an external or internal reset; To gate the reset input to the transceiver and I/O PLLs; To gate the write enable of design blocks such as embedded memory blocks, state machine, and shift registers; To synchronously drive register reset input ports in your design.
+	);
 end component reset;
 
 signal clk_int : std_logic;
@@ -128,7 +128,6 @@ begin
               ninit_done => ninit_done_int
              );
 
-    -- Reset is synchronized in riscv.vhd
     tmp_reset_int <= nareset_int or not locked_int;
     
     pll0 : pll 

@@ -82,12 +82,21 @@ create_clock -name {I_clk} -period 20.000 -waveform { 0.000 10.000 } [get_ports 
 # Set Input Delay
 #**************************************************************
 
+#set_input_delay -clock [get_clocks pll0|iopll_0|tennm_ph2_iopll~O_OUT_CLK0 -nocase] -max -rise 2.0 [get_ports {IO_i2c1scl IO_i2c1sda IO_i2c2scl IO_i2c2sda IO_timer2icoca IO_timer2icocb IO_timer2icocc I_gpioapin[0] I_gpioapin[1] I_gpioapin[2] I_gpioapin[3] I_gpioapin[4] I_gpioapin[5] I_gpioapin[6] I_gpioapin[7] I_gpioapin[8] I_gpioapin[9] I_gpioapin[10] I_gpioapin[11] I_gpioapin[12] I_gpioapin[13] I_gpioapin[14] I_gpioapin[15] I_spi1miso I_spi2miso I_tck I_tdi I_tms I_trst I_uart1rxd}]
+#set_input_delay -clock [get_clocks pll0|iopll_0|tennm_ph2_iopll~O_OUT_CLK0 -nocase] -min -rise 1.4 [get_ports {IO_i2c1scl IO_i2c1sda IO_i2c2scl IO_i2c2sda IO_timer2icoca IO_timer2icocb IO_timer2icocc I_gpioapin[0] I_gpioapin[1] I_gpioapin[2] I_gpioapin[3] I_gpioapin[4] I_gpioapin[5] I_gpioapin[6] I_gpioapin[7] I_gpioapin[8] I_gpioapin[9] I_gpioapin[10] I_gpioapin[11] I_gpioapin[12] I_gpioapin[13] I_gpioapin[14] I_gpioapin[15] I_spi1miso I_spi2miso I_tck I_tdi I_tms I_trst I_uart1rxd}]
+#set_input_delay -clock [get_clocks pll0|iopll_0|tennm_ph2_iopll~O_OUT_CLK0 -nocase] -max -fall 2.0 [get_ports {IO_i2c1scl IO_i2c1sda IO_i2c2scl IO_i2c2sda IO_timer2icoca IO_timer2icocb IO_timer2icocc I_gpioapin[0] I_gpioapin[1] I_gpioapin[2] I_gpioapin[3] I_gpioapin[4] I_gpioapin[5] I_gpioapin[6] I_gpioapin[7] I_gpioapin[8] I_gpioapin[9] I_gpioapin[10] I_gpioapin[11] I_gpioapin[12] I_gpioapin[13] I_gpioapin[14] I_gpioapin[15] I_spi1miso I_spi2miso I_tck I_tdi I_tms I_trst I_uart1rxd}]
+#set_input_delay -clock [get_clocks pll0|iopll_0|tennm_ph2_iopll~O_OUT_CLK0 -nocase] -min -fall 1.4 [get_ports {IO_i2c1scl IO_i2c1sda IO_i2c2scl IO_i2c2sda IO_timer2icoca IO_timer2icocb IO_timer2icocc I_gpioapin[0] I_gpioapin[1] I_gpioapin[2] I_gpioapin[3] I_gpioapin[4] I_gpioapin[5] I_gpioapin[6] I_gpioapin[7] I_gpioapin[8] I_gpioapin[9] I_gpioapin[10] I_gpioapin[11] I_gpioapin[12] I_gpioapin[13] I_gpioapin[14] I_gpioapin[15] I_spi1miso I_spi2miso I_tck I_tdi I_tms I_trst I_uart1rxd}]
+
 
 
 #**************************************************************
 # Set Output Delay
 #**************************************************************
 
+#set_output_delay -clock [get_clocks I_clk -nocase] -max -rise 2.0 [get_ports {IO_i2c1scl IO_i2c1sda IO_i2c2scl IO_i2c2sda IO_timer2icoca IO_timer2icocb IO_timer2icocc O_gpioapout[0] O_gpioapout[1] O_gpioapout[2] O_gpioapout[3] O_gpioapout[4] O_gpioapout[5] O_gpioapout[6] O_gpioapout[7] O_gpioapout[8] O_gpioapout[9] O_gpioapout[10] O_gpioapout[11] O_gpioapout[12] O_gpioapout[13] O_gpioapout[14] O_gpioapout[15] O_spi1mosi O_spi1sck O_spi2mosi O_spi2sck O_tdo O_timer2oct O_uart1txd O_uart2txd}]
+#set_output_delay -clock [get_clocks I_clk -nocase] -min -rise 1.4 [get_ports {IO_i2c1scl IO_i2c1sda IO_i2c2scl IO_i2c2sda IO_timer2icoca IO_timer2icocb IO_timer2icocc O_gpioapout[0] O_gpioapout[1] O_gpioapout[2] O_gpioapout[3] O_gpioapout[4] O_gpioapout[5] O_gpioapout[6] O_gpioapout[7] O_gpioapout[8] O_gpioapout[9] O_gpioapout[10] O_gpioapout[11] O_gpioapout[12] O_gpioapout[13] O_gpioapout[14] O_gpioapout[15] O_spi1mosi O_spi1sck O_spi2mosi O_spi2sck O_tdo O_timer2oct O_uart1txd O_uart2txd}]
+#set_output_delay -clock [get_clocks I_clk -nocase] -max -fall 2.0 [get_ports {IO_i2c1scl IO_i2c1sda IO_i2c2scl IO_i2c2sda IO_timer2icoca IO_timer2icocb IO_timer2icocc O_gpioapout[0] O_gpioapout[1] O_gpioapout[2] O_gpioapout[3] O_gpioapout[4] O_gpioapout[5] O_gpioapout[6] O_gpioapout[7] O_gpioapout[8] O_gpioapout[9] O_gpioapout[10] O_gpioapout[11] O_gpioapout[12] O_gpioapout[13] O_gpioapout[14] O_gpioapout[15] O_spi1mosi O_spi1sck O_spi2mosi O_spi2sck O_tdo O_timer2oct O_uart1txd O_uart2txd}]
+#set_output_delay -clock [get_clocks I_clk -nocase] -min -fall 1.4 [get_ports {IO_i2c1scl IO_i2c1sda IO_i2c2scl IO_i2c2sda IO_timer2icoca IO_timer2icocb IO_timer2icocc O_gpioapout[0] O_gpioapout[1] O_gpioapout[2] O_gpioapout[3] O_gpioapout[4] O_gpioapout[5] O_gpioapout[6] O_gpioapout[7] O_gpioapout[8] O_gpioapout[9] O_gpioapout[10] O_gpioapout[11] O_gpioapout[12] O_gpioapout[13] O_gpioapout[14] O_gpioapout[15] O_spi1mosi O_spi1sck O_spi2mosi O_spi2sck O_tdo O_timer2oct O_uart1txd O_uart2txd}]
 
 
 #**************************************************************
@@ -101,51 +110,6 @@ create_clock -name {I_clk} -period 20.000 -waveform { 0.000 10.000 } [get_ports 
 #**************************************************************
 
 set_false_path -from [get_ports I_areset]
-
-set_false_path -from [get_ports I_trst]
-set_false_path -from [get_ports I_tck]
-set_false_path -from [get_ports I_tms]
-set_false_path -from [get_ports I_tdi]
-
-set_false_path -from [get_ports I_gpioapin*]
-
-set_false_path -from [get_ports I_uart1rxd]
-#set_false_path -from [get_ports I_uart2rxd]
-
-set_false_path -from [get_ports IO_i2c1scl]
-set_false_path -from [get_ports IO_i2c1sda]
-
-set_false_path -from [get_ports IO_i2c2scl]
-set_false_path -from [get_ports IO_i2c2sda]
-
-set_false_path -from [get_ports I_spi1miso]
-set_false_path -from [get_ports I_spi2miso]
-
-set_false_path -from [get_ports IO_timer2icoca]
-set_false_path -from [get_ports IO_timer2icocb]
-set_false_path -from [get_ports IO_timer2icocc]
-
-set_false_path -to [get_ports O_tdo]
-
-set_false_path -to [get_ports O_gpioapout*]
-
-set_false_path -to [get_ports O_uart1txd]
-#set_false_path -to [get_ports O_uart2txd]
-
-set_false_path -to [get_ports IO_i2c1scl]
-set_false_path -to [get_ports IO_i2c1sda]
-
-set_false_path -to [get_ports IO_i2c2scl]
-set_false_path -to [get_ports IO_i2c2sda]
-
-set_false_path -to [get_ports O_spi1sck]
-set_false_path -to [get_ports O_spi1mosi]
-set_false_path -to [get_ports O_spi2sck]
-set_false_path -to [get_ports O_spi2mosi]
-
-set_false_path -to [get_ports IO_timer2icoca]
-set_false_path -to [get_ports IO_timer2icocb]
-set_false_path -to [get_ports IO_timer2icocc]
 
 #**************************************************************
 # Set Multicycle Path

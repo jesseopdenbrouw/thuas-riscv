@@ -45,7 +45,8 @@ use work.processor_common.all;
 
 entity uart is
     generic (
-          UART_BREAK_RESETS : boolean
+          UART_BREAK_RESETS : boolean;
+          UART_SIMPLE : boolean := false
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -265,7 +266,14 @@ begin
                     end if;
                     O_mem_response.ready <= '1';
                 end if;
-                
+                -- Disable size, parity and 2nd stop bit
+                if UART_SIMPLE then
+                    uart.size <= "00";       -- 8 bit
+                    uart.sp2 <= '0';         -- 1 stop bit
+                    uart.parnevenodd <= '0'; -- no parity
+                    uart.paron <= '0';       -- no parity
+                end if;
+
                 -- Transmit a character
                 case uart.txstate is
                     -- Tx idle state, wait for start

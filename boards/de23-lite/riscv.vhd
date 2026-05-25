@@ -745,8 +745,8 @@ signal irq_timer2_int : std_logic;
 signal irq_uart2_int : std_logic;
 
 -- Have synchronous reset?
-type reset_type is (full_async, full_sync, mixed);
-constant RESET_METHOD : reset_type := full_async;
+type reset_type is (full_async, full_sync);
+constant RESET_METHOD : reset_type := full_sync;
 
 begin
 
@@ -785,7 +785,7 @@ begin
     -- Use full synchronous reset
     -- sreset_debug_int implements reset for debug modules
     -- sreset_sys_int implements reset for other modules
-    syn_reset_gen: if RESET_METHOD = full_sync generate
+    sync_reset_gen: if RESET_METHOD = full_sync generate
         -- Synchronize the asynchronous reset
         process (clk_int, I_areset) is
         begin

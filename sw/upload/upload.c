@@ -305,7 +305,7 @@ void Sleep(int tim) {
 /* Show serial devices */
 void show_devices(int verbose) {
 	char device[100];
-	char *subdevice[] = { "", "USB", "ACM" };
+	char *subdevice[] = { "S", "USB", "ACM" };
 	DEVICE_HANDLE handle;
 	int count = 0;
 

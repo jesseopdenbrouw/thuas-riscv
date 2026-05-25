@@ -98,6 +98,8 @@ entity riscv is
           IO_HIGH_NIBBLE : memory_high_nibble;
           -- Buffer I/O response
           BUFFER_IO_RESPONSE : boolean;
+          -- Fast memory access (severly reduces Fmax)?
+          FAST_MEM : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have UART1?
@@ -205,6 +207,8 @@ component core is
           BOOT_HIGH_NIBBLE : memory_high_nibble;
           -- Buffer I/O response
           BUFFER_IO_RESPONSE : boolean;
+          -- Fast memory access (severly reduces Fmax)?
+          FAST_MEM : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have UART2?
@@ -825,6 +829,7 @@ begin
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
               BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE,
               BUFFER_IO_RESPONSE => BUFFER_IO_RESPONSE,
+              FAST_MEM => FAST_MEM,
               HAVE_UART1 => HAVE_UART1,
               HAVE_UART2 => HAVE_UART2,
               HAVE_SPI1 => HAVE_SPI1,

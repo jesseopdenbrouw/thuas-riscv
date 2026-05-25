@@ -93,7 +93,7 @@ entity core is
           -- Buffer I/O response
           BUFFER_IO_RESPONSE : boolean;
           -- Fast memory access (severly reduces Fmax)?
-          FAST_MEM : boolean := false;
+          FAST_MEM : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have UART2?

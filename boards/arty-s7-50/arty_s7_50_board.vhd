@@ -152,6 +152,8 @@ begin
               IO_HIGH_NIBBLE => x"F",
               -- Buffer I/O response
               BUFFER_IO_RESPONSE => false,
+              -- Fast memory access (severly reduces Fmax)?
+              FAST_MEM => false,
               -- Use UART1?
               HAVE_UART1 => TRUE,
               -- Use UART2?

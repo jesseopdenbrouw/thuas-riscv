@@ -98,6 +98,8 @@ entity riscv is
           IO_HIGH_NIBBLE : memory_high_nibble;
           -- Buffer I/O response
           BUFFER_IO_RESPONSE : boolean;
+          -- Fast memory access (severly reduces Fmax)?
+          FAST_MEM : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have UART1?
@@ -205,6 +207,8 @@ component core is
           BOOT_HIGH_NIBBLE : memory_high_nibble;
           -- Buffer I/O response
           BUFFER_IO_RESPONSE : boolean;
+          -- Fast memory access (severly reduces Fmax)?
+          FAST_MEM : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have UART2?
@@ -745,8 +749,8 @@ signal irq_timer2_int : std_logic;
 signal irq_uart2_int : std_logic;
 
 -- Have synchronous reset?
-type reset_type is (full_async, full_sync, mixed);
-constant RESET_METHOD : reset_type := full_async;
+type reset_type is (full_async, full_sync);
+constant RESET_METHOD : reset_type := full_sync;
 
 begin
 
@@ -785,7 +789,7 @@ begin
     -- Use full synchronous reset
     -- sreset_debug_int implements reset for debug modules
     -- sreset_sys_int implements reset for other modules
-    syn_reset_gen: if RESET_METHOD = full_sync generate
+    sync_reset_gen: if RESET_METHOD = full_sync generate
         -- Synchronize the asynchronous reset
         process (clk_int, I_areset) is
         begin
@@ -825,6 +829,7 @@ begin
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
               BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE,
               BUFFER_IO_RESPONSE => BUFFER_IO_RESPONSE,
+              FAST_MEM => FAST_MEM,
               HAVE_UART1 => HAVE_UART1,
               HAVE_UART2 => HAVE_UART2,
               HAVE_SPI1 => HAVE_SPI1,

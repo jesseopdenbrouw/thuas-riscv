@@ -67,7 +67,7 @@ All dates are in dd.mm.yyyy format.
 | 07.04.2026 | 1.1.3.12 | [dm] data0 and data0 are only written if not busy, if busy then cmderr is set to 1 | |
 | 08.04.2026 | 1.1.4.0  | New version 1.1.4 | |
 | 15.04.2026 | 1.1.4.1  | [core] added Zbkb extension | |
-| 20.04.2026 | 1.1.4.2  | [core[ IALIGN = 32, so mepc(1) and mepc(0) must be 0 | |
+| 20.04.2026 | 1.1.4.2  | [core] IALIGN = 32, so mepc(1) and mepc(0) must be 0 | |
 | 30.04.2026 | 1.1.4.3  | [core] all GPRs are loaded with all zero bits when reconfiguring the Cyclone V | |
 | 02.05.2026 | 1.1.4.4  | [core] all disabled output are now High-Z | |
 | 09.05.2026 | 1.1.4.5  | [core] added an option to disable the memory buffer so that the memory accesses are reduced by one cycle, this has a severe inpact on the Fmax, this option is hidden in the file core.vhd | |

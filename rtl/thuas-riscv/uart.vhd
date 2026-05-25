@@ -45,7 +45,8 @@ use work.processor_common.all;
 
 entity uart is
     generic (
-          UART_BREAK_RESETS : boolean
+          UART_BREAK_RESETS : boolean;
+          UART_SIMPLE : boolean := false
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
@@ -62,9 +63,6 @@ entity uart is
 end entity uart;
 
 architecture rtl of uart is
-
--- Simple UART: 8N1
-constant UART_SIMPLE : boolean := false;
 
 type uart_txstate_type is (tx_idle, tx_iter, tx_ready);
 type uart_rxstate_type is (rx_idle, rx_wait, rx_iter, rx_parity, rx_break, rx_ready, rx_fail);

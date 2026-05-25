@@ -23,7 +23,7 @@ This is work in progress. Things will certainly change in the future.
 
 This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zimop, Zihpm, Zba, Zbb, Zbs, Zbkb, Sdext and Sdtrig extensions are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
 
-The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic and performance counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. Trap taken and return take 3 clocks.
+The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic and performance counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. Traps taken and return take 3 clocks.
 
 The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark test shows an average CPI of 1.73 with a throughput of 1.98 coremark/MHz (GCC 15.2, -O3, 4000 runs).
 
@@ -159,7 +159,7 @@ The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this t
 
 === Memory Interface
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. In the first cycle of the memory access, a strobe signal is present. If there is neither an acknowledge nor an exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. These signals are held stable until an acknowledge from the memory is sampled, or an exception is generated. In the first cycle of the memory access, a strobe signal is present. If there is neither an acknowledge nor an exception generated, the core will stall permanently.
 
 
 === Control and Status registers
@@ -267,7 +267,7 @@ There are two flavors of resets. The SoC can be reset asynchronous or synchronou
 The memories are accessed through the address decoder and data router and the instruction router.
 The are four memories: ROM, boot ROM, RAM and I/O.
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. All these signals are held stable during the acces. In the first cycle of the memory access, a strobe signal is present. The access is terminated when an acknowledge from the memory is sampled, or when an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. Currently a memory access must at least take two clock cycles. See figure.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. All these signals are held stable during the acces. In the first cycle of the memory access, a strobe signal is present. The access is terminated when an acknowledge from the memory is sampled, or when an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. See figure.
 
 .Timing diagram of a read operation.
 [[fig_read]]
@@ -285,8 +285,6 @@ When data is read, the data is collected from the accessed memory and put on a b
 
 Note that instructions can only be fetched from ROM and boot ROM.
 
-Note that _all_ memory accesses are/must be acknowledged, even when this triggers an exception, otherwise the core stalls.
-
 === Instruction Router
 
 The Instruction Router routes instructions from the ROM and the boot ROM. If the boot ROM is disabled, the synthesizer will remove the instruction decoder.
@@ -294,9 +292,9 @@ The Instruction Router routes instructions from the ROM and the boot ROM. If the
 
 === ROM
 
-The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are stored in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. Reading ROM (as data) requires three cycles. This is automatically handled by the processor. The pipeline is stalled when reading from ROM (data). Reading instructions requires two clock cycles.
+The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are stored in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit.
 
-When the bootloader hardware and/or the on-chip debugger is enabled, the ROM is writable as words only. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. A write requires two clock cycles. When the write size is not a word, or the bootloader and the on-chip debugging are disabled, an access exception will be generated.
+When the bootloader hardware and/or the on-chip debugger is enabled, the ROM is writable as words only. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. When the write size is not a word, or the bootloader and the on-chip debugging are disabled, an access exception will be generated.
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
@@ -310,11 +308,9 @@ The RAM consists of bytes and is byte, half word and word addressable. Half word
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
-Reading the RAM (byte, half word, word) requires three clock cycles. A write requires two clock cycles.
-
 === I/O
 
-Currently, the I/O consists of one 32-bit data input and one 32-bit data output, two simple UARTs with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit, a CRC unit and the `TIME` and `TIMEH` memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. A reads and writes both require three clock cycles. Each I/O module has a 256-byte address space. Note that not all I/O addresses are actually used.
+Currently, the I/O consists of one 32-bit data input and one 32-bit data output, two simple UARTs with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit, a CRC unit and the `TIME` and `TIMEH` memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. Each I/O module has a 256-byte address space. Note that not all I/O addresses are actually used.
 
 Note: GPIOA and MTIME are always included in synthesis.
 
@@ -345,6 +341,11 @@ The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Wh
 The CRC unit can calculate 8-bit, 16-bit, 24-bit and 32-bit CRCs with arbitrary polynomals. The CRCs are calculated on byte data with the msb of the bytes rirst. The polynomal has the same width as the calculated CRC. The CRC value can be loaded with a start value (often 0x00000000 or 0xffffffff).
 
 When writing your own I/O modules, note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
+
+=== Memory access times
+
+In the default setup, a write needs two clock cycles and a read needs three clock cycles for ROM, boot ROM and I/O. For I/O, reads and writes take three clock cycles. When the `FAST_MEM` generic is set to true, all accesses are reduced by one clock cycle. This will speed up prohgrams but has an severe inpact on the $f_{max}$.
+
 
 == Debug Module and Debug Transport Module
 
@@ -697,6 +698,7 @@ Using VHDL generics, the design can be customized.
 |RAM_HIGH_NIBBLE       | slv(3..0) | x"2"     | RAM at 0x2yyyyyyy
 |IO_HIGH_NIBBLE        | slv(3..0) | x"F"     | I/O at 0xFyyyyyyy
 |BUFFER_IO_RESPONSE    | boolean   | false    | Extra buffer with I/O response
+|FAST_MEM              | boolean   | false    | Enable fast memory access
 |HAVE_UART1            | boolean   | TRUE     | Use UART1
 |HAVE_UART2            | boolean   | false    | Use UART2
 |HAVE_SPI1             | boolean   | TRUE     | Use SPI1
@@ -1162,7 +1164,7 @@ MEMORY
 }
 ----
 
-In this setting, the ROM is 64 kB long and the RAM is 32 kB long. Please note that both ROM and RAM bits may not exceed 3,153,920 bits of onboard RAM. For increased ROM and RAM size, typical values may be 128 kB ROM and 64 kB RAM.
+In this setting, the ROM is 64 kB long and the RAM is 32 kB long. Please note that on the DE0-CV board, both ROM and RAM bits may not exceed 3,153,920 bits of onboard RAM. For increased ROM and RAM size, typical values may be 128 kB ROM and 64 kB RAM.
 
 Note that we do not use full address decoding for ROM, boot ROM, RAM and I/O. This means that, for example, the ROM is visible multiple times in the address space. This is called *memory foldback*. For the ROM this is at 64 kB intervals. So the contents of address 0x00000000 is also available at address 0x00010000.
 

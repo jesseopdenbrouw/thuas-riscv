@@ -129,7 +129,7 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_HPM_JUMP       (1 << 0)
 #define CSR_HPM_BRANCH     (1 << 0)
 #define CSR_HPM_STALLS     (1 << 1)
-#define CRR_HPM_STORES     (1 << 2)
+#define CSR_HPM_STORES     (1 << 2)
 #define CSR_HPM_LOADS      (1 << 3)
 #define CSR_HPM_ECALLS     (1 << 4)
 #define CSR_HPM_EBREAKS    (1 << 5)

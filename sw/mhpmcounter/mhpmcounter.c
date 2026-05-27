@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
 	csr_write(mhpmevent3, CSR_HPM_JUMP);
 	csr_write(mhpmevent4, CSR_HPM_STALLS);
-	csr_write(mhpmevent5, CRR_HPM_STORES);
+	csr_write(mhpmevent5, CSR_HPM_STORES);
 	csr_write(mhpmevent6, CSR_HPM_LOADS);
 	csr_write(mhpmevent7, CSR_HPM_ECALLS);
 	csr_write(mhpmevent8, CSR_HPM_EBREAKS);

@@ -403,6 +403,8 @@ We find good speed results when the synthesis is set to Default and the implemen
 
 We also tested the processor on a DE10-Lite board. The fabric is the MAX10 devices is slower than that of the Cyclone V, so the Fmax is lower.
 
+We also tested the processor on a DE23-Lite board. The fabric of the Agilex 3 is much faster than that of the Cyclone V, so the Fmax is higher. We tested the board with a frequency of 150 MHz. See the `boards` directory.
+
 == Processor hardware
 
 The processor hardware is composed of the following VHDL files:
@@ -716,7 +718,7 @@ Using VHDL generics, the design can be customized.
 Notes: leave CLOCK_FREQUENCY at 1000000. The toolchain depends on it. Also for correct synthesis, SYSTEM_FREQUENCY must be a integer multiple of CLOCK_FREQUENCY.
 If VECTORED_MTVEC is set to false, the core cannot execute vectored interrupts.
 When OCD_CSR_CHECK_DISABLE is set to true, accessing unimplemented CSRs does not trigger an exception. This breaks the RISC-V debug spec.
-When BUFFER_IO_RESPONSE is set to true, reading data from the I/O takes another clock cycle. This may have a positive effect on the $f_{max}$. The Zbkb extension partly overlaps the Zbb extension.
+When BUFFER_IO_RESPONSE is set to true, reading data from the I/O takes another clock cycle. This may have a positive effect on the $f_{max}$. The Zbkb extension partly overlaps the Zbb extension. If FAST_MEM is set to true, all memory accesses are reduced by one clock cycle. This has, however, a severy inpact on the $f_{max}$.
 
 == Cloning the RISC-V project
 

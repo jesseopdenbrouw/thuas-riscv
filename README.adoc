@@ -30,8 +30,8 @@ divisions require 34 clocks. Jumps/branches taken require 3
 clocks, the microcontroller does not support branch prediction.
 All other instructions require 1 clock.
 
-Current Coremark testbench shows a CPI of 1.73 and a score
-of 1.98 coremark/MHz (GCC 15.2, -O3).
+Current Coremark testbench shows a CPI of 1.75 and a score
+of 1.94 coremark/MHz (GCC 16.1, -O3).
 
 Software is written in C, ({cpp} is supported but there are
 some limitations) and compiled using the RISC-V GNU C/{cpp}

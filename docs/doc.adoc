@@ -40,10 +40,10 @@ The RISC-V processor consists of one core and some building blocks:
 * The core handles program execution.
 * The ROM contains the program instructions and constant data. When the bootloader or the on-chip debugger is implemented, the ROM may be written.
 * The bootloader ROM contains the bootloader program instructions and constant (read-only) data. The bootloader ROM may be excluded from the design. The bootloader ROM cannot be written.
-* The RAM contains read-write data (mutable data).
+* The RAM contains read-write data (mutable data). The RAM may contain instructions.
 * The I/O (multiple files) is an interface with the outside world.
-* The Address Decoder and Data Router is an interface between the memory (ROM, boot ROM, RAM, I/O) and the core
-* The instruction router routes instructions from the ROM and the boot ROM (if enabled).
+* The Address Decoder and Data Router is an interface between the memory (ROM, boot ROM, RAM, I/O) and the core.
+* The instruction router routes instructions from the ROM, RAM and the boot ROM (if enabled).
 * The debug module (DM) is an interface between the core and the Debug Module Interface (DMI).
 * The debug transport module (DTM) is an interface between the DMI and the external debug hardware.
 
@@ -106,7 +106,7 @@ The Program Counter contains the address of the currently fetched instruction. T
 
 === Instruction Decoder
 
-The instruction decoder decodes the instruction supplied by the ROM or boot ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit.
+The instruction decoder decodes the instruction supplied by the ROM, RAM and boot ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit.
 
 === Control Unit
 
@@ -283,18 +283,17 @@ The Address Decoder and Data Router routes reads and writes to the memory (ROM, 
 
 When data is read, the data is collected from the accessed memory and put on a bus to the ALU. The ALU performs sign extension or zero extenstion (byte and half word accesses). 
 
-Note that instructions can only be fetched from ROM and boot ROM.
 
 === Instruction Router
 
-The Instruction Router routes instructions from the ROM and the boot ROM. If the boot ROM is disabled, the synthesizer will remove the instruction decoder.
+The Instruction Router routes instructions from the ROM, RAM and the boot ROM. If the boot ROM is disabled, the synthesizer will remove the instruction decoder. In the default setup, instructions cannot be read from the RAM.
 
 
 === ROM
 
-The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading constant data. Half word and word entries are stored in Litte Endian format. When reading data from the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit.
+The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading or writing data. Half word and word entries are stored in Litte Endian format. When reading  data from or writing data to the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit.
 
-When the bootloader hardware and/or the on-chip debugger is enabled, the ROM is writable as words only. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. When the write size is not a word, or the bootloader and the on-chip debugging are disabled, an access exception will be generated.
+When the bootloader hardware and/or the on-chip debugger is enabled, the ROM is writable. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. When the bootloader and the on-chip debugging are disabled, an access exception will be generated when writing.
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
@@ -304,7 +303,7 @@ The bootloader ROM contains a small program to upload S-record files in the ROM.
 
 === RAM
 
-The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns undefined data if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM cannot be used for program data.
+The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns undefined data if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM can be used for program data.
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
@@ -413,11 +412,10 @@ The processor hardware is composed of the following VHDL files:
 * `address_decode.vhd` -- The address decoder and data router to the memory
 * `core.vhd` -- The core contains the PC, the registers, the instruction decoder, the ALU, the MD unit, the control state machine, the memory interface, the CSR, the LIC and debug hardware.
 * `instr_router.vhd` -- Description of the instruction router.
-* `rom.vhd` -- Description of the ROM. Will be placed in onboard, initialized RAM blocks. 
+* `mem.vhd` -- Description of the memory. 
 * `rom_image.vhd` -- Description of the ROM contents.
-* `bootrom.vhd` -- Description of the bootloader ROM. The bootloader program will be placed in onboard, initialized RAM blocks.
 * `bootrom_image.vhd` -- Description of the boot ROM contents.
-* `ram.vhd` -- Description of the RAM. Will be placed in onboard, uninitialized RAM blocks. 
+* `ram_image.vhd` -- Description of the RAM contents.
 * `io_bus_switch.vhd` -- Description of the I/O bus switch. Connects the I/O (GPIO, UART, I2C, ...) with address decoder and data router.
 * `gpio.vhd` -- Description of the General Purpose I/O module.
 * `uart.vhd` -- Description of the UART peripheral.
@@ -722,7 +720,7 @@ When BUFFER_IO_RESPONSE is set to true, reading data from the I/O takes another 
 
 == Cloning the RISC-V project
 
-Now we have to clone the RISC-V project. It incorporates the full Quartus Prime Lite project with the processor written in VHDL. It also incorporates many C program examples and a taylor-made program to convert a RISC-V executable to a VHDL table suitable for the ROM. Create a working directory (and change to that directory) and issue the command:
+Now we have to clone the RISC-V project. It incorporates the full Quartus Prime Lite project with the processor written in VHDL. It also incorporates many C program examples and a taylor-made program to convert a RISC-V executable to a VHDL table suitable for the instruction memories. Create a working directory (and change to that directory) and issue the command:
 
 [source,subs=attributes+]
 ----
@@ -760,12 +758,12 @@ You need a current GNU C/{cpp} compiler installed or your Linux box. You also ne
 ----
 sudo apt install autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
 ----
-You need the texinfo package. On Ubuntu et al. issue
+You need the texinfo package. On Ubuntu et al. issue:
 [source,subs=attributes+]
 ----
 sudo apt install texinfo
 ----
-In your home directory, enter the command
+In your home directory, enter the command:
 [source,subs=attributes+]
 ----
 git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
@@ -783,7 +781,7 @@ Make the `build` directory with:
 ----
 mkdir build; cd build
 ----
-Check the current configuration with
+Check the current configuration with:
 [source,subs=attributes+]
 ----
 ../configure --help | grep abi
@@ -985,9 +983,9 @@ After `make` is run, a static library called `libthuasrv32.a` is available with 
 In the `sw` directory, there are a number of software programs available. First, the common files:
 
 * `ldfiles` -- contains the linker scripts. There are three scripts:
-** `riscv.ld` -- default linker script: ROM = 64 kB, RAM = 32 kB, I/O = 16 kB.
-** `riscv-largerom.ld` -- linker script with enlarged ROM: ROM = 128 kB, RAM = 32 kB, I/O = 16 kB. You need to update the ROM settings in the hardware.
-** `riscv-big.ld` -- linker script with enlarged ROM and RAM: ROM = 128 kB, RAM = 64 kB, I/O = 16 kB. You need to update the ROM and RAM settings in the hardware.
+** `riscv.ld` -- default linker script: ROM = 64 kB, RAM = 32 kB, I/O = 4 kB.
+** `riscv-largerom.ld` -- linker script with enlarged ROM: ROM = 128 kB, RAM = 32 kB, I/O = 4 kB. You need to update the ROM settings in the hardware.
+** `riscv-big.ld` -- linker script with enlarged ROM and RAM: ROM = 128 kB, RAM = 64 kB, I/O = 4 kB. You need to update the ROM and RAM settings in the hardware.
 * `crt` -- contains the startup files.
 ** `empty.S` -- contains only the `_start` label.
 ** `simple.S` -- contains the `_start` label and sets up the global pointer and stack pointer.
@@ -1240,8 +1238,6 @@ The ROM contents of the bootloader is created as part of the `make` process and 
 
 The design has a separate ROM that incorporates the bootloader. The original ROM, at address 0x00000000 is extended with a write port, together with the instruction read port and the data read port. In fact, the ROM has become a (program) RAM. Because Quartus is not able to deduce a multiport I/O synchronous RAM (2 out and 1 in), the original ROM hardware is duplicated (by the synthesizer) so there are two identical out/in RAM blocks. This takes up onboard RAM blocks, but very few ALMs (cells).
 
-Note that the ROM can only be (over)written with words on a 4-byte boundary.
-
 
 == Using the on-chip debugger
 
@@ -1303,6 +1299,8 @@ Tests with the OCD were conducted with an https://ftdichip.com/products/ft2232h-
 
 === Using OpenOCD
 
+OpenOCD can be downloaded from https://sourceforge.net/p/openocd/code/ci/master/tree/[SoureForge]. This is the main line version and excellent support for RISC-V. The specific RISC-V from https://github.com/riscv-collab/riscv-openocd[github] is stale and should not be used.
+`
 To start a debug session, start OpenOCD (at least version 0.12.0):
 
 [source,subs=attributes+]
@@ -1314,23 +1312,29 @@ If OpenOCD can contact the DTM and finds a hart, the response is something like:
 
 [source,subs=attributes+]
 ----
-Open On-Chip Debugger 0.12.0
+Open On-Chip Debugger 0.12.0+dev-01550-g442ddcf6e (2026-06-09-16:11)
 Licensed under GNU GPL v2
 For bug reports, read
 	http://openocd.org/doc/doxygen/bugs.html
 Info : clock speed 1000 kHz
 Info : JTAG tap: thuasrv32.cpu tap/device found: 0x0face001 (mfg: 0x000 (<invalid>), part: 0xface, ver: 0x0)
-Info : datacount=2 progbufsize=0
-Warn : We won't be able to execute fence instructions on this target. Memory may not always appear consistent. (progbufsize=0, impebreak=0)
-Info : Examined RISC-V core; found 1 harts
-Info :  hart 0: XLEN=32, misa=0x40001100
-Info : starting gdb server for thuasrv32.cpu.0 on 3333
+Info : [thuasrv32.cpu.0] datacount=2 progbufsize=0
+Warn : [thuasrv32.cpu.0] We won't be able to execute fence instructions on this target. Memory may not always appear consistent. (progbufsize=0, impebreak=0)
+Error: [thuasrv32.cpu.0] Unable to insert program into progbuf, capacity would be exceeded (progbufsize=0).
+Error: [thuasrv32.cpu.0] Unable to insert program into progbuf, capacity would be exceeded (progbufsize=0).
+Info : [thuasrv32.cpu.0] Examined RISC-V core
+Info : [thuasrv32.cpu.0]  XLEN=32, misa=0x40001100
+Info : [thuasrv32.cpu.0] Examination succeed
+Info : [thuasrv32.cpu.0] starting gdb server on 3333
 Info : Listening on port 3333 for gdb connections
-Info : JTAG tap: thuasrv32.cpu tap/device found: 0x0face001 (mfg: 0x000 (<invalid>), part: 0xface, ver: 0x0)
+thuasrv32.cpu.0 halted due to debug-request.
+Detected hardware version: v1.1.4.7
 Target HALTED. Ready for remote connections.
 Info : Listening on port 6666 for tcl connections
 Info : Listening on port 4444 for telnet connections
 ----
+
+Note: openocd reports an error for not having a program buffer, but it's legal not to have a program buffer.
 
 Note: the JTAG clock speed (here 1000 kHz) should be less than 1/5 of the RISC-V system clock.
 

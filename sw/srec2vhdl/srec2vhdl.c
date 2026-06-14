@@ -58,7 +58,7 @@
 
 #endif
 
-#define VERSION "v0.5"
+#define VERSION "v0.5.1"
 
 /* 1000 should be enough */
 #define LEN_BUFFER (1000)
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
         printf("   -x        Output unused data as don't care\n");
         printf("   -B        Output as bootloader ROM\n");
         printf("If outputfile is omitted, stdout is used\n");
-        printf("Program size must be less then 10 MB\n\n");
+        printf("Program size must be less then %d MB\n\n", LEN_CODE/1000000);
         printf("The address of the first record is used as an offset\n"
                "so that the first record starts at vector element 0.\n");
         exit(EXIT_SUCCESS);

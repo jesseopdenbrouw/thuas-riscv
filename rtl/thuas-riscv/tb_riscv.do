@@ -65,10 +65,9 @@ if [ string match "*simulation/questa" [pwd] ] {
 # for that.
 vcom -93 -work work ${prefix}processor_common.vhd
 vcom -93 -work work ${prefix}rom_image.vhd
-vcom -93 -work work ${prefix}rom.vhd
+vcom -93 -work work ${prefix}ram_image.vhd
 vcom -93 -work work ${prefix}bootrom_image.vhd
-vcom -93 -work work ${prefix}bootrom.vhd
-vcom -93 -work work ${prefix}ram.vhd
+vcom -93 -work work ${prefix}mem.vhd
 vcom -93 -work work ${prefix}core.vhd
 vcom -93 -work work ${prefix}address_decode.vhd
 vcom -93 -work work ${prefix}instr_router.vhd
@@ -130,6 +129,7 @@ add wave -divider "Core Internals - Execute & Write back"
 add wave            -label ex_wb dut/core0/ex_wb
 add wave -divider "Core Internals - Registers"
 # Registers are spread over three instances (rs1, rs2, debug)
+# We use debug as the representation of the registers
 add wave            -label regs dut/core0/regs_rs1
 add wave -divider "Core Internals - Execute MD"
 add wave            -label md dut/core0/md
@@ -142,9 +142,16 @@ add wave -radix hex -label CSR_reg dut/core0/csr_reg
 add wave -divider "Internals - RAM"
 add wave            -label RAM_mem_request dut/mem_request_ram_int
 add wave            -label RAM_mem_response dut/mem_response_ram_int
-add wave -radix hex -label RAM_sim dut/ram0/ram_alt
-#add wave -divider "Internals - ROMs"
-#add wave -radix hex -label rom dut/rom
+# Only display RAM if described in agnostic way
+if {[find signal -r */ram0/mem_alt] != ""} {
+    add wave -radix hex -label RAM dut/ram0/mem_alt
+}
+# The ROM is really big and showing it in the wave form viewer
+# will slow down the display refresh
+#if {[find signal -r */rom0/mem_alt] != ""} {
+#    add wave -divider "Internals - ROM"
+#    add wave -radix hex -label ROM dut/rom0/mem_alt
+#}
 add wave -divider "Internals - IO"
 add wave            -label IO_mem_request dut/mem_request_io_int
 add wave            -label IO_mem_response dut/mem_response_io_int
@@ -184,9 +191,8 @@ if {[find signal -r */crcgen/*] != ""} {
     add wave            -label crc_rec dut/crcgen/crc1/crc
 }
 
-# Open Structure, Signals (waveform) and List window
+# Open Structure and Signals (waveform)
 view structure
-#view list
 view signals
 
 # Disable NUMERIC STD Warnings

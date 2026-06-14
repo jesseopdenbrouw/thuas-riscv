@@ -207,15 +207,17 @@ set_location_assignment PIN_V9 -to O_spi2mosi
 set_location_assignment PIN_C8 -to I_spi2miso
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to I_spi2miso
 
+
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS COMMAND_MACRO_MODE -section_id eda_simulation
+set_global_assignment -name EDA_SIMULATION_RUN_SCRIPT tb_riscv.do -section_id eda_simulation
+set_global_assignment -name VHDL_FILE ram_image.vhd
+set_global_assignment -name VHDL_FILE mem.vhd
 set_global_assignment -name VHDL_FILE processor_common.vhd
 set_global_assignment -name VHDL_FILE de10_lite.vhd
 set_global_assignment -name VHDL_FILE riscv.vhd
 set_global_assignment -name VHDL_FILE core.vhd
-set_global_assignment -name VHDL_FILE rom.vhd
 set_global_assignment -name VHDL_FILE rom_image.vhd
-set_global_assignment -name VHDL_FILE bootrom.vhd
 set_global_assignment -name VHDL_FILE bootrom_image.vhd
-set_global_assignment -name VHDL_FILE ram.vhd
 set_global_assignment -name VHDL_FILE address_decode.vhd
 set_global_assignment -name VHDL_FILE instr_router.vhd
 set_global_assignment -name VHDL_FILE io_bus_switch.vhd
@@ -233,7 +235,4 @@ set_global_assignment -name SDC_FILE riscv.sdc
 set_global_assignment -name VHDL_FILE dtm.vhd
 set_global_assignment -name VHDL_FILE dm.vhd
 set_global_assignment -name VHDL_FILE crc.vhd
-
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS COMMAND_MACRO_MODE -section_id eda_simulation
-set_global_assignment -name EDA_SIMULATION_RUN_SCRIPT tb_riscv.do -section_id eda_simulation

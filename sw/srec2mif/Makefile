@@ -1,4 +1,6 @@
-all: srec2mif.c
+all: srec2mif
+
+srec2mif: srec2mif.c
 	gcc -o srec2mif srec2mif.c -Wall
 
 clean:

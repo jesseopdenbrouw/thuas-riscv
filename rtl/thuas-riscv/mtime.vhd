@@ -78,6 +78,8 @@ signal isword : boolean;
 
 begin
 
+    assert SYSTEM_FREQUENCY mod CLOCK_FREQUENCY = 0 report "SYSTEM_FREQUENCY must be an integer multiple of CLOCK_FREQUENCY!" severity warning;
+
     -- Check for misaligned access
     O_mem_response.load_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '0' and I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) /= "00" else '0';
     O_mem_response.store_misaligned_error <= '1' when I_mem_request.stb = '1' and I_mem_request.wren = '1' and I_mem_request.size = memsize_word and I_mem_request.addr(1 downto 0) /= "00" else '0';

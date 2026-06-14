@@ -73,4 +73,5 @@ All dates are in dd.mm.yyyy format.
 | 09.05.2026 | 1.1.4.5  | [core] added an option to disable the memory buffer so that the memory accesses are reduced by one cycle, this has a severe inpact on the Fmax, this option is hidden in the file core.vhd | |
 | 21.05.2026 | 1.1.4.6  | [core] resume_ack is now low when resuming, high when running, tdata3 is added as CSR, fix tinfo CSR | |
 | 25.05.2026 | 1.1.4.7  | [riscv] added FAST_MEM as generic | |
+| 14.06.2026 | 1.1.4.8  [ rom/ram/bootrom] removed, [mem] added generic memory module, [riscv] update for generic memory module | |
 

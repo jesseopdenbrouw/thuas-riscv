@@ -9,13 +9,15 @@ the altsyncram, because of limitations of the synthesizer.
 
 ## How to use
 
-* Copy `rom_altera.vhd` over `rom.vhd` in the `rtl` directory.
+* Copy `mem_altera.vhd` over `mem.vhd` in the `rtl` directory.
 * Copy `rom_image.mif` to the `rtl` directory.
+* Copy `bootrom_image.mif` to the `rtl` directory.
+* In the `rtl` directory, update the file `riscv.vhd` to use the MIF files. Look at the point of instantiation and update the generic `MEMORY_FILE` accordingly.
 
-When starting simulation from Quartus, the `rom_image.mif` file is
+When starting simulation from Quartus, the MIF files are
 copied to the simulation directory.
 
-When using Questsim or Modelsim Altera Starter Edition, simulation
+When using Questasim or Modelsim Altera Starter Edition, simulation
 of the altsyncram is possible.
 
 Also works on the DE10-Lite board.

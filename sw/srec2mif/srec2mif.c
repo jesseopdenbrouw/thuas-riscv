@@ -53,7 +53,7 @@
 
 #endif
 
-#define VERSION "v0.1"
+#define VERSION "v0.2"
 
 /* 1000 should be enough */
 #define LEN_BUFFER (1000)
@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
         printf("   -w        Word output (32 bits, Little Endian)\n");
         printf("   -d        Double word output (64 bits, Little Endian)\n");
         printf("If outputfile is omitted, stdout is used\n");
-        printf("Program size must be less then 10 MB\n\n");
+        printf("Program size must be less then %d MB\n\n", LEN_CODE/1000000);
         printf("The address of the first record is used as an offset\n"
                "so that the first record starts at address 0.\n");
         exit(EXIT_SUCCESS);
@@ -335,12 +335,6 @@ int main(int argc, char *argv[]) {
         fprintf(fout, "-- date: %s\n\n", ctime(&t));
     }
 
-	fprintf(fout, "DEPTH = %lu;\n", address/size);
-	fprintf(fout, "WIDTH = %d;\n", size*8);
-	fprintf(fout, "ADDRESS_RADIX = HEX;\n");
-	fprintf(fout, "DATA_RADIX = HEX;\n");
-	fprintf(fout, "\nCONTENT\nBEGIN\n");
-
     /* Shift to length of data in array */
     address -= offset;
 
@@ -348,6 +342,12 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Warning: internal buffer too small, not exporting all data!\n");
         address = codesize;
     }
+
+	fprintf(fout, "DEPTH = %lu;\n", address/size);
+	fprintf(fout, "WIDTH = %d;\n", size*8);
+	fprintf(fout, "ADDRESS_RADIX = HEX;\n");
+	fprintf(fout, "DATA_RADIX = HEX;\n");
+	fprintf(fout, "\nCONTENT\nBEGIN\n");
 
     /* Align to next address */
     address = ((address + size - 1) & ~(size - 1));

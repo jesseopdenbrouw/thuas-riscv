@@ -143,6 +143,7 @@ set_false_path -to [get_ports O_spi1mosi]
 set_false_path -to [get_ports O_spi2sck]
 set_false_path -to [get_ports O_spi2mosi]
 
+set_false_path -to [get_ports O_timer2oct]
 set_false_path -to [get_ports IO_timer2icoca]
 set_false_path -to [get_ports IO_timer2icocb]
 set_false_path -to [get_ports IO_timer2icocc]

@@ -1,5 +1,5 @@
 -- #################################################################################################
--- # instr_router.vhd - Router for instructions between core, ROM and bootloader ROM               #
+-- # ram_image.vhd - Image for the RAM                                                             #
 -- # ********************************************************************************************* #
 -- # This file is part of the THUAS RISCV RV32 Project                                             #
 -- # ********************************************************************************************* #
@@ -34,65 +34,16 @@
 -- # https:/github.com/jesseopdenbrouw/thuas-riscv                                                 #
 -- #################################################################################################
 
--- The instruction router routes instructions from the main ROM
--- and the boot ROM.
-
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
 library work;
 use work.processor_common.all;
 
-entity instr_router is
-    generic (
-          HAVE_BOOTLOADER_ROM : boolean;
-          HAVE_INST_IN_RAM : boolean;
-          ROM_HIGH_NIBBLE : memory_high_nibble;
-          BOOT_HIGH_NIBBLE : memory_high_nibble;
-          RAM_HIGH_NIBBLE : memory_high_nibble
-         );
-    port (         
-          -- Instruction request from core
-          I_instr_request : in instr_request_type;
-          O_instr_response : out instr_response_type;
-          -- To/from ROM
-          O_instr_request_rom : out instr_request_type;
-          I_instr_response_rom : in instr_response2_type;
-          -- To/from boot ROM
-          O_instr_request_boot : out instr_request_type;
-          I_instr_response_boot : in instr_response2_type;
-          -- To/from RAM
-          O_instr_request_ram : out instr_request_type;
-          I_instr_response_ram : in instr_response2_type
-         );
-end entity instr_router;
-
-architecture rtl of instr_router is
-begin
-
-    O_instr_request_rom <= I_instr_request;
-    O_instr_request_boot <= I_instr_request;
-    O_instr_request_ram <= I_instr_request;
-    
-    process (I_instr_request, I_instr_response_rom, I_instr_response_boot, I_instr_response_ram) is
-    begin
-        O_instr_response.instr_access_error <= '0';
-        
-        -- If the ROM is addressed, return instruction from ROM
-        if I_instr_request.pc(31 downto 28) = ROM_HIGH_NIBBLE then
-            O_instr_response.instr <= I_instr_response_rom.instr;
-        -- If the boot ROM is addressed, return instruction from boot ROM
-        elsif I_instr_request.pc(31 downto 28) = BOOT_HIGH_NIBBLE and HAVE_BOOTLOADER_ROM then
-            O_instr_response.instr <= I_instr_response_boot.instr;
-        -- If the RAM is addressed, return instruction from the RAM
-        elsif I_instr_request.pc(31 downto 28) = RAM_HIGH_NIBBLE and HAVE_INST_IN_RAM then
-            O_instr_response.instr <= I_instr_response_ram.instr;
-        -- Else return access error
-        else
-            O_instr_response.instr <= (others => '-');
-            O_instr_response.instr_access_error <= '1';
-        end if;
-    end process;
-    
-end architecture;
+package ram_image is
+    constant ram_contents : memory_type := (
+        -- There must be at least one entry
+        0 => (others => 'U')
+        -- 0 => x"01020304"
+    );
+end package ram_image;

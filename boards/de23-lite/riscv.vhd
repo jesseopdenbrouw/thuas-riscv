@@ -44,6 +44,9 @@ use ieee.numeric_std.all;
 
 library work;
 use work.processor_common.all;
+use work.rom_image.all;
+use work.bootrom_image.all;
+use work.ram_image.all;
 
 -- The microcontroller
 entity riscv is
@@ -291,10 +294,12 @@ end component address_decode;
 component instr_router is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
+          HAVE_INST_IN_RAM : boolean;
           ROM_HIGH_NIBBLE : memory_high_nibble;
-          BOOT_HIGH_NIBBLE : memory_high_nibble
+          BOOT_HIGH_NIBBLE : memory_high_nibble;
+          RAM_HIGH_NIBBLE : memory_high_nibble
          );
-    port (
+    port (         
           -- Instruction request from core
           I_instr_request : in instr_request_type;
           O_instr_response : out instr_response_type;
@@ -303,17 +308,23 @@ component instr_router is
           I_instr_response_rom : in instr_response2_type;
           -- To/from boot ROM
           O_instr_request_boot : out instr_request_type;
-          I_instr_response_boot : in instr_response2_type
+          I_instr_response_boot : in instr_response2_type;
+          -- To/from RAM
+          O_instr_request_ram : out instr_request_type;
+          I_instr_response_ram : in instr_response2_type
          );
 end component instr_router;
-component rom is
+-- Generic memory module
+component mem is
     generic (
-          HAVE_BOOTLOADER_ROM : boolean;
-          HAVE_OCD : boolean;
-          ROM_ADDRESS_BITS : integer
+          MEMORY_ADDRESS_BITS : integer;
+          MEMORY_USE_INSTRUCTIONS : boolean;
+          MEMORY_USE_WRITE : boolean;
+          MEMORY_CONTENTS : memory_type;
+          MEMORY_DEFAULT : std_logic;
+          MEMORY_FILE : string
          );
-    port (
-          I_clk : in std_logic;
+    port (I_clk : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- To fetch an instruction
@@ -323,38 +334,7 @@ component rom is
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type
          );
-end component rom;
-component ram is
-    generic (
-          RAM_ADDRESS_BITS : integer
-         );
-    port (
-          I_clk : in std_logic;
-          I_areset : in std_logic;
-          I_sreset : in std_logic;
-          -- From address decoder
-          I_mem_request : in mem_request_type;
-          -- To address decoder
-          O_mem_response : out mem_response_type
-         );
-end component ram;
-component bootrom is
-    generic (
-          HAVE_BOOTLOADER_ROM : boolean
-         );
-    port (
-          I_clk : in std_logic;
-          I_areset : in std_logic;
-          I_sreset : in std_logic;
-          -- From core
-          I_instr_request : in instr_request_type;
-          O_instr_response : out instr_response2_type;
-          -- From address decoder
-          I_mem_request : in mem_request_type;
-          -- To address decoder
-          O_mem_response : out mem_response_type
-         );
-end component bootrom;
+end component mem;
 -- Reused from NEORV32 bu S.T. Nolting <www.neorv32.org>
 -- Debug Transport Module
 component dtm is
@@ -657,6 +637,8 @@ signal instr_request_rom_int : instr_request_type;
 signal instr_response_rom_int : instr_response2_type;
 signal instr_request_boot_int : instr_request_type;
 signal instr_response_boot_int : instr_response2_type;
+signal instr_request_ram_int : instr_request_type;
+signal instr_response_ram_int : instr_response2_type;
 
 -- Memory access signals from core to address decoder
 signal bus_request_int : bus_request_type;
@@ -751,6 +733,7 @@ signal irq_uart2_int : std_logic;
 -- Have synchronous reset?
 type reset_type is (full_async, full_sync);
 constant RESET_METHOD : reset_type := full_sync;
+constant HAVE_INST_IN_RAM : boolean := false;
 
 begin
 
@@ -894,8 +877,10 @@ begin
     instr_route0: instr_router
     generic map (
               HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
+              HAVE_INST_IN_RAM => HAVE_INST_IN_RAM,
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
-              BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE
+              BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE,
+              RAM_HIGH_NIBBLE => RAM_HIGH_NIBBLE
              )
     port map (I_instr_request => instr_request_int,
               O_instr_response => instr_response_int,
@@ -904,14 +889,20 @@ begin
               I_instr_response_rom => instr_response_rom_int,
               --
               O_instr_request_boot => instr_request_boot_int,
-              I_instr_response_boot => instr_response_boot_int
+              I_instr_response_boot => instr_response_boot_int,
+              --
+              O_instr_request_ram => instr_request_ram_int,
+              I_instr_response_ram => instr_response_ram_int
              );
     
-    rom0: rom
+    rom0 : mem
     generic map (
-              HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
-              HAVE_OCD => HAVE_OCD,
-              ROM_ADDRESS_BITS => ROM_ADDRESS_BITS
+              MEMORY_ADDRESS_BITS => ROM_ADDRESS_BITS,
+              MEMORY_USE_INSTRUCTIONS => TRUE,
+              MEMORY_USE_WRITE => HAVE_OCD or HAVE_BOOTLOADER_ROM,
+              MEMORY_CONTENTS => rom_contents,
+              MEMORY_DEFAULT => '0',
+              MEMORY_FILE => "UNUSED"
              )
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
@@ -924,9 +915,14 @@ begin
               O_mem_response => mem_response_rom_int
              );
 
-    bootrom0: bootrom
+    bootrom0 : mem
     generic map (
-              HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM
+              MEMORY_ADDRESS_BITS => 12,
+              MEMORY_USE_INSTRUCTIONS => TRUE,
+              MEMORY_USE_WRITE => HAVE_INST_IN_RAM,
+              MEMORY_CONTENTS => bootrom_contents,
+              MEMORY_DEFAULT => '0',
+              MEMORY_FILE => "UNUSED"
              )
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
@@ -934,18 +930,26 @@ begin
               -- Fetch instruction
               I_instr_request => instr_request_boot_int,
               O_instr_response => instr_response_boot_int,
-              -- Fetch  data
+              -- Fetch data
               I_mem_request => mem_request_boot_int,
               O_mem_response => mem_response_boot_int
              );
-        
-    ram0: ram
+
+    ram0: mem
     generic map (
-              RAM_ADDRESS_BITS => RAM_ADDRESS_BITS
+              MEMORY_ADDRESS_BITS => RAM_ADDRESS_BITS,
+              MEMORY_USE_INSTRUCTIONS => HAVE_INST_IN_RAM,
+              MEMORY_USE_WRITE => TRUE,
+              MEMORY_CONTENTS => ram_contents,
+              MEMORY_DEFAULT => 'U',
+              MEMORY_FILE => "UNUSED"
              )
     port map (I_clk => clk_int,
               I_areset => areset_sys_int,
               I_sreset => sreset_sys_int,
+              -- Fetch instruction
+              I_instr_request => instr_request_ram_int,
+              O_instr_response => instr_response_ram_int,
               -- Fetch data
               I_mem_request => mem_request_ram_int,
               O_mem_response => mem_response_ram_int

@@ -1,4 +1,4 @@
---altera_syncram_nd_impl ACF_BLOCK_RAM_AND_MLAB_EQUIVALENT_PAUSED_READ_CAPABILITIES="CARE" ACF_BLOCK_RAM_AND_MLAB_EQUIVALENT_POWER_UP_CONDITIONS="AUTO" ACF_DISABLE_MLAB_RAM_USE="FALSE" ACF_IMPLEMENT_MLAB_IN_16_BIT_DEEP_MODE="FALSE" ADDRESS_ACLR_A="NONE" ADDRESS_ACLR_B="NONE" BYTE_SIZE=8 CBX_DECLARE_ALL_CONNECTED_PORTS="OFF" CBX_SINGLE_OUTPUT_FILE="OFF" CLKEN_POWER_OPTIMIZATION="OFF" CLOCK_ENABLE_CORE_A="USE_INPUT_CLKEN" CLOCK_ENABLE_CORE_B="USE_INPUT_CLKEN" CLOCK_ENABLE_INPUT_A="NORMAL" CLOCK_ENABLE_INPUT_B="NORMAL" CLOCK_ENABLE_OUTPUT_A="NORMAL" CLOCK_ENABLE_OUTPUT_B="NORMAL" DEVICE_FAMILY="Agilex 3" ECC_PIPELINE_STAGE_ENABLED="FALSE" ENABLE_COHERENT_READ="FALSE" ENABLE_ECC="FALSE" ENABLE_ECC_ENCODER_BYPASS="FALSE" ENABLE_FORCE_TO_ZERO="FALSE" IMPLEMENT_IN_LES="OFF" INIT_FILE_LAYOUT="PORT_A" LOW_POWER_MODE="AUTO" MAXIMUM_DEPTH=0 NUMWORDS_A=8192 NUMWORDS_B=0 OPERATION_MODE="SINGLE_PORT" OPTIMIZATION_OPTION="AUTO" OUTDATA_ACLR_A="NONE" OUTDATA_ACLR_B="NONE" OUTDATA_REG_A="UNREGISTERED" OUTDATA_REG_B="UNREGISTERED" OUTDATA_SCLR_A="NONE" OUTDATA_SCLR_B="NONE" POWER_UP_UNINITIALIZED="FALSE" RAM_BLOCK_TYPE="AUTO" RDEN_POWER_OPTIMIZATION="OFF" READ_DURING_WRITE_MODE_MIXED_PORTS="DONT_CARE" READ_DURING_WRITE_MODE_PORT_A="OLD_DATA" READ_DURING_WRITE_MODE_PORT_B="NEW_DATA_NO_NBE_READ" WIDTH_A=8 WIDTH_B=1 WIDTH_BYTEENA_A=1 WIDTH_BYTEENA_B=1 WIDTH_ECCENCPARITY=8 WIDTH_ECCSTATUS=3 WIDTHAD2_A=1 WIDTHAD2_B=1 WIDTHAD_A=13 WIDTHAD_B=1 WREN_POWER_OPTIMIZATION="OFF" address_a clock0 data_a q_a wren_a CARRY_CHAIN="MANUAL"
+--altera_syncram_nd_impl ACF_BLOCK_RAM_AND_MLAB_EQUIVALENT_PAUSED_READ_CAPABILITIES="CARE" ACF_BLOCK_RAM_AND_MLAB_EQUIVALENT_POWER_UP_CONDITIONS="AUTO" ACF_DISABLE_MLAB_RAM_USE="FALSE" ACF_IMPLEMENT_MLAB_IN_16_BIT_DEEP_MODE="FALSE" ADDRESS_ACLR_A="NONE" ADDRESS_ACLR_B="NONE" BYTE_SIZE=8 CBX_DECLARE_ALL_CONNECTED_PORTS="OFF" CBX_SINGLE_OUTPUT_FILE="OFF" CLKEN_POWER_OPTIMIZATION="OFF" CLOCK_ENABLE_CORE_A="USE_INPUT_CLKEN" CLOCK_ENABLE_CORE_B="USE_INPUT_CLKEN" CLOCK_ENABLE_INPUT_A="NORMAL" CLOCK_ENABLE_INPUT_B="NORMAL" CLOCK_ENABLE_OUTPUT_A="NORMAL" CLOCK_ENABLE_OUTPUT_B="NORMAL" DEVICE_FAMILY="Agilex 3" ECC_PIPELINE_STAGE_ENABLED="FALSE" ENABLE_COHERENT_READ="FALSE" ENABLE_ECC="FALSE" ENABLE_ECC_ENCODER_BYPASS="FALSE" ENABLE_FORCE_TO_ZERO="FALSE" IMPLEMENT_IN_LES="OFF" INIT_FILE="qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif" INIT_FILE_LAYOUT="PORT_A" LOW_POWER_MODE="AUTO" MAXIMUM_DEPTH=0 NUMWORDS_A=8192 NUMWORDS_B=0 OPERATION_MODE="SINGLE_PORT" OPTIMIZATION_OPTION="AUTO" OUTDATA_ACLR_A="NONE" OUTDATA_ACLR_B="NONE" OUTDATA_REG_A="UNREGISTERED" OUTDATA_REG_B="UNREGISTERED" OUTDATA_SCLR_A="NONE" OUTDATA_SCLR_B="NONE" POWER_UP_UNINITIALIZED="FALSE" RAM_BLOCK_TYPE="AUTO" RDEN_POWER_OPTIMIZATION="OFF" READ_DURING_WRITE_MODE_MIXED_PORTS="DONT_CARE" READ_DURING_WRITE_MODE_PORT_A="OLD_DATA" READ_DURING_WRITE_MODE_PORT_B="NEW_DATA_NO_NBE_READ" WIDTH_A=8 WIDTH_B=1 WIDTH_BYTEENA_A=1 WIDTH_BYTEENA_B=1 WIDTH_ECCENCPARITY=8 WIDTH_ECCSTATUS=3 WIDTHAD2_A=1 WIDTHAD2_B=1 WIDTHAD_A=13 WIDTHAD_B=1 WREN_POWER_OPTIMIZATION="OFF" address_a clock0 data_a q_a wren_a CARRY_CHAIN="MANUAL"
 --VERSION_BEGIN 26.1 cbx_altera_syncram_nd_impl 2026:03:19:21:42:37:SC cbx_lpm_add_sub 2026:03:19:21:42:37:SC cbx_lpm_compare 2026:03:19:21:42:37:SC cbx_lpm_decode 2026:03:19:21:42:37:SC cbx_lpm_mux 2026:03:19:21:42:37:SC cbx_mgl 2026:03:19:21:42:40:SC cbx_nadder 2026:03:19:21:42:37:SC cbx_stratix 2026:03:19:21:42:37:SC cbx_stratixii 2026:03:19:21:42:37:SC cbx_stratixv 2026:03:19:21:42:37:SC cbx_util_mgl 2026:03:19:21:42:37:SC  VERSION_END
 
 
@@ -29,7 +29,7 @@ RETURNS ( dftout[8..0], eccstatus[WIDTH_ECCSTATUS-1..0], portadataout[PORT_A_DAT
 --synthesis_resources = lut 12 ram_bits (AUTO) 65536 reg 2 
 OPTIONS ALTERA_INTERNAL_OPTION = "OPTIMIZE_POWER_DURING_SYNTHESIS=NORMAL_COMPILATION";
 
-SUBDESIGN altera_syncram_impl_00h01
+SUBDESIGN altera_syncram_impl_13k6
 ( 
 	address_a[12..0]	:	input;
 	clock0	:	input;
@@ -45,6 +45,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -74,6 +76,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -103,6 +107,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -132,6 +138,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -161,6 +169,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -190,6 +200,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -219,6 +231,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -248,6 +262,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -277,6 +293,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -306,6 +324,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -335,6 +355,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -364,6 +386,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -393,6 +417,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -422,6 +448,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -451,6 +479,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -480,6 +510,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -509,6 +541,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -538,6 +572,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -567,6 +603,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -596,6 +634,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -625,6 +665,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -654,6 +696,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -683,6 +727,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -712,6 +758,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -741,6 +789,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -770,6 +820,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -799,6 +851,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -828,6 +882,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -857,6 +913,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -886,6 +944,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -915,6 +975,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",
@@ -944,6 +1006,8 @@ VARIABLE
 		WITH (
 			CLK0_INPUT_CLOCK_ENABLE = "none",
 			CONNECTIVITY_CHECKING = "OFF",
+			INIT_FILE = "qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram5_de23_lite_e20ed75a.hdl.mif",
+			INIT_FILE_LAYOUT = "port_a",
 			LOGICAL_RAM_NAME = "ALTERA_SYNCRAM",
 			MIXED_PORT_FEED_THROUGH_MODE = "old",
 			OPERATION_MODE = "dual_port",

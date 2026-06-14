@@ -1,0 +1,47 @@
+--altera_syncram ACF_BLOCK_RAM_AND_MLAB_EQUIVALENT_PAUSED_READ_CAPABILITIES="CARE" ADDRESS_ACLR_A="NONE" ADDRESS_ACLR_B="NONE" ADDRESS_REG_B="CLOCK0" CBX_DECLARE_ALL_CONNECTED_PORTS="OFF" CBX_SINGLE_OUTPUT_FILE="OFF" DEVICE_FAMILY="Agilex 3" INIT_FILE="qdb/_compiler/de23_lite/root_partition/26.1.0/partitioned/1/mifs/ram2_de23_lite_e20ed75a.hdl.mif" LOW_POWER_MODE="AUTO" NUMWORDS_A=16384 NUMWORDS_B=16384 OPERATION_MODE="DUAL_PORT" OUTDATA_ACLR_B="NONE" OUTDATA_REG_B="UNREGISTERED" RDCONTROL_REG_B="CLOCK0" READ_DURING_WRITE_MODE_MIXED_PORTS="OLD_DATA" WIDTH_A=8 WIDTH_B=8 WIDTHAD_A=14 WIDTHAD_B=14 address_a address_b clock0 data_a q_b rden_b wren_a CARRY_CHAIN="MANUAL" CYCLONEII_M4K_COMPATIBILITY="ON"
+--VERSION_BEGIN 26.1 cbx_altera_syncram 2026:03:19:21:42:37:SC cbx_altera_syncram_ltm 2026:03:19:21:42:37:SC cbx_altera_syncram_nd_impl 2026:03:19:21:42:37:SC cbx_altsyncram 2026:03:19:21:42:37:SC cbx_libertymesa 2026:03:19:21:42:37:SC cbx_lpm_add_sub 2026:03:19:21:42:37:SC cbx_lpm_compare 2026:03:19:21:42:37:SC cbx_lpm_decode 2026:03:19:21:42:37:SC cbx_lpm_mux 2026:03:19:21:42:37:SC cbx_mgl 2026:03:19:21:42:40:SC cbx_nadder 2026:03:19:21:42:37:SC cbx_stratix 2026:03:19:21:42:37:SC cbx_stratixii 2026:03:19:21:42:37:SC cbx_stratixiii 2026:03:19:21:42:37:SC cbx_stratixv 2026:03:19:21:42:37:SC cbx_util_mgl 2026:03:19:21:42:37:SC  VERSION_END
+
+
+-- Copyright (C) 2026  Altera Corporation. All rights reserved.
+--  Your use of Altera Corporation's design tools, logic functions 
+--  and other software and tools, and any partner logic 
+--  functions, and any output files from any of the foregoing 
+--  (including device programming or simulation files), and any 
+--  associated documentation or information are expressly subject 
+--  to the terms and conditions of the Altera Program License 
+--  Subscription Agreement, the Altera Quartus Prime License Agreement,
+--  the Altera IP License Agreement, or other applicable license
+--  agreement, including, without limitation, that your use is for
+--  the sole purpose of programming logic devices manufactured by
+--  Altera and sold by Altera or its authorized distributors.  Please
+--  refer to the Altera Software License Subscription Agreements 
+--  on the Quartus Prime software download page.
+
+
+FUNCTION altera_syncram_impl_ndmn (address_a[13..0], address_b[13..0], clock0, data_a[7..0], rden_b, wren_a)
+RETURNS ( q_b[7..0]);
+
+--synthesis_resources = ram_bits (AUTO) 131072 reg 3 
+SUBDESIGN altera_syncram_q1951
+( 
+	address_a[13..0]	:	input;
+	address_b[13..0]	:	input;
+	clock0	:	input;
+	data_a[7..0]	:	input;
+	q_b[7..0]	:	output;
+	rden_b	:	input;
+	wren_a	:	input;
+) 
+VARIABLE 
+	altera_syncram_impl1 : altera_syncram_impl_ndmn;
+
+BEGIN 
+	altera_syncram_impl1.address_a[] = address_a[];
+	altera_syncram_impl1.address_b[] = address_b[];
+	altera_syncram_impl1.clock0 = clock0;
+	altera_syncram_impl1.data_a[] = data_a[];
+	altera_syncram_impl1.rden_b = rden_b;
+	altera_syncram_impl1.wren_a = wren_a;
+	q_b[] = altera_syncram_impl1.q_b[];
+END;
+--VALID FILE

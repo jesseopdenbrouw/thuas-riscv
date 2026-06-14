@@ -45,7 +45,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_04_07#;
+    constant HW_VERSION : integer := 16#01_01_04_08#;
 
     
     -- Used data types
@@ -80,6 +80,9 @@ package processor_common is
     
     -- 32-bit memory
     type memory_type is array (natural range <>) of data_type;
+    
+    -- 8-bit data
+    type memorybyte_type is array (natural range <>) of std_logic_vector(7 downto 0);
     
     -- ALU operations
     type alu_op_type is (alu_unknown, alu_nop,
@@ -575,6 +578,9 @@ package processor_common is
     -- Function to assign memeory contents    
     -- Politely reused from S.T. Nolting (neorv32)
     impure function initialize_memory(init : memory_type ; depth : integer) return memory_type;
+    
+    -- Function to assign part of 32-bit memory to 8-bit memory
+    impure function initialize_memorybyte(init : memory_type ; depth : integer; byte : integer; default : std_logic) return memorybyte_type;
 
     -- Function to change boolean into a std_logic
     function boolean_to_std_logic(condition : boolean) return std_logic;
@@ -615,20 +621,37 @@ package body processor_common is
         end if;
     end function get_int_from_boolean;
 
-    -- Function to assign memeory contents    
+    -- Function to assign memory contents    
     -- Politely reused from S.T. Nolting (neorv32)
     impure function initialize_memory(init : memory_type; depth : integer) return memory_type is
     variable mem_v : memory_type(0 to depth-1);
     begin
-        mem_v := (others => (others => '0')); -- [IMPORTANT] make sure remaining memory entries are set to zero
-        if (init'length > depth) then
+        mem_v := (others => (others => '0')); -- make sure remaining memory entries are set to zero
+        if init'length > depth then
             report "Initialization image is overflowing memory range!" severity error;
         else
             mem_v(0 to init'length-1) := init(0 to init'length-1);
         end if;
         return mem_v;
     end function initialize_memory;
-    
+
+    -- Function to assign part of 32-bit memory to 8-bit memory
+    impure function initialize_memorybyte(init : memory_type; depth : integer; byte : integer; default : std_logic) return memorybyte_type is
+    variable mem_v : memorybyte_type(0 to depth-1);
+    begin
+        mem_v := (others => (others => default)); 
+        if init'length > depth then
+            report "Initialization image is overflowing memory range!" severity error;
+        else
+            if init'length > 0 then
+                for i in 0 to init'length-1 loop
+                    mem_v(i) := init(i)(byte*8+7 downto byte*8);
+                end loop;
+            end if;
+        end if;
+        return mem_v;
+    end function initialize_memorybyte;
+        
     -- Function to change boolean into a std_logic
     function boolean_to_std_logic(condition : boolean) return std_logic is
     begin

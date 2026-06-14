@@ -95,7 +95,7 @@ begin
     -- Reset button of DE10-lite is active low
     areset_int <= not I_areset;
     
-    -- G-sensor on I2C2 bus, address 0x53
+    -- G-sensor on I2C bus, address 0x53
     O_GSENSOR_CS_n <= '1';
     O_GSENSOR_SDO <= '0';
 

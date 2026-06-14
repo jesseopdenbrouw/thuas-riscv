@@ -73,6 +73,8 @@ int main(void)
 			uart1_puts(buffer);
 		}
 
+		gpioa_togglepin(GPIO_PIN_0);
+
 		delayms(1000);
 	}
 }

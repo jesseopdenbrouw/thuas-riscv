@@ -26,7 +26,7 @@
 #include <stdio.h>
 
 /* Version */
-#define VERSION "0.4"
+#define VERSION "0.4.1"
 
 /* Test for Visual Studio */
 #if defined(_MSC_VER)
@@ -365,7 +365,7 @@ int main(int argc, char *argv[]) {
 
     /* Check for 0 extra arguments */
     if (argc == 1) {
-        printf("upload -vnqrB -d <device> -b <baud> -t <timeout> -s <sleep> filename\n");
+        printf("upload [-vnqrB] [-d <device>] [-b <baud>] [-t <timeout>] [-s <sleep>] filename\n");
 		printf("upload -lv\n");
         printf("Upload S-record file to THUAS RISC-V processor v" VERSION "\n");
         printf("-v           -- verbose\n");

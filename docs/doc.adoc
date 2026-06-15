@@ -275,7 +275,7 @@ image::images/read.svg[Image of the read operation]
 
 The memories are responsible for handling different data sizes and rearranging half word and byte access. When reading, the core expects half word data on the lower 16 bits of the data bus and bytes on the lower 8 bits of the databus. When writing the core puts half words on the lower 16 bits of the data bus and bytes on the lower 8 bits of the data bus. Sign and zero extension (for loads) is handled by the core. The memories are also responsible for generating access exceptions and misaligned exceptions.
 
-The memories are described in a device agnostic manner. It is up to the synthesizer to map onboard memory to the instantiated  memories. This can lead to excessive on-board RAM usage because the synthesizer is not able to create true dual-port RAM.
+The memories are described in a device agnostic manner. It is up to the synthesizer to map onboard memory to the instantiated  memories. This can lead to excessive on-board RAM usage if the synthesizer is not able to create true dual-port RAM.
 
 === Address Decoder and Data Router
 
@@ -286,7 +286,7 @@ When data is read, the data is collected from the accessed memory and put on a b
 
 === Instruction Router
 
-The Instruction Router routes instructions from the ROM, RAM and the boot ROM. If the boot ROM is disabled, the synthesizer will remove the instruction decoder. In the default setup, instructions cannot be read from the RAM.
+The Instruction Router routes instructions from the ROM, RAM and the boot ROM. If the boot ROM and RAM for instructions are disabled, the synthesizer will remove the instruction decoder. In the default setup, instructions cannot be read from the RAM.
 
 
 === ROM
@@ -299,11 +299,11 @@ Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Bec
 
 === Bootloader ROM
 
-The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is places in onboard immutable RAM blocks. The bootloader may be excluded from synthesis. Note that the bootloader firmware is generated for RV32IM. A write will result in an access exception.
+The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is placed in onboard immutable RAM blocks. The bootloader may be excluded from synthesis. Note that the bootloader firmware is generated for RV32IM. A write will result in an access exception.
 
 === RAM
 
-The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns undefined data if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM can be used for program data.
+The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns undefined data if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM can be used for instructions.
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
@@ -337,13 +337,13 @@ The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger 
 
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since `clock()` and `gettimeofday()` depend on this value. As such, the system clock frequency must be a integer multiple of 1 MHz. Note that TIMEH:TIME is writable by software.
 
-The CRC unit can calculate 8-bit, 16-bit, 24-bit and 32-bit CRCs with arbitrary polynomals. The CRCs are calculated on byte data with the msb of the bytes rirst. The polynomal has the same width as the calculated CRC. The CRC value can be loaded with a start value (often 0x00000000 or 0xffffffff).
+The CRC unit can calculate 8-bit, 16-bit, 24-bit and 32-bit CRCs with arbitrary polynomals. The CRCs are calculated on byte data with the msb of the bytes first. The polynomal has the same width as the calculated CRC. The CRC value can be loaded with a start value (often 0x00000000 or 0xffffffff).
 
 When writing your own I/O modules, note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
 
 === Memory access times
 
-In the default setup, a write needs two clock cycles and a read needs three clock cycles for ROM, boot ROM and I/O. For I/O, reads and writes take three clock cycles. When the `FAST_MEM` generic is set to true, all accesses are reduced by one clock cycle. This will speed up prohgrams but has an severe inpact on the $f_{max}$.
+In the default setup, a write needs two clock cycles and a read needs three clock cycles for ROM, boot ROM and I/O. For I/O, reads and writes take three clock cycles. When the `FAST_MEM` generic is set to true, all accesses are reduced by one clock cycle. This will speed up programs but has an severe inpact on the $f_{max}$.
 
 
 == Debug Module and Debug Transport Module
@@ -1076,7 +1076,7 @@ This is a homebrew utility to convert a Motorola S-record file into a VHDL file 
 
 [source,c,subs=attributes+]
 ----
-srec2vhdl [-fdwhbvx0qB] [-i <arg>] inputfile [outputfile]
+srec2vhdl [-fdwhbvx0qBr] [-i <arg>] inputfile [outputfile]
 ----
 
 `inputfile` is the S-record file, created by the `objdump` program. `outputfile` is the VHDL output file. When omitted, `stdout` is used. There are a number of options:
@@ -1092,6 +1092,7 @@ srec2vhdl [-fdwhbvx0qB] [-i <arg>] inputfile [outputfile]
 * `-q` Quiet output, only error messages are displayed.
 * `-B` Generate bootloader image.
 * `-i <arg>` Indents each line with `<arg>` spaces.
+* `-r` Reverse output (for half word, word and double word only).
 
 Note: unused ROM addresses are not output, except when the `-0` or `-x` options are used.
 
@@ -1101,7 +1102,7 @@ This is a homebrew utility to convert a Motorola S-record file into a MIF file s
 
 [source,c,subs=attributes+]
 ----
-srec2mif [-vqbhwd] inputfile [outputfile]
+srec2mif [-vqbhwdr] inputfile [outputfile]
 ----
 
 `inputfile` is the S-record file, created by the `objdump` program. `outputfile` is the MIF output file. When omitted, `stdout` is used. There are a number of options:
@@ -1112,6 +1113,7 @@ srec2mif [-vqbhwd] inputfile [outputfile]
 * `-b` ROM contents is in bytes (8 bits).
 * `-v` Verbose output.
 * `-q` Quiet output, only error messages are displayed.
+* `-r` Reverse output (for half word, word and double word only).
 
 === upload
 
@@ -1183,7 +1185,7 @@ A Motorola S-record file can be uploaded with the `upload` program found in the 
 
 [source,subs=attributes+]
 ----
-upload -d <device> -b <baud> -t <timeout> -s <sleep> -vrnB file
+upload [-vrnB] [-d <device>] [-b <baud>] [-t <timeout>] [-s <sleep>] file
 ----
 
 The default device is `/dev/ttyUSB0` which is the first plugged-in USB-to-U(S)ART converter on Linux, or `COM1` when used on Windows. The baudrate may be 9600 bps, 115200 bps (default) or 230400 bps. Timeout is the time the `upload` program waits for expected data from the bootloader. The time is set in deciseconds (0.1 seconds) intervals. The default value is 10 (1.0 seconds). Sleep is the time the `upload` program waits after transmitting a character to the bootloader in milliseconds intervals. The default value is 0. The option `-v` turns on verbose mode. The option `-r` instructs `upload` to send a ''start application'' command to the bootloader after the S-record file is uploaded. The option `-n` disables handshake with the bootloader. The option `-B` sends an UART break condition. File must be a valid S-record file.

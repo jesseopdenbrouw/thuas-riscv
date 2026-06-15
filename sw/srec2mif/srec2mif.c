@@ -20,6 +20,8 @@
  *      -b         Output as bytes
  *      -h         Output as half words (16 bits, Little Endian)
  *      -w         Output as words (32 bits, Little Endian)
+ *      -d         Double word output (64 bits, Little Endian)\n");
+ *      -r         Reverse output (half word, word and double word only)
  *
  * The address of the first record is used as an offset
  * so that the first records starts at vector element 0.
@@ -53,7 +55,7 @@
 
 #endif
 
-#define VERSION "v0.2"
+#define VERSION "v0.2.1"
 
 /* 1000 should be enough */
 #define LEN_BUFFER (1000)
@@ -130,14 +132,15 @@ int main(int argc, char *argv[]) {
     unsigned long int offset = 0;
     time_t t = time(NULL);
 
-	/* Pointer to the buffer */
-	unsigned char *code = NULL;
-	int codesize = LEN_CODE;
+    /* Pointer to the buffer */
+    unsigned char *code = NULL;
+    int codesize = LEN_CODE;
 
     /* Options */
     int opt;
     int verbose, full;
     int size = BYTE;
+    int rev = 0;
 
     /* Set defaults on options */
     full = 1;
@@ -153,6 +156,7 @@ int main(int argc, char *argv[]) {
         printf("   -h        Halfword output (16 bits, Little Endian)\n");
         printf("   -w        Word output (32 bits, Little Endian)\n");
         printf("   -d        Double word output (64 bits, Little Endian)\n");
+        printf("   -r        Reverse output (half word, word and double word only)\n\n");
         printf("If outputfile is omitted, stdout is used\n");
         printf("Program size must be less then %d MB\n\n", LEN_CODE/1000000);
         printf("The address of the first record is used as an offset\n"
@@ -161,10 +165,10 @@ int main(int argc, char *argv[]) {
     }
 
     /* Parse options */
-    while ((opt = getopt(argc, argv, "bhwvqd")) != -1) {
+    while ((opt = getopt(argc, argv, "bhwvqdr")) != -1) {
         switch (opt) {
-        case 'f':
-            full = 1;
+        case 'r':
+            rev = 1;
             break;
         case 'v':
             verbose = 1;
@@ -193,11 +197,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "S-record to MIF converter\n");
     }
 
-	code = calloc(codesize, sizeof(unsigned char));
-	if (code == NULL) {
-		fprintf(stderr, "Cannot allocate memory\n");
+    code = calloc(codesize, sizeof(unsigned char));
+    if (code == NULL) {
+        fprintf(stderr, "Cannot allocate memory\n");
         exit(EXIT_FAILURE);
-	}
+    }
 
     if (optind >= argc) {
         fprintf(stderr, "Please supply an input filename\n");
@@ -328,7 +332,7 @@ int main(int argc, char *argv[]) {
 
     }
 
-	/* Print header */
+    /* Print header */
     if (full) {
         fprintf(fout, "-- srec2mif table generator\n");
         fprintf(fout, "-- for input file '%s'\n", argv[optind]);
@@ -343,11 +347,11 @@ int main(int argc, char *argv[]) {
         address = codesize;
     }
 
-	fprintf(fout, "DEPTH = %lu;\n", address/size);
-	fprintf(fout, "WIDTH = %d;\n", size*8);
-	fprintf(fout, "ADDRESS_RADIX = HEX;\n");
-	fprintf(fout, "DATA_RADIX = HEX;\n");
-	fprintf(fout, "\nCONTENT\nBEGIN\n");
+    fprintf(fout, "DEPTH = %lu;\n", address/size);
+    fprintf(fout, "WIDTH = %d;\n", size*8);
+    fprintf(fout, "ADDRESS_RADIX = HEX;\n");
+    fprintf(fout, "DATA_RADIX = HEX;\n");
+    fprintf(fout, "\nCONTENT\nBEGIN\n");
 
     /* Align to next address */
     address = ((address + size - 1) & ~(size - 1));
@@ -355,16 +359,30 @@ int main(int argc, char *argv[]) {
     /* Output the data */
     for (i = 0; i < address; i = i + size) {
 
-        if (size == BYTE) {
-            fprintf(fout, "%04X : %02X;", i/size, code[i]);
-        } else if (size == HALFWORD) {
-            fprintf(fout, "%04X : %02X%02X;", i/size, code[i], code[i+1]);
-        } else if (size == WORD) {
-            fprintf(fout, "%04X : %02X%02X%02X%02X;", i/size, code[i], code[i+1], code[i+2], code[i+3]);
-        } else if (size == DWORD) {
-            fprintf(fout, "%04X : %02X%02X%02X%02X%02X%02X%02X%02X;", i/size, code[i], code[i+1], code[i+2], code[i+3], code[i+4], code[i+5], code[i+6], code[i+7]);
+        if (rev) {
+            if (size == BYTE) {
+                fprintf(fout, "%04X : %02X;", i/size, code[i]);
+            } else if (size == HALFWORD) {
+                fprintf(fout, "%04X : %02X%02X;", i/size, code[i+1], code[i]);
+            } else if (size == WORD) {
+                fprintf(fout, "%04X : %02X%02X%02X%02X;", i/size, code[i+3], code[i+2], code[i+1], code[i]);
+            } else if (size == DWORD) {
+                fprintf(fout, "%04X : %02X%02X%02X%02X%02X%02X%02X%02X;", i/size, code[i+7], code[i+6], code[i+5], code[i+4], code[i+3], code[i+2], code[i+1], code[i]);
+            } else {
+                fprintf(stderr, "BUG:: size unknown\n");
+            }
         } else {
-            fprintf(stderr, "BUG:: size unknown\n");
+            if (size == BYTE) {
+                fprintf(fout, "%04X : %02X;", i/size, code[i]);
+            } else if (size == HALFWORD) {
+                fprintf(fout, "%04X : %02X%02X;", i/size, code[i], code[i+1]);
+            } else if (size == WORD) {
+                fprintf(fout, "%04X : %02X%02X%02X%02X;", i/size, code[i], code[i+1], code[i+2], code[i+3]);
+            } else if (size == DWORD) {
+                fprintf(fout, "%04X : %02X%02X%02X%02X%02X%02X%02X%02X;", i/size, code[i], code[i+1], code[i+2], code[i+3], code[i+4], code[i+5], code[i+6], code[i+7]);
+            } else {
+                fprintf(stderr, "BUG:: size unknown\n");
+            }
         }
         fprintf(fout, "\n");
     }

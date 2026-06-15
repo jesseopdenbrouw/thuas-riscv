@@ -25,6 +25,7 @@
  *      -0         Output unused data as 0's
  *      -x         Output unused data as don't cares
  *      -B         Output as bootloader ROM
+ *      -r         Reverse output (half word, word and double word only)
  *
  * The address of the first record is used as an offset
  * so that the first records starts at vector element 0.
@@ -58,7 +59,7 @@
 
 #endif
 
-#define VERSION "v0.5.1"
+#define VERSION "v0.5.2"
 
 /* 1000 should be enough */
 #define LEN_BUFFER (1000)
@@ -135,13 +136,13 @@ int main(int argc, char *argv[]) {
     unsigned long int offset = 0;
     time_t t = time(NULL);
 
-	/* Pointer to the buffer */
-	unsigned char *code = NULL;
-	int codesize = LEN_CODE;
+    /* Pointer to the buffer */
+    unsigned char *code = NULL;
+    int codesize = LEN_CODE;
 
     /* Options */
     int indent, opt;
-    int verbose, full;
+    int verbose, full, rev;
     int indentarg;
     int size = BYTE;
     char unused = '-';
@@ -153,6 +154,7 @@ int main(int argc, char *argv[]) {
     verbose = 0;
     indent = 0;
     indentarg = 0;
+    rev = 0;
 
     /* Check for 0 extra arguments */
     if (argc == 1) {
@@ -169,6 +171,7 @@ int main(int argc, char *argv[]) {
         printf("   -0        Output unused data as 0's\n");
         printf("   -x        Output unused data as don't care\n");
         printf("   -B        Output as bootloader ROM\n");
+        printf("   -r        Reverse output (half word, word and double word only)\n\n");
         printf("If outputfile is omitted, stdout is used\n");
         printf("Program size must be less then %d MB\n\n", LEN_CODE/1000000);
         printf("The address of the first record is used as an offset\n"
@@ -177,7 +180,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* Parse options */
-    while ((opt = getopt(argc, argv, "0xbhwvqfi:Bd")) != -1) {
+    while ((opt = getopt(argc, argv, "0xbhwvqfi:Bdr")) != -1) {
         switch (opt) {
         case 'f':
             full = 1;
@@ -190,6 +193,9 @@ int main(int argc, char *argv[]) {
             break;
         case 'v':
             verbose = 1;
+            break;
+        case 'r':
+            rev = 1;
             break;
         case 'b':
             size = BYTE;
@@ -226,11 +232,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "S-record to VHDL converter\n");
     }
 
-	code = calloc(codesize, sizeof(unsigned char));
-	if (code == NULL) {
-		fprintf(stderr, "Cannot allocate memory\n");
+    code = calloc(codesize, sizeof(unsigned char));
+    if (code == NULL) {
+        fprintf(stderr, "Cannot allocate memory\n");
         exit(EXIT_FAILURE);
-	}
+    }
 
     if (optind >= argc) {
         fprintf(stderr, "Please supply an input filename\n");
@@ -396,20 +402,35 @@ int main(int argc, char *argv[]) {
                 fprintf(fout, " ");
             }
         }
-        if (size == BYTE) {
-            fprintf(fout, "%4d => x\"%02x\"", i/size, code[i]);
-        } else if (size == HALFWORD) {
-            fprintf(fout, "%4d => x\"%02x%02x\"", i/size, code[i], code[i+1]);
-        } else if (size == WORD) {
-            fprintf(fout, "%4d => x\"%02x%02x%02x%02x\"", i/size, code[i], code[i+1], code[i+2], code[i+3]);
-        } else if (size == DWORD) {
-            fprintf(fout, "%4d => x\"%02x%02x%02x%02x%02x%02x%02x%02x\"", i/size, code[i], code[i+1], code[i+2], code[i+3], code[i+4], code[i+5], code[i+6], code[i+7]);
+        if (rev) {
+            if (size == BYTE) {
+                fprintf(fout, "%4d => x\"%02x\"", i/size, code[i]);
+            } else if (size == HALFWORD) {
+                fprintf(fout, "%4d => x\"%02x%02x\"", i/size, code[i+1], code[i]);
+            } else if (size == WORD) {
+                fprintf(fout, "%4d => x\"%02x%02x%02x%02x\"", i/size, code[i+3], code[i+2], code[i+1], code[i+0]);
+            } else if (size == DWORD) {
+                fprintf(fout, "%4d => x\"%02x%02x%02x%02x%02x%02x%02x%02x\"", i/size, code[i+7], code[i+6], code[i+5], code[i+4], code[i+3], code[i+2], code[i+1], code[i]);
+            } else {
+                fprintf(stderr, "BUG:: size unknown\n");
+            }
         } else {
-            fprintf(stderr, "BUG:: size unknown\n");
+            if (size == BYTE) {
+                fprintf(fout, "%4d => x\"%02x\"", i/size, code[i]);
+            } else if (size == HALFWORD) {
+                fprintf(fout, "%4d => x\"%02x%02x\"", i/size, code[i], code[i+1]);
+            } else if (size == WORD) {
+                fprintf(fout, "%4d => x\"%02x%02x%02x%02x\"", i/size, code[i], code[i+1], code[i+2], code[i+3]);
+            } else if (size == DWORD) {
+                fprintf(fout, "%4d => x\"%02x%02x%02x%02x%02x%02x%02x%02x\"", i/size, code[i], code[i+1], code[i+2], code[i+3], code[i+4], code[i+5], code[i+6], code[i+7]);
+            } else {
+                fprintf(stderr, "BUG:: size unknown\n");
+            }
         }
         if ((i < address-size) || writeunused) {
-            fprintf(fout, ",");
-        }
+               fprintf(fout, ",");
+           }
+        
         fprintf(fout, "\n");
     }
 

@@ -2951,6 +2951,7 @@ begin
             csr_reg.mhpmevent9 <= (others => '0');
             csr_reg.dcsr <= (others => '0');
             csr_reg.dpc <= (others => '0');
+            csr_reg.tselect <= (others => '0');
             csr_reg.tdata1 <= (others => '0');
             csr_reg.tdata2 <= (others => '0');
             control.nmi_lockout <= '0';
@@ -2993,6 +2994,7 @@ begin
                 csr_reg.mhpmevent9 <= (others => '0');
                 csr_reg.dcsr <= (others => '0');
                 csr_reg.dpc <= (others => '0');
+                csr_reg.tselect <= (others => '0');
                 csr_reg.tdata1 <= (others => '0');
                 csr_reg.tdata2 <= (others => '0');
                 control.nmi_lockout <= '0';
@@ -3118,7 +3120,6 @@ begin
                         when mepc_addr => csr_content_v := csr_reg.mepc;
                         when mcause_addr => csr_content_v := csr_reg.mcause;
                         when mtval_addr => csr_content_v := csr_reg.mtval;
-                        when tselect_addr => csr_content_v := csr_reg.tselect;
                         when tdata1_addr => csr_content_v := csr_reg.tdata1;
                         when tdata2_addr => csr_content_v := csr_reg.tdata2;
                         when others => csr_content_v := (others => '-');
@@ -3343,14 +3344,11 @@ begin
                     csr_reg.tdata1(0) <= '0';                        -- no load
                     csr_reg.dpc(0) <= '0';                           -- LSB always 0
                     csr_reg.tselect <= (others => '0');              -- Only 1 hw breakpoint
-                    -- Debug tinfo
-                    csr_reg.tinfo <= x"01000040";                    -- v1, only execute match
                 else
                     csr_reg.dcsr <= (others => '0');
                     csr_reg.dpc <= (others => '0');
                     csr_reg.tdata1 <= (others => '0');
                     csr_reg.tdata2 <= (others => '0');
-                    csr_reg.tinfo <= (others => '0');
                     csr_reg.tselect <= (others => '0');
                 end if;
                 
@@ -3428,6 +3426,8 @@ begin
     csr_reg.misa(11 downto 4) <= x"10" when NUMBER_OF_REGISTERS = 32 else x"01";
     csr_reg.misa(3 downto 0) <= x"2" when HAVE_ZBA and HAVE_ZBB and HAVE_ZBS else x"0";
     csr_reg.mip <= I_intrio;
+    -- Debug tinfo
+    csr_reg.tinfo <= x"01000040" when HAVE_OCD else (others => '0'); -- v1, only mcontrol6
 
     -- Custom read-only hardware description
     csr_reg.mxhw(00) <= '1'; -- GPIOA, always present

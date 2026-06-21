@@ -111,9 +111,6 @@ type dm_reg_type is record
     data0mustread : std_logic;
     data1mustincrement : std_logic;
     clrerr : std_logic;
-    hart_reset : std_logic;
-    hart_resume_ack : std_logic;
-    hart_halted : std_logic;
     wren : std_logic;
     rden : std_logic;
     --
@@ -311,6 +308,7 @@ begin
             O_dm_core_data_request.readmem <= '0';
             O_dm_core_data_request.address <= (others =>'0');
             O_dm_core_data_request.data <= (others => '0');
+            O_dm_core_data_request.size <= (others => '0');
         elsif rising_edge(I_clk) then
             dm_reg.illegal_state <= '0';
             dm_reg.illegal_cmd <= '0';
@@ -329,6 +327,7 @@ begin
                 O_dm_core_data_request.readmem <= '0';
                 O_dm_core_data_request.address <= (others =>'0');
                 O_dm_core_data_request.data <= (others => '0');
+                O_dm_core_data_request.size <= (others => '0');
             else
                 -- If the DM is deactivated...
                 if dm_reg.dm_active = '0' then
@@ -344,6 +343,7 @@ begin
                     O_dm_core_data_request.writemem <= '0';
                     O_dm_core_data_request.address <= (others =>'0');
                     O_dm_core_data_request.data <= (others => '0');
+                    O_dm_core_data_request.size <= (others => '0');
                 else
                     case dm_reg.state is
                         -- Idle, wait for command to be written
@@ -357,6 +357,7 @@ begin
                             O_dm_core_data_request.writemem <= '0';
                             O_dm_core_data_request.address <= (others => '0');
                             O_dm_core_data_request.data <= (others => '0');
+                            O_dm_core_data_request.size <= (others => '0');
                             if dm_reg.wren  = '1' and I_dmi_request.addr = addr_command_c and dm_reg.cmderr = "000" then
                                 -- Command issued
                                 dm_reg.state <= cmd_check;

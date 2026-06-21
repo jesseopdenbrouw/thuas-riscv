@@ -74,4 +74,5 @@ All dates are in dd.mm.yyyy format.
 | 21.05.2026 | 1.1.4.6  | [core] resume_ack is now low when resuming, high when running, tdata3 is added as CSR, fix tinfo CSR | |
 | 25.05.2026 | 1.1.4.7  | [riscv] added FAST_MEM as generic | |
 | 14.06.2026 | 1.1.4.8  [ rom/ram/bootrom] removed, [mem] added generic memory module, [riscv] update for generic memory module | |
+| 21.06.2025 | 1.1.4.9  | [uart/dm/core] fix resets, (re)move signals | |
 

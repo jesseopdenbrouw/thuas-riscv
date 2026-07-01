@@ -14,7 +14,7 @@
 
 // Shared buffer
 int buffer[BUFFER_SIZE];
-// In and out index, must be global if multiple producers and or consumers
+// In and out index, must be global if multiple producers and/or consumers
 int in = 0;
 int out = 0;
 
@@ -114,5 +114,6 @@ int boundedbuffer(void)
     // Start scheduler
     vTaskStartScheduler();
 
+	// Should not come here
     while( 1 );
 }

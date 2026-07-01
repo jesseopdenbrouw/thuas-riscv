@@ -124,6 +124,7 @@ int main(void)
 	uart1_puts(buffer);
 
 	/* Fill up all memory, but don't penetrate the stack */
+	count = 4;
 	while (1) {
 		prev = current;
 		if ((current = malloc(sizeof(node_t))) == NULL) {

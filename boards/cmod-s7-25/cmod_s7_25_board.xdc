@@ -78,7 +78,6 @@ set_property -dict {PACKAGE_PIN J2 IOSTANDARD LVCMOS33} [get_ports {I_uart2rxd}]
 set_property -dict {PACKAGE_PIN H2 IOSTANDARD LVCMOS33} [get_ports {O_uart2txd}]
 
 ## JTAG connections (PIO44 to PIO48)
-set_property -dict {PACKAGE_PIN C1 IOSTANDARD LVCMOS33} [get_ports {I_trst} ]
 set_property -dict {PACKAGE_PIN B3 IOSTANDARD LVCMOS33} [get_ports {I_tms} ]
 set_property -dict {PACKAGE_PIN B4 IOSTANDARD LVCMOS33} [get_ports {O_tdo} ]
 set_property -dict {PACKAGE_PIN A3 IOSTANDARD LVCMOS33} [get_ports {I_tdi} ]

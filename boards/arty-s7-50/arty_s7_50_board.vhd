@@ -49,7 +49,6 @@ entity arty_s7_50_board is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- JTAG connection
-          I_trst : in  std_logic;
           I_tck  : in  std_logic;
           I_tdi  : in  std_logic;
           O_tdo  : out std_logic;
@@ -182,7 +181,6 @@ begin
     port map (I_clk => I_clk,
               I_areset => areset_int,
               -- JTAG connection
-              I_trst => I_trst,
               I_tck  => I_tck,
               I_tdi  => I_tdi,
               O_tdo  => O_tdo,

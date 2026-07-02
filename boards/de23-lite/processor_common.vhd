@@ -45,7 +45,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_04_08#;
+    constant HW_VERSION : integer := 16#01_01_04_10#;
 
     
     -- Used data types
@@ -535,7 +535,6 @@ package processor_common is
         port (I_clk : in std_logic;
               I_areset : in std_logic;
               -- JTAG connection
-              I_trst : in  std_logic;
               I_tck  : in  std_logic;
               I_tms  : in  std_logic;
               I_tdi  : in  std_logic;

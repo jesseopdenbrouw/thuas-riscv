@@ -22,15 +22,14 @@ use work.processor_common.all;
 
 entity dtm is
     generic (
-          IDCODE_VERSION : std_logic_vector(03 downto 0) := "0000"; -- version
-          IDCODE_PARTID  : std_logic_vector(15 downto 0) := x"face"; -- part number
-          IDCODE_MANID   : std_logic_vector(10 downto 0) := "00000000000" -- manufacturer id
+          IDCODE_VERSION : std_logic_vector(03 downto 0); -- version
+          IDCODE_PARTID  : std_logic_vector(15 downto 0); -- part number
+          IDCODE_MANID   : std_logic_vector(10 downto 0)  -- manufacturer id
          );
     port (I_clk    : in std_logic;
           I_areset : in std_logic;
           I_sreset : in std_logic;
           -- JTAG connection
-          I_trst : in  std_logic;
           I_tck  : in  std_logic;
           I_tms  : in  std_logic;
           I_tdi  : in  std_logic;
@@ -56,12 +55,10 @@ architecture rtl of dtm is
     -- TAP JTAG signal synchronizer
     type tap_sync_t is record
         -- Synchronizer shift registers
-        trst_ff     : std_logic_vector(2 downto 0);
         tck_ff      : std_logic_vector(2 downto 0);
         tdi_ff      : std_logic_vector(2 downto 0);
         tms_ff      : std_logic_vector(2 downto 0);
         -- Data signals
-        trst        : std_logic;
         tck_rising  : std_logic;
         tck_falling : std_logic;
         tdi         : std_logic;
@@ -110,27 +107,21 @@ begin
     tap_synchronizer: process(I_clk, I_areset) is
     begin
         if I_areset = '1' then
-            tap_sync.trst_ff <= (others => '0');
             tap_sync.tck_ff  <= (others => '0');
             tap_sync.tdi_ff  <= (others => '0');
             tap_sync.tms_ff  <= (others => '0');
         elsif rising_edge(I_clk) then
             if I_sreset = '1' then
-                tap_sync.trst_ff <= (others => '0');
                 tap_sync.tck_ff  <= (others => '0');
                 tap_sync.tdi_ff  <= (others => '0');
                 tap_sync.tms_ff  <= (others => '0');
             else
-                tap_sync.trst_ff <= tap_sync.trst_ff(1 downto 0) & I_trst;
                 tap_sync.tms_ff  <= tap_sync.tms_ff( 1 downto 0) & I_tms;
                 tap_sync.tck_ff  <= tap_sync.tck_ff( 1 downto 0) & I_tck;
                 tap_sync.tdi_ff  <= tap_sync.tdi_ff( 1 downto 0) & I_tdi;
             end if;
         end if;
     end process tap_synchronizer;
-
-    -- JTAG reset
-    tap_sync.trst <= '0' when (tap_sync.trst_ff(2 downto 1) = "00") else '1';
 
     -- JTAG clock edge
     tap_sync.tck_rising  <= '1' when (tap_sync.tck_ff(2 downto 1) = "01") else '0';
@@ -150,8 +141,6 @@ begin
             tap_ctrl_state <= LOGIC_RESET;
         elsif rising_edge(I_clk) then
             if I_sreset = '1' then
-                tap_ctrl_state <= LOGIC_RESET;
-            elsif tap_sync.trst = '0' then -- reset
                 tap_ctrl_state <= LOGIC_RESET;
             elsif tap_sync.tck_rising = '1' then -- clock pulse (evaluate TMS on the rising edge of TCK)
                 case tap_ctrl_state is -- JTAG state machine

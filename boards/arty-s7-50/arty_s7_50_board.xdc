@@ -77,7 +77,6 @@ set_property -dict {PACKAGE_PIN V15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout
 set_property -dict {PACKAGE_PIN P17 IOSTANDARD LVCMOS33} [get_ports {I_tck} ]
 set_property -dict {PACKAGE_PIN P18 IOSTANDARD LVCMOS33} [get_ports {I_tdi} ]
 set_property -dict {PACKAGE_PIN R18 IOSTANDARD LVCMOS33} [get_ports {I_tms} ]
-set_property -dict {PACKAGE_PIN T18 IOSTANDARD LVCMOS33} [get_ports {I_trst} ]
 set_property -dict {PACKAGE_PIN P14 IOSTANDARD LVCMOS33} [get_ports {O_tdo} ]
 
 ## UART2 -- PMODB, pins 8 and 9

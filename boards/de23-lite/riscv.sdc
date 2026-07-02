@@ -102,7 +102,6 @@ create_clock -name {I_clk} -period 20.000 -waveform { 0.000 10.000 } [get_ports 
 
 set_false_path -from [get_ports I_areset]
 
-set_false_path -from [get_ports I_trst]
 set_false_path -from [get_ports I_tck]
 set_false_path -from [get_ports I_tms]
 set_false_path -from [get_ports I_tdi]

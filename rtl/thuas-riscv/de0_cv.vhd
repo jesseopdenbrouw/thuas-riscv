@@ -48,7 +48,6 @@ entity de0_cv is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- JTAG connection
-          I_trst : in  std_logic;
           I_tms  : in  std_logic;
           I_tck  : in  std_logic;
           I_tdi  : in  std_logic;
@@ -174,7 +173,6 @@ begin
     port map (I_clk => I_clk,
               I_areset => areset_int,
               -- JTAG connection
-              I_trst => I_trst,
               I_tck  => I_tck,
               I_tms  => I_tms,
               I_tdi  => I_tdi,

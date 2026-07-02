@@ -113,7 +113,6 @@ set_location_assignment PIN_B17 -to O_gpioapout[30]
 set_location_assignment PIN_A16 -to O_gpioapout[31]
 set_location_assignment PIN_Y6 -to I_tck
 set_location_assignment PIN_Y5 -to I_tdi
-set_location_assignment PIN_AA2 -to I_trst
 set_location_assignment PIN_Y3 -to I_tms
 set_location_assignment PIN_Y4 -to O_tdo
 set_location_assignment PIN_W10 -to IO_i2c1scl

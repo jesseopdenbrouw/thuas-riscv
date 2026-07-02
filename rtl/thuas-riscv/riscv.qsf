@@ -131,7 +131,6 @@ set_location_assignment PIN_K22 -to IO_i2c2sda
 set_location_assignment PIN_P18 -to I_tck
 set_location_assignment PIN_R17 -to I_tdi
 set_location_assignment PIN_T18 -to I_tms
-set_location_assignment PIN_T15 -to I_trst
 set_location_assignment PIN_T20 -to O_tdo
 
 set_location_assignment PIN_R22 -to I_uart2rxd
@@ -202,7 +201,6 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_i2c1sda
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_i2c1scl
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_uart2rxd
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_uart1rxd
-set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_trst
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tms
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tdi
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tck

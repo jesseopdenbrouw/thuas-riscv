@@ -139,11 +139,9 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to O_timer2oct -entity
 set_location_assignment PIN_P9 -to I_tck -comment IOBANK_6C
 set_location_assignment PIN_D26 -to I_tdi -comment IOBANK_6D
 set_location_assignment PIN_H21 -to I_tms -comment IOBANK_6D
-set_location_assignment PIN_F27 -to I_trst -comment IOBANK_6D
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tck -entity de23_lite
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tdi -entity de23_lite
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_tms -entity de23_lite
-set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_trst -entity de23_lite
 set_location_assignment PIN_BH10 -to I_uart1rxd -comment IOBANK_6E
 set_location_assignment PIN_F10 -to I_uart2rxd -comment IOBANK_6D
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to I_uart1rxd -entity de23_lite

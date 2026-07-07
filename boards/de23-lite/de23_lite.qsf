@@ -219,7 +219,6 @@ set_global_assignment -name FLOW_ENABLE_POWER_ANALYZER OFF
 set_global_assignment -name POWER_DEFAULT_TOGGLE_RATE "25 %"
 set_global_assignment -name POWER_DEFAULT_INPUT_IO_TOGGLE_RATE "12.5 %"
 set_global_assignment -name IP_FILE pll.ip
-set_global_assignment -name RTL_ANALYSIS_DEBUG_MODE ON
 set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[1] -entity de23_lite
 set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[13] -entity de23_lite
 set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[12] -entity de23_lite

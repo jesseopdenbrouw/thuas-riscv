@@ -180,25 +180,6 @@ uart.rxstate.rx_break 0 0 1 0 0 0 1
 uart.rxstate.rx_ready 0 1 0 0 0 0 1 
 uart.rxstate.rx_fail 1 0 0 0 0 0 1 
 
-State Machine - riscv0|debuggen.dtm0|tap_ctrl_state
-Name tap_ctrl_state.ir_update tap_ctrl_state.ir_exit2 tap_ctrl_state.ir_pause tap_ctrl_state.ir_exit1 tap_ctrl_state.ir_shift tap_ctrl_state.ir_capture tap_ctrl_state.ir_scan tap_ctrl_state.run_idle tap_ctrl_state.dr_update tap_ctrl_state.dr_exit2 tap_ctrl_state.dr_pause tap_ctrl_state.dr_exit1 tap_ctrl_state.dr_shift tap_ctrl_state.dr_capture tap_ctrl_state.dr_scan tap_ctrl_state.logic_reset 
-tap_ctrl_state.logic_reset 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-tap_ctrl_state.dr_scan 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
-tap_ctrl_state.dr_capture 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
-tap_ctrl_state.dr_shift 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
-tap_ctrl_state.dr_exit1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
-tap_ctrl_state.dr_pause 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
-tap_ctrl_state.dr_exit2 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
-tap_ctrl_state.dr_update 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
-tap_ctrl_state.run_idle 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
-tap_ctrl_state.ir_scan 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
-tap_ctrl_state.ir_capture 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
-tap_ctrl_state.ir_shift 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
-tap_ctrl_state.ir_exit1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
-tap_ctrl_state.ir_pause 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
-tap_ctrl_state.ir_exit2 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
-tap_ctrl_state.ir_update 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
-
 State Machine - riscv0|spi1gen.spi1|spi.state
 Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
 spi.state.idle 0 0 0 0 
@@ -234,3 +215,41 @@ i2c.state.send_stopbit_first 0 0 0 1 0 0 0 1
 i2c.state.send_stopbit_second 0 0 1 0 0 0 0 1 
 i2c.state.send_stopbit_third 0 1 0 0 0 0 0 1 
 i2c.state.stretch 1 0 0 0 0 0 0 1 
+
+State Machine - riscv0|debuggen.dtm0|state2
+Name state2.ir_update state2.ir_exit2 state2.ir_pause state2.ir_exit1 state2.ir_shift state2.ir_capture state2.ir_scan state2.run_idle state2.dr_update state2.dr_exit2 state2.dr_pause state2.dr_exit1 state2.dr_shift state2.dr_capture state2.dr_scan state2.logic_reset 
+state2.logic_reset 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+state2.dr_scan 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+state2.dr_capture 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+state2.dr_shift 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+state2.dr_exit1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+state2.dr_pause 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+state2.dr_exit2 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+state2.dr_update 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+state2.run_idle 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+state2.ir_scan 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+state2.ir_capture 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+state2.ir_shift 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+state2.ir_exit1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+state2.ir_pause 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state2.ir_exit2 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state2.ir_update 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - riscv0|debuggen.dtm0|state
+Name state.ir_update state.ir_exit2 state.ir_pause state.ir_exit1 state.ir_shift state.ir_capture state.ir_scan state.run_idle state.dr_update state.dr_exit2 state.dr_pause state.dr_exit1 state.dr_shift state.dr_capture state.dr_scan state.logic_reset 
+state.logic_reset 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+state.dr_scan 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+state.dr_capture 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+state.dr_shift 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+state.dr_exit1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+state.dr_pause 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+state.dr_exit2 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+state.dr_update 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+state.run_idle 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+state.ir_scan 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+state.ir_capture 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+state.ir_shift 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+state.ir_exit1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+state.ir_pause 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.ir_exit2 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.ir_update 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 

@@ -76,4 +76,5 @@ All dates are in dd.mm.yyyy format.
 | 14.06.2026 | 1.1.4.8  | rom/ram/bootrom] removed, [mem] added generic memory module, [riscv] update for generic memory module | |
 | 21.06.2026 | 1.1.4.9  | [uart/dm/core] fix resets, (re)move signals | |
 | 02.07.2026 | 1.1.4.10 | Remove JTAG TRST signal from design | |
+| 07.07.2026 | 1.1.4.11 | [dtm] update DTM to latest from neorv32 | |
 

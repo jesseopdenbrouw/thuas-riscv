@@ -50,7 +50,6 @@ architecture sim of tb_riscv is
 -- Component is loaded by processor_common.vhd
 signal clk : std_logic;
 signal areset : std_logic;
-signal trst : std_logic;
 signal tck : std_logic;
 signal tms : std_logic;
 signal tdi : std_logic;
@@ -165,7 +164,6 @@ begin
     port map (I_clk => clk,
               I_areset => areset,
               -- JTAG connection
-              I_trst => trst,
               I_tck  => tck,
               I_tms  => tms,
               I_tdi  => tdi,
@@ -216,7 +214,6 @@ begin
         -- Reset is active high
         areset <= '1';
         -- JTAG
-        trst <= '1';
         tck <= '0';
         tms <= '0';
         tdi <= '0';

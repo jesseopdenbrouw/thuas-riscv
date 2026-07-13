@@ -579,7 +579,7 @@ package processor_common is
     impure function initialize_memory(init : memory_type ; depth : integer) return memory_type;
     
     -- Function to assign part of 32-bit memory to 8-bit memory
-    impure function initialize_memorybyte(init : memory_type ; depth : integer; byte : integer; default : std_logic) return memorybyte_type;
+    impure function initialize_memorybyte(init : memory_type ; depth : integer; byte : integer; dflt : std_logic) return memorybyte_type;
 
     -- Function to change boolean into a std_logic
     function boolean_to_std_logic(condition : boolean) return std_logic;
@@ -635,10 +635,10 @@ package body processor_common is
     end function initialize_memory;
 
     -- Function to assign part of 32-bit memory to 8-bit memory
-    impure function initialize_memorybyte(init : memory_type; depth : integer; byte : integer; default : std_logic) return memorybyte_type is
+    impure function initialize_memorybyte(init : memory_type; depth : integer; byte : integer; dflt : std_logic) return memorybyte_type is
     variable mem_v : memorybyte_type(0 to depth-1);
     begin
-        mem_v := (others => (others => default)); 
+        mem_v := (others => (others => dflt)); 
         if init'length > depth then
             report "Initialization image is overflowing memory range!" severity error;
         else

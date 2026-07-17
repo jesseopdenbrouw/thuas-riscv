@@ -674,7 +674,7 @@ signal dmi_response_int : dmi_response_type;
 -- Run/Halt signals from DM to core
 signal halt_req_int, halt_ack_int : std_logic;
 signal resume_req_int, resume_ack_int : std_logic;
-signal reset_req_int, reset_ack_int : std_logic;
+signal reset_from_dm_int, reset_ack_int : std_logic;
 signal ackhavereset_int : std_logic;
 -- DM to core data signals
 signal dm_core_data_request_int : dm_core_data_request_type;
@@ -755,7 +755,7 @@ begin
                 areset_debug_sync_int <= areset_debug_sync_int(areset_debug_sync_int'left-1 downto 0) & '1';
                 areset_debug_int <= not and_reduce(areset_debug_sync_int);
                 -- If a UART1 BREAK is detected or watchdog reset or debug reset, reset the system
-                if break_from_uart1_int = '1' or reset_from_wdt_int = '1' or reset_req_int = '1' then
+                if break_from_uart1_int = '1' or reset_from_wdt_int = '1' or reset_from_dm_int = '1' then
                     areset_sys_sync_int <= (others => '0');
                 else
                     areset_sys_sync_int <= areset_sys_sync_int(areset_sys_sync_int'left-1 downto 0) & '1';
@@ -781,7 +781,7 @@ begin
         -- Synchronous reset for debug modules
         sreset_debug_int <= areset_sys_sync_int(areset_sys_sync_int'left);
         -- Synchronous reset from external reset or UART1 break detect or watchdog or debug modules
-        sreset_sys_int <= sreset_debug_int or break_from_uart1_int or reset_from_wdt_int or reset_req_int;
+        sreset_sys_int <= sreset_debug_int or break_from_uart1_int or reset_from_wdt_int or reset_from_dm_int;
         -- Disable asynchronous reset
 
         areset_sys_int <= '0';
@@ -985,7 +985,7 @@ begin
                   I_dmi_request => dmi_request_int,
                   O_dmi_response => dmi_response_int,
                   --
-                  O_reset_req => reset_req_int,
+                  O_reset_req => reset_from_dm_int,
                   I_reset_ack => reset_ack_int,
                   O_halt_req => halt_req_int,
                   I_halt_ack => halt_ack_int,
@@ -1001,7 +1001,7 @@ begin
     notdebuggen : if not HAVE_OCD generate
         -- Connect TDO to TDI, so that the scan chain stays intact
         O_tdo <= I_tdi;
-        reset_req_int <= '0';
+        reset_from_dm_int <= '0';
         halt_req_int <='0';
         resume_req_int <= '0';
         ackhavereset_int <= '0';

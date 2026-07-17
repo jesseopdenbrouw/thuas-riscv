@@ -661,8 +661,9 @@ image::images/de0-cv-gpio.svg[DE0-CV GPIO pin layout]
 
 The design can be fully simulated, using QuestaSim Intel Starter or ModelSim Intel Starter. You need a (free) license for QuestaSim. During simulation, all essential signals can be viewed, as is the RAM. The RAM is viewed as 32-bit entries, so we need to do some manual calculations to correctly find byte, half word and word accesses. Simulation can be started from Quartus. Please note that the bootloader is normally disabled when simulating.
 
-The design can also be simulated with http://ghdl.free.fr/[GHDL]. See the `ghdl` sub-directory. After simulating with GHDL, the wavevorms can be viewed with https://gtkwave.sourceforge.net/[GTKWave].
+The design can also be simulated with http://ghdl.free.fr/[GHDL]. See the `sim/ghdl` sub-directory. After simulating with GHDL, the wavevorms can be viewed with https://gtkwave.sourceforge.net/[GTKWave].
 
+The design can be simulated using https://www.cocotb.org/[cocotb]. See the `sim/cocotb` sub-directory. Please note that cocotb uses a simulator as backend. It works with QuestaSim and https://www.nickg.me.uk/nvc/[nvc]. GDHL cannot be used as GDHL does not support reading and writing record elements.
 
 === Customizing the design
 
@@ -732,7 +733,7 @@ In the created directory, you will see the following directories:
 `boards` -- Files needed to use other boards. +
 `docs` -- Documentation. +
 `eclipse` -- Projects using Eclipse-CDT. Currently Windows only. +
-`ghdl` -- Simulate using http://ghdl.free.fr/[GHDL] +
+`sim` -- Project for simulating the design. +
 `openocd` -- OpenOCD configuration file + SVD file. +
 `rtl` -- the VHDL description(s). +
 `sw` -- Sample software programs, linker script, library and startup files.

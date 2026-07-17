@@ -1,0 +1,73 @@
+v 4
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/address_decode.vhd" "912010251bf4e88f09859aecfe979a66f6464038" "20260717130937.104":
+  entity address_decode at 41( 3685) + 0 on 22;
+  architecture rtl of address_decode at 76( 4900) + 0 on 23;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/bootrom_image.vhd" "314b76219d48c2bf9f9c909ae667b80449b80f75" "20260717130937.104":
+  package bootrom_image at 6( 101) + 0 on 16;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/core.vhd" "d6cf9a871bb0ba1de93aa0186618383f017d4e29" "20260717130937.104":
+  entity core at 42( 3765) + 0 on 20;
+  architecture rtl of core at 148( 7512) + 0 on 21;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/crc.vhd" "2587cc3f17001a9bc4f3c85b16f56d4522ca838f" "20260717130937.104":
+  entity crc at 39( 3549) + 0 on 54;
+  architecture rtl of crc at 56( 3920) + 0 on 55;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/de0_cv.vhd" "d1f44cb9581fec13f9db38716f4fccfebcf454bf" "20260717130937.026":
+  entity de0_cv at 40( 3650) + 0 on 4;
+  architecture toplevel of de0_cv at 86( 4988) + 0 on 4;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/dm.vhd" "e608abb23920ef5b661d57a16ada1909a2592551" "20260717130937.104":
+  entity dm at 41( 3785) + 0 on 30;
+  architecture rtl of dm at 74( 4817) + 0 on 31;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/dtm.vhd" "43f43e26ae8ebe87293bcb7676fa67b9a975c032" "20260717130937.104":
+  entity dtm at 18( 1197) + 0 on 28;
+  architecture rtl of dtm at 46( 2163) + 0 on 29;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/gpio.vhd" "ba43eb3d69a0d3d0d6dd5b35c500943cb4debdf5" "20260717130937.104":
+  entity gpio at 41( 3712) + 0 on 34;
+  architecture rtl of gpio at 64( 4257) + 0 on 35;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/i2c.vhd" "6dca40fdbeba08da8249e50a6348ade70b64bb13" "20260717130937.104":
+  entity i2c at 40( 3729) + 0 on 48;
+  architecture rtl of i2c at 64( 4281) + 0 on 49;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/instr_router.vhd" "6461a0f85c74e201a1ecfae6964fb31c7e841684" "20260717130937.104":
+  entity instr_router at 40( 3622) + 0 on 24;
+  architecture rtl of instr_router at 71( 4639) + 0 on 25;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/io_bus_switch.vhd" "99e52448ff2d8e8c9977192bb2ea5c6d79c010c0" "20260717130937.104":
+  entity io_bus_switch at 40( 3704) + 0 on 32;
+  architecture rtl of io_bus_switch at 108( 5992) + 0 on 33;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/mem.vhd" "49ca56e9a0ba4245f90e29128dca6aac43900e49" "20260717130937.104":
+  entity mem at 50( 4172) + 0 on 26;
+  architecture rtl of mem at 84( 5236) + 0 on 27;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/msi.vhd" "7afb79c08755e5daa3a722c3907d7b036ea011a7" "20260717130937.104":
+  entity msi at 40( 3663) + 0 on 42;
+  architecture rtl of msi at 59( 4080) + 0 on 43;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/mtime.vhd" "282bf3fed92877bd1fe2d84a31ac5fbb98cdabb2" "20260717130937.104":
+  entity mtime at 41( 3765) + 0 on 36;
+  architecture rtl of mtime at 67( 4358) + 0 on 37;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/processor_common.vhd" "7a0efdac0d1af71b9168423cdcbf1130cb35991f" "20260717130937.104":
+  package processor_common at 41( 3745) + 0 on 11 body;
+  package body processor_common at 610( 28956) + 0 on 12;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/ram_image.vhd" "969b7f8627ee9b46c23bdf8ee272e3df49ac3992" "20260717130937.104":
+  package ram_image at 37( 3536) + 0 on 17;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/riscv.vhd" "5cae79dec11d2f099c0e322b572f85528a2dbc67" "20260717130937.104":
+  entity riscv at 41( 3741) + 0 on 18;
+  architecture rtl of riscv at 169( 8134) + 0 on 19;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/rom_image.vhd" "9d342ff5ef857bc75ddde45436be3dfe746ec9da" "20260717130937.104":
+  package rom_image at 6( 107) + 0 on 15;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/spi.vhd" "85e438e79b1af454fc3f425f75a8bfe22135ef76" "20260717130937.104":
+  entity spi at 40( 3665) + 0 on 50;
+  architecture rtl of spi at 62( 4182) + 0 on 51;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/stub.vhd" "0784c13f84808727cd32fe8d915a76f625d3df93" "20260717130937.104":
+  entity stub at 39( 3597) + 0 on 40;
+  architecture rtl of stub at 56( 3970) + 0 on 41;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/tb_riscv.vhd" "411a594b15d6cb0da2c9969be55a99947f08d355" "20260717130937.104":
+  entity tb_riscv at 38( 3537) + 0 on 13;
+  architecture sim of tb_riscv at 48( 3694) + 0 on 14;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/timera.vhd" "35badf40a63bd0813e5850fc794138f8a2df9bd2" "20260717130937.104":
+  entity timera at 39( 3621) + 0 on 44;
+  architecture rtl of timera at 58( 4044) + 0 on 45;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/timerb.vhd" "6fe946fad21cc849d143c6f28edf0b92f2cf4255" "20260717130937.104":
+  entity timerb at 40( 3705) + 0 on 52;
+  architecture rtl of timerb at 64( 4306) + 0 on 53;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/uart.vhd" "3859a4b86205056390f7276db3d34c282500d228" "20260717130937.104":
+  entity uart at 39( 3619) + 0 on 46;
+  architecture rtl of uart at 65( 4252) + 0 on 47;
+file "/mnt/d/PROJECTS/RISCVDEV/thuas-riscv/sim/ghdl/" "../../rtl/thuas-riscv/wdt.vhd" "d740ee58567df1218f21152f7df842497e2eef61" "20260717130937.104":
+  entity wdt at 40( 3609) + 0 on 38;
+  architecture rtl of wdt at 60( 4061) + 0 on 39;

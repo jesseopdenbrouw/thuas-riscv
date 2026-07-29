@@ -157,15 +157,6 @@ add wave            -label IO_mem_request dut/mem_request_io_int
 add wave            -label IO_mem_response dut/mem_response_io_int
 add wave -radix hex -label gpioa_rec dut/gpioa/gpio
 add wave -radix hex -label mtime_rec dut/mtime1/mtime
-if {[find signal -r */wdt1gen/*] != ""} {
-    add wave -radix hex -label wdt_rec dut/wdt1gen/wdt1/wdt
-}
-if {[find signal -r */msi1gen/*] != ""} {
-    add wave            -label msi_rec dut/msi1gen/msi1/msi
-}
-if {[find signal -r */timer1gen/*] != ""} {
-    add wave            -label timer1_rec dut/timer1gen/timer1/timera
-}
 if {[find signal -r */uart1gen/*] != ""} {
     add wave            -label uart1_rec dut/uart1gen/uart1/uart
 }
@@ -184,8 +175,17 @@ if {[find signal -r */spi1gen/*] != ""} {
 if {[find signal -r */spi1gen/*] != ""} {
     add wave            -label spi2_rec dut/spi2gen/spi2/spi
 }
+if {[find signal -r */msi1gen/*] != ""} {
+    add wave            -label msi_rec dut/msi1gen/msi1/msi
+}
+if {[find signal -r */timer1gen/*] != ""} {
+    add wave            -label timer1_rec dut/timer1gen/timer1/timera
+}
 if {[find signal -r */timer2gen/*] != ""} {
     add wave            -label timer2_rec dut/timer2gen/timer2/timerb
+}
+if {[find signal -r */wdt1gen/*] != ""} {
+    add wave -radix hex -label wdt_rec dut/wdt1gen/wdt1/wdt
 }
 if {[find signal -r */crcgen/*] != ""} {
     add wave            -label crc_rec dut/crcgen/crc1/crc

@@ -77,4 +77,5 @@ All dates are in dd.mm.yyyy format.
 | 21.06.2026 | 1.1.4.9  | [uart/dm/core] fix resets, (re)move signals | |
 | 02.07.2026 | 1.1.4.10 | Remove JTAG TRST signal from design | |
 | 07.07.2026 | 1.1.4.11 | [dtm] update DTM to latest from neorv32 | |
+| 29.07.2026 | 1.1.4.12 | [core] make sure the PC is loaded with the correct value direct after download of the bitstream | |
 

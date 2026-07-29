@@ -155,7 +155,8 @@ constant SIMULATION_EXTRA : boolean := false;
 
 -- The Program Counter
 -- Not part of any record.
-signal pc : data_type;
+-- Make sure to start with the correct PC direct after download to target
+signal pc : data_type := boolean_to_std_logic_vector(HAVE_BOOTLOADER_ROM, BOOT_HIGH_NIBBLE, ROM_HIGH_NIBBLE) & x"0000000";
 
 -- IF/ID signals for Instruction Decode stage
 type if_id_type is record

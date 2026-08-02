@@ -106,7 +106,7 @@ The Program Counter contains the address of the currently fetched instruction. T
 
 === Instruction Decoder
 
-The instruction decoder decodes the instruction supplied by the ROM, RAM and boot ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit.
+The instruction decoder decodes the instruction supplied by the ROM, RAM and boot ROM as pointed by the PC. An instruction is 4 bytes wide and in Little Endian order. The instruction decoder provides control signals for the ALU, RAM, ROM, I/O, the PC, the Address Decoder, the CSR, the LIC, the register file and the MD unit. The instruction decoder does a full check on the instruction bit pattern (no shortcuts), and flags an illegal instruction exception when an instruction (bit pattern) is illegal. This exception is generated during the *execution* of the illegal instruction.
 
 === Control Unit
 
@@ -156,6 +156,7 @@ When the on-chip debugger is used, `ebreak` is used by the debugger software (Op
 
 The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this timer times out, an NMI can be generated (the other option is to reset the processor). The NMI is interrupt with the highest priority and cannot be disabled.
 
+Note that interrupts have higher priorities than traps. See https://github.com/riscv/riscv-isa-manual/issues/13[this issue].
 
 === Memory Interface
 
@@ -237,7 +238,7 @@ Writing read-only registers causes an illegal instruction trap. Accessing a non-
 
 === Local Interrupt Controller
 
-The Local Interrupt Controller is responsible for selecting which trap request must be serviced by the core. Interrupts have higher priority than exceptions. The state of the serviced trap is visible in the CSR.
+The Local Interrupt Controller is responsible for selecting which trap request must be serviced by the core. Interrupts have higher priority than exceptions. See https://github.com/riscv/riscv-isa-manual/issues/13[this issue]. The state of the serviced trap is visible in the CSR.
 
 The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7) and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, SPI2, I2C2, UART1, TIMER2, TIMER1, UART2, EXTI external input interrupt, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
 

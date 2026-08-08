@@ -64,6 +64,7 @@ if [ string match "*simulation/questa" [pwd] ] {
 # <project_root>/simulation/modelsim, so we have to compensate
 # for that.
 vcom -93 -work work ${prefix}processor_common.vhd
+vcom -93 -work work ${prefix}jtag_dmi_pkg.vhd
 vcom -93 -work work ${prefix}rom_image.vhd
 vcom -93 -work work ${prefix}ram_image.vhd
 vcom -93 -work work ${prefix}bootrom_image.vhd
@@ -139,6 +140,18 @@ add wave            -label bus_response dut/bus_response_int
 add wave -divider "Internals - CSR"
 add wave -radix hex -label CSR_access dut/core0/csr_access
 add wave -radix hex -label CSR_reg dut/core0/csr_reg
+if {[find signal -r */debuggen/dtm0/state] != ""} {
+    add wave -divider "Internals - DTM"
+    add wave            -label DTM_state dut/debuggen/dtm0/state
+    add wave            -label tms tms
+    add wave            -label tdi tdi
+    add wave            -label tdo tdo
+    add wave            -label data_from_dtm data_from_dtm
+    add wave -divider "Internals - DM"
+    add wave            -label DM_reg dut/debuggen/dm0/dm_reg
+    add wave            -label DM_dmi_request dut/debuggen/dm0/I_dmi_request
+}
+sleep 1
 add wave -divider "Internals - RAM"
 add wave            -label RAM_mem_request dut/mem_request_ram_int
 add wave            -label RAM_mem_response dut/mem_response_ram_int
@@ -201,7 +214,7 @@ view signals
 set NumericStdNoWarnings 1
 
 # Run simulation for xx us
-run 100 us
+run 1200 us
 
 # Fill up the waveform in the window
 wave zoom full

@@ -41,6 +41,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.processor_common.all;
+use work.jtag_dmi_pkg.all;
 
 entity tb_riscv is
 end entity tb_riscv;
@@ -54,6 +55,7 @@ signal tck : std_logic;
 signal tms : std_logic;
 signal tdi : std_logic;
 signal tdo : std_logic;
+signal data_from_dtm : data_type;
 signal gpioapin : data_type;
 signal gpioapout : data_type;
 signal uart1txd, uart1rxd : std_logic;
@@ -91,7 +93,7 @@ begin
               -- Do we have RISC-V embedded (16 registers)?
               HAVE_RISCV_E => false,
               -- Have On-chip debugger?
-              HAVE_OCD => false,
+              HAVE_OCD => TRUE,
               -- Do we have the buildin bootloader?
               HAVE_BOOTLOADER_ROM => false,
               -- Disable CSR address check when in debug mode
@@ -210,6 +212,7 @@ begin
     -- Reset is active high in design but may be
     -- active low on board
     process is
+    variable data_from_dtm_v : data_type;
     begin
         -- Reset is active high
         areset <= '1';
@@ -254,7 +257,68 @@ begin
 --            wait for bittime;
 --        end loop;
         uart1rxd <= '1';
+
+        wait for 500 ns;
+        wait until clk = '1';
+
+        --
+        -- Use the debugger
+        --
         
+        -- Reset the state machine
+        work.jtag_dmi_pkg.jtag_reset(tck, tms, tdi, tdo);
+        wait for 200 ns;
+
+        -- Write DM Active in dmcontrol (0x10)
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
+        wait for 200 ns;
+
+        -- Read dmstatus (0x11)
+        work.jtag_dmi_pkg.dmi_read(tck, tms, tdi, tdo, "0010001", data_from_dtm_v);
+        data_from_dtm <= data_from_dtm_v;
+        wait for 200 ns;
+
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
+        wait for 200 ns;
+
+        -- Halt processor
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"80000001");
+        wait for 200 ns;
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
+        wait for 200 ns;
+
+        -- Try to read register sp (x2)
+        -- First send abstract command
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"00221002");
+        wait for 200 ns;
+        -- Read data from data0
+        work.jtag_dmi_pkg.dmi_read(tck, tms, tdi, tdo, "0000100", data_from_dtm_v);
+        -- Look at this signal in the waveform viewer
+        data_from_dtm <= data_from_dtm_v;
+        wait for 200 ns;
+
+        -- Try to step one instruction
+        -- Read dcsr
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002207b0");
+        wait for 200 ns;
+        -- Read data from data0
+        work.jtag_dmi_pkg.dmi_read(tck, tms, tdi, tdo, "0000100", data_from_dtm_v);
+        data_from_dtm <= data_from_dtm_v;
+        -- Set step bit
+        data_from_dtm_v(2) := '1';
+        wait for 200 ns;
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", data_from_dtm_v);
+        wait for 200 ns;
+        -- Write to dcsr
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307b0");
+        wait for 200 ns;
+                
+        -- Try to resume
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"40000001");
+        wait for 200 ns;
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
+        wait for 200 ns;
+       
         wait;
         
     end process;

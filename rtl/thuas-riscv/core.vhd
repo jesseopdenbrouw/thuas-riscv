@@ -386,7 +386,7 @@ begin
     -- other blocks.
     --
     
-    
+
     -- Hardware breakpoint match
     control.bpmatch <= '1' when id_ex.pc = csr_reg.tdata2 and                   -- instruction address match
                                 csr_reg.tdata1(6) = '1' and                     -- and M mode
@@ -424,9 +424,11 @@ begin
             else
                 control.load_pc <= '0';
                 control.load_dpc <= '0';
+--                csr_reg.dcsr_cause <= "0000";
                 if I_ackhavereset = '1' then
                     O_reset_ack <= '0';
                 end if;
+
                 case control.state is
                     -- Booting first cycle
                     when state_boot0 =>
@@ -479,7 +481,8 @@ begin
                         -- or an exception.
                         elsif control.trap_request = '1' then
                             control.state <= state_trap;
-                        elsif control.wfi_request = '1' then----
+                        -- If a WFI instruction is run
+                        elsif control.wfi_request = '1' then
                             control.state <= state_wfi;
                         -- If we have an mret request (MRET)
                         elsif control.mret_request = '1' then
@@ -2573,55 +2576,55 @@ begin
     
         -- Event generators
         if HAVE_ZIHPM then
-        event3_v := (csr_reg.mhpmevent3(0) = '1' and control.penalty = '1') or
-                    (csr_reg.mhpmevent3(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent3(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent3(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent3(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent3(5) = '1' and control.ebreak_request = '1') or
-                    (csr_reg.mhpmevent3(6) = '1' and md.ready = '1');
-        event4_v := (csr_reg.mhpmevent4(0) = '1' and control.penalty = '1') or
-                    (csr_reg.mhpmevent4(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent4(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent4(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent4(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent4(5) = '1' and control.ebreak_request = '1') or
-                    (csr_reg.mhpmevent4(6) = '1' and md.ready = '1');
-        event5_v := (csr_reg.mhpmevent5(0) = '1' and control.penalty = '1') or
-                    (csr_reg.mhpmevent5(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent5(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent5(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent5(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent5(5) = '1' and control.ebreak_request = '1') or
-                    (csr_reg.mhpmevent5(6) = '1' and md.ready = '1');
-        event6_v := (csr_reg.mhpmevent6(0) = '1' and control.penalty = '1') or
-                    (csr_reg.mhpmevent6(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent6(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent6(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent6(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent6(5) = '1' and control.ebreak_request = '1') or
-                    (csr_reg.mhpmevent6(6) = '1' and md.ready = '1');
-        event7_v := (csr_reg.mhpmevent7(0) = '1' and control.penalty = '1') or
-                    (csr_reg.mhpmevent7(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent7(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent7(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent7(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent7(5) = '1' and control.ebreak_request = '1') or
-                    (csr_reg.mhpmevent7(6) = '1' and md.ready = '1');
-        event8_v := (csr_reg.mhpmevent8(0) = '1' and control.penalty = '1') or
-                    (csr_reg.mhpmevent8(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent8(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent8(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent8(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent8(5) = '1' and control.ebreak_request = '1') or
-                    (csr_reg.mhpmevent8(6) = '1' and md.ready = '1');
-        event9_v := (csr_reg.mhpmevent9(0) = '1' and control.penalty = '1') or
-                    (csr_reg.mhpmevent9(1) = '1' and control.stall = '1') or
-                    (csr_reg.mhpmevent9(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent9(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
-                    (csr_reg.mhpmevent9(4) = '1' and control.ecall_request = '1') or
-                    (csr_reg.mhpmevent9(5) = '1' and control.ebreak_request = '1') or
-                    (csr_reg.mhpmevent9(6) = '1' and md.ready = '1');
+            event3_v := (csr_reg.mhpmevent3(0) = '1' and control.penalty = '1') or
+                        (csr_reg.mhpmevent3(1) = '1' and control.stall = '1') or
+                        (csr_reg.mhpmevent3(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent3(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent3(4) = '1' and control.ecall_request = '1') or
+                        (csr_reg.mhpmevent3(5) = '1' and control.ebreak_request = '1') or
+                        (csr_reg.mhpmevent3(6) = '1' and md.ready = '1');
+            event4_v := (csr_reg.mhpmevent4(0) = '1' and control.penalty = '1') or
+                        (csr_reg.mhpmevent4(1) = '1' and control.stall = '1') or
+                        (csr_reg.mhpmevent4(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent4(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent4(4) = '1' and control.ecall_request = '1') or
+                        (csr_reg.mhpmevent4(5) = '1' and control.ebreak_request = '1') or
+                        (csr_reg.mhpmevent4(6) = '1' and md.ready = '1');
+            event5_v := (csr_reg.mhpmevent5(0) = '1' and control.penalty = '1') or
+                        (csr_reg.mhpmevent5(1) = '1' and control.stall = '1') or
+                        (csr_reg.mhpmevent5(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent5(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent5(4) = '1' and control.ecall_request = '1') or
+                        (csr_reg.mhpmevent5(5) = '1' and control.ebreak_request = '1') or
+                        (csr_reg.mhpmevent5(6) = '1' and md.ready = '1');
+            event6_v := (csr_reg.mhpmevent6(0) = '1' and control.penalty = '1') or
+                        (csr_reg.mhpmevent6(1) = '1' and control.stall = '1') or
+                        (csr_reg.mhpmevent6(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent6(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent6(4) = '1' and control.ecall_request = '1') or
+                        (csr_reg.mhpmevent6(5) = '1' and control.ebreak_request = '1') or
+                        (csr_reg.mhpmevent6(6) = '1' and md.ready = '1');
+            event7_v := (csr_reg.mhpmevent7(0) = '1' and control.penalty = '1') or
+                        (csr_reg.mhpmevent7(1) = '1' and control.stall = '1') or
+                        (csr_reg.mhpmevent7(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent7(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent7(4) = '1' and control.ecall_request = '1') or
+                        (csr_reg.mhpmevent7(5) = '1' and control.ebreak_request = '1') or
+                        (csr_reg.mhpmevent7(6) = '1' and md.ready = '1');
+            event8_v := (csr_reg.mhpmevent8(0) = '1' and control.penalty = '1') or
+                        (csr_reg.mhpmevent8(1) = '1' and control.stall = '1') or
+                        (csr_reg.mhpmevent8(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent8(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent8(4) = '1' and control.ecall_request = '1') or
+                        (csr_reg.mhpmevent8(5) = '1' and control.ebreak_request = '1') or
+                        (csr_reg.mhpmevent8(6) = '1' and md.ready = '1');
+            event9_v := (csr_reg.mhpmevent9(0) = '1' and control.penalty = '1') or
+                        (csr_reg.mhpmevent9(1) = '1' and control.stall = '1') or
+                        (csr_reg.mhpmevent9(2) = '1' and id_ex.memaccess = memaccess_write and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent9(3) = '1' and id_ex.memaccess = memaccess_read and I_bus_response.ready = '1') or
+                        (csr_reg.mhpmevent9(4) = '1' and control.ecall_request = '1') or
+                        (csr_reg.mhpmevent9(5) = '1' and control.ebreak_request = '1') or
+                        (csr_reg.mhpmevent9(6) = '1' and md.ready = '1');
         else
             event3_v := false;
             event4_v := false;
@@ -3639,7 +3642,7 @@ begin
                                     I_bus_response.data when I_dm_core_data_request.readmem = '1' else
                                     x"00000000";
 
-    -- Send an ACK if there is a ready from memory OR  we're in debug and there is a data memory error
+    -- Send an ACK if there is a ready from memory OR we're in debug and there is a data memory error
     O_dm_core_data_response.ack <= I_bus_response.ready or 
                                   (control.indebug and 
                                   (I_bus_response.load_misaligned_error or I_bus_response.store_misaligned_error or

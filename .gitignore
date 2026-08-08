@@ -19,4 +19,21 @@ rtl/thuas-riscv/riscv.archive.rpt
 rtl/thuas-riscv/riscv_assignment_defaults.qdf
 rtl/thuas-riscv/simulation/*
 rtl/thuas-riscv/riscv_nativelink_simulation.rpt
+rtl/thuas-riscv-5stage/db
+rtl/thuas-riscv-5stage/rtl_work
+rtl/thuas-riscv-5stage/output_files
+rtl/thuas-riscv-5stage/incremental_db
+rtl/thuas-riscv-5stage/*.bak
+rtl/thuas-riscv-5stage/c5_pin_model_dump.txt
+rtl/thuas-riscv-5stage/serv_req_info.txt
+rtl/thuas-riscv-5stage/modelsim.ini
+rtl/thuas-riscv-5stage/vsim.wlf
+rtl/thuas-riscv-5stage/transcript
+rtl/thuas-riscv-5stage/riscv.qws
+rtl/thuas-riscv-5stage/dse/*
+rtl/thuas-riscv-5stage/*dse*
+rtl/thuas-riscv-5stage/riscv.archive.rpt
+rtl/thuas-riscv-5stage/riscv_assignment_defaults.qdf
+rtl/thuas-riscv-5stage/simulation/*
+rtl/thuas-riscv-5stage/riscv_nativelink_simulation.rpt
 

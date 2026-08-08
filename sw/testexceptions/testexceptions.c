@@ -33,51 +33,48 @@ int main(void) {
 	uart1_puts("\r\nException test program\r\n");
 
 	/* ECALL */
-	//uart1_puts("ECALL\r\n");
 	asm volatile ("ecall" :::);
 
 	/* EBREAK */
-	//uart1_puts("EBREAK\r\n");
 	asm volatile ("ebreak" :::);
 
 	/* Unallocated memory load */
-	//uart1_puts("Unallocated memory load\r\n");
 	asm volatile ("la t0,0x30000000;"
                   "lb t1,0(t0);"
                   ::: "t0");
 
 	/* Unallocated memory store */
-	//uart1_puts("Unallocated memory store\r\n");
 	asm volatile ("la t0,0x30000000;"
                   "sb t1,0(t0);"
                   ::: "t0");
 
 	/* Misaligned halfword load */
-	//uart1_puts("Misaligned halfword memory load\r\n");
 	asm volatile ("la t0,0x20000001;"
                   "lh t1,0(t0);"
                   ::: "t0");
 
 	/* Misaligned halfword store */
-	//uart1_puts("Misaligned halfword memory store\r\n");
 	asm volatile ("la t0,0x20000001;"
                   "sh t1,0(t0);"
                   ::: "t0");
 	
 	/* Misaligned word load */
-	//uart1_puts("Misaligned word memory load\r\n");
 	asm volatile ("la t0,0x20000001;"
                   "lw t1,0(t0);"
                   ::: "t0");
 
 	/* Misaligned word store */
-	//uart1_puts("Misaligned word memory store\r\n");
 	asm volatile ("la t0,0x20000001;"
                   "sw t1,0(t0);"
                   ::: "t0");
 
+	/* Wait a bit for illegal instruction error */
+	asm volatile ("nop;"
+				  "nop;"
+				  "nop;"
+				  ::: );
+
 	/* Illegal instruction */
-	//uart1_puts("Illegal instruction\r\n");
 	asm volatile (".word 0x00000000" :::);
 
 	/* Instruction access error */

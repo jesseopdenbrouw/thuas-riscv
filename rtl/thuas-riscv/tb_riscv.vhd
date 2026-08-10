@@ -278,6 +278,7 @@ begin
         data_from_dtm <= data_from_dtm_v;
         wait for 200 ns;
 
+        -- Write dmactive
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
         wait for 200 ns;
 
@@ -296,6 +297,39 @@ begin
         -- Look at this signal in the waveform viewer
         data_from_dtm <= data_from_dtm_v;
         wait for 200 ns;
+        
+        -- Try to write data to mscratch
+        -- First write data to data0
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"aaaa5555");
+        wait for 200 ns;
+        -- Write to mscratch
+--        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"00230340");
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"00231000");
+        wait for 200 ns;
+        
+        -- Try to read address 0x20000000
+        -- First set data1 to 0x20000000
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000101", x"20000000");
+        wait for 200 ns;
+        -- Next, issue memory read command
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"02200000");
+        wait for 200 ns;
+        -- Read data from data0
+        work.jtag_dmi_pkg.dmi_read(tck, tms, tdi, tdo, "0000100", data_from_dtm_v);
+        -- Look at this signal in the waveform viewer
+        data_from_dtm <= data_from_dtm_v;
+        wait for 200 ns;
+
+        -- Write 0xffffffff to 0xf0000004
+        -- First set data0 to 0xffffffff
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"ffffffff");
+        wait for 200 ns;
+        -- Second set data1 to 0xf0000004
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000101", x"f0000004");
+        wait for 200 ns;
+        -- Next, issue memory write command, with memory address increment
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"02290000");
+        wait for 200 ns;
 
         -- Try to step one instruction
         -- Read dcsr
@@ -312,7 +346,28 @@ begin
         -- Write to dcsr
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307b0");
         wait for 200 ns;
-                
+        -- Try to resume
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"40000001");
+        wait for 200 ns;
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
+        wait for 200 ns;
+
+        -- Disable stepping
+        -- Read dcsr
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002207b0");
+        wait for 200 ns;
+        -- Read data from data0
+        work.jtag_dmi_pkg.dmi_read(tck, tms, tdi, tdo, "0000100", data_from_dtm_v);
+        data_from_dtm <= data_from_dtm_v;
+        -- Clear step bit
+        data_from_dtm_v(2) := '0';
+        wait for 200 ns;
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", data_from_dtm_v);
+        wait for 200 ns;
+        -- Write to dcsr
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307b0");
+        wait for 200 ns;
+
         -- Try to resume
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"40000001");
         wait for 200 ns;

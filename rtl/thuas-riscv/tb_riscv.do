@@ -141,18 +141,18 @@ add wave -divider "Internals - CSR"
 add wave -radix hex -label CSR_access dut/core0/csr_access
 add wave -radix hex -label CSR_reg dut/core0/csr_reg
 if {[find signal -r */debuggen/dtm0/state] != ""} {
-    add wave -divider "Internals - DTM"
+    add wave -divider "DTM"
     add wave            -label DTM_state dut/debuggen/dtm0/state
     add wave            -label tms tms
     add wave            -label tdi tdi
     add wave            -label tdo tdo
     add wave            -label data_from_dtm data_from_dtm
-    add wave -divider "Internals - DM"
+    add wave -divider "DM"
     add wave            -label DM_reg dut/debuggen/dm0/dm_reg
     add wave            -label DM_dmi_request dut/debuggen/dm0/I_dmi_request
+    after 1000
 }
-sleep 1
-add wave -divider "Internals - RAM"
+add wave -divider "RAM"
 add wave            -label RAM_mem_request dut/mem_request_ram_int
 add wave            -label RAM_mem_response dut/mem_response_ram_int
 # Only display RAM if described in agnostic way
@@ -162,10 +162,10 @@ if {[find signal -r */ram0/mem_alt] != ""} {
 # The ROM is really big and showing it in the wave form viewer
 # will slow down the display refresh
 #if {[find signal -r */rom0/mem_alt] != ""} {
-#    add wave -divider "Internals - ROM"
+#    add wave -divider "ROM"
 #    add wave -radix hex -label ROM dut/rom0/mem_alt
 #}
-add wave -divider "Internals - IO"
+add wave -divider "IO"
 add wave            -label IO_mem_request dut/mem_request_io_int
 add wave            -label IO_mem_response dut/mem_response_io_int
 add wave -radix hex -label gpioa_rec dut/gpioa/gpio

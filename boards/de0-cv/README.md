@@ -1,10 +1,11 @@
 
-# DE0-CV extra ROM files
+# DE0-CV extra memory files
 
-This is an implementation of the ROM using Altera's `altsyncram` megafunction.
+This is an implementation of the memory using Altera's `altsyncram` megafunction.
+It can be used to instantiate True Dual-port RAM (or writable ROM).
 When using this megafunction in combination with on-chip debugging and/or
-bootloader, only one copy of altsyncram for the ROM will be the instantiated.
-The device agnostic standard VHDL code for the ROM will make two copies of
+bootloader, only one copy of altsyncram for the memory will be the instantiated.
+The device agnostic standard VHDL code for the memory will make two copies of
 the altsyncram, because of limitations of the synthesizer.
 
 ## How to use

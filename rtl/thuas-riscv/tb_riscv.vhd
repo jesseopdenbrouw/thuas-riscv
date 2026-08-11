@@ -303,8 +303,7 @@ begin
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"aaaa5555");
         wait for 200 ns;
         -- Write to mscratch
---        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"00230340");
-        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"00231000");
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"00230340");
         wait for 200 ns;
         
         -- Try to read address 0x20000000

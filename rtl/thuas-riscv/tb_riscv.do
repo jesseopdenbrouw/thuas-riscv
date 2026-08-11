@@ -150,8 +150,11 @@ if {[find signal -r */debuggen/dtm0/state] != ""} {
     add wave -divider "DM"
     add wave            -label DM_reg dut/debuggen/dm0/dm_reg
     add wave            -label DM_dmi_request dut/debuggen/dm0/I_dmi_request
-    after 1000
+    add wave -divider "Core <=> DM"
+    add wave            -label I_dm_core_data_request dut/core0/I_dm_core_data_request
+    add wave            -label O_dm_core_data_response dut/core0/O_dm_core_data_response
 }
+after 1000
 add wave -divider "RAM"
 add wave            -label RAM_mem_request dut/mem_request_ram_int
 add wave            -label RAM_mem_response dut/mem_response_ram_int

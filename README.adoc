@@ -121,7 +121,7 @@ is needed.
 == On-chip debugger
 
 The processor can be equipped with an on-chip debugger that complies to the
-https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[RISC-V Debug Specification v1.0.0-rc3].
+https://docs.riscv.org/reference/debug/v1.0/index.html[RISC-V Debug Specification v1.0].
 It is an all-hardware solution, there is no program buffer involved
 (yes, the program buffer is optional). All processor registers (including
 CSRs) can be read and written (when possible). Memory can be read and

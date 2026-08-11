@@ -349,7 +349,7 @@ In the default setup, a write needs two clock cycles and a read needs three cloc
 
 == Debug Module and Debug Transport Module
 
-The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up breakpoints, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
+The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://docs.riscv.org/reference/debug/v1.0/index.html[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up breakpoints, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
 
 The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd).
 
@@ -1245,7 +1245,7 @@ The design has a separate ROM that incorporates the bootloader. The original ROM
 
 == Using the on-chip debugger
 
-The on-chip debugger (OCD) follows the guidelines of the https://github.com/riscv/riscv-debug-spec/releases/download/1.0.0-rc3/riscv-debug-specification.pdf[RISC-V debug specification version 1.0.0-rc3]. The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module +(TM)+. The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
+The on-chip debugger (OCD) follows the guidelines of the https://docs.riscv.org/reference/debug/v1.0/index.html[RISC-V debug specification version 1.0]. The on-chip debugger is compatible with OpenOCD, GDB for RISC-V and Eclipse-CDT. The OCD consists of three parts: the debug module (DM), the debug transport module (DTM) and the trigger module +(TM)+. The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd). The DM and DTM are external to the core, the TM is incorporated in the core. Features of the OCD are:
 
 * Standard JTAG access port.
 * Halt/resume the hart,

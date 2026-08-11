@@ -1540,7 +1540,7 @@ begin
             if rising_edge(I_clk) then
                 if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                     regs_rs1(selrd_v) <= id_ex.result;
-                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                     regs_rs1(selrd_v) <= I_dm_core_data_request.data;
                 end if;
                 if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
@@ -1562,7 +1562,7 @@ begin
             if rising_edge(I_clk) then
                 if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                     regs_rs2(selrd_v) <= id_ex.result;
-                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                     regs_rs2(selrd_v) <= I_dm_core_data_request.data;
                 end if;
                 if control.stall_on_trigger = '1' or control.stall = '1' or control.trap_request = '1' then
@@ -1586,7 +1586,7 @@ begin
                 if rising_edge(I_clk) then
                     if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                         regs_debug(selrd_v) <= id_ex.result;
-                    elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                    elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                         regs_debug(selrd_v) <= I_dm_core_data_request.data;
                     end if;
                     data_from_gpr <= regs_debug(selrd_v);
@@ -1626,7 +1626,7 @@ begin
                 else
                     if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                         regs_debug(selrd_v) <= id_ex.result;
-                    elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' then
+                    elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                         regs_debug(selrd_v) <= I_dm_core_data_request.data;
                     end if;
                     regs_debug(0) <= (others => '0');

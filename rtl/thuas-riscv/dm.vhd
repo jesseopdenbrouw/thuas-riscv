@@ -423,8 +423,7 @@ begin
                         -- Writes take 1 cycle for csr, 2 for registers
                         when cmd_writereg1 =>
                             O_dm_core_data_request.writecsr <= '0';
-                            O_dm_core_data_request.address <= (others => '0');
-                            O_dm_core_data_request.data <= (others => '0');
+                            O_dm_core_data_request.writegpr <= '0';
                             dm_reg.state <= cmd_idle;
                         -- Prepare DM for memory access
                         when cmd_preparemem =>

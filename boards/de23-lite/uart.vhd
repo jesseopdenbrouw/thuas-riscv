@@ -148,6 +148,7 @@ begin
             O_txd <= '1';
             --
             O_mem_response.data <= all_zeros_c;
+            O_mem_response.ready <= '0';
         elsif rising_edge(I_clk) then
             O_mem_response.data <= all_zeros_c;
             O_mem_response.ready <= '0';

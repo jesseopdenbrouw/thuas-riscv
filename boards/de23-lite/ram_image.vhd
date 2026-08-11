@@ -41,9 +41,14 @@ library work;
 use work.processor_common.all;
 
 package ram_image is
-    constant ram_contents : memory_type := (
-        -- There must be at least one entry
-        0 => (others => 'U')
-        -- 0 => x"01020304"
-    );
+
+    -- Use a little trick to create an empty RAM image
+    -- The range is deliberately 1 to 0 so that the effective
+    -- range is empty (NULL). A constant must have an
+    -- initializer, but there are no elements. The 'others'
+    -- is used to adhere to the VHDL syntax, but effectively
+    -- is ignored.
+    -- You will see a warning reported by the synthesizer.
+    constant ram_contents : memory_type(1 to 0) := (others => x"00000000");
+
 end package ram_image;

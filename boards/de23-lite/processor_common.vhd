@@ -45,7 +45,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_04_11#;
+    constant HW_VERSION : integer := 16#01_01_04_13#;
 
     
     -- Used data types
@@ -579,10 +579,13 @@ package processor_common is
     impure function initialize_memory(init : memory_type ; depth : integer) return memory_type;
     
     -- Function to assign part of 32-bit memory to 8-bit memory
-    impure function initialize_memorybyte(init : memory_type ; depth : integer; byte : integer; default : std_logic) return memorybyte_type;
+    impure function initialize_memorybyte(init : memory_type ; depth : integer; byte : integer; dflt : std_logic) return memorybyte_type;
 
     -- Function to change boolean into a std_logic
     function boolean_to_std_logic(condition : boolean) return std_logic;
+
+    -- Function to select a std_logic_vector from a boolean condition
+    function boolean_to_std_logic_vector(condition : boolean; a : std_logic_vector; b : std_logic_vector) return std_logic_vector;
     
     -- Function to reverse bits in std_logic_vector
     function bit_reverse(input : std_logic_vector) return std_logic_vector;
@@ -635,10 +638,10 @@ package body processor_common is
     end function initialize_memory;
 
     -- Function to assign part of 32-bit memory to 8-bit memory
-    impure function initialize_memorybyte(init : memory_type; depth : integer; byte : integer; default : std_logic) return memorybyte_type is
+    impure function initialize_memorybyte(init : memory_type; depth : integer; byte : integer; dflt : std_logic) return memorybyte_type is
     variable mem_v : memorybyte_type(0 to depth-1);
     begin
-        mem_v := (others => (others => default)); 
+        mem_v := (others => (others => dflt)); 
         if init'length > depth then
             report "Initialization image is overflowing memory range!" severity error;
         else
@@ -660,6 +663,16 @@ package body processor_common is
             return '0';
         end if;
     end function boolean_to_std_logic;
+
+    -- Function to select a std_logic_vector from a boolean condition
+    function boolean_to_std_logic_vector(condition : boolean; a : std_logic_vector; b : std_logic_vector) return std_logic_vector is
+    begin
+        if condition then
+            return a;
+        else
+            return b;
+        end if;
+    end function boolean_to_std_logic_vector;
 
     -- Function to reverse bits in std_logic_vector
     function bit_reverse(input : std_logic_vector) return std_logic_vector is

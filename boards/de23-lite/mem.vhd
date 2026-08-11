@@ -44,7 +44,7 @@
 -- up to the syntesizer to allocate onboard RAM blocks. The
 -- memory may be initialized with a contents via the generic
 -- MEMORY_CONTENTS. which is an array of 32-bit words. The
--- generic MEMORY_FILE is ignored. The contents if the RAM
+-- generic MEMORY_FILE is ignored. The contents of the RAM
 -- is visible in the simulator.
 
 library ieee;

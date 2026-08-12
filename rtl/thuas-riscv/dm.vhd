@@ -35,7 +35,8 @@
 -- #################################################################################################
 
 -- This file contains the Debug Module (DM). The DM can only handle Abstract Commands:
--- Access Registers and Access Memory. Prog mem and system bus are not supported.
+-- Access Registers and Access Memory. Program buffer and system bus are not supported.
+-- See Debug spec, S. 6.1.1.
 -- Register access can also read/write CSRs. Parts based on neorv32 DM module.
 
 library ieee;
@@ -420,7 +421,7 @@ begin
                         -- In this cycle, data0 is loaded with external data
                         when cmd_readreg2 =>
                             dm_reg.state <= cmd_idle;
-                        -- Writes take 1 cycle for csr, 2 for registers
+                        -- Writes take 1 cycle
                         when cmd_writereg1 =>
                             O_dm_core_data_request.writecsr <= '0';
                             O_dm_core_data_request.writegpr <= '0';

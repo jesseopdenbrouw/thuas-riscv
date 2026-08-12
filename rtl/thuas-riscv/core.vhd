@@ -2046,7 +2046,7 @@ begin
                     -- Clock in the multiplicand and multiplier
                     -- In the Cyclone V, these are embedded registers
                     -- in the DSP units.
-                    if id_ex.md_start = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
+                    if id_ex.md_start = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' and id_ex.md_op(2) = '0' then
                         if id_ex.md_op(1) = '1' then
                             if id_ex.md_op(0) = '1' then
                                 md.rdata_a <= '0' & unsigned(a_v);
@@ -2060,7 +2060,7 @@ begin
                         end if;
                     end if;
                     -- Only start when start seen and multiply
-                    md.mul_running <= id_ex.md_start and not control.trap_request and not id_ex.md_op(2);
+                    md.mul_running <= id_ex.md_start and not control.trap_request and not control.stall_on_trigger and not id_ex.md_op(2);
                 end if; -- sreset
             end if; -- posedge
         end process;

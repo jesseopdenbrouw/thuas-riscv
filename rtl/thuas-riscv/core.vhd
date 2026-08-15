@@ -1538,7 +1538,7 @@ begin
                 selrd_v := to_integer(unsigned(id_ex.rd));
             end if;
             if rising_edge(I_clk) then
-                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                if control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                     regs_rs1(selrd_v) <= id_ex.result;
                 elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                     regs_rs1(selrd_v) <= I_dm_core_data_request.data;
@@ -1560,7 +1560,7 @@ begin
                 selrd_v := to_integer(unsigned(id_ex.rd));
             end if;
             if rising_edge(I_clk) then
-                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                if control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                     regs_rs2(selrd_v) <= id_ex.result;
                 elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                     regs_rs2(selrd_v) <= I_dm_core_data_request.data;
@@ -1584,7 +1584,7 @@ begin
                     selrd_v := to_integer(unsigned(id_ex.rd));
                 end if;
                 if rising_edge(I_clk) then
-                    if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                    if control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                         regs_debug(selrd_v) <= id_ex.result;
                     elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                         regs_debug(selrd_v) <= I_dm_core_data_request.data;
@@ -1624,7 +1624,7 @@ begin
                     id_ex.rs2data <= (others => '0');
                     data_from_gpr <= (others => '0');
                 else
-                    if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                    if control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                         regs_debug(selrd_v) <= id_ex.result;
                     elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                         regs_debug(selrd_v) <= I_dm_core_data_request.data;
@@ -2724,7 +2724,6 @@ begin
               csr_addr_v = misa_addr or
               csr_addr_v = mie_addr or
               csr_addr_v = mtvec_addr or
-              csr_addr_v = mcounteren_addr or
               csr_addr_v = mstatush_addr or
               csr_addr_v = mcountinhibit_addr or
               csr_addr_v = mscratch_addr or

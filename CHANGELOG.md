@@ -80,4 +80,5 @@ All dates are in dd.mm.yyyy format.
 | 29.07.2026 | 1.1.4.12 | [core] make sure the PC is loaded with the correct value direct after download of the bitstream | |
 | 11.08.2026 | 1.1.4.13 | [dm] Fix issue when writing to x0, [core] fix issue when writing to x0 via debug units | |
 | 12.08.2026 | 1.1.4.14 | [core] do not start multiplication if division is selected | |
+| 15.08.2026 | 1.1.4.15 | [core] removed superfluous signal, removed CSR mcounteren | |
 

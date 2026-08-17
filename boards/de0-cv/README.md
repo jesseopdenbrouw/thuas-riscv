@@ -15,11 +15,10 @@ the altsyncram, because of limitations of the synthesizer.
 * Copy `bootrom_image.mif` to the `rtl` directory.
 * In the `rtl` directory, update the file `riscv.vhd` to use the MIF files. Look at the point of instantiation and update the generic `MEMORY_FILE` accordingly.
 
-When starting simulation from Quartus, the MIF files are
-copied to the simulation directory.
-
 When using Questasim or Modelsim Altera Starter Edition, simulation
 of the altsyncram is possible.
+
+It _is_ possible the show the contents of the altsyncram, but that is not straightforward. You have to find the memory array of the altsyncram. Try the Questasim command `mem list -r`.
 
 Also works on the DE10-Lite board.
 

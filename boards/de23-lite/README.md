@@ -13,3 +13,7 @@ Please note the following:
 The pinout of the peripherals on GPIO_0 is the same as with the DE0-CV board,
 except for I2C2 which is connected to the on-print ADC and HDMI chips and
 UART1 is connected to the on-board FTDI chip. Look for /dev/ttyUSB0 under Linux.
+
+The Agilex 3 chip has M20K RAM blocks and does *not* support dual-port RAM
+so the alternative memory description using altsyncram is not usable.
+

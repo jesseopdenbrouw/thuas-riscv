@@ -3332,7 +3332,6 @@ begin
                     csr_reg.dcsr(31 downto 28) <= "0100";            -- version 1.0
 
                     csr_reg.tdata1(31 downto 28) <= x"6";            -- always type 6 (mcontrol6)
-                    csr_reg.tdata1(27) <= '0';                       -- 0
                     csr_reg.tdata1(26) <= '0';                       -- uncertain
                     csr_reg.tdata1(25) <= '0';                       -- hit1 = 0
                     csr_reg.tdata1(24) <= '0';                       -- vs

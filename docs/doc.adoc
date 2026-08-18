@@ -132,7 +132,7 @@ image::images/load.svg[Execution of a load instruction]
 
 When an interrupt occurs, the FSM enters the `trap` state for fetching the trap vector. An interrupt can occur any time and is called asynchronous. When an interrupt occurs, the instruction-to-be-executed is discarded and must be restarted after return. After fetching the trap handler, the instruction pipeline is flushed and new instructions are fetched.
 
-Exceptions are synchronous to the executing of instructions. When an exception occurs, the current instruction is discarded. The instruction can be restarted, but that is not always possible (e.g. misaligned address, illegal instruction). Exceptions to this are the `ECALL` and `EBREAK` instructions. These instructions do cause a trap, but are not restarted, so the next instruction must be fetched after return. This has to be handled in software by the trap handler. 
+Exceptions are synchronous to the executing of instructions. When an exception occurs, the current instruction is discarded. The instruction can be restarted, but that is not always possible (e.g. misaligned address, illegal instruction). Exceptions to this are the `ECALL` and `EBREAK` instructions. These instructions do cause a trap, but are not restarted, so the next instruction must be fetched after return. This has to be handled in software by the trap handler. Note that all exceptions are taken in the EX/WB stage, even instruction access/illegal/misaligned faults.
 
 An ongoing memory access can only be interrupted by an exception (`mem` state). An ongoing hardware multiply/divide operation is *not* interrupted, the operation completes and writes back the result in a register.
 

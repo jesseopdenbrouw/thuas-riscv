@@ -2954,7 +2954,6 @@ begin
             csr_reg.mhpmevent9 <= (others => '0');
             csr_reg.dcsr <= (others => '0');
             csr_reg.dpc <= (others => '0');
-            csr_reg.tselect <= (others => '0');
             csr_reg.tdata1 <= (others => '0');
             csr_reg.tdata2 <= (others => '0');
             control.nmi_lockout <= '0';
@@ -2997,7 +2996,6 @@ begin
                 csr_reg.mhpmevent9 <= (others => '0');
                 csr_reg.dcsr <= (others => '0');
                 csr_reg.dpc <= (others => '0');
-                csr_reg.tselect <= (others => '0');
                 csr_reg.tdata1 <= (others => '0');
                 csr_reg.tdata2 <= (others => '0');
                 control.nmi_lockout <= '0';
@@ -3334,25 +3332,26 @@ begin
                     csr_reg.dcsr(31 downto 28) <= "0100";            -- version 1.0
 
                     csr_reg.tdata1(31 downto 28) <= x"6";            -- always type 6 (mcontrol6)
+                    csr_reg.tdata1(27) <= '0';                       -- 0
                     csr_reg.tdata1(26) <= '0';                       -- uncertain
                     csr_reg.tdata1(25) <= '0';                       -- hit1 = 0
                     csr_reg.tdata1(24) <= '0';                       -- vs
                     csr_reg.tdata1(23) <= '0';                       -- vu
                     csr_reg.tdata1(20) <= '0';                       -- 0
                     csr_reg.tdata1(19) <= '0';                       -- 0
+                    csr_reg.tdata1(11) <= '0';                       -- chain
                     csr_reg.tdata1(5) <= '0';                        -- uncertainen
                     csr_reg.tdata1(4) <= '0';                        -- S mode
                     csr_reg.tdata1(3) <= '0';                        -- U mode
                     csr_reg.tdata1(1) <= '0';                        -- no store
                     csr_reg.tdata1(0) <= '0';                        -- no load
+
                     csr_reg.dpc(0) <= '0';                           -- LSB always 0
-                    csr_reg.tselect <= (others => '0');              -- Only 1 hw breakpoint
                 else
                     csr_reg.dcsr <= (others => '0');
                     csr_reg.dpc <= (others => '0');
                     csr_reg.tdata1 <= (others => '0');
                     csr_reg.tdata2 <= (others => '0');
-                    csr_reg.tselect <= (others => '0');
                 end if;
                 
                 -- Interrupt handling takes priority over possible user
@@ -3412,6 +3411,7 @@ begin
 
         -- Lowest two bits of mepc always 0, see priv ISA, S.3.1.14
         csr_reg.mepc(1 downto 0) <= "00";
+
     end process;
 
     -- Transfer of MEPC to the PC
@@ -3472,6 +3472,9 @@ begin
     -- Copy system timer info
     csr_reg.mtime <= I_mtime;
     csr_reg.mtimeh <= I_mtimeh;
+
+    -- Only 1 hw breakpoint
+    csr_reg.tselect <= (others => '0');
 
     
     --

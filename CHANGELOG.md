@@ -81,4 +81,5 @@ All dates are in dd.mm.yyyy format.
 | 11.08.2026 | 1.1.4.13 | [dm] Fix issue when writing to x0, [core] fix issue when writing to x0 via debug units | |
 | 12.08.2026 | 1.1.4.14 | [core] do not start multiplication if division is selected | |
 | 15.08.2026 | 1.1.4.15 | [core] removed superfluous signal, removed CSR mcounteren | |
+| 18.08.2026 | 1.1.4.16 | [core] fixup CSRs tadat1 and tselect | |
 

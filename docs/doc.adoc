@@ -1255,9 +1255,9 @@ The on-chip debugger (OCD) follows the guidelines of the https://docs.riscv.org/
 * Read/write all core registers (GPR and CSR),
 * Read/write memory.
 
-The OCD is an all-hardware solution. Accessing core registers and memory is done by Abstract Commands. There is no support for program buffer (progbuf) and System Bus Access. This means that the debugger cannot execute the `fence` instruction (or any other instruction). That is not a problem, since the core will wait for a memory operation to be completedi before entering denug state. Note that from the debug specification, the program buffer is optional.
+The OCD is an all-hardware solution. Accessing core registers and memory is done by Abstract Commands. There is no support for program buffer (progbuf) and System Bus Access. This means that the debugger cannot execute the `fence` instruction (or any other instruction). That is not a problem, since the core will wait for a memory operation to be completed before entering debug state. Note that from the debug specification, the program buffer is optional.
 
-From the debug specification, Chapter 3, there is a list of requirements. Some are mandatory, others are optional. All requirements for multiple harts are not applicable.
+From the debug specification, Chapter 2, there is a list of requirements. Some are mandatory, others are optional. All requirements for multiple harts are not applicable.
 
 .List of requirements vor the on-chip debugger.
 [cols="1,1,1"]
@@ -1282,7 +1282,7 @@ From the debug specification, Chapter 3, there is a list of requirements. Some a
 
 The hart can be in five "states": resetting, running, halting, halted and resuming. When resetting, the reset synchronizer creates a three-clock-cycle reset signal after the reset signal is deasserted. It takes two clock cycles for the first instruction to be executed. In running, the hart executes instructions. Then, it is not possible to examine registers or memory. When a halt request is asserted, the core does not execute the current instruction, but enters the halted state. In the halted state (coined "debug"), the hart is not executing instructions, and registers and memory may be examined. When resuming, the hart flushes the pipeline and starts executing instructions. All transitions take up a few clock cycles, except when an integer division is in progress. Then, halting takes about 36 clock cycles.
 
-*Reset Control* The hart can be reset, even from the very first instruction. In OpenOCD, just issue the command `reset halt` and the hart will be reset and halted. Note that registers and RAM memory retain their last committed value, I/O memory is reset. Resetting the hart takes a few clock cycles.
+*Reset Control* The hart can be reset, even from the very first instruction. In OpenOCD, just issue the command `reset halt` and the hart will be reset and halted. Note that registers and RAM memory retain their last committed value, CSRs and I/O memory are reset. This means that any hardware breakpoint information is lost. Resetting the hart takes a few clock cycles.
 
 *Run Control* To resume the hart, issue the OpenOCD command `resume`. To halt the hart, issue the OpenOCD command `halt`. Note that the `cycle` and `time` counters keep on running in the halted state.
 

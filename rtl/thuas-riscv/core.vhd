@@ -424,7 +424,6 @@ begin
             else
                 control.load_pc <= '0';
                 control.load_dpc <= '0';
---                csr_reg.dcsr_cause <= "0000";
                 if I_ackhavereset = '1' then
                     O_reset_ack <= '0';
                 end if;
@@ -640,8 +639,8 @@ begin
     -- Delay the release request (for use in the CSR)
     control.mret_request_delay <= '1' when control.state = state_mret2 else '0';
     
-    -- May the core be interrupted (only for interrupts, not exceptions)?
-    control.may_interrupt <= '1' when control.state = state_exec or control.state = state_wfi else '0';
+    -- May the core be interrupted (only for interrupts, not exceptions), but not when stepping?
+    control.may_interrupt <= '1' when (control.state = state_exec or control.state = state_wfi) and control.isstepping = '0' else '0';
     
     -- Check if the currently executing instruction address is aligned to word
     -- We need to make a one-shot, because the PC is incremented by 4 each clock

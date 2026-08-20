@@ -2,14 +2,14 @@
 
 xref:CHANGELOG.md[Change Log] | xref:docs/doc.adoc[Full Documentation]
 
-A RISC-V 32-bit microcontroller written in VHDL targeted
+A RISC-V 32-bit System-on-a-Chip written in VHDL targeted
 for an FPGA.
 
 == Quick info
 
-This RISC-V microcontroller uses the RV32IM instruction set
+This RISC-V SoC uses the RV32IM instruction set
 and the Zicsr, Zicntr, Zicond, Zimop, Zihpm, Zba, Zbb, Zbs,
-Zbkb, Sdext and Sdtrig extensions. The microcontroller is
+Zbkb, Sdext and Sdtrig extensions. The SoC is
 build around a three-stage pipelined core.
 
 All instructions from the "The RISC-V
@@ -20,14 +20,14 @@ from the M standard (hardware multiply/divide), RV32, are
 supported. From the "The RISC-V Instruction Set Manual:
 Volume II Privileged Architecture, Version 20240411", RV32,
 `mret` and `wfi` are supported. The
-microcontroller supports Machine mode only. Traps (interrupts
+SoC supports Machine mode only. Traps (interrupts
 and exceptions) are supported.
 
 Loads from memory require 3 clocks, stores require 2 clocks
 (except for I/O, then stores take 3 clocks).
 CSR operations require 1 clock. Multiplications require 3 clocks,
 divisions require 34 clocks. Jumps/branches taken require 3
-clocks, the microcontroller does not support branch prediction.
+clocks, the SoC does not support branch prediction.
 All other instructions require 1 clock.
 
 Current Coremark testbench shows a CPI of 1.75 and a score
@@ -44,16 +44,18 @@ hardware. The bootloader can
 be used without the on-chip debugger to upload executables
 to the processor. The on-chip debugger can be used with
 OpenOCD, GDB and Eclipse-CDT.
+
+(There is also a https://github.com/jesseopdenbrouw/thuas-riscv-5stage[5-stage pipelined SoC].)
  
 == Memory
 
-The microcontroller uses FPGA onboard RAM blocks to emulate RAM
+The SoC uses FPGA onboard RAM blocks to emulate RAM
 and program ROM. There is no support for cache or external RAM. Programs
 are compiled with the GNU C compiler for RISC-V and the resulting
 executable is transformed to a VHDL synthesizable ROM table.
 
 * ROM: a ROM of 64 kB is available (placed in onboard RAM, may be extended).
-* BOOT: a bootloader ROM of 4 kB (placed in onboard RAM).
+* BOOT: a bootloader ROM of 4 kB (placed in onboard RAM, fixed).
 * RAM: a RAM of 32 kB using onboard RAM block available (may be extended).
 * I/O: a simple 32-bit input and 32-bit output is available, as are two
 7/8/9-bit UARTs with interrupt capabilities. Two SPI devices are
@@ -86,7 +88,7 @@ the synthesized clock speed.
 
 == FPGA
 
-The microcontroller is developed on a
+The SoC is developed on a
 https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyclone V FPGA]
 (5CEBA4F23C7) with the use of the
 https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[DE0-CV board]
@@ -120,7 +122,7 @@ is needed.
 
 == On-chip debugger
 
-The processor can be equipped with an on-chip debugger that complies to the
+The SoC can be equipped with an on-chip debugger that complies to the
 https://docs.riscv.org/reference/debug/v1.0/index.html[RISC-V Debug Specification v1.0].
 It is an all-hardware solution, there is no program buffer involved
 (yes, the program buffer is optional). All processor registers (including
@@ -165,6 +167,6 @@ Take a short tour on xref:docs/xpack.adoc[Installing xPacks on Windows 11].
 
 == Disclaimer
 
-This microcontroller is for educational purposes only.
+This SoC is for educational purposes only.
 Work in progress. Things might change. Use with care.
 

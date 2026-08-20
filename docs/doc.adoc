@@ -1,4 +1,4 @@
-= The THUAS RISC-V 32-bit Processor in VHDL
+= The THUAS RISC-V 32-bit System-on-a-Chip in VHDL
 Jesse op den Brouw <J.E.J.opdenBrouw@hhs.nl>
 :toc:
 
@@ -11,9 +11,9 @@ J.E.J.opdenBrouw@hhs.nl
 
 == Abstract
 
-This documents describes a 32-bit RISC-V processor in VHDL. The processor executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The processor can optionally be equipped with the Zba, Zbb and Zbs (bit operations), Zbkb (bitmanip for cryptography), Zicond (conditional operations), Zihpm (extra counters), Zimop (may-be operations) and the Sdext and Sdtrig (on-chip debugger). The processor incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 25.1 and QuestaSim Intel Starter Edition 2025.2. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
+This documents describes a 32-bit RISC-V SoC in VHDL. The SoC executes the RV32IM instruction set with the Zicsr and Zicntr extensions (CSR and basic counters). The SoC can optionally be equipped with the Zba, Zbb and Zbs (bit operations), Zbkb (bitmanip for cryptography), Zicond (conditional operations), Zihpm (extra counters), Zimop (may-be operations) and the Sdext and Sdtrig (on-chip debugger). The SoC incorporates ROM, an optional boot ROM, RAM and some I/O. It is targeted for implementation on an FPGA. It is tested on an Intel Cyclone V with a DE0-CV development board from Terasic with the use of Quartus Prime Lite 25.1 and QuestaSim Intel Starter Edition 2025.2. The GNU C-compiler for RISC-V is used for software development. Many C programs were successfully tested using the GNU C compiler. {cpp} is supported but most standard concepts (e.g. cout) create a binary that is too big to fit in the ROM.
 
-The processor has a three-stage pipelined core and executes each instruction in three clock cycles, but the next instructions are fetched and decoded while the current instruction is executed. Jump/branches taken require three clock cycles. Memory reads need three clock cycles, writes take two clock cycles, except for I/O where writes take three clock cycles. This processor also has a basic Control and Status Registers (CSR) set, suitable to handle traps, and a hardware integer multiplier/divider.
+The SoC has a three-stage pipelined core and executes each instruction in three clock cycles, but the next instructions are fetched and decoded while the current instruction is executed. Jump/branches taken require three clock cycles. Memory reads need three clock cycles, writes take two clock cycles, except for I/O where writes take three clock cycles. This core also has a basic Control and Status Registers (CSR) set, suitable to handle traps, and a hardware integer multiplier/divider.
 
 This is work in progress. Things will certainly change in the future.
 
@@ -21,21 +21,21 @@ This is work in progress. Things will certainly change in the future.
 
 == Introduction
 
-This document describes the buildup of a simple, one core, RISC-V processor, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The processor is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The processor can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zimop, Zihpm, Zba, Zbb, Zbs, Zbkb, Sdext and Sdtrig extensions are implemented. The processor can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The processor utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The processor is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
+This document describes the buildup of a simple, one core, RISC-V SoC, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The SoC is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The SoC can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zimop, Zihpm, Zba, Zbb, Zbs, Zbkb, Sdext and Sdtrig extensions are implemented. The SoC can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The SoC utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The SoC is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
 
-The processor is build around a three-stage pipelined core: fetch, decode and execute stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The processor has a Control and Status Registers set, offering basic and performance counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. Traps taken and return take 3 clocks.
+The SoC is build around a three-stage pipelined core: fetch, decode and execute/write back stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The SoC has a Control and Status Registers set, offering basic and performance counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. Traps taken and return take 3 clocks.
 
-The processor executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark test shows an average CPI of 1.75 with a throughput of 1.94 coremark/MHz (GCC 16.1, -O3, 4000 runs).
+The SoC executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark test shows an average CPI of 1.75 with a throughput of 1.94 coremark/MHz (GCC 16.1, -O3, 4000 runs).
 
-== The Processor
+== The SoC
 
-An overview of the processor is given in <<fig_soc>>
+An overview of the SoC is given in <<fig_soc>>
 
-.Block diagram of the processor.
+.Block diagram of the SoC.
 [[fig_soc]]
 image::images/soc.svg[Image of SoC]
 
-The RISC-V processor consists of one core and some building blocks:
+The RISC-V SoC consists of one core and some building blocks:
 
 * The core handles program execution.
 * The ROM contains the program instructions and constant data. When the bootloader or the on-chip debugger is implemented, the ROM may be written.
@@ -95,7 +95,7 @@ The registers can optionally be put in ALM flip-flops. This increases the ALM co
 
 === ALU
 
-The Arithmetic and Logic Unit (ALU) handles almost all computations on data. It can add, subtract, do logic operations such as AND, OR en XOR, can shift data left or right, and sign extend byte and half word data. Some operations require two registers. Some instructions use one register and immediate data. Furthermore the ALU is also used to determine if a conditional branch should be taken. The ALU is also used to compute the return address from unconditional function calls (JAL and JALR instructions). The data is in Big Endian format. The ALU is the only building block that can write registers. The ALU does not compute multiplications and divisions, but merely passes on data from the MD unit. The result calculated is written to the register file in the same clock cycle. This means that the architectural state of the processor is consistent with the executing of the instructions.
+The Arithmetic and Logic Unit (ALU) handles almost all computations on data. It can add, subtract, do logic operations such as AND, OR en XOR, can shift data left or right, and sign extend byte and half word data. Some operations require two registers. Some instructions use one register and immediate data. Furthermore the ALU is also used to determine if a conditional branch should be taken. The ALU is also used to compute the return address from unconditional function calls (JAL and JALR instructions). The data is in Big Endian format. The ALU is the only building block that can write registers. The ALU does not compute multiplications and divisions, but merely passes on data from the MD unit. The result calculated is written to the register file in the same clock cycle. This means that the architectural state of the SoC is consistent with the executing of the instructions.
 
 
 Note that the computation of jump target addresses is handled by the Program Counter (PC) hardware.
@@ -110,13 +110,13 @@ The instruction decoder decodes the instruction supplied by the ROM, RAM and boo
 
 === Control Unit
 
-The processor uses a eighteen-state FSM, see <<fig_fsm>>. Upon reset, the processor starts in state `boot0`. In this state, the processor is executing a hardware no-operation, i.e. no computations are performed. In state `boot1` the processor performs a hardware no-operation (but the first instruction is being decoded). In the `exec` state, the processor is executing decoded instructions. If a trap request is asserted, the processor executes the trap initiate sequence (saving the PC, fetching the handler start address, pipeline is flushed). If a memory access is requested, the processor initiates the memory access sequence (state `mem`). The processor waits in this state until the memory access is acknowledged. A jump (JAL, JALR) or a branch taken causes the processor to flush the pipeline and start fetching instruction from the target address (states `flush` and `flush2`). When the processor executes an integer multiply/divide instruction, the processor starts the MD sequence (states `md` and `md2`), and stalls until the operation is completed. When the processor executes an `mret` instruction, the processor executes the return sequence (fetching the saved PC, flushing the pipeline).
+The core uses a eighteen-state FSM, see <<fig_fsm>>. Upon reset, the core starts in state `boot0`. In this state, the core is executing a hardware no-operation, i.e. no computations are performed. In state `boot1` the core performs a hardware no-operation (but the first instruction is being decoded). In the `exec` state, the core is executing decoded instructions. If a trap request is asserted, the core executes the trap initiate sequence (saving the PC, fetching the handler start address, pipeline is flushed). If a memory access is requested, the core initiates the memory access sequence (state `mem`). The core waits in this state until the memory access is acknowledged. A jump (JAL, JALR) or a branch taken causes the core to flush the pipeline and start fetching instruction from the target address (states `flush` and `flush2`). When the core executes an integer multiply/divide instruction, the core starts the MD sequence (states `md` and `md2`), and stalls until the operation is completed. When the core executes an `mret` instruction, the core executes the return sequence (fetching the saved PC, flushing the pipeline).
 
 .The state diagram of the controller, without the debug states.
 [[fig_fsm]]
 image::images/fsm.svg[Image of the FSM]
 
-Note that a trap (interrupts and exceptions) can be initiated in the `exec` state and has priority over the others signals. Note that a trap (exceptions only) can be initiated in the `mem` state. In the `wfi` state, only an interrupt can be initiated. In all other states, a trap can never be initiated (interrupts are postponed until the processor is in the `exec` state).
+Note that a trap (interrupts and exceptions) can be initiated in the `exec` state and has priority over the others signals. Note that a trap (exceptions only) can be initiated in the `mem` state. In the `wfi` state, only an interrupt can be initiated. In all other states, a trap can never be initiated (interrupts are postponed until the core is in the `exec` state).
 
 The PC points to +8 of the currently executing instruction, in a sequential instruction stream. If a jump or branch taken occurs, the FSM inserts a penalty because the PC has to be loaded with the correct value and a new instruction must be fetched (see <<fig_one>>). Reading from memory requires three clock cycles (see <<fig_load>>), a write requires two clock cycles, except for I/O, where a write takes three clock cycles. When a multiply, divide or remainder instruction is encountered, the FSM enters the `md` state and waits for the md-unit to complete (32+2 or 16+2 clock cycles). Note that `penalty`, `mem`, `mdstart` and `mret` cannot occur at the same time.
 
@@ -230,8 +230,8 @@ For on-chip debugging purposes, there are six CSRs:
 
 Custom CSR:
 
-* `mxhw` -- this custom CSR with address 0xfc0 is read-only and reflects the hardware properties of the synthesized processor.
-* `mxspeed` -- this custom CSR with address 0xfc1 is read-only and contains the system frequency in Hz of the synthesized processor.
+* `mxhw` -- this custom CSR with address 0xfc0 is read-only and reflects the hardware properties of the synthesized SoC.
+* `mxspeed` -- this custom CSR with address 0xfc1 is read-only and contains the system frequency in Hz of the synthesized SoC.
 
 Writing read-only registers causes an illegal instruction trap. Accessing a non-existent register causes an illegal instruction trap. The trap handler (vector) address must be loaded by software at boot time (normally done in `main`). Both direct and vectored mode are supported. In direct mode all traps redirect to a single trap handler that has to handle both interrupts and exceptions. The most significant bit of `mcause` is 1 when a trap occurred from an interrupt. In vectored mode, *interrupt handlers* are called from a jump table. Exceptions are redirected to a single handler. Note that the address of the jump table must be on a 4-byte boundary, and bit 0 of `mtvec` must be set to 1 for vectored mode.
 
@@ -247,7 +247,7 @@ Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction S
 
 === Multiply/Divide Unit
 
-The processor is equipped with a hardware integer multiply/divide unit. All multiply/divide instructions are supported (`mul`, `mulh`, `mulhsu`, `mulhu`, `div`, `divu`, `rem`, `remu`) and the result is fed to the ALU. A multiplication takes three clock cycles (one clock-in, one multiply, one clock-out). For division, two versions are available. By default, the divider needs 34 clocks (one clock-in, 32 divide, one clock-out) for a division using a radix-2 division. As an alternative, a poor mans radix-4 division unit can be selected taking 18 clock cycles (one clock-in, 16 divide, one clock-out) to do the division. Thus, the radix-4 divider unit is faster, but needs more cells. The radix-2 divider unit is slower, but needs less cells. You have to enable the M standard support in the compiler. The multiplier uses special DSP units in the Cyclone V. Most regular FPGAs have onboard multipliers. Note that when executing an operation, the pipeline is stalled. Note that a trap request is postponed until the operation is completed and the result is saved in the register file.
+The core is equipped with a hardware integer multiply/divide unit. All multiply/divide instructions are supported (`mul`, `mulh`, `mulhsu`, `mulhu`, `div`, `divu`, `rem`, `remu`) and the result is fed to the ALU. A multiplication takes three clock cycles (one clock-in, one multiply, one clock-out). For division, two versions are available. By default, the divider needs 34 clocks (one clock-in, 32 divide, one clock-out) for a division using a radix-2 division. As an alternative, a poor mans radix-4 division unit can be selected taking 18 clock cycles (one clock-in, 16 divide, one clock-out) to do the division. Thus, the radix-4 divider unit is faster, but needs more cells. The radix-2 divider unit is slower, but needs less cells. You have to enable the M standard support in the compiler. The multiplier uses special DSP units in the Cyclone V. Most regular FPGAs have onboard multipliers. Note that when executing an operation, the pipeline is stalled. Note that a trap request is postponed until the operation is completed and the result is saved in the register file.
 
 
 === Trigger Module
@@ -256,11 +256,11 @@ The core is equipped with a trigger module +(TM)+ that can be used with on-chip 
 
 === Implemented instructions
 
-For the processor, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. From Zicsr, all instructions are implemented. Also, the Zba, Zbb, Zbs, Zbkb, Zimop and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
+For the core, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. From Zicsr, all instructions are implemented. Also, the Zba, Zbb, Zbs, Zbkb, Zimop and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
 
 == Reset
 
-There are two flavors of resets. The SoC can be reset asynchronous or synchronous. Furthermore, each flavor has two types of reset. A system wide reset resets the complete processor, including I/O and debug units. The debug unit generated reset resets the core and the I/O. The resets are active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the processor when UART1 receives a BREAK condition. It is also possible to reset the processor when the watchdog (WDT) times out.
+There are two flavors of resets. The SoC can be reset asynchronous or synchronous. Furthermore, each flavor has two types of reset. A system wide reset resets the complete SoC, including I/O and debug units. The debug unit generated reset resets the core and the I/O. The resets are active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the SoC when UART1 receives a BREAK condition. It is also possible to reset the SoC when the watchdog (WDT) times out.
 
 
 == Memories
@@ -268,7 +268,7 @@ There are two flavors of resets. The SoC can be reset asynchronous or synchronou
 The memories are accessed through the address decoder and data router and the instruction router.
 The are four memories: ROM, boot ROM, RAM and I/O.
 
-The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has internal buffer for all outgoing signals so the operation is visible one clock cycle later. All these signals are held stable during the acces. In the first cycle of the memory access, a strobe signal is present. The access is terminated when an acknowledge from the memory is sampled, or when an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. See figure.
+The memory interface uses a simple request/response protocol. When a load or a store is executed, the memory interface puts the address, the data (for writes), the data size and the read/write flag on the bus. The core has an internal buffer for all outgoing signals so the operation is visible one clock cycle later. All these signals are held stable during the access. In the first cycle of the memory access, a strobe signal is present. The access is terminated when an acknowledge from the memory is sampled, or when an exception is generated. If there is neither an acknowledge nor an exception generated, the core will stall permanently. See figure.
 
 .Timing diagram of a read operation.
 [[fig_read]]
@@ -349,13 +349,13 @@ In the default setup, a write needs two clock cycles and a read needs three cloc
 
 == Debug Module and Debug Transport Module
 
-The processor can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://docs.riscv.org/reference/debug/v1.0/index.html[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the processor and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the processor core. Using the on-chip debugger, it is possible to set up breakpoints, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
+The SoC can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://docs.riscv.org/reference/debug/v1.0/index.html[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the SoC and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the core. Using the on-chip debugger, it is possible to set up breakpoints, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
 
 The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd).
 
 == The FPGA
 
-For this project, we use the https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyclone V] FPGA from Intel (formerly Altera). 
+For this project, we use the https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyclone V] FPGA from Altera. 
 The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 3200 ALMs (about 17%) and 1,313,792 bits of internal memory (43%). The clock frequency is approximately 85 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 85 MHz. This FPGA is mounted on a http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[Terasic DE0-CV board] (see <<fig_de0cv>>). The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. For downloading the bitstream file, the onboard USB-Blaster is used.
 
 .The DE0-CV board.
@@ -363,8 +363,6 @@ The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 308
 image::images/image-de0-cv.jpg[The DE0-CV Board]
 
 Disabling the bootloader *and* on-chip debugger saves one copy of the ROM and the bootloader ROM. Then the used RAM is 786,432 bits (25%). Disabling registers in RAM saves 2048 bits, but increases the ALM count. You may see some warnings from the synthesizer.
-
-Disabling the boot ROM and enabling the on-chip debugger increases the ALM count to 3200 (17%).
 
 It is possible to add the Quartus' Signal Tap (embedded) Logic Analyzer. Follow the instructions on https://people.ece.cornell.edu/land/courses/ece5760/Quartus/Signal_tap.html. Note that the Signal Tap uses onboard memory.
 
@@ -397,17 +395,17 @@ Performance options: balanced, Advanced Fitter Settings:
 
 === Other boards
 
-We tested the processor on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../boards[here]. The fabric of these FPGAs is faster that of the Cyclone V and speeds of 100+ MHz may be obtained.
+We tested the SoC on a Arty S7/50 and a Cmod S7/25 board. Board files can be found link:../boards[here]. The fabric of these FPGAs is faster that of the Cyclone V and speeds of 100+ MHz may be obtained.
 
 We find good speed results when the synthesis is set to Default and the implementation is set to Performance+Explore.
 
-We also tested the processor on a DE10-Lite board. The fabric is the MAX10 devices is slower than that of the Cyclone V, so the Fmax is lower.
+We also tested the SoC on a DE10-Lite board. The fabric is the MAX10 devices is slower than that of the Cyclone V, so the $f_{max}$ is lower.
 
-We also tested the processor on a DE23-Lite board. The fabric of the Agilex 3 is much faster than that of the Cyclone V, so the Fmax is higher. We tested the board with a frequency of 150 MHz. See the `boards` directory.
+We also tested the SoC on a DE23-Lite board. The fabric of the Agilex 3 is much faster than that of the Cyclone V, so the $f_{max}$ is higher. We tested the board with a frequency of 150 MHz. See the `boards` directory.
 
-== Processor hardware
+== SoC hardware
 
-The processor hardware is composed of the following VHDL files:
+The SoC hardware is composed of the following VHDL files:
 
 * `processor_common.vhd` -- Common types and constants.
 * `address_decode.vhd` -- The address decoder and data router to the memory
@@ -430,7 +428,7 @@ The processor hardware is composed of the following VHDL files:
 * `dm.vhd` -- Description of the Debug Module.
 * `dtm.vhd` -- Description of the Debug Transport Module.
 * `crc.vhd` -- Description of the CRC module.
-* `riscv.vhd` -- Top-level description of the processor. Connects all the building blocks to a viable processor.
+* `riscv.vhd` -- Top-level description of the SoC. Connects all the building blocks to a viable SoC.
 * `riscv.sdc` -- Constraints file. Sets the target clock frequency.
 * `tb_riscv.vhd` -- VHDL testbench to simulate the design.
 * `tb_riscv.do` -- QuestaSim/Modelsim command script.
@@ -722,7 +720,7 @@ When BUFFER_IO_RESPONSE is set to true, reading data from the I/O takes another 
 
 == Cloning the RISC-V project
 
-Now we have to clone the RISC-V project. It incorporates the full Quartus Prime Lite project with the processor written in VHDL. It also incorporates many C program examples and a taylor-made program to convert a RISC-V executable to a VHDL table suitable for the instruction memories. Create a working directory (and change to that directory) and issue the command:
+Now we have to clone the RISC-V project. It incorporates the full Quartus Prime Lite project with the SoC written in VHDL. It also incorporates many C program examples and a tailor-made program to convert a RISC-V executable to a VHDL table suitable for the instruction memories. Create a working directory (and change to that directory) and issue the command:
 
 [source,subs=attributes+]
 ----
@@ -741,7 +739,7 @@ In the created directory, you will see the following directories:
 
 Change directory to `sw`. Make sure the RISC-V C compiler is available and is in your path environment variable. Customize the file `common.make`. Now enter the command `make`. It will compile all programs and the support programs `srec2vhdl`, `srec2mif`  and `upload`. To clean up the programs, issue the command `make clean`.
 
-If you want, you can compile the processor with the standard program incorporated, which is by default, flashing onboard leds and writing the current time since last reset via UART1 at 115200 bps. Start your Quartus Prime Lite software and open the project in the `rtl` directory. Now start a build by clicking on the play-symbol. It should compile a standard setting (this takes some time). When finished, you can download the FPGA bitstream file to the DE0-CV board.
+If you want, you can compile the SoC with the standard program incorporated, which is by default, flashing onboard leds and writing the current time since last reset via UART1 at 115200 bps. Start your Quartus Prime Lite software and open the project in the `rtl` directory. Now start a build by clicking on the play-symbol. It should compile a standard setting (this takes some time). When finished, you can download the FPGA bitstream file to the DE0-CV board.
 
 To test one of the programs, change directory to one of the directories in `sw` and copy the file with `.vhd` extension to the directory containing the VHDL description with the name `rom_image.vhd`.
 Now start Quartus and start the compilation. After a successful compilation, you can program the Cyclone V on a DE0-CV board. If the bootloader is installed, you can also upload an S-record file. If the on-chip debugger is installed, you can also upload an ELF file using OpenOCD or GDB.
@@ -753,7 +751,7 @@ Compilation of the hardware design is independent of the size of the software pr
 
 == Setting up the GNU C compiler for _this_ RISC-V
 
-The processor can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 15.2.0. Building the C/{cpp} compiler for Linux is straightforward:
+The SoC can run C and {cpp} programs that are compiled using the GNU C/{cpp} compiler for RISC-V. Besides that, a separate linker script and startup file are needed to setup the compiled code. It is possible to set up the C library for multiple RISC-V architecture versions and select a version during compilation. The current version is 16.1. Building the C/{cpp} compiler for Linux is straightforward:
 
 You need a current GNU C/{cpp} compiler installed or your Linux box. You also need all essential building tools:
 [source,subs=attributes+]
@@ -851,9 +849,9 @@ Make sure to use `-march=rv32e` and `-mabi=ilp32e`.
 
 The `sbrk` system call, used for allocating RAM memory, is implemented. Note that there is a limited amount of RAM. Note that `sbrk` is not called by the user. Use `malloc` et al.
 
-The `gettimeofday` system call is implemented. It returns the seconds and microseconds since the last reset of the processor. You need to call the `gettimeofday` C function for proper handling. This system call is used with older versions of `newlib`.
+The `gettimeofday` system call is implemented. It returns the seconds and microseconds since the last reset of the SoC. You need to call the `gettimeofday` C function for proper handling. This system call is used with older versions of `newlib`.
 
-The `clock_gettime64` system call is implemented. It returns the seconds and microseconds since the last reset of the processor. You need to call the `gettimeofday` C function for proper handling. This system call is used with newer versions of `newlib`.
+The `clock_gettime64` system call is implemented. It returns the seconds and microseconds since the last reset of the SoC. You need to call the `gettimeofday` C function for proper handling. This system call is used with newer versions of `newlib`.
 
 The `times` system call is implemented, but only for non-trap system calls. When using trapped systems calls (using ECALL), `gettimeofday` is used.
 
@@ -978,7 +976,7 @@ void timer1_handler(void)
 
 == Software programs
 
-The `sw` directory contains programs that run on this RISC-V processor. Under Linux, change to the `sw` directory, customize the file `common.make` and issue the `make` command. Now all programs are compiled as is a THUAS-specific library. To upload a program to the RISC-V processor, change to one of the program directories, reset the processor and issue the command `make upload`. This will upload the corresponding S-record file to the processor using UART1. Make sure no terminal program (e.g. PuTTY) is connected. The bootloader hardware must be installed.
+The `sw` directory contains programs that run on this RISC-V SoC. Under Linux, change to the `sw` directory, customize the file `common.make` and issue the `make` command. Now all programs are compiled as is a THUAS-specific library. To upload, using the bootloader, a program to the RISC-V SoC, change to one of the program directories, reset the SoC and issue the command `make upload`. This will upload the corresponding S-record file to the SoC using UART1. Make sure no terminal program (e.g. PuTTY) is connected. The bootloader hardware must be installed.
 
 After `make` is run, a static library called `libthuasrv32.a` is available with functions to use the I/O and trap related functions. You need to supply the library to the linker. Also, two `specs` files are available. Use `--specs=<path-to>/thuas.specs` for including the THUAS library and use `--specs=<path-to>/nano.specs` for including the `nano` library *without* the `gloss` library (used for ECALL-driven system calls). If you need ECALL-driven system calls, use `--specs=nano.specs` (without a path name) to use the RISC-V specific `nano` library *with* the `gloss` library.
 
@@ -1012,7 +1010,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `dhrystone` -- preliminary Dhrystone test suite. Works on the board.
 * `double` -- some floating point double computations. For simulation.
 * `exp` -- calculates Euler's number e. For simulation.
-* `fatfs` -- implementation of FATFS (http://elm-chan.org/fsw/ff/00index_e.html), supports read/write, long filename, codepage 437 (US). FAT16, FAT32 supported. exFAT not tested. Works on the board.
+* `fatfs` -- implementation of http://elm-chan.org/fsw/ff/00index_e.html[FATFS], supports read/write, long filename, codepage 437 (US). FAT16, FAT32 supported. exFAT not tested. Works on the board.
 * `flash` -- flash the DE0-CV board leds, works on the board.
 * `float` -- some floating point float computations. For simulation.
 * `FreeRTOSbb` -- implementation of the bounded buffer problem a.k.a. the producer-consumer problem for the FreeRTOS real-time operating system. Works on the board.
@@ -1024,7 +1022,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `i2c1lis3dh` -- program to read acceleration data from a LIS3DH accelerometer. Uses I2C1 and UART1. Works on the board.
 * `i2c1ssd1315` -- program to test the SSD1315 OLED display driver. Uses I2C1 and UART1. Works on the board.
 * `i2c1tmp102` -- program that uses the I2C1 peripheral to fetch the temperature data of a TMP102 temperature sensor and displays the raw data on the terminal. Works on the board.
-* `i2c2adxl345` -- program to read acceleration data from a ADXL345 accelerometer. Uses *I2C2* and UART1. Works on the DE10-Lite board.
+* `i2c2adxl345` -- program to read acceleration data from a ADXL345 accelerometer. Uses *I2C2* and UART1. Works on the *DE10-Lite* board.
 * `interrupt_direct` -- program to test the interrupt handling using direct mode and prints out the elapsed time. Uses UART1. Works on the board.
 * `interrupt_vectored` -- program to test the interrupt handling using vectored mode and prints out the elapsed time. Uses UART1. Works on the board.
 * `interval` -- program that uses the `clock` C library function to time 5 seconds since last read. Uses UART1. Works on the board.
@@ -1074,7 +1072,7 @@ Note that enabling the Zba, Zbb and Zbs extensions (B extension), the floating p
 
 === srec2vhdl
 
-This is a homebrew utility to convert a Motorola S-record file into a VHDL file suitable for inclusion of the processor. The program is called with:
+This is a homebrew utility to convert a Motorola S-record file into a VHDL file suitable for inclusion of the design. The program is called with:
 
 [source,c,subs=attributes+]
 ----
@@ -1127,10 +1125,10 @@ For using the I/O, see xref:bsp.adoc[Board Support Package]. It contains functio
 
 == Address ranges and memory sizes
 
-The processor uses a 32-bit linear address space (4 GB) and is divided in 16 blocks of 256 MB each. The top four bits (31 down to 28) select a block while the remaining bits select the address within a block.
+The SoC uses a 32-bit linear address space (4 GB) and is divided in 16 blocks of 256 MB each. The top four bits (31 down to 28) select a block while the remaining bits select the address within a block.
 By default, the ROM starts at address 0x00000000 and and has a size of 64 kB (16 k words). The Program Counter then starts at 0x00000000. The bootloader ROM starts at address 0x10000000 and has a size of 4 kB (1 k words). The Program Counter then starts at address 0x10000000. The RAM starts at address 0x20000000 and has a size of 32 kB (8 k words). The stack pointer is set to one address above the last RAM byte, by default at 0x20008000. The I/O starts at address 0xF0000000 and has a size of 4 kB (1 k words).
 
-The ROM, bootloader ROM, RAM and I/O may be moved to another start location. The Program Counter is started at the correct address. The placement of the ROM is in 256 MB intervals, which are the 4 most significant bits of a 32-bit address. The same holds for the RAM and the I/O. To move the memories, find the toplevel of the `riscv` entity. There you will see the following generics:
+The ROM, bootloader ROM, RAM and I/O may be moved to another start location. The Program Counter is started at the correct address. The placement of the ROM is in 256 MB intervals, which are the 4 most significant bits of a 32-bit address. The same holds for the RAM, boot ROM and the I/O. To move the memories, find the toplevel of the `riscv` entity. There you will see the following generics:
 
 [source,vhdl,subs=attributes+]
 ----
@@ -1294,7 +1292,7 @@ The hart can be in five "states": resetting, running, halting, halted and resumi
 
 *WFI Instruction* When the hart is halting when executing the WFI instruction, the hart enters debug mode. When stepping, the WFI instruction is treated as a NOP instruction.
 
-To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented CSR register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while there isn't. If the VHDL generic `OCD_AAMPOSTINCREMENT` is set to true, bulk memory accesses will use the auto post-increment feature for the address register, e.g. when uploading a binary executable with GDB. When using OCD, the bootloader is usually disabled. OCD upload speed is around 13 KiB/s.
+To use the OCD, the VHDL generic `HAVE_OCD` must be set to true. The debug specification states that accessing an unimplemented CSR register, the DM must report an error. This is very annoying when using Eclipse-CDT. The VHDL generic `OCD_CSR_CHECK_DISABLE`, when set to true, disables this checking. This will break the debug specification, and OpenOCD might assume some hardware is available while there isn't. If the VHDL generic `OCD_AAMPOSTINCREMENT` is set to true, bulk memory accesses will use the auto post-increment feature for the address register, e.g. when uploading a binary executable with GDB. When using OCD, the bootloader is usually disabled. OCD upload speed is around 14 KiB/s.
 
 Registers and CSRs are directly accessed via the core. Memory operations are handled by the core's memory interface. If a memory operation times out, the DM will report error code 5.
 
@@ -1340,7 +1338,7 @@ Info : Listening on port 4444 for telnet connections
 
 Note: openocd reports an error for not having a program buffer, but it's legal not to have a program buffer.
 
-Note: the JTAG clock speed (here 1000 kHz) should be less than 1/5 of the RISC-V system clock.
+Note: the JTAG clock speed (here 1000 kHz) should be less than 1/5 of the RISC-V system clock. A typical speed is 4000 kHz.
 
 Now we can connect to OpenOCD using `telnet` (in a second terminal):
 
@@ -1491,7 +1489,7 @@ Before `main` is called, the C Runtime startup code (file `startup.c` in the `cr
 * Call the global destructors (if enabled).
 * Call `exit`
 
-Although this is a bare metal processor, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in the code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and must be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copied to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
+Although this is a bare metal SoC, without an operating system, it is possible to pass arguments (`argc`, `argv`) to `main`. This is shown in the code below. When the linker links all object files to an executable, it sets the entry point to a symbol called `_start`. So our C Runtime startup is a function called `_start`. It has no parameters and doesn't return anything. Furthermore, the function must not use the stack and must be placed at the begin of the ROM. The linker file (`riscv.ld`) supplies the linker with some symbols: `_sbbs` and `_ebbs` have the addresses of the BBS section (in RAM). The initialization data of the initialized globals/statics are within the ROM code and must be copied to the RAM before `main` starts. The data starts at the address found in symbol `_sidata` and must be copied to RAM memory available in symbols `_sdata` and `_edata`. When using register variables, the C compiler will detect loops for BSS zeroing and copying ROM data to RAM and will use `memset` and `memcpy` to perform the actions.
 
 [source,c,subs=attributes+]
 ----
@@ -1849,7 +1847,7 @@ typedef struct {
 
 === Port I/O
 
-The processor is equipped with a single 32-bit input and 32-bit output port. There is no data direction register. This may be changed to using bi-direction port pins. Note that all accesses on the I/O are in Big Endian. This means that bit 31 of the input will be placed in bit 31 of the used variable.
+The SoC is equipped with a single 32-bit input and 32-bit output port. There is no data direction register. This may be changed to using bi-direction port pins. Note that all accesses on the I/O are in Big Endian. This means that bit 31 of the input will be placed in bit 31 of the used variable.
 
 To set the outputs, use:
 

@@ -55,7 +55,7 @@ A simplified block diagram of the core is given in <<fig_core>>
 image::images/core.svg[Image of the core]
 
 * The registers contain intermediate data for calculations. The registers may be placed in onboard RAM or cell flip-flops.
-* The ALU is responsible for almost all computations in the processor.
+* The ALU is responsible for almost all computations in the core.
 * The PC is used to point to the currently fetched instruction (not the instruction that is currently being executed).
 * The Instruction Decoder decodes the fetched instruction and provides control signals to other building blocks.
 * The multiply/divide unit calculates integer multiplications, divisions and remainder.
@@ -154,7 +154,7 @@ The `mtval` CSR is written with offending memory address for load/store access/m
 
 When the on-chip debugger is used, `ebreak` is used by the debugger software (OpenOCD) to implement software breakpoints, and cannot be used as a user instruction.
 
-The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this timer times out, an NMI can be generated (the other option is to reset the processor). The NMI is interrupt with the highest priority and cannot be disabled.
+The Non-Maskable Interrupt (NMI) is connected to the watchdog timer. When this timer times out, an NMI can be generated (the other option is to reset the SoC). The NMI is interrupt with the highest priority and cannot be disabled.
 
 Note that interrupts have higher priorities than traps. See https://github.com/riscv/riscv-isa-manual/issues/13[this issue].
 
@@ -256,11 +256,11 @@ The core is equipped with a trigger module +(TM)+ that can be used with on-chip 
 
 === Implemented instructions
 
-For the core, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. From Zicsr, all instructions are implemented. Also, the Zba, Zbb, Zbs, Zbkb, Zimop and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the processor at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
+For the core, all RV32IM Unprivileged instructions are implemented but the `fence` instruction (and friends) acts as a no-operation (NOP). `ecall` and `ebreak` are supported and execute an exception. From Zicsr, all instructions are implemented. Also, the Zba, Zbb, Zbs, Zbkb, Zimop and Zicond instructions are implemented (selectable). From the Privileged instructions, `wfi` is implemented and halts the core at (PC + 4). `mret` is used to return from an exception or an interrupt. `fence.i` acts as a NOP.
 
 == Reset
 
-There are two flavors of resets. The SoC can be reset asynchronous or synchronous. Furthermore, each flavor has two types of reset. A system wide reset resets the complete SoC, including I/O and debug units. The debug unit generated reset resets the core and the I/O. The resets are active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the processor's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the SoC when UART1 receives a BREAK condition. It is also possible to reset the SoC when the watchdog (WDT) times out.
+There are two flavors of resets. The SoC can be reset asynchronous or synchronous. Furthermore, each flavor has two types of reset. A system wide reset resets the complete SoC, including I/O and debug units. The debug unit generated reset resets the core and the I/O. The resets are active high. All registers are either set to 0 or 1 when the reset is active. The onboard RAM blocks don't have a reset signal. This means that the SoC's RAM contents is undefined. The ROM and the boot ROM (implemented in onboard RAM) are set to known values when the bitstream is programmed. The reset hardware uses a 3-stage reset synchronizer. It is possible to reset the SoC when UART1 receives a BREAK condition. It is also possible to reset the SoC when the watchdog (WDT) times out.
 
 
 == Memories
@@ -280,7 +280,7 @@ The memories are described in a device agnostic manner. It is up to the synthesi
 
 === Address Decoder and Data Router
 
-The Address Decoder and Data Router routes reads and writes to the memory (ROM, bootloader ROM (only reads), RAM and the I/O). The processor uses a 32-bit linear address space for memory accesses. The address space is divided in 16 parts of 256 MB each. In the default setting, ROM starts at address 0x00000000 and the length is 64 kB. The bootloader ROM starts at address 0x10000000 and the length is 4 kB. Unused ROM addresses return 0x0000000. The RAM starts at address 0x20000000 and length is 32 kB. The I/O starts at address 0xF0000000 and the length is 4 kB by default.
+The Address Decoder and Data Router routes reads and writes to the memory (ROM, bootloader ROM (only reads), RAM and the I/O). The SoC uses a 32-bit linear address space for memory accesses. The address space is divided in 16 parts of 256 MB each. In the default setting, ROM starts at address 0x00000000 and the length is 64 kB. The bootloader ROM starts at address 0x10000000 and the length is 4 kB. Unused ROM addresses return 0x0000000. The RAM starts at address 0x20000000 and length is 32 kB. The I/O starts at address 0xF0000000 and the length is 4 kB by default.
 
 When data is read, the data is collected from the accessed memory and put on a bus to the ALU. The ALU performs sign extension or zero extenstion (byte and half word accesses). 
 
@@ -292,7 +292,7 @@ The Instruction Router routes instructions from the ROM, RAM and the boot ROM. I
 
 === ROM
 
-The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading or writing data. Half word and word entries are stored in Litte Endian format. When reading  data from or writing data to the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The processor instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit.
+The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading or writing data. Half word and word entries are stored in Litte Endian format. When reading  data from or writing data to the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The design instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit.
 
 When the bootloader hardware and/or the on-chip debugger is enabled, the ROM is writable. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. When the bootloader and the on-chip debugging are disabled, an access exception will be generated when writing.
 
@@ -314,7 +314,7 @@ Currently, the I/O consists of one 32-bit data input and one 32-bit data output,
 
 Note: GPIOA and MTIME are always included in synthesis.
 
-GPIOA has separate inputs and output, both 32 bits. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons (DE0-CV board). Note that KEY4 a.k.a. FPGA_RESET is connected to the reset of the processor. All inputs are fed to twos-stage synchronizers. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt if a rising and/or falling edge is detected. An edge is detected 3 clocks after the assertion, so a trap is initiated in the 4th cycle.
+GPIOA has separate inputs and output, both 32 bits. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons (DE0-CV board). Note that KEY4 a.k.a. FPGA_RESET is connected to the reset of the SoC. All inputs are fed to twos-stage synchronizers. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt if a rising and/or falling edge is detected. An edge is detected 3 clocks after the assertion, so a trap is initiated in the 4th cycle.
 
 UART1 can transmit and receive data at 7, 8 or 9 bits, no/even/odd parity and 1 or 2 stop bits. Tested speeds are 9600 bps, 115200 bps and 230400 bps. Several status flags are implemented to guide transmission. Receive, transmitted and BREAK character (local) interrupts are provided (one vector). These interrupt requests must be negated by software. A BREAK condition is found if UART1 samples 1 start bit + number of data bits + 1 stop bit to be low. UART1 does not provide hardware flow control. UART1 can generate a system wide reset when a BREAK condition is found.
 
@@ -324,7 +324,7 @@ TIMER1 has a 32-bit count register and increments on every clock cycle. It does 
 
 TIMER2 has a 16-bit count register and a 16-bit prescaler, and increments on every clock cycle. The counter can be used to generate signals (Output Compare/PWM) or detect incoming signal edges (Input Capture). When in output mode. the timer counts up to compare match T register, after which is will be loaded with 0 again. Compare match (local) interrupts are provided (one vector). Whenever the timer count register is greater than or equal to the compare match T register, an interrupt request is asserted. The interrupt request has to be negated by software. The timer provides three Channels with compare registers (A, B, C). Whenever the timer count register is greater than or equal to a compare register (A, B, C) the respective interrupt request is asserted. The interrupt requests have to be negated by software. A value of 0 in the compare match T register is valid: the counter does not count, but the compare match T (local) interrupt is asserted and the compare match interrupts (A, B, C) are asserted whenever the respective compare match register is 0. The prescaler is always preloaded: if the timer is off, the shadow prescaler register is directly written, if the timer is running, the preload register is written and the shadow register is updated at the the next CMPT match. The CMPT/A/B/C registers may optionally use a preload register. If preload is off, the shadow registers are directly written, if preload is on, the preload registers are written and the shadow registers are updated at the next CMPT match. In Input Capture mode, the Channels A, B and C can be selected to trigger on a positive or negative edge. When an edge is detected, the current value of count register is copied to the accompanying CMPx register and the accompanying interrupt flag is asserted. Note that Channel T cannot be used for PWM and input capture. The input capture circuits use a two-stage synchronizer. 
 
-I2C1 is a minimal I2C controller peripheral (master-only). It can react to clock stretching, but not clock synchronisation and lost arbitration, so older targets (slaves) can be connected in a one-master-only system. Both Standard mode (Sm) with a transmission speed of up to 100 kbps and Fast mode (Fm) with a transmission speed up to 400 kbps are implemented. Only 7-bit addresses are supported. Before sending the address byte, the send-start bit must be set and a START condition is send to the target when the address is written to the I2C1 data register. Before sending or receiving the last data byte, the send-stop bit must be set and a STOP condition is send to the target after the byte is send or received by the controller. The last byte received will not be acknowledged by the controller. When receiving intermediate bytes, the controller must acknowledge the reception with an ACK. This is controlled by the MACK bit in the control register. Sending a byte is straightforward: just write the byte to the data register. When receiving a byte, a dummy byte (data value of 0xff) must be send to the target. This way, the processor can create a pause in the transmission if needed. Note that the SCL line is kept low between byte transmissions. The baud rate prescaler must be loaded with the number of system clock cycles of *one-half* bit time minus 1 for Standard mode and *one-third* bit time minus 1 for Fast mode. Note that the prescaler is part of the control register CTRL and its value must be preserved when setting or clearing other bits. The SCL and SDA inputs are synchronized to the system clock using two 2-bit shift registers.
+I2C1 is a minimal I2C controller peripheral (master-only). It can react to clock stretching, but not clock synchronisation and lost arbitration, so older targets (slaves) can be connected in a one-master-only system. Both Standard mode (Sm) with a transmission speed of up to 100 kbps and Fast mode (Fm) with a transmission speed up to 400 kbps are implemented. Only 7-bit addresses are supported. Before sending the address byte, the send-start bit must be set and a START condition is send to the target when the address is written to the I2C1 data register. Before sending or receiving the last data byte, the send-stop bit must be set and a STOP condition is send to the target after the byte is send or received by the controller. The last byte received will not be acknowledged by the controller. When receiving intermediate bytes, the controller must acknowledge the reception with an ACK. This is controlled by the MACK bit in the control register. Sending a byte is straightforward: just write the byte to the data register. When receiving a byte, a dummy byte (data value of 0xff) must be send to the target. This way, the SoC can create a pause in the transmission if needed. Note that the SCL line is kept low between byte transmissions. The baud rate prescaler must be loaded with the number of system clock cycles of *one-half* bit time minus 1 for Standard mode and *one-third* bit time minus 1 for Fast mode. Note that the prescaler is part of the control register CTRL and its value must be preserved when setting or clearing other bits. The SCL and SDA inputs are synchronized to the system clock using two 2-bit shift registers.
 
 I2C2 is an exact copy of I2C1, but with a different interrupt priority.
 
@@ -332,7 +332,7 @@ SPI1 is a full-fledged SPI master. It can transfer 8-bit, 16-bit, 24-bit and 32-
 
 SPI2 is an exact copy of SPI1, but with a different interrupt priority.
 
-WDT is a simple watchdog timer that can trigger a system wide reset or a non-maskable interrupt (NMI). The NMI cannot be blocked. The NMI uses the same mechanism as other traps, so `mtvec` must point to a trap handler. Note that an NMI will fire only when the control unit is in the `exec` state. This is done so that the processor is in a known state when the NMI fires. An NMI cannot be interrupted by another NMI. It is not always possible to return to a correct running state of the program. This depends on the program.
+WDT is a simple watchdog timer that can trigger a system wide reset or a non-maskable interrupt (NMI). The NMI cannot be blocked. The NMI uses the same mechanism as other traps, so `mtvec` must point to a trap handler. Note that an NMI will fire only when the control unit is in the `exec` state. This is done so that the core is in a known state when the NMI fires. An NMI cannot be interrupted by another NMI. It is not always possible to return to a correct running state of the program. This depends on the program.
 
 The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger register will fire an MSI if `mie.MSIE` is set. As long a the trigger register is set to 1, MSIs will be fired. Cleared by writing a 0.
 
@@ -356,7 +356,7 @@ The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (s
 == The FPGA
 
 For this project, we use the https://www.intel.com/content/www/us/en/products/details/fpga/cyclone/v.html[Cyclone V] FPGA from Altera. 
-The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V processor uses about 3200 ALMs (about 17%) and 1,313,792 bits of internal memory (43%). The clock frequency is approximately 85 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 85 MHz. This FPGA is mounted on a http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[Terasic DE0-CV board] (see <<fig_de0cv>>). The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. For downloading the bitstream file, the onboard USB-Blaster is used.
+The used Cyclone V is the 5CEBA4F23C7 which has 18480 ALMs available. It has 3080 kb of onboard RAM bits available which are used for RAM, ROM, (possibly) bootloader ROM and (possibly) the registers. Depending on the program and used resources, the compiled RISC-V SoC uses about 3200 ALMs (about 17%) and 1,313,792 bits of internal memory (43%). The clock frequency is approximately 85 MHz, which is sufficient for all program examples. Note that the DE0-CV board has a onboard clock generator with a frequency of 50 MHz, so a PLL is needed to get a frequency of 85 MHz. This FPGA is mounted on a http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921[Terasic DE0-CV board] (see <<fig_de0cv>>). The board has 10 switches, 4 push buttons, 1 reset push button, 10 leds, and 6 seven-segment displays. It also has two 2x20-pin headers to connect off-board devices. For downloading the bitstream file, the onboard USB-Blaster is used.
 
 .The DE0-CV board.
 [[fig_de0cv]]
@@ -989,7 +989,7 @@ In the `sw` directory, there are a number of software programs available. First,
 * `crt` -- contains the startup files.
 ** `empty.S` -- contains only the `_start` label.
 ** `simple.S` -- contains the `_start` label and sets up the global pointer and stack pointer.
-** `minimal.S` -- contains `_start` label, sets up the global pointer and stack pointer, calls `main` and halts the processor.
+** `minimal.S` -- contains `_start` label, sets up the global pointer and stack pointer, calls `main` and halts the program.
 ** `startup.c` -- full-fledged startup code for any C program executable.
 * `bin` -- contains the binaries of `srec2vhdl`, `srec2mif`  and `upload`. This directory is created when running `make`.
 * `include` -- contains the header files for the board support package. Use `#include <thuasrv32.h>` in programs.
@@ -1033,7 +1033,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `mhpmcounter` -- program to test the HPM counters. The Zihpm hardware must be enabled for proper usage. Works on the board.
 * `monitor` -- simple monitor program. Works on the board. Uses strings, UART1, RAM, ROM, I/O and `sprintf` (and therefore `malloc` et al.).
 * `mult` -- integer multiplication with the C library. Set to the E extension with no hardware multiply/divide support. For simulations.
-* `mxhw` -- Program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized processor to the terminal. Works on the board.
+* `mxhw` -- Program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized SoC to the terminal. Works on the board.
 * `qsort` -- sorts an integer array using the `qsort` C library function and prints the result to UART1. Works on the DE0-CV board.
 * `riemann_left` -- calculates the Riemann Left Sum of sin^2^ from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
 * `shift` -- shifts. For use in simulations.
@@ -1054,7 +1054,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `uart1_printlonglong` -- program that prints a long long and unsigned long long to the UART. Works on the board.
 * `uart_sprintf` -- simple program that prints an integer, a pointer, a float and a double to the terminal, this is a big binary. Works on the board.
 * `uart_test` -- simple UART1 program. Works on the board.
-* `watchdog` -- simple watchdog test program, resets the processor when the watchdog timer times out. Works on the board.
+* `watchdog` -- simple watchdog test program, resets the SoC when the watchdog timer times out. Works on the board.
 * `wdt_nmi` -- program to test the NMI with the watchdog timer. Works on the board. Needs more testing.
 * `wfitest` -- simple program to test the WFI instruction. Works on the board.
 * `whetstone` -- port of the Whetstone benchmark. Works on the board.
@@ -1098,7 +1098,7 @@ Note: unused ROM addresses are not output, except when the `-0` or `-x` options 
 
 === srec2mif
 
-This is a homebrew utility to convert a Motorola S-record file into a MIF file suitable for inclusion of the processor when using IP generated embedded RAM. The program is called with:
+This is a homebrew utility to convert a Motorola S-record file into a MIF file suitable for inclusion of the design when using IP generated embedded RAM. The program is called with:
 
 [source,c,subs=attributes+]
 ----
@@ -1298,6 +1298,7 @@ Registers and CSRs are directly accessed via the core. Memory operations are han
 
 Tests with the OCD were conducted with an https://ftdichip.com/products/ft2232h-mini-module/[FT2232H MINI MODULE]. The project's `openocd` directory contains a startup script for OpenOCD as well as a SVD-file for GDB and Eclipse-CDT.
 
+The debug state is typically reached in 1 clock cycle, although multi-cycle operations are first retired. Leaving debug state takes 4 clock cycles.
 
 === Using OpenOCD
 
@@ -2004,7 +2005,7 @@ uart1_puts("\r\n");
 
 This will set the cursor to the beginning of a new line. Here, `\r` returns the cursor to the beginning of the current line and `\n` advances the cursor to the next line. Some terminal emulation programs can be instructed to move to the beginning of a new line with only `\n`.
 
-For working with the UART on board of the processor, you need an USB-to-U(S)ART device with TTL (3.3 V) converter. An example is shown in the figure below.
+For working with the UART on board of the SoC, you need an USB-to-U(S)ART device with TTL (3.3 V) converter. An example is shown in the figure below.
 
 .An USB-to-U(S)ART converter. Make sure that the voltages do not exceed 3.3 V.
 image::images/usb-usart-ttl.jpg[width=200]

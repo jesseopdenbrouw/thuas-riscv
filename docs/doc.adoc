@@ -1284,7 +1284,7 @@ The hart can be in five "states": resetting, running, halting, halted and resumi
 
 *Run Control* To resume the hart, issue the OpenOCD command `resume`. To halt the hart, issue the OpenOCD command `halt`. Note that the `cycle` and `time` counters keep on running in the halted state.
 
-*Single-stepping* When the hart is halted, use the OpenOCD command `step` to execute exactly one instruction. Note that interrupts are blocked while single-stepping. Note that the `cycle` and `time` counters keep on running.
+*Single-stepping* When the hart is halted, use the OpenOCD command `step` to execute exactly one instruction. Note that interrupts are blocked while single-stepping, but exceptions are not. When an exception occurs during stepping, the PC is halted at the first instruction of the exception handler. Note that the `cycle` and `time` counters keep on running.
 
 *Software Breakpoints* The OCD can insert instruction address breakpoints and run a hart until a breakpoint is hit. This is done by replacing the instruction at the breakpoint address with the `ebreak` instruction. As such, the `ebreak` instruction cannot be used in user programs. When the breakpoint is hit, the hart enters debug mode. To set up a software breakpoint, use the OpenOCD command `bp <address> 4`.
 
@@ -1302,7 +1302,7 @@ The debug state is typically reached in 1 clock cycle, although multi-cycle oper
 
 === Using OpenOCD
 
-OpenOCD can be downloaded from https://sourceforge.net/p/openocd/code/ci/master/tree/[SoureForge]. This is the main line version and excellent support for RISC-V. The specific RISC-V from https://github.com/riscv-collab/riscv-openocd[github] is stale and should not be used.
+OpenOCD can be downloaded from https://sourceforge.net/p/openocd/code/ci/master/tree/[SoureForge]. This is the main line version and has excellent support for RISC-V. The specific RISC-V from https://github.com/riscv-collab/riscv-openocd[github] is stale and should not be used.
 `
 To start a debug session, start OpenOCD (at least version 0.12.0):
 
@@ -1457,9 +1457,9 @@ There is support for Windows tools. Both `srec2vhdl`, `srec2mif`  and `upload` c
 
 Best is to use a pre-compiled compiler for Windows and build tools (`make`, `rm`, `mkdir` etc.). Please have a look at https://xpack.github.io/dev-tools/riscv-none-elf-gcc/[xPack GNU RISC-V Embedded GCC] and https://xpack.github.io/dev-tools/windows-build-tools/[The xPack Windows Build Tools]. For building `srec2vhdl`, `srec2mif` and `upload`, you need a GCC native compiler. Have a look at https://xpack.github.io/dev-tools/gcc/[The xPack GNU Compiler Collection (GCC)]. OpenOCD can be found at https://xpack-dev-tools.github.io/openocd-xpack/[xPack OpenOCD].
 
-Before you can use OpenOCD with the FTDI FT2232H device, you need to replace the default driver with the libusb driver. This can easily be done with https://zadig.akeo.ie/[Zadig]. See xref:zadig.adoc[here]..
+Before you can use OpenOCD with the FTDI FT2232H device, you need to replace the default driver with the `libusb` driver. This can easily be done with https://zadig.akeo.ie/[Zadig]. See xref:zadig.adoc[here].
 
-Take a short tour on xref:xpack.adoc[Installing xPacks on Windows 11]. Current GCC release is 14.2.0.
+Take a short tour on xref:xpack.adoc[Installing xPacks on Windows 11]. Current GCC release is 15.2.0.
 
 
 == Future plans (or not) and issues

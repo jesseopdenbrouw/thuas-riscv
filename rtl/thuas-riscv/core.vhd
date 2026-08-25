@@ -674,6 +674,8 @@ begin
                 control.instr_access_error <= (others => '0');
             elsif control.state = state_trap then
                 control.instr_access_error <= (others => '0');
+            elsif control.instr_access_error(1) = '1' then
+                control.instr_access_error <= (others => '0');
             else
                 control.instr_access_error <= control.instr_access_error(0) & I_instr_response.instr_access_error;
             end if;
@@ -995,7 +997,7 @@ begin
                     control.illegal_instruction_decode <= '0';
 
                     -- If we flush the pipeline, don't execute the instruction
-                    if control.flush = '1' or control.state = state_debugflush or control.state = state_debugflush2 then
+                    if control.flush = '1' or control.state = state_debugflush2 then
                         null;
                     else
                         case opcode_v is

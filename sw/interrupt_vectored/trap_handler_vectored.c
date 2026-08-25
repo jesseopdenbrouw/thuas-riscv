@@ -93,7 +93,7 @@ __attribute__((weak)) int __io_getchar(void) {
  * enter the specific interrupt handler OR
  * use the default, universal exception
  * handler. DON'T CALL THIS FUNCTION. */
-__attribute__ ((naked))
+__attribute__ ((naked, used))
 void trap_handler_jump_table(void)
 {
 	/* Handlers for RISC-V interrupts. Only Machine

@@ -8,8 +8,9 @@
 -- SPDX-License-Identifier: BSD-3-Clause                                            --
 -- ================================================================================ --
 
--- t_jtag_c set to 250 ns (4 MHz)
 
+-- t_jtag_c set to 250 ns (4 MHz)
+-- Added a procedure to read IDCODE, adapted jtag_shift_dr()
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -45,6 +46,15 @@ package jtag_dmi_pkg is
     signal   core_tdo : in  std_logic;
     constant addr     : in  std_logic_vector(6 downto 0);
     variable data     : out std_logic_vector(31 downto 0)
+  );
+
+  -- Read IDCODE register
+  procedure idcode_read(
+    signal   core_tck : out std_logic;
+    signal   core_tms : out std_logic;
+    signal   core_tdi : out std_logic;
+    signal   core_tdo : in  std_logic;
+    variable idcode   : out std_logic_vector(31 downto 0)
   );
 
 end package;
@@ -120,16 +130,17 @@ package body jtag_dmi_pkg is
     signal   core_tms : out std_logic;
     signal   core_tdi : out std_logic;
     signal   core_tdo : in  std_logic;
-    constant din      : in  std_logic_vector(40 downto 0);
-    variable dout     : out std_logic_vector(40 downto 0)
+    constant din      : in  std_logic_vector; -- unconstraint vector
+    variable dout     : out std_logic_vector  -- unconstraint vector
   ) is
     variable tdo_v : std_logic;
   begin
+    assert din'length = dout'length report "length of din and dout not the same" severity error;
     jtag_tck_cycle(core_tck, core_tms, core_tdi, core_tdo, '1', '0', tdo_v); -- SELECT-DR-SCAN
     jtag_tck_cycle(core_tck, core_tms, core_tdi, core_tdo, '0', '0', tdo_v); -- CAPTURE-DR
     jtag_tck_cycle(core_tck, core_tms, core_tdi, core_tdo, '0', '0', tdo_v); -- SHIFT-DR
-    for i in 0 to 40 loop
-      if (i = 40) then
+    for i in 0 to din'left loop
+      if i = din'left then
         jtag_tck_cycle(core_tck, core_tms, core_tdi, core_tdo, '1', din(i), tdo_v); -- EXIT1-DR
       else
         jtag_tck_cycle(core_tck, core_tms, core_tdi, core_tdo, '0', din(i), tdo_v); -- SHIFT-DR
@@ -177,4 +188,22 @@ package body jtag_dmi_pkg is
     data := dmi_out_v(33 downto 2);
   end procedure;
 
+  -- Read IDCODE ------------------
+  ---------------------------------
+  procedure idcode_read(
+    signal   core_tck : out std_logic;
+    signal   core_tms : out std_logic;
+    signal   core_tdi : out std_logic;
+    signal   core_tdo : in  std_logic;
+    variable idcode   : out std_logic_vector(31 downto 0)
+  ) is
+    variable dummy_in_v, idcode_out_v : std_logic_vector(31 downto 0);
+  begin
+    jtag_shift_ir(core_tck, core_tms, core_tdi, core_tdo, "00001"); -- IR = IDCODE
+    dummy_in_v := (others => '0');
+    jtag_shift_dr(core_tck, core_tms, core_tdi, core_tdo, dummy_in_v, idcode_out_v); -- read from TAP.idcode
+    idcode := idcode_out_v;
+  end procedure;
+  
+  
 end package body;

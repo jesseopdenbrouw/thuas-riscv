@@ -120,12 +120,12 @@ add wave            -label areset_debug_int dut/areset_debug_int
 add wave            -label sreset_debug_int dut/sreset_debug_int
 add wave            -label sreset_sys_int dut/sreset_sys_int
 add wave -divider "Core Internals - Control"
-add wave            -label control dut/core0/control
+add wave -expand     -label control dut/core0/control
 add wave -divider "Core Internals - Instruction Fetch"
 add wave            -label pc dut/core0/pc
 add wave            -label if_id dut/core0/if_id
 add wave -divider "Core Internals - Instruction Decode"
-add wave            -label id_ex dut/core0/id_ex
+add wave -expand    -label id_ex dut/core0/id_ex
 add wave -divider "Core Internals - Execute & Write back"
 add wave            -label ex_wb dut/core0/ex_wb
 add wave -divider "Core Internals - Registers"
@@ -143,6 +143,7 @@ add wave -radix hex -label CSR_reg dut/core0/csr_reg
 if {[find signal -r */debuggen/dtm0/state] != ""} {
     add wave -divider "DTM"
     add wave            -label DTM_state dut/debuggen/dtm0/state
+    add wave            -label tck tck
     add wave            -label tms tms
     add wave            -label tdi tdi
     add wave            -label tdo tdo

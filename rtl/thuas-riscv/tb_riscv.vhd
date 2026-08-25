@@ -48,7 +48,7 @@ end entity tb_riscv;
 
 architecture sim of tb_riscv is
 
--- Component is loaded by processor_common.vhd
+-- Component 'riscv' is loaded by processor_common.vhd
 signal clk : std_logic;
 signal areset : std_logic;
 signal tck : std_logic;
@@ -97,7 +97,7 @@ begin
               -- Do we have the buildin bootloader?
               HAVE_BOOTLOADER_ROM => false,
               -- Disable CSR address check when in debug mode
-              OCD_CSR_CHECK_DISABLE => TRUE,
+              OCD_CSR_CHECK_DISABLE => false,
               -- Do we use post-increment address pointer when debugging?
               OCD_AAMPOSTINCREMENT => TRUE,
               -- Do we have integer hardware multiply/divide?
@@ -141,7 +141,7 @@ begin
               -- Use UART1?
               HAVE_UART1 => TRUE,
               -- Use UART2?
-              HAVE_UART2 => TRUE,
+              HAVE_UART2 => false,
               -- Use SPI1?
               HAVE_SPI1 => TRUE,
               -- Use SPI2?
@@ -198,7 +198,9 @@ begin
               IO_timer2icoca => timer2icoca,
               IO_timer2icocb => timer2icocb,
               IO_timer2icocc => timer2icocc
-            );    
+            );
+
+
     -- Generate a symmetric clock signal, 50 MHz
     process is
     begin
@@ -208,9 +210,7 @@ begin
         wait for 10 ns;
     end process;
     
-    -- Only here to supply a reset, datain and RxD
-    -- Reset is active high in design but may be
-    -- active low on board
+    -- Data generate
     process is
     variable data_from_dtm_v : data_type;
     begin
@@ -246,10 +246,12 @@ begin
         end loop;
 --        -- Send parity bit
 --        RxD <= '0';
+--        wait for bittime;
 --        -- Send stop bit
-        wait for bittime;
         uart1rxd <= '1';
         wait for bittime;
+--        uart1rxd <= '1';
+--        wait for bittime;
         
         -- Send a BREAK condition to UART1
 --        for i iN 1 to 12 loop
@@ -257,9 +259,10 @@ begin
 --            wait for bittime;
 --        end loop;
         uart1rxd <= '1';
-
-        wait for 500 ns;
+        
+        wait for 22020 ns;
         wait until clk = '1';
+        
 
         --
         -- Use the debugger
@@ -269,6 +272,11 @@ begin
         work.jtag_dmi_pkg.jtag_reset(tck, tms, tdi, tdo);
         wait for 200 ns;
 
+        -- Try to read IDCODE
+        work.jtag_dmi_pkg.idcode_read(tck, tms, tdi, tdo, data_from_dtm_v);
+        data_from_dtm <= data_from_dtm_v;
+        wait for 200 ns;
+        
         -- Write DM Active in dmcontrol (0x10)
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
         wait for 200 ns;
@@ -301,9 +309,11 @@ begin
         -- Try to write data to mscratch
         -- First write data to data0
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"aaaa5555");
+--        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"30000000");
         wait for 200 ns;
         -- Write to mscratch
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"00230340");
+--        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307b1");
         wait for 200 ns;
         
         -- Try to read address 0x20000000
@@ -340,6 +350,7 @@ begin
         -- Set step bit
         data_from_dtm_v(2) := '1';
         wait for 200 ns;
+        -- Write dara to data0
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", data_from_dtm_v);
         wait for 200 ns;
         -- Write to dcsr
@@ -372,7 +383,7 @@ begin
         wait for 200 ns;
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
         wait for 200 ns;
-       
+        
         wait;
         
     end process;

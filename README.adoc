@@ -1,4 +1,4 @@
-= The THUAS RISC-V 32-bit processor in VHDL
+= The THUAS RISC-V 32-bit System-on-a-Chip in VHDL
 
 xref:CHANGELOG.md[Change Log] | xref:docs/doc.adoc[Full Documentation]
 

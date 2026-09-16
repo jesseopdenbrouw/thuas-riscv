@@ -101,7 +101,7 @@ signal mem_alt : mem_alt_type;
 -- To keep track of the strobe
 signal stb_dly : std_logic;
 -- Default bit contents
-constant x : std_logic_vector(7 downto 0) := (others => '-');
+constant x : std_logic_vector(7 downto 0) := (others => '0');
 -- Local signals
 signal address_data : integer range 0 to mem_size-1;
 signal byteena : std_logic_vector(3 downto 0);

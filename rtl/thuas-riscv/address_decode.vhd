@@ -141,8 +141,6 @@ begin
             if I_bus_request.acc = memaccess_write then
                 O_mem_request_rom.wren <= '1';
             end if;
-            O_bus_response.data <= I_mem_response_rom.data;
-            O_bus_response.ready <= I_mem_response_rom.ready;
         -- Bootloader ROM @ 1xxxxxxx, 256M space, read only
         elsif I_bus_request.addr(31 downto 28) = BOOT_HIGH_NIBBLE and HAVE_BOOTLOADER_ROM then
             if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
@@ -153,8 +151,6 @@ begin
             if I_bus_request.acc = memaccess_write then
                 O_mem_request_boot.wren <= '1';
             end if;            
-            O_bus_response.data <= I_mem_response_boot.data;
-            O_bus_response.ready <= I_mem_response_boot.ready;
         -- RAM @ 2xxxxxxx, 256M space, read-write
         elsif I_bus_request.addr(31 downto 28) = RAM_HIGH_NIBBLE then
             if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
@@ -164,8 +160,6 @@ begin
             if I_bus_request.acc = memaccess_write then
                 O_mem_request_ram.wren <='1';
             end if;
-            O_bus_response.data <= I_mem_response_ram.data;
-            O_bus_response.ready <= I_mem_response_ram.ready;
         -- I/O @ Fxxxxxxx, 256M space, read-write
         elsif I_bus_request.addr(31 downto 28) = IO_HIGH_NIBBLE then
             if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
@@ -175,24 +169,19 @@ begin
             if I_bus_request.acc = memaccess_write then
                 O_mem_request_io.wren <='1';
             end if;
-            O_bus_response.data <= I_mem_response_io.data;
-            O_bus_response.ready <= I_mem_response_io.ready;
         -- Referencing unimplemented memory results in an access error
         else
-            O_bus_response.ready <= '0';
             if I_bus_request.acc = memaccess_read then
                 O_bus_response.load_access_error <= '1';
-                -- Signal ready anyway, otherwise the bus will hang.
-                O_bus_response.ready <= '1';
             end if;
             if I_bus_request.acc = memaccess_write then
                 O_bus_response.store_access_error <= '1';
-                -- Signal ready anyway, otherwise the bus will hang.
-                O_bus_response.ready <= '1';
             end if;
-            O_bus_response.data <= (others => '0');
         end if;
     end process;
+    
+    O_bus_response.data <= I_mem_response_rom.data or I_mem_response_boot.data or I_mem_response_ram.data or I_mem_response_io.data;
+    O_bus_response.ready <= I_mem_response_rom.ready or I_mem_response_boot.ready or I_mem_response_ram.ready or I_mem_response_io.ready;
     
 end architecture rtl;
 

@@ -276,7 +276,7 @@ image::images/read.svg[Image of the read operation]
 
 The memories are responsible for handling different data sizes and rearranging half word and byte access. When reading, the core expects half word data on the lower 16 bits of the data bus and bytes on the lower 8 bits of the databus. When writing the core puts half words on the lower 16 bits of the data bus and bytes on the lower 8 bits of the data bus. Sign and zero extension (for loads) is handled by the core. The memories are also responsible for generating access exceptions and misaligned exceptions.
 
-The memories are described in a device agnostic manner. It is up to the synthesizer to map onboard memory to the instantiated  memories. This can lead to excessive on-board RAM usage if the synthesizer is not able to create true dual-port RAM.
+The memories are described in a device agnostic manner. It is up to the synthesizer to map onboard memory to the instantiated memories. This can lead to excessive on-board RAM usage if the synthesizer is not able to create true dual-port RAM.
 
 === Address Decoder and Data Router
 
@@ -292,7 +292,7 @@ The Instruction Router routes instructions from the ROM, RAM and the boot ROM. I
 
 === ROM
 
-The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading or writing data. Half word and word entries are stored in Litte Endian format. When reading  data from or writing data to the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns undefined data if an access is not aligned and will generate an exception. The design instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit.
+The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading or writing data. Half word and word entries are stored in Litte Endian format. When reading  data from or writing data to the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns all zero bits if an access is not aligned and will generate an exception. The design instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. The data output ofnthe ROM returns all zero bits if not accessed.
 
 When the bootloader hardware and/or the on-chip debugger is enabled, the ROM is writable. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. When the bootloader and the on-chip debugging are disabled, an access exception will be generated when writing.
 
@@ -300,17 +300,17 @@ Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Bec
 
 === Bootloader ROM
 
-The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is placed in onboard immutable RAM blocks. The bootloader may be excluded from synthesis. Note that the bootloader firmware is generated for RV32IM. A write will result in an access exception.
+The bootloader ROM contains a small program to upload S-record files in the ROM. The bootloader ROM cannot be written by an upload. Besides that, the bootloader contains a simple monitor program. The bootloader ROM is placed in onboard immutable RAM blocks. The bootloader may be excluded from synthesis. Note that the bootloader firmware is generated for RV32IM. A write will result in an access exception. Memory accesses are the same as the ROM.
 
 === RAM
 
-The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns undefined data if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM can be used for instructions.
+The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns all zeto bits if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM can be used for instructions. The data output of the RAM returns all zero bits if not accessed
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
 === I/O
 
-Currently, the I/O consists of one 32-bit data input and one 32-bit data output, two simple UARTs with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit, a CRC unit and the `TIME` and `TIMEH` memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. Each I/O module has a 256-byte address space. Note that not all I/O addresses are actually used.
+Currently, the I/O consists of one 32-bit data input and one 32-bit data output, two simple UARTs with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit, a CRC unit and the `TIME` and `TIMEH` memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. Each I/O module has a 256-byte address space. Note that not all I/O addresses are actually used. All I/O modules return all zero bits if not accessed.
 
 Note: GPIOA and MTIME are always included in synthesis.
 
@@ -328,23 +328,23 @@ I2C1 is a minimal I2C controller peripheral (master-only). It can react to clock
 
 I2C2 is an exact copy of I2C1, but with a different interrupt priority.
 
-SPI1 is a full-fledged SPI master. It can transfer 8-bit, 16-bit, 24-bit and 32-bit data in one SPI cycle. It incorporates a programmable prescaler (from /2 to /256 in powers of 2) and all four phases of clock polarity (CPOL) and phase polarity (CPHA). Use a GPIO pin to use software-controlled NSS. Currently, the MISO is not synchronized to the system clock. Transfer complete interrupt is available.
+SPI1 is a full-fledged SPI master. It can transfer 8-bit, 16-bit, 24-bit and 32-bit data in one SPI cycle. It incorporates a programmable prescaler (from /2 to /256 in powers of 2) and all four phases of clock polarity (CPOL) and phase polarity (CPHA). Use a GPIO pin for software-controlled NSS. Currently, the MISO is not synchronized to the system clock. Transfer complete interrupt is available.
 
 SPI2 is an exact copy of SPI1, but with a different interrupt priority.
 
 WDT is a simple watchdog timer that can trigger a system wide reset or a non-maskable interrupt (NMI). The NMI cannot be blocked. The NMI uses the same mechanism as other traps, so `mtvec` must point to a trap handler. Note that an NMI will fire only when the control unit is in the `exec` state. This is done so that the core is in a known state when the NMI fires. An NMI cannot be interrupted by another NMI. It is not always possible to return to a correct running state of the program. This depends on the program.
 
-The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger register will fire an MSI if `mie.MSIE` is set. As long a the trigger register is set to 1, MSIs will be fired. Cleared by writing a 0.
+The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger register will fire an MSI if `mie.MSIE` is set. As long as the trigger register is set to 1, MSIs will be fired. Cleared by writing a 0.
 
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since `clock()` and `gettimeofday()` depend on this value. As such, the system clock frequency must be a integer multiple of 1 MHz. Note that TIMEH:TIME is writable by software.
 
 The CRC unit can calculate 8-bit, 16-bit, 24-bit and 32-bit CRCs with arbitrary polynomals. The CRCs are calculated on byte data with the msb of the bytes first. The polynomal has the same width as the calculated CRC. The CRC value can be loaded with a start value (often 0x00000000 or 0xffffffff).
 
-When writing your own I/O modules, note that *all* memory accesses are/must be acknowledged, even when this triggers an exception.
+When writing your own I/O modules, note that *all* memory accesses must be acknowledged, or an exception must be generated. The I/O module must return all zero bits when not accessed.
 
 === Memory access times
 
-In the default setup, a write needs two clock cycles and a read needs three clock cycles for ROM, boot ROM and I/O. For I/O, reads and writes take three clock cycles. When the `FAST_MEM` generic is set to true, all accesses are reduced by one clock cycle. This will speed up programs but has an severe inpact on the $f_{max}$.
+In the default setup, a write needs two clock cycles and a read needs three clock cycles for ROM, boot ROM, RAM and I/O. For I/O, reads and writes take three clock cycles. When the `FAST_MEM` generic is set to true, all accesses are reduced by one clock cycle. This will speed up programs but has an severe inpact on the $f_{max}$.
 
 
 == Debug Module and Debug Transport Module
@@ -819,12 +819,12 @@ It should say something like:
 ----
 Using built-in specs.
 COLLECT_GCC=riscv32-unknown-elf-gcc
-COLLECT_LTO_WRAPPER=/opt/riscv32-15.2/bin/../libexec/gcc/riscv32-unknown-elf/15.2.0/lto-wrapper
+COLLECT_LTO_WRAPPER=/opt/riscv32.16.1/bin/../libexec/gcc/riscv32-unknown-elf/16.1.0/lto-wrapper
 Target: riscv32-unknown-elf
-Configured with: /mnt/d/PROJECTS/RISCVDEV/riscv-gnu-toolchain/build/../gcc/configure --target=riscv32-unknown-elf --prefix=/opt/riscv32 --disable-shared --disable-threads --enable-languages=c,c++ --with-pkgversion=g5115c7e44 --with-system-zlib --enable-tls --with-newlib --with-sysroot=/opt/riscv32/riscv32-unknown-elf --with-native-system-header-dir=/include --disable-libmudflap --disable-libssp --disable-libquadmath --disable-libgomp --disable-nls --disable-tm-clone-registry --src=../../gcc --enable-multilib --with-multilib-generator='rv32im_zicsr_zba_zbb_zbs_zicond-ilp32--;rv32e-ilp32e--' --with-abi=ilp32 --with-arch=rv32im --with-isa-spec=20191213 'CFLAGS_FOR_TARGET=-Os    -mcmodel=medlow' 'CXXFLAGS_FOR_TARGET=-Os    -mcmodel=medlow'
+Configured with: /mnt/d/PROJECTS/RISCVDEV/riscv-gnu-toolchain/build/../gcc/configure --target=riscv32-unknown-elf --prefix=/opt/riscv32 --disable-shared --disable-threads --enable-languages=c,c++ --with-pkgversion= --with-system-zlib --enable-tls --with-newlib --with-sysroot=/opt/riscv32/riscv32-unknown-elf --with-native-system-header-dir=/include --disable-libmudflap --disable-libssp --disable-libquadmath --disable-libgomp --disable-nls --disable-tm-clone-registry --src=../../gcc --enable-multilib --with-multilib-generator='rv32im_zicsr_zba_zbb_zbs_zicond_zimop_zbkb-ilp32--;rv32e-ilp32e--' --with-abi=ilp32 --with-arch=rv32im --with-isa-spec=20191213 'CFLAGS_FOR_TARGET=-Os    -mcmodel=medlow' 'CXXFLAGS_FOR_TARGET=-Os    -mcmodel=medlow'
 Thread model: single
 Supported LTO compression algorithms: zlib
-gcc version 15.2.0 (g5115c7e44) 
+gcc version 16.1.0 () 
 ----
 
 When using Windows, best is to use precompiled binaries. See <<sec_win>>.

@@ -26,7 +26,7 @@
 		nop
 		nop
 		nop
-/*
+
 		li t0,0x12345678
 		rev8	t0,t0
 
@@ -250,7 +250,7 @@
 		li	t0, 0xff
 		sext.b	t0, t0
 
-*/
+
 		li t0, 0xf0000001
 		li t1, 1
 		rol t2, t0, t1

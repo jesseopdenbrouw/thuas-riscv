@@ -58,10 +58,11 @@ entity address_decode is
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble
          );
-    port (-- From and to core
+    port (
+          -- From and to core
           I_bus_request : in bus_request_type;
           O_bus_response : out bus_response_type; 
-          -- To and tp memory
+          -- To and to memory
           O_mem_request_rom : out mem_request_type;
           O_mem_request_boot : out mem_request_type;
           O_mem_request_ram : out mem_request_type;
@@ -74,6 +75,7 @@ entity address_decode is
 end entity address_decode;
 
 architecture rtl of address_decode is
+
 begin
 
     -- Address decoder and data router (may be forward from RS1)
@@ -132,6 +134,7 @@ begin
                                                  I_mem_response_ram.store_misaligned_error or
                                                  I_mem_response_io.store_misaligned_error; 
 
+
         -- ROM @ 0xxxxxxx, 256M space, read-write
         if I_bus_request.addr(31 downto 28) = ROM_HIGH_NIBBLE then
             if I_bus_request.acc = memaccess_read or I_bus_request.acc = memaccess_write then
@@ -179,9 +182,16 @@ begin
             end if;
         end if;
     end process;
-    
-    O_bus_response.data <= I_mem_response_rom.data or I_mem_response_boot.data or I_mem_response_ram.data or I_mem_response_io.data;
-    O_bus_response.ready <= I_mem_response_rom.ready or I_mem_response_boot.ready or I_mem_response_ram.ready or I_mem_response_io.ready;
-    
+
+
+    -- Fuse data from memories, memory must return zero bits when not accessed
+    O_bus_response.data <= I_mem_response_rom.data or I_mem_response_boot.data or
+                           I_mem_response_ram.data or I_mem_response_io.data;
+
+
+    -- Fuse all readies.
+    O_bus_response.ready <= I_mem_response_rom.ready or I_mem_response_boot.ready or
+                            I_mem_response_ram.ready or I_mem_response_io.ready;
+
 end architecture rtl;
 

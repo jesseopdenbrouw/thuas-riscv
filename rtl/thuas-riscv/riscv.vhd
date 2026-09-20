@@ -177,6 +177,8 @@ component core is
           HAVE_RISCV_E : boolean;
           -- Have On-chip debugger?
           HAVE_OCD : boolean;
+          -- If bootloader enabled, adjust the boot address
+          HAVE_BOOTLOADER_ROM : boolean;
           -- Disable CSR address check when in debug mode
           OCD_CSR_CHECK_DISABLE : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -201,8 +203,6 @@ component core is
           VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
           HAVE_REGISTERS_IN_RAM : boolean;
-          -- If bootloader enabled, adjust the boot address
-          HAVE_BOOTLOADER_ROM : boolean;
           -- 4 high bits of ROM address
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
@@ -275,7 +275,7 @@ component address_decode is
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble
          );
-    port ( 
+    port (
           -- From and to core
           I_bus_request : in bus_request_type;
           O_bus_response : out bus_response_type; 
@@ -659,7 +659,7 @@ signal mtimeh_int : data_type;
 signal intrio_int : data_type;
 
 -- Signals for reset
-signal areset_sys_sync_int : std_logic_vector(3 downto 0);
+signal areset_sys_sync_int : std_logic_vector(2 downto 0);
 signal areset_sys_int : std_logic;
 signal break_from_uart1_int : std_logic;
 signal reset_from_wdt_int : std_logic;
@@ -787,13 +787,15 @@ begin
         areset_sys_int <= '0';
         areset_debug_int <= '0';
     end generate;
-    
+
+
     core0: core
     generic map (
               SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
               HW_VERSION => HW_VERSION,
               HAVE_RISCV_E => HAVE_RISCV_E,
               HAVE_OCD => HAVE_OCD,
+              HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               OCD_CSR_CHECK_DISABLE => OCD_CSR_CHECK_DISABLE,
               HAVE_MULDIV => HAVE_MULDIV,
               FAST_DIVIDE => FAST_DIVIDE,
@@ -806,7 +808,6 @@ begin
               HAVE_ZIHPM => HAVE_ZIHPM,
               VECTORED_MTVEC => VECTORED_MTVEC,
               HAVE_REGISTERS_IN_RAM => HAVE_REGISTERS_IN_RAM,
-              HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
               BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE,
               BUFFER_IO_RESPONSE => BUFFER_IO_RESPONSE,
@@ -857,7 +858,7 @@ begin
               RAM_HIGH_NIBBLE => RAM_HIGH_NIBBLE,
               IO_HIGH_NIBBLE => IO_HIGH_NIBBLE
              )
-    port map (              --
+    port map (
               I_bus_request => bus_request_int,
               O_bus_response => bus_response_int,
               --
@@ -917,7 +918,7 @@ begin
     generic map (
               MEMORY_ADDRESS_BITS => 12,
               MEMORY_USE_INSTRUCTIONS => TRUE,
-              MEMORY_USE_WRITE => HAVE_INST_IN_RAM,
+              MEMORY_USE_WRITE => false,
               MEMORY_CONTENTS => bootrom_contents,
               MEMORY_DEFAULT => '0',
               MEMORY_FILE => "UNUSED"

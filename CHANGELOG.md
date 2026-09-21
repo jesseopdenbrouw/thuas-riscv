@@ -86,4 +86,5 @@ All dates are in dd.mm.yyyy format.
 | 25.08.2026 | 1.1.4.18 | [core] correct instruction access error | |
 | 16.09.2026 | 1.1.4.19 | [mem/address] memory now returns all zero bits if not addressed, address uses fused return values from memory | |
 | 20.09.2026 | 1.1.4.20 | code cleanups | |
+| 21.09.2026 | 1.1.5.0  | new version | |
 

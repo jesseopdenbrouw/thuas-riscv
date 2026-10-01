@@ -3318,7 +3318,7 @@ begin
                 if HAVE_OCD then
                     -- Debug registers
                     csr_reg.dcsr(1 downto 0) <= "11";                -- Alwyas M-mode
-                    csr_reg.dcsr(3) <= '0';                          -- NMI interrupt pending not used
+                    csr_reg.dcsr(3) <= I_intrio(31);                 -- NMI interrupt pending
                     csr_reg.dcsr(4) <= '0';                          -- mpriven not used
                     csr_reg.dcsr(5) <= '0';                          -- v not used
                     csr_reg.dcsr(9) <= '0';                          -- stoptime not used

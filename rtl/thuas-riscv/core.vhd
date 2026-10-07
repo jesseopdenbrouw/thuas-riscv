@@ -931,8 +931,8 @@ begin
                     id_ex.memaccess <= memaccess_nop;
                     id_ex.memsize <= memsize_unknown;
                     id_ex.csr_op <= csr_nop;
-                    id_ex.csr_addr <= (others => '0');
-                    id_ex.csr_immrs1 <= (others => '0');
+                    id_ex.csr_addr <= imm_i_v(11 downto 0); -- always assign
+                    id_ex.csr_immrs1 <= rs1_v; -- always assign
                     control.ecall_request <= '0';
                     control.ebreak_request <= '0';
                     control.mret_request <= '0';
@@ -988,8 +988,8 @@ begin
                     id_ex.memaccess <= memaccess_nop;
                     id_ex.memsize <= memsize_unknown;
                     id_ex.csr_op <= csr_nop;
-                    id_ex.csr_addr <= (others => '0');
-                    id_ex.csr_immrs1 <= (others => '0');
+                    id_ex.csr_addr <= imm_i_v(11 downto 0); -- always assign
+                    id_ex.csr_immrs1 <= rs1_v; -- always assign
                     control.ecall_request <= '0';
                     control.ebreak_request <= '0';
                     control.mret_request <= '0';

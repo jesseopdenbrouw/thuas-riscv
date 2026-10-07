@@ -88,4 +88,5 @@ All dates are in dd.mm.yyyy format.
 | 20.09.2026 | 1.1.4.20 | code cleanups | |
 | 21.09.2026 | 1.1.5.0  | new version | |
 | 01.10.2026 | 1.1.5.1  | [core] dcsr.NMIP reflects NMI pending | |
+| 07.10.2026 | 1.1.5.2  | [core] CSR addr/imm now default assignment | |
 

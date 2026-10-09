@@ -794,7 +794,7 @@ begin
             if I_sreset = '1' then
                 if_id.pc <= (others => '0');
             -- Must we stall?
-            elsif control.stall = '1' or control.stall_on_trigger = '1' or id_ex.pc_op = pc_hold then
+            elsif control.stall = '1' or id_ex.pc_op = pc_hold then
                 null;
             else
                 if_id.pc <= pc;

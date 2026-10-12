@@ -647,7 +647,6 @@ The pin assignments for the DE0-CV board are as follows. Note that not all signa
 |tdi           | R17      | GPIO_0_29, JTAG data in
 |tdo           | T20      | GPIO_0_31, JTAG data out
 |tms           | T18      | GPIO_0_33, JTAG select
-|trst          | T15      | GPIO_0_35, JTAG reset
 |===
 
 Some pins are connected to the onboard GPIO headers. The DE0-CV board has two headers but currently only GPIO 0 is used.

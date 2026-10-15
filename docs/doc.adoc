@@ -23,9 +23,9 @@ This is work in progress. Things will certainly change in the future.
 
 This document describes the buildup of a simple, one core, RISC-V SoC, completely written in VHDL. The core contains one _hart_ (Hardware Thread). The SoC is able to run a compiled C-program. {cpp} is supported but some concepts (cout with iostream, STL) create binaries that are too big to fit in the ROM. The SoC can handle the RV32IM Base Integer Instruction Set as set forward in ''The RISC-V Instruction Set Manual Volume I: Unprivileged ISA''. Also, the Zicsr, Zicntr, Zicond, Zimop, Zihpm, Zba, Zbb, Zbs, Zbkb, Sdext and Sdtrig extensions are implemented. The SoC can handle traps (interrupts/exceptions). The aim is to synthesize for a clock frequency of 85 MHz. The SoC utilizes ROM, RAM and some simple I/O (including MTIME and MTIMECMP) effectively making it a microcontroller. The SoC is designed on a Terasic https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=921&PartNo=2[DE0-CV board].
 
-The SoC is build around a three-stage pipelined core: fetch, decode and execute/write back stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The SoC has a Control and Status Registers set, offering basic and performance counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. Traps taken and return take 3 clocks.
+The SoC is build around a three-stage pipelined core: fetch, decode and execute/write back stages. Most register instructions require one clock cycle to complete. Jumps, calls and branches taken (including returns) require three clock cycles because a new instruction has to be fetched, the core does not use branch prediction. Also, three clock cycles are needed when reading memory. Writes take two clock cycles, except for I/O where a write takes three clock cycles. ROM and RAM are implemented using onboard synchronous RAM block. The SoC has a Control and Status Registers set, offering basic and performance counters, and a set of CSRs to handle traps and on-chip debugging. CSR operations require one clock cycle. A hardware multiplication requires three clock cycles to complete. A hardware division requires 32+2 or 16+2 clock cycles to complete, depending on the settings. Traps taken and return take 3 clocks.
 
-The SoC executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark test shows an average CPI of 1.75 with a throughput of 1.94 coremark/MHz (GCC 16.1, -O3, 4000 runs).
+The SoC executes at top 1 CPI (clocks per instruction) with a sequential flow of instructions. Current CoreMark test shows an average CPI of 1.75 with a throughput of 1.94 coremark/MHz (GCC 16.1, -O3, RV32IM, 4000 runs).
 
 == The SoC
 
@@ -203,7 +203,7 @@ For counting purposes, the following registers are implemented:
 
 The registers `mhpmcounter10` to `mhpmcounter31`, `mhpmcounter10h` to `mhpmcounter31h` and `mhpmevent10` to `mhpmevent31` are hardwires to all-zero bits.
 
-The event counter registers are currently 40 bits wide. Currently, there are 7 events that can be counted:
+The performance counter registers are currently 40 bits wide. Currently, there are 7 events that can be counted:
 
 [cols="1,1"]
 |===
@@ -292,7 +292,7 @@ The Instruction Router routes instructions from the ROM, RAM and the boot ROM. I
 
 === ROM
 
-The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading or writing data. Half word and word entries are stored in Litte Endian format. When reading  data from or writing data to the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns all zero bits if an access is not aligned and will generate an exception. The design instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. The data output ofnthe ROM returns all zero bits if not accessed.
+The ROM consists of bytes and is only word addressable for instructions. The ROM is byte, half word and word addressable when reading or writing data. Half word and word entries are stored in Litte Endian format. When reading  data from or writing data to the ROM, half word accesses must be on 2-byte boundaries and word accesses must be on 4-byte boundaries. This simplifies the decoding circuitry. The ROM returns all zero bits if an access is not aligned and will generate an exception. The design instantiates the ROM in onboard RAM. Rearranging half word and word data accesses in Big Endian format is handled by the ROM decoding unit. The data output of the ROM returns all zero bits if not accessed.
 
 When the bootloader hardware and/or the on-chip debugger is enabled, the ROM is writable. Although this write option is reserved for the bootloader and the on-chip debugger, a user program can manipulate the ROM. When the bootloader and the on-chip debugging are disabled, an access exception will be generated when writing.
 
@@ -304,7 +304,7 @@ The bootloader ROM contains a small program to upload S-record files in the ROM.
 
 === RAM
 
-The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns all zeto bits if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. For the Cyclone V a maximum of 65536 words of RAM can be instantiated. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM can be used for instructions. The data output of the RAM returns all zero bits if not accessed
+The RAM consists of bytes and is byte, half word and word addressable. Half word and word entries are stored in Little Endian format. The RAM itself is made up of word (i.e. 32-bit) entries and is instantiated with onboard RAM blocks. Due to this fact, half word accesses are only permitted on 2-byte boundaries and word accesses are only permitted on 4-byte boundaries. The RAM returns all zeto bits if an access is not aligned. Writes will not take place if an access is unaligned. This simplifies the decoding circuitry. Unaligned accesses cause an exception. Rearranging half word and word data accesses in Big Endian format is handled by the RAM decoding unit. The RAM can be used for instructions. The data output of the RAM returns all zero bits if not accessed
 
 Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Because of the 32-bit entries a maximum of 2,097,152 (65536 x 32) bits can be instantiated. This is equivalent to 262,144 bytes.
 
@@ -349,7 +349,7 @@ In the default setup, a write needs two clock cycles and a read needs three cloc
 
 == Debug Module and Debug Transport Module
 
-The SoC can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://docs.riscv.org/reference/debug/v1.0/index.html[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the SoC and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the core. Using the on-chip debugger, it is possible to set up breakpoints, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT.
+The SoC can be equipped with on-chip hardware debug support (Sdext and Sdtrig) following the guidelines of the https://docs.riscv.org/reference/debug/v1.0/index.html[debug specification]. The debug transport module (DTM) is an interface between the debug hardware outside of the SoC and the debug module interface (DMI) The DTM uses JTAG to communicate with off-chip debug hardware. The DMI is a simple request/response interface and connects to the debug module (DM). The DM connects to the core. Using the on-chip debugger, it is possible to set up breakpoints, single-step, examine registers and memory. The on-chip debugger is compatible with OpenOCD, GDB and Eclipse-CDT. The core incorporates one hardware instruction address breakpoint.`
 
 The DTM is reused from the NEORV32 DTM by Stephan Nolting with his permission (see https://github.com/stnolting/neorv32/blob/main/rtl/core/neorv32_debug_dtm.vhd).
 

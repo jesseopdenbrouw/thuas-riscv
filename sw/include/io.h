@@ -45,10 +45,10 @@ typedef struct {
  * UART1, UART2
  */
 typedef struct {
-    volatile uint32_t CTRL;
-    volatile uint32_t STAT;
-    volatile uint32_t DATA;
-    volatile uint32_t BAUD;
+    volatile uint32_t CTRL;        /** Control Register */
+    volatile uint32_t STAT;        /** Status Register */
+    volatile uint32_t DATA;        /** Data Register */
+    volatile uint32_t BAUD;        /** Baud Rate Register */
 } UART_struct_t;
 
 #define UART1_BASE (IO_BASE+0x00000100UL)
@@ -162,8 +162,8 @@ typedef struct {
  * Watchdog (WDT)
  */
 typedef struct {
-    volatile uint32_t CTRL;
-    volatile uint32_t TRIG;
+    volatile uint32_t CTRL;       /* Control Register */
+    volatile uint32_t TRIG;       /* Watchdog Reset Trigger Register */
 } WDT_struct_t;
 
 #define WDT_BASE (IO_BASE+0x00000800UL)
@@ -182,6 +182,7 @@ typedef struct {
 
 #define MSI_BASE (IO_BASE+0x00000900UL)
 #define MSI ((MSI_struct_t *) MSI_BASE)
+
 #define MSI_TRIG (*(volatile uint32_t*)(MSI_BASE+0x00000000UL))
 
 /*
@@ -191,6 +192,7 @@ typedef struct {
 #define MTIMEH    (*(volatile uint32_t*)(IO_BASE+0x00000a04UL))
 #define MTIMECMP  (*(volatile uint32_t*)(IO_BASE+0x00000a08UL))
 #define MTIMECMPH (*(volatile uint32_t*)(IO_BASE+0x00000a0cUL))
+
 
 
 /*
@@ -206,11 +208,31 @@ typedef struct {
 
 #define CRC_BASE (IO_BASE+0x00000c00UL)
 #define CRC ((CRC_struct_t *) CRC_BASE)
+
 #define CRC_CTRL (*(volatile uint32_t*)(CRC_BASE+0x00000000UL))
 #define CRC_STAT (*(volatile uint32_t*)(CRC_BASE+0x00000004UL))
 #define CRC_POLY (*(volatile uint32_t*)(CRC_BASE+0x00000008UL))
 #define CRC_SREG (*(volatile uint32_t*)(CRC_BASE+0x0000000cUL))
 #define CRC_DATA (*(volatile uint32_t*)(CRC_BASE+0x00000010UL))
+
+/*
+ * One-wire unit
+ */
+typedef struct {
+	volatile uint32_t CTRL;      /* Control Register */
+    volatile uint32_t STAT;      /* Status Register */
+    volatile uint32_t DATA;      /* Data Register */
+    volatile uint32_t READ;      /* Start a Read Operation Register */
+} ONEWIRE_struct_t;
+
+#define ONEWIRE1_BASE (IO_BASE+0x00000d00UL)
+#define ONEWIRE1 ((ONEWIRE_struct_t *) ONEWIRE1_BASE)
+
+#define ONEWIRE1_CTRL (*(volatile uint32_t*)(ONEWIRE1_BASE+0x00000000UL))
+#define ONEWIRE1_STAT (*(volatile uint32_t*)(ONEWIRE1_BASE+0x00000004UL))
+#define ONEWIRE1_DATA (*(volatile uint32_t*)(ONEWIRE1_BASE+0x00000008UL))
+#define ONEWIRE1_READ (*(volatile uint32_t*)(ONEWIRE1_BASE+0x0000000cUL))
+
 
 
 #ifdef __cplusplus

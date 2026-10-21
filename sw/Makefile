@@ -52,6 +52,7 @@ SUBDIRS = add64 \
           monitor \
           mult \
           mxhw \
+          onewire1ds18b20 \
           qsort \
           riemann_left \
           shift \

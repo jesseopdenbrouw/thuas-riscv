@@ -22,6 +22,7 @@
 #include <timer.h>
 #include <wdt.h>
 #include <crc.h>
+#include <onewire.h>
 
 #endif
 

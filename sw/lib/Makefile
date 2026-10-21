@@ -44,4 +44,5 @@ clean:
 	make -C gpio clean
 	make -C wdt clean
 	make -C crc clean
+	make -C onewire clean
 	rm -f $(LIBTHUASRV32)

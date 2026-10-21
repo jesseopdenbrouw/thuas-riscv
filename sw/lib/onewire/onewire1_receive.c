@@ -1,0 +1,15 @@
+/*
+ * onewire1_receive - receive an array of bytes
+ */
+
+#include <thuasrv32.h>
+
+uint32_t onewire1_receive(uint8_t data[], uint32_t len)
+{
+	for (int i = 0; i < len; i++) {
+		data[i] = onewire1_receive_byte();
+	}
+
+	return 1;
+}
+

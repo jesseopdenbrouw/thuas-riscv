@@ -1,11 +1,11 @@
-14:33:38 **** Build of configuration Debug for project coremark ****
+15:11:03 **** Incremental Build of configuration Debug for project coremark ****
 make -j16 all 
 Invoking: GNU RISC-V Cross Print Size
 riscv-none-elf-size.cmd --format=berkeley "coremark.elf"
    text	   data	    bss	    dec	    hex	filename
-  34632	     36	   2044	  36712	   8f68	coremark.elf
+  35188	     36	   2044	  37268	   9194	coremark.elf
 Finished building: coremark.siz
  
 
-14:33:39 Build Finished. 0 errors, 0 warnings. (took 1s.206ms)
+15:11:04 Build Finished. 0 errors, 0 warnings. (took 798ms)
 

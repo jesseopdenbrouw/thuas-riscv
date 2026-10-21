@@ -1,4 +1,4 @@
-11:56:50 **** Incremental Build of configuration Debug for project hello_world ****
+15:00:32 **** Incremental Build of configuration Debug for project hello_world ****
 make -j16 all 
 Invoking: GNU RISC-V Cross Print Size
 riscv-none-elf-size.cmd --format=berkeley "hello_world.elf"
@@ -7,5 +7,5 @@ riscv-none-elf-size.cmd --format=berkeley "hello_world.elf"
 Finished building: hello_world.siz
  
 
-11:56:50 Build Finished. 0 errors, 0 warnings. (took 242ms)
+15:00:32 Build Finished. 0 errors, 0 warnings. (took 419ms)
 

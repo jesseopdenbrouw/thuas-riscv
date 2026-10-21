@@ -64,7 +64,7 @@ interrupt. A simple timer with interrupt is provided. A more elaborate
 timer is included and can generate waveforms (Output Compare and PWM)
 or count edges (Input Capture). A watchdog timer is available, it can
 generate a system wide reset or an NMI. A machine mode software interrupt
-is provided. A CRC unit is provided.
+is provided. A CRC unit is provided. A simple 1-Wire device is provided.
 The external system timer MTIME is located in the I/O so it's memory mapped.
 
 ROM starts at 0x00000000, BOOT (if available) starts at 0x10000000,

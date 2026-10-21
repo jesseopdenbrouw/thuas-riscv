@@ -116,6 +116,8 @@ entity core is
           HAVE_WDT : boolean;
           -- Use CRC?
           HAVE_CRC : boolean;
+          -- Use one-wire device
+          HAVE_ONEWIRE1 : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -424,7 +426,6 @@ begin
             else
                 control.load_pc <= '0';
                 control.load_dpc <= '0';
---                csr_reg.dcsr_cause <= "0000";
                 if I_ackhavereset = '1' then
                     O_reset_ack <= '0';
                 end if;
@@ -640,8 +641,8 @@ begin
     -- Delay the release request (for use in the CSR)
     control.mret_request_delay <= '1' when control.state = state_mret2 else '0';
     
-    -- May the core be interrupted (only for interrupts, not exceptions)?
-    control.may_interrupt <= '1' when control.state = state_exec or control.state = state_wfi else '0';
+    -- May the core be interrupted (only for interrupts, not exceptions), but not when stepping?
+    control.may_interrupt <= '1' when (control.state = state_exec or control.state = state_wfi) and control.isstepping = '0' else '0';
     
     -- Check if the currently executing instruction address is aligned to word
     -- We need to make a one-shot, because the PC is incremented by 4 each clock
@@ -674,6 +675,8 @@ begin
             if I_sreset = '1' then
                 control.instr_access_error <= (others => '0');
             elsif control.state = state_trap then
+                control.instr_access_error <= (others => '0');
+            elsif control.instr_access_error(1) = '1' then
                 control.instr_access_error <= (others => '0');
             else
                 control.instr_access_error <= control.instr_access_error(0) & I_instr_response.instr_access_error;
@@ -793,7 +796,7 @@ begin
             if I_sreset = '1' then
                 if_id.pc <= (others => '0');
             -- Must we stall?
-            elsif control.stall = '1' or control.stall_on_trigger = '1' or id_ex.pc_op = pc_hold then
+            elsif control.stall = '1' or id_ex.pc_op = pc_hold then
                 null;
             else
                 if_id.pc <= pc;
@@ -930,8 +933,8 @@ begin
                     id_ex.memaccess <= memaccess_nop;
                     id_ex.memsize <= memsize_unknown;
                     id_ex.csr_op <= csr_nop;
-                    id_ex.csr_addr <= (others => '0');
-                    id_ex.csr_immrs1 <= (others => '0');
+                    id_ex.csr_addr <= imm_i_v(11 downto 0); -- always assign
+                    id_ex.csr_immrs1 <= rs1_v; -- always assign
                     control.ecall_request <= '0';
                     control.ebreak_request <= '0';
                     control.mret_request <= '0';
@@ -987,8 +990,8 @@ begin
                     id_ex.memaccess <= memaccess_nop;
                     id_ex.memsize <= memsize_unknown;
                     id_ex.csr_op <= csr_nop;
-                    id_ex.csr_addr <= (others => '0');
-                    id_ex.csr_immrs1 <= (others => '0');
+                    id_ex.csr_addr <= imm_i_v(11 downto 0); -- always assign
+                    id_ex.csr_immrs1 <= rs1_v; -- always assign
                     control.ecall_request <= '0';
                     control.ebreak_request <= '0';
                     control.mret_request <= '0';
@@ -996,7 +999,7 @@ begin
                     control.illegal_instruction_decode <= '0';
 
                     -- If we flush the pipeline, don't execute the instruction
-                    if control.flush = '1' or control.state = state_debugflush or control.state = state_debugflush2 then
+                    if control.flush = '1' or control.state = state_debugflush2 then
                         null;
                     else
                         case opcode_v is
@@ -1538,7 +1541,7 @@ begin
                 selrd_v := to_integer(unsigned(id_ex.rd));
             end if;
             if rising_edge(I_clk) then
-                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                if control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                     regs_rs1(selrd_v) <= id_ex.result;
                 elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                     regs_rs1(selrd_v) <= I_dm_core_data_request.data;
@@ -1560,7 +1563,7 @@ begin
                 selrd_v := to_integer(unsigned(id_ex.rd));
             end if;
             if rising_edge(I_clk) then
-                if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                if control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                     regs_rs2(selrd_v) <= id_ex.result;
                 elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                     regs_rs2(selrd_v) <= I_dm_core_data_request.data;
@@ -1584,7 +1587,7 @@ begin
                     selrd_v := to_integer(unsigned(id_ex.rd));
                 end if;
                 if rising_edge(I_clk) then
-                    if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                    if control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                         regs_debug(selrd_v) <= id_ex.result;
                     elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                         regs_debug(selrd_v) <= I_dm_core_data_request.data;
@@ -1624,7 +1627,7 @@ begin
                     id_ex.rs2data <= (others => '0');
                     data_from_gpr <= (others => '0');
                 else
-                    if control.indebug = '0' and control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
+                    if control.stall = '0' and control.stall_on_trigger = '0' and id_ex.rd_en = '1' and control.trap_request = '0' then
                         regs_debug(selrd_v) <= id_ex.result;
                     elsif control.indebug = '1' and I_dm_core_data_request.writegpr = '1' and selrd_v /= 0 then
                         regs_debug(selrd_v) <= I_dm_core_data_request.data;
@@ -2046,7 +2049,7 @@ begin
                     -- Clock in the multiplicand and multiplier
                     -- In the Cyclone V, these are embedded registers
                     -- in the DSP units.
-                    if id_ex.md_start = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' then
+                    if id_ex.md_start = '1' and control.trap_request = '0' and control.stall_on_trigger = '0' and id_ex.md_op(2) = '0' then
                         if id_ex.md_op(1) = '1' then
                             if id_ex.md_op(0) = '1' then
                                 md.rdata_a <= '0' & unsigned(a_v);
@@ -2060,7 +2063,7 @@ begin
                         end if;
                     end if;
                     -- Only start when start seen and multiply
-                    md.mul_running <= id_ex.md_start and not control.trap_request and not id_ex.md_op(2);
+                    md.mul_running <= id_ex.md_start and not control.trap_request and not control.stall_on_trigger and not id_ex.md_op(2);
                 end if; -- sreset
             end if; -- posedge
         end process;
@@ -2724,7 +2727,6 @@ begin
               csr_addr_v = misa_addr or
               csr_addr_v = mie_addr or
               csr_addr_v = mtvec_addr or
-              csr_addr_v = mcounteren_addr or
               csr_addr_v = mstatush_addr or
               csr_addr_v = mcountinhibit_addr or
               csr_addr_v = mscratch_addr or
@@ -2955,7 +2957,6 @@ begin
             csr_reg.mhpmevent9 <= (others => '0');
             csr_reg.dcsr <= (others => '0');
             csr_reg.dpc <= (others => '0');
-            csr_reg.tselect <= (others => '0');
             csr_reg.tdata1 <= (others => '0');
             csr_reg.tdata2 <= (others => '0');
             control.nmi_lockout <= '0';
@@ -2998,7 +2999,6 @@ begin
                 csr_reg.mhpmevent9 <= (others => '0');
                 csr_reg.dcsr <= (others => '0');
                 csr_reg.dpc <= (others => '0');
-                csr_reg.tselect <= (others => '0');
                 csr_reg.tdata1 <= (others => '0');
                 csr_reg.tdata2 <= (others => '0');
                 control.nmi_lockout <= '0';
@@ -3320,7 +3320,7 @@ begin
                 if HAVE_OCD then
                     -- Debug registers
                     csr_reg.dcsr(1 downto 0) <= "11";                -- Alwyas M-mode
-                    csr_reg.dcsr(3) <= '0';                          -- NMI interrupt pending not used
+                    csr_reg.dcsr(3) <= I_intrio(31);                 -- NMI interrupt pending
                     csr_reg.dcsr(4) <= '0';                          -- mpriven not used
                     csr_reg.dcsr(5) <= '0';                          -- v not used
                     csr_reg.dcsr(9) <= '0';                          -- stoptime not used
@@ -3341,19 +3341,19 @@ begin
                     csr_reg.tdata1(23) <= '0';                       -- vu
                     csr_reg.tdata1(20) <= '0';                       -- 0
                     csr_reg.tdata1(19) <= '0';                       -- 0
+                    csr_reg.tdata1(11) <= '0';                       -- chain
                     csr_reg.tdata1(5) <= '0';                        -- uncertainen
                     csr_reg.tdata1(4) <= '0';                        -- S mode
                     csr_reg.tdata1(3) <= '0';                        -- U mode
                     csr_reg.tdata1(1) <= '0';                        -- no store
                     csr_reg.tdata1(0) <= '0';                        -- no load
+
                     csr_reg.dpc(0) <= '0';                           -- LSB always 0
-                    csr_reg.tselect <= (others => '0');              -- Only 1 hw breakpoint
                 else
                     csr_reg.dcsr <= (others => '0');
                     csr_reg.dpc <= (others => '0');
                     csr_reg.tdata1 <= (others => '0');
                     csr_reg.tdata2 <= (others => '0');
-                    csr_reg.tselect <= (others => '0');
                 end if;
                 
                 -- Interrupt handling takes priority over possible user
@@ -3413,6 +3413,7 @@ begin
 
         -- Lowest two bits of mepc always 0, see priv ISA, S.3.1.14
         csr_reg.mepc(1 downto 0) <= "00";
+
     end process;
 
     -- Transfer of MEPC to the PC
@@ -3446,7 +3447,7 @@ begin
     csr_reg.mxhw(09) <= boolean_to_std_logic(HAVE_SPI2);
     csr_reg.mxhw(10) <= boolean_to_std_logic(HAVE_TIMER1);
     csr_reg.mxhw(11) <= boolean_to_std_logic(HAVE_TIMER2);
-    csr_reg.mxhw(12) <= '0'; -- reserved
+    csr_reg.mxhw(12) <= boolean_to_std_logic(HAVE_ONEWIRE1);
     csr_reg.mxhw(13) <= '0'; -- reserved
     csr_reg.mxhw(14) <= '0'; -- reserved
     csr_reg.mxhw(15) <= '1'; -- TIME/TIMEH, always present
@@ -3473,6 +3474,9 @@ begin
     -- Copy system timer info
     csr_reg.mtime <= I_mtime;
     csr_reg.mtimeh <= I_mtimeh;
+
+    -- Only 1 hw breakpoint
+    csr_reg.tselect <= (others => '0');
 
     
     --
@@ -3554,7 +3558,7 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(20, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- UART2
         elsif I_intrio(19) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(19, control.trap_mcause'length));
@@ -3564,7 +3568,7 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(18, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- ONEWIRE1
         elsif I_intrio(17) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(17, control.trap_mcause'length));

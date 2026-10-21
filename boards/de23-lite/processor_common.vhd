@@ -45,7 +45,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_04_13#;
+    constant HW_VERSION : integer := 16#01_01_05_03#;
 
     
     -- Used data types
@@ -431,26 +431,26 @@ package processor_common is
    
     -- Constants for interrupt priority
     -- Changes here must be reflected in the interrupt handler in software
-    constant INTR_PRIO_WDT    : integer := 31; --nmi
-    constant INTR_PRIO_FREE30 : integer := 30;
-    constant INTR_PRIO_FREE29 : integer := 29;
-    constant INTR_PRIO_FREE28 : integer := 28;
-    constant INTR_PRIO_SPI1   : integer := 27;
-    constant INTR_PRIO_I2C1   : integer := 26;
-    constant INTR_PRIO_SPI2   : integer := 25;
-    constant INTR_PRIO_I2C2   : integer := 24;
-    constant INTR_PRIO_UART1  : integer := 23;
-    constant INTR_PRIO_FREE22 : integer := 22;
-    constant INTR_PRIO_TIMER2 : integer := 21;
-    constant INTR_PRIO_TIMER1 : integer := 20;
-    constant INTR_PRIO_UART2  : integer := 19;
-    constant INTR_PRIO_EXTI   : integer := 18; -- input pin external interrupt
-    constant INTR_PRIO_FREE17 : integer := 17;
-    constant INTR_PRIO_FREE16 : integer := 16;
+    constant INTR_PRIO_WDT      : integer := 31; --nmi
+    constant INTR_PRIO_FREE30   : integer := 30;
+    constant INTR_PRIO_FREE29   : integer := 29;
+    constant INTR_PRIO_FREE28   : integer := 28;
+    constant INTR_PRIO_SPI1     : integer := 27;
+    constant INTR_PRIO_I2C1     : integer := 26;
+    constant INTR_PRIO_SPI2     : integer := 25;
+    constant INTR_PRIO_I2C2     : integer := 24;
+    constant INTR_PRIO_UART1    : integer := 23;
+    constant INTR_PRIO_FREE22   : integer := 22;
+    constant INTR_PRIO_TIMER2   : integer := 21;
+    constant INTR_PRIO_TIMER1   : integer := 20;
+    constant INTR_PRIO_UART2    : integer := 19;
+    constant INTR_PRIO_EXTI     : integer := 18; -- input pin external interrupt
+    constant INTR_PRIO_ONEWIRE1 : integer := 17;
+    constant INTR_PRIO_FREE16   : integer := 16;
     -- System Timer fixed to 7, do not change
-    constant INTR_PRIO_MTIME : integer := 7;
+    constant INTR_PRIO_MTIME    : integer := 7;
     -- System Machine Software Interrupt fixed at 3, do not change
-    constant INTR_PRIO_MSI : integer := 3;
+    constant INTR_PRIO_MSI      : integer := 3;
     
     
     -- Component description of the RISC-V SoC
@@ -529,6 +529,8 @@ package processor_common is
                   HAVE_WDT : boolean;
                   -- Use CRC?
                   HAVE_CRC : boolean;
+                  -- Use ONEWIRE1
+                  HAVE_ONEWIRE1 : boolean;
                   -- UART1 BREAK triggers system reset
                   UART1_BREAK_RESETS : boolean
              );
@@ -566,7 +568,9 @@ package processor_common is
               O_timer2oct : out std_logic;
               IO_timer2icoca : inout std_logic;
               IO_timer2icocb : inout std_logic;
-              IO_timer2icocc : inout std_logic
+              IO_timer2icocc : inout std_logic;
+              -- ONEWIRE1
+              IO_onewire1dq : inout std_logic
              );
     end component riscv;
 

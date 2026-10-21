@@ -63,7 +63,7 @@ architecture rtl of dtm is
 
     -- TAP controller --
     type state_t is (LOGIC_RESET, DR_SCAN, DR_CAPTURE, DR_SHIFT, DR_EXIT1, DR_PAUSE, DR_EXIT2, DR_UPDATE,
-                      RUN_IDLE, IR_SCAN, IR_CAPTURE, IR_SHIFT, IR_EXIT1, IR_PAUSE, IR_EXIT2, IR_UPDATE);
+                        RUN_IDLE, IR_SCAN, IR_CAPTURE, IR_SHIFT, IR_EXIT1, IR_PAUSE, IR_EXIT2, IR_UPDATE);
     signal state, state2 : state_t;
 
     -- TAP registers --
@@ -124,22 +124,22 @@ begin
                 state2 <= state;
                 if tck_rise = '1' then -- clock pulse (evaluate TMS on the rising edge of TCK)
                     case state is -- JTAG state machine
-                        when LOGIC_RESET => if (tms = '0') then state <= RUN_IDLE;   else state <= LOGIC_RESET; end if;
-                        when RUN_IDLE    => if (tms = '0') then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
-                        when DR_SCAN     => if (tms = '0') then state <= DR_CAPTURE; else state <= IR_SCAN;     end if;
-                        when DR_CAPTURE  => if (tms = '0') then state <= DR_SHIFT;   else state <= DR_EXIT1;    end if;
-                        when DR_SHIFT    => if (tms = '0') then state <= DR_SHIFT;   else state <= DR_EXIT1;    end if;
-                        when DR_EXIT1    => if (tms = '0') then state <= DR_PAUSE;   else state <= DR_UPDATE;   end if;
-                        when DR_PAUSE    => if (tms = '0') then state <= DR_PAUSE;   else state <= DR_EXIT2;    end if;
-                        when DR_EXIT2    => if (tms = '0') then state <= DR_SHIFT;   else state <= DR_UPDATE;   end if;
-                        when DR_UPDATE   => if (tms = '0') then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
-                        when IR_SCAN     => if (tms = '0') then state <= IR_CAPTURE; else state <= LOGIC_RESET; end if;
-                        when IR_CAPTURE  => if (tms = '0') then state <= IR_SHIFT;   else state <= IR_EXIT1;    end if;
-                        when IR_SHIFT    => if (tms = '0') then state <= IR_SHIFT;   else state <= IR_EXIT1;    end if;
-                        when IR_EXIT1    => if (tms = '0') then state <= IR_PAUSE;   else state <= IR_UPDATE;   end if;
-                        when IR_PAUSE    => if (tms = '0') then state <= IR_PAUSE;   else state <= IR_EXIT2;    end if;
-                        when IR_EXIT2    => if (tms = '0') then state <= IR_SHIFT;   else state <= IR_UPDATE;   end if;
-                        when IR_UPDATE   => if (tms = '0') then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
+                        when LOGIC_RESET => if tms = '0' then state <= RUN_IDLE;   else state <= LOGIC_RESET; end if;
+                        when RUN_IDLE    => if tms = '0' then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
+                        when DR_SCAN     => if tms = '0' then state <= DR_CAPTURE; else state <= IR_SCAN;     end if;
+                        when DR_CAPTURE  => if tms = '0' then state <= DR_SHIFT;   else state <= DR_EXIT1;    end if;
+                        when DR_SHIFT    => if tms = '0' then state <= DR_SHIFT;   else state <= DR_EXIT1;    end if;
+                        when DR_EXIT1    => if tms = '0' then state <= DR_PAUSE;   else state <= DR_UPDATE;   end if;
+                        when DR_PAUSE    => if tms = '0' then state <= DR_PAUSE;   else state <= DR_EXIT2;    end if;
+                        when DR_EXIT2    => if tms = '0' then state <= DR_SHIFT;   else state <= DR_UPDATE;   end if;
+                        when DR_UPDATE   => if tms = '0' then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
+                        when IR_SCAN     => if tms = '0' then state <= IR_CAPTURE; else state <= LOGIC_RESET; end if;
+                        when IR_CAPTURE  => if tms = '0' then state <= IR_SHIFT;   else state <= IR_EXIT1;    end if;
+                        when IR_SHIFT    => if tms = '0' then state <= IR_SHIFT;   else state <= IR_EXIT1;    end if;
+                        when IR_EXIT1    => if tms = '0' then state <= IR_PAUSE;   else state <= IR_UPDATE;   end if;
+                        when IR_PAUSE    => if tms = '0' then state <= IR_PAUSE;   else state <= IR_EXIT2;    end if;
+                        when IR_EXIT2    => if tms = '0' then state <= IR_SHIFT;   else state <= IR_UPDATE;   end if;
+                        when IR_UPDATE   => if tms = '0' then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
                         when others      => state <= LOGIC_RESET;
                     end case;
                 end if;

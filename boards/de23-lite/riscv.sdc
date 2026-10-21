@@ -147,6 +147,8 @@ set_false_path -to [get_ports IO_timer2icoca]
 set_false_path -to [get_ports IO_timer2icocb]
 set_false_path -to [get_ports IO_timer2icocc]
 
+set_false_path -to [get_ports IO_onewire1dq]
+
 #**************************************************************
 # Set Multicycle Path
 #**************************************************************

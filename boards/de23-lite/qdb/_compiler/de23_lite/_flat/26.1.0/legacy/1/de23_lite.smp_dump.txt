@@ -180,14 +180,22 @@ uart.rxstate.rx_break 0 0 1 0 0 0 1
 uart.rxstate.rx_ready 0 1 0 0 0 0 1 
 uart.rxstate.rx_fail 1 0 0 0 0 0 1 
 
-State Machine - riscv0|spi1gen.spi1|spi.state
+State Machine - riscv0|onewire1gen.onewire1|onewire.state
+Name onewire.state.rx_bits onewire.state.tx_slot onewire.state.reset_recovery onewire.state.reset_pulse onewire.state.idle 
+onewire.state.idle 0 0 0 0 0 
+onewire.state.reset_pulse 0 0 0 1 1 
+onewire.state.reset_recovery 0 0 1 0 1 
+onewire.state.tx_slot 0 1 0 0 1 
+onewire.state.rx_bits 1 0 0 0 1 
+
+State Machine - riscv0|spi2gen.spi2|spi.state
 Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
 spi.state.idle 0 0 0 0 
 spi.state.first 0 0 1 1 
 spi.state.second 0 1 0 1 
 spi.state.leadout 1 0 0 1 
 
-State Machine - riscv0|spi2gen.spi2|spi.state
+State Machine - riscv0|spi1gen.spi1|spi.state
 Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
 spi.state.idle 0 0 0 0 
 spi.state.first 0 0 1 1 

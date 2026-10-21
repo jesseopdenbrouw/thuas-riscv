@@ -125,6 +125,8 @@ entity riscv is
           HAVE_WDT : boolean;
           -- Use CRC?
           HAVE_CRC : boolean;
+          -- Use ONEWIRE1
+          HAVE_ONEWIRE1 : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -162,11 +164,15 @@ entity riscv is
           O_timer2oct : out std_logic;
           IO_timer2icoca : inout std_logic;
           IO_timer2icocb : inout std_logic;
-          IO_timer2icocc : inout std_logic
+          IO_timer2icocc : inout std_logic;
+          -- ONEWIRE1
+          IO_onewire1dq : inout std_logic
          );
 end entity riscv;
 
 architecture rtl of riscv is
+
+-- The Core
 component core is
     generic (
           -- The frequency of the system
@@ -177,6 +183,8 @@ component core is
           HAVE_RISCV_E : boolean;
           -- Have On-chip debugger?
           HAVE_OCD : boolean;
+          -- If bootloader enabled, adjust the boot address
+          HAVE_BOOTLOADER_ROM : boolean;
           -- Disable CSR address check when in debug mode
           OCD_CSR_CHECK_DISABLE : boolean;
           -- Do we have the integer multiply/divide unit?
@@ -201,8 +209,6 @@ component core is
           VECTORED_MTVEC : boolean;
           -- Do we have registers is RAM?
           HAVE_REGISTERS_IN_RAM : boolean;
-          -- If bootloader enabled, adjust the boot address
-          HAVE_BOOTLOADER_ROM : boolean;
           -- 4 high bits of ROM address
           ROM_HIGH_NIBBLE : memory_high_nibble;
           -- 4 high bits of boot ROM address
@@ -233,6 +239,8 @@ component core is
           HAVE_WDT : boolean;
           -- Use CRC?
           HAVE_CRC : boolean;
+          -- Use ONEWIRE1
+          HAVE_ONEWIRE1 : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -262,6 +270,8 @@ component core is
           O_resume_ack : out std_logic
          );
 end component core;
+
+-- Address Decoder and Data Router
 component address_decode is
     generic (
           -- Do we have boot ROM?
@@ -275,7 +285,7 @@ component address_decode is
           -- 4 high bits of I/O address
           IO_HIGH_NIBBLE : memory_high_nibble
          );
-    port ( 
+    port (
           -- From and to core
           I_bus_request : in bus_request_type;
           O_bus_response : out bus_response_type; 
@@ -290,6 +300,8 @@ component address_decode is
           I_mem_response_io : in mem_response_type
          );
 end component address_decode;
+
+-- Instruction Router
 component instr_router is
     generic (
           HAVE_BOOTLOADER_ROM : boolean;
@@ -313,6 +325,7 @@ component instr_router is
           I_instr_response_ram : in instr_response2_type
          );
 end component instr_router;
+
 -- Generic memory module
 component mem is
     generic (
@@ -334,6 +347,7 @@ component mem is
           O_mem_response : out mem_response_type
          );
 end component mem;
+
 -- Reused from NEORV32 bu S.T. Nolting <www.neorv32.org>
 -- Debug Transport Module
 component dtm is
@@ -356,6 +370,8 @@ component dtm is
           I_dmi_response  : in  dmi_response_type
          );
 end component dtm;
+
+-- Debug Module
 component dm is
     generic (
           OCD_AAMPOSTINCREMENT : boolean
@@ -613,6 +629,24 @@ component crc is
          );
 end component crc;
 
+-- One-wire master device
+component onewire is
+    generic (
+          SYSTEM_FREQUENCY : integer;
+          ONEWIRE_FREQUENCY : integer
+         );
+    port (I_clk : in std_logic;
+          I_areset : in std_logic;
+          I_sreset : in std_logic;
+          -- 
+          I_mem_request : in mem_request_type;
+          O_mem_response : out mem_response_type;
+          --
+          IO_dq : inout std_logic;
+          O_irq : out std_logic
+         );
+end component onewire;
+
 --Generic stub for I/O
 component stub is
     port (
@@ -625,7 +659,7 @@ component stub is
          );
 end component stub;
 
--- The clock and the external reset
+-- The clock
 signal clk_int : std_logic;
 
 -- Instruction fetch from ROM and boot ROM
@@ -659,7 +693,7 @@ signal mtimeh_int : data_type;
 signal intrio_int : data_type;
 
 -- Signals for reset
-signal areset_sys_sync_int : std_logic_vector(3 downto 0);
+signal areset_sys_sync_int : std_logic_vector(2 downto 0);
 signal areset_sys_int : std_logic;
 signal break_from_uart1_int : std_logic;
 signal reset_from_wdt_int : std_logic;
@@ -707,8 +741,8 @@ signal uart2_request_int : mem_request_type;
 signal uart2_response_int : mem_response_type;
 signal crc_request_int : mem_request_type;
 signal crc_response_int : mem_response_type;
-signal stub13_request_int : mem_request_type;
-signal stub13_response_int : mem_response_type;
+signal onewire1_request_int : mem_request_type;
+signal onewire1_response_int : mem_response_type;
 signal stub14_request_int : mem_request_type;
 signal stub14_response_int : mem_response_type;
 signal stub15_request_int : mem_request_type;
@@ -727,6 +761,7 @@ signal irq_spi2_int : std_logic;
 signal irq_timer1_int : std_logic;
 signal irq_timer2_int : std_logic;
 signal irq_uart2_int : std_logic;
+signal irq_onewire1_int : std_logic;
 
 -- Have synchronous reset?
 type reset_type is (full_async, full_sync);
@@ -787,13 +822,15 @@ begin
         areset_sys_int <= '0';
         areset_debug_int <= '0';
     end generate;
-    
+
+
     core0: core
     generic map (
               SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
               HW_VERSION => HW_VERSION,
               HAVE_RISCV_E => HAVE_RISCV_E,
               HAVE_OCD => HAVE_OCD,
+              HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               OCD_CSR_CHECK_DISABLE => OCD_CSR_CHECK_DISABLE,
               HAVE_MULDIV => HAVE_MULDIV,
               FAST_DIVIDE => FAST_DIVIDE,
@@ -806,7 +843,6 @@ begin
               HAVE_ZIHPM => HAVE_ZIHPM,
               VECTORED_MTVEC => VECTORED_MTVEC,
               HAVE_REGISTERS_IN_RAM => HAVE_REGISTERS_IN_RAM,
-              HAVE_BOOTLOADER_ROM => HAVE_BOOTLOADER_ROM,
               ROM_HIGH_NIBBLE => ROM_HIGH_NIBBLE,
               BOOT_HIGH_NIBBLE => BOOT_HIGH_NIBBLE,
               BUFFER_IO_RESPONSE => BUFFER_IO_RESPONSE,
@@ -822,6 +858,7 @@ begin
               HAVE_MSI => HAVE_MSI,
               HAVE_WDT => HAVE_WDT,
               HAVE_CRC => HAVE_CRC,
+              HAVE_ONEWIRE1 => HAVE_ONEWIRE1,
               UART1_BREAK_RESETS => UART1_BREAK_RESETS
              )
     port map (I_clk => clk_int,
@@ -857,7 +894,7 @@ begin
               RAM_HIGH_NIBBLE => RAM_HIGH_NIBBLE,
               IO_HIGH_NIBBLE => IO_HIGH_NIBBLE
              )
-    port map (              --
+    port map (
               I_bus_request => bus_request_int,
               O_bus_response => bus_response_int,
               --
@@ -917,7 +954,7 @@ begin
     generic map (
               MEMORY_ADDRESS_BITS => 12,
               MEMORY_USE_INSTRUCTIONS => TRUE,
-              MEMORY_USE_WRITE => HAVE_INST_IN_RAM,
+              MEMORY_USE_WRITE => false,
               MEMORY_CONTENTS => bootrom_contents,
               MEMORY_DEFAULT => '0',
               MEMORY_FILE => "UNUSED"
@@ -1070,9 +1107,9 @@ begin
               -- 0xc00 - CRC
               O_dev12_request => crc_request_int,
               I_dev12_response => crc_response_int,
-              -- 0xd00 - free
-              O_dev13_request => stub13_request_int,
-              I_dev13_response => stub13_response_int,
+              -- 0xd00 - ONEWIRE1
+              O_dev13_request => onewire1_request_int,
+              I_dev13_response => onewire1_response_int,
               -- 0xe00 - free
               O_dev14_request => stub14_request_int,
               I_dev14_response => stub14_response_int,
@@ -1434,7 +1471,7 @@ begin
         irq_uart2_int <= '0';
     end generate;
 
-    -- CRC
+    -- CRC - Cyclic Redundancy Check Generator
     crcgen : if HAVE_CRC generate
         crc1 : crc
         port map (
@@ -1458,16 +1495,40 @@ begin
                  );
     end generate;
 
-    -- Three stubs for non-used I/O
-    stub13gen: stub
-    port map (
-              I_clk => clk_int,
-              I_areset => areset_sys_int,
-              I_sreset => sreset_sys_int,
-              --
-              I_mem_request => stub13_request_int,
-              O_mem_response => stub13_response_int
-             );
+    -- ONEWIRE1 - A simple, master-only, One-write peripheral
+    onewire1gen : if HAVE_ONEWIRE1 generate
+        onewire1 : onewire
+        generic map (
+                     SYSTEM_FREQUENCY => SYSTEM_FREQUENCY,
+                     ONEWIRE_FREQUENCY => 16_000
+                    )
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
+                  --
+                  I_mem_request => onewire1_request_int,
+                  O_mem_response => onewire1_response_int,
+                  --
+                  IO_dq => IO_onewire1dq,
+                  O_irq => irq_onewire1_int
+                 );
+    end generate;
+    onewire1gennot : if not HAVE_ONEWIRE1 generate
+        stub13gen: stub
+        port map (
+                  I_clk => clk_int,
+                  I_areset => areset_sys_int,
+                  I_sreset => sreset_sys_int,
+                  --
+                  I_mem_request => onewire1_request_int,
+                  O_mem_response => onewire1_response_int
+                 );
+         IO_onewire1dq <= 'Z';
+         irq_onewire1_int <= '0';
+    end generate;
+
+    -- Two stubs for unused I/O
     stub14gen: stub
     port map (
               I_clk => clk_int,
@@ -1491,7 +1552,8 @@ begin
     -- Bundle all interrupt lines together
     process (irq_gpioa_int, irq_uart1_int, irq_mtime_int, irq_wdt_int,
              irq_msi_int, irq_i2c1_int, irq_i2c2_int, irq_spi1_int,
-             irq_spi2_int, irq_timer1_int, irq_timer2_int, irq_uart2_int) is
+             irq_spi2_int, irq_timer1_int, irq_timer2_int, irq_uart2_int,
+             irq_onewire1_int) is
     begin
         intrio_int <= all_zeros_c;
         
@@ -1507,6 +1569,7 @@ begin
         intrio_int(INTR_PRIO_MTIME) <= irq_mtime_int;
         intrio_int(INTR_PRIO_MSI) <= irq_msi_int;
         intrio_int(INTR_PRIO_UART2) <= irq_uart2_int;
+        intrio_int(INTR_PRIO_ONEWIRE1) <= irq_onewire1_int;
     end process;
  
 end architecture rtl;

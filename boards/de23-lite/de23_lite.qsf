@@ -49,15 +49,16 @@ set_global_assignment -name VHDL_FILE dtm.vhd
 set_global_assignment -name VHDL_FILE dm.vhd
 set_global_assignment -name VHDL_FILE gpio.vhd
 set_global_assignment -name VHDL_FILE uart.vhd
+set_global_assignment -name VHDL_FILE mtime.vhd
 set_global_assignment -name VHDL_FILE i2c.vhd
 set_global_assignment -name VHDL_FILE spi.vhd
 set_global_assignment -name VHDL_FILE timerb.vhd
 set_global_assignment -name VHDL_FILE timera.vhd
-set_global_assignment -name VHDL_FILE stub.vhd
-set_global_assignment -name VHDL_FILE mtime.vhd
 set_global_assignment -name VHDL_FILE msi.vhd
 set_global_assignment -name VHDL_FILE crc.vhd
 set_global_assignment -name VHDL_FILE wdt.vhd
+set_global_assignment -name VHDL_FILE onewire.vhd
+set_global_assignment -name VHDL_FILE stub.vhd
 set_global_assignment -name SDC_FILE riscv.sdc
 set_global_assignment -name POWER_APPLY_THERMAL_MARGIN ADDITIONAL
 set_location_assignment PIN_K43 -to I_clk -comment IOBANK_3A_T
@@ -234,3 +235,5 @@ set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[3] -entity de23_lite
 set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[2] -entity de23_lite
 set_instance_assignment -name SLEW_RATE 0 -to O_gpioapout[0]
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_location_assignment PIN_B5 -to IO_onewire1dq -comment IOBANK_6C
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to IO_onewire1dq -entity de23_lite

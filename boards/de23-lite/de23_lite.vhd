@@ -79,7 +79,9 @@ entity de23_lite is
           O_timer2oct : out std_logic;
           IO_timer2icoca : inout std_logic;
           IO_timer2icocb : inout std_logic;
-          IO_timer2icocc : inout std_logic
+          IO_timer2icocc : inout std_logic;
+          -- ONEWIRE1
+          IO_onewire1dq : inout std_logic
          );
 end entity de23_lite;
 
@@ -217,6 +219,8 @@ begin
               HAVE_WDT => TRUE,
               -- Use CRC?
               HAVE_CRC => TRUE,
+              -- Use one-wire device?
+              HAVE_ONEWIRE1 => TRUE,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
              )
@@ -254,6 +258,8 @@ begin
               O_timer2oct => O_timer2oct,
               IO_timer2icoca => IO_timer2icoca,
               IO_timer2icocb => IO_timer2icocb,
-              IO_timer2icocc => IO_timer2icocc
+              IO_timer2icocc => IO_timer2icocc,
+              -- ONEWIRE1
+              IO_onewire1dq => IO_onewire1dq
             );
 end architecture toplevel;

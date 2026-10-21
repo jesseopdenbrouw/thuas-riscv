@@ -75,6 +75,7 @@ signal i2c1scl : std_logic;
 signal i2c1sda : std_logic;
 signal i2c2scl : std_logic;
 signal i2c2sda : std_logic;
+signal onewire1dq : std_logic;
 
 -- Set the bit time
 constant bittime : time := (50000000/115200) * 20 ns;
@@ -160,6 +161,8 @@ begin
               HAVE_WDT => TRUE,
               -- Use CRC?
               HAVE_CRC => TRUE,
+              -- Use ONEWIRE1
+              HAVE_ONEWIRE1 => TRUE,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
              )
@@ -197,7 +200,9 @@ begin
               O_timer2oct => timer2oct,
               IO_timer2icoca => timer2icoca,
               IO_timer2icocb => timer2icocb,
-              IO_timer2icocc => timer2icocc
+              IO_timer2icocc => timer2icocc,
+              -- ONEWIRE1
+              IO_onewire1dq => onewire1dq
             );
 
 

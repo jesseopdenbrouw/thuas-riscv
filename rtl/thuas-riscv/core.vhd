@@ -116,6 +116,8 @@ entity core is
           HAVE_WDT : boolean;
           -- Use CRC?
           HAVE_CRC : boolean;
+          -- Use one-wire device
+          HAVE_ONEWIRE1 : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
@@ -3445,7 +3447,7 @@ begin
     csr_reg.mxhw(09) <= boolean_to_std_logic(HAVE_SPI2);
     csr_reg.mxhw(10) <= boolean_to_std_logic(HAVE_TIMER1);
     csr_reg.mxhw(11) <= boolean_to_std_logic(HAVE_TIMER2);
-    csr_reg.mxhw(12) <= '0'; -- reserved
+    csr_reg.mxhw(12) <= boolean_to_std_logic(HAVE_ONEWIRE1);
     csr_reg.mxhw(13) <= '0'; -- reserved
     csr_reg.mxhw(14) <= '0'; -- reserved
     csr_reg.mxhw(15) <= '1'; -- TIME/TIMEH, always present
@@ -3556,7 +3558,7 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(20, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- UART2
         elsif I_intrio(19) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(19, control.trap_mcause'length));
@@ -3566,7 +3568,7 @@ begin
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(18, control.trap_mcause'length));
             control.trap_mcause(31) <= '1';
-        -- Currently unassigned
+        -- ONEWIRE1
         elsif I_intrio(17) = '1' and csr_reg.mstatus(3) = '1' and control.may_interrupt ='1' and control.isstepping = '0' then
             control.trap_request <= '1';
             control.trap_mcause <= std_logic_vector(to_unsigned(17, control.trap_mcause'length));

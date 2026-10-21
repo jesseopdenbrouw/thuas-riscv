@@ -86,6 +86,7 @@ vcom -93 -work work ${prefix}msi.vhd
 vcom -93 -work work ${prefix}mtime.vhd
 vcom -93 -work work ${prefix}riscv.vhd
 vcom -93 -work work ${prefix}crc.vhd
+vcom -93 -work work ${prefix}onewire.vhd
 vcom -93 -work work ${prefix}stub.vhd
 vcom -93 -work work ${prefix}tb_riscv.vhd
 
@@ -110,6 +111,7 @@ add wave            -label timer2oct timer2oct
 add wave            -label timer2icoca timer2icoca
 add wave            -label timer2icocb timer2icocb
 add wave            -label timer2icocc timer2icocc
+add wave            -label onewire1dq onewire1dq
 add wave -divider "tOP - Resets"
 add wave            -label areset_sys_sync_int dut/areset_sys_sync_int
 add wave            -label areset_sys_int dut/areset_sys_int
@@ -207,6 +209,10 @@ if {[find signal -r */wdt1gen/*] != ""} {
 if {[find signal -r */crcgen/*] != ""} {
     add wave            -label crc_rec dut/crcgen/crc1/crc
 }
+if {[find signal -r */onewire1gen/*] != ""} {
+    add wave            -label onewire1_rec dut/onewire1gen/onewire1/onewire
+}
+ 
 
 # Open Structure and Signals (waveform)
 view structure

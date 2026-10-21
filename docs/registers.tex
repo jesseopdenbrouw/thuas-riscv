@@ -899,4 +899,59 @@ Note: the external timer will assert a pending interrupt if TIMEH:TIME (viewed a
 \item [DATA] Writing data to this register starts the CRC calculation of this data. Reading returns all zero bits.
 \end{reglist}\end{regdesc}
 
+
+\subsection{ONEWIRE1 -- A Minimal 1-Wire Master}
+\begin{register}{H}{1-Wire Control Register ONEWIRE1\_CTRL}{0xd00}
+\label{onewire1ctrl}
+\regfield{Reserved}{25}{7}{{0}}%
+\regfield{RESET}{1}{6}{{0}}%
+\regfield{PCIE}{1}{5}{{0}}%
+\regfield{TCIE}{1}{4}{{0}}%
+\regfield{RCIE}{1}{3}{{0}}%
+\regfield{Reserved}{2}{0}{{0}}%%
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
+\itemsep-1.5ex
+\item [RESET] Writing this bit starts a reset sequence. This bit is auto-cleared when the reset sequence is completed.
+\item [PCIE] Presence (reset) complete interrupt enable. Triggers an interrupt when the reset sequence is completed.
+\item [TCIE] Transmit complete interrupt enable. Triggers an interrupt when a byte is transmitted.
+\item [RCIE] Receive complete interrupt enable. Triggers an interrupt when a byte is received.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{1-Wire Status Register ONEWIRE1\_STAT}{0xd04}
+\regfield{Reserved}{24}{8}{{0}}%
+\regfield{BUSY}{1}{7}{{0}}%
+\regfield{PRESENCE}{1}{6}{{0}}%
+\regfield{PC}{1}{5}{{0}}%
+\regfield{TC}{1}{4}{{0}}%
+\regfield{RC}{1}{3}{{0}}%
+\regfield{Reserved}{2}{0}{{0}}%
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
+\itemsep-1.5ex
+\item [BUSY] This bit is 1 when an operation is in progress, 0 otherwise.
+\item [PRESENCE] This bit is 1 when a device is present direct after a reset sequence. This bit is auto-cleared when the RESET bit in the control register is written 1.
+\item [PC] This bit is set 1 when a Presence (reset) sequence is completed. This bit is auto-cleared when a reset sequence is started.
+\item [TC] This bit is set 1 when a transmit is completed. This bit is auto-cleared when a transmit is started.
+\item [RC] This bit is set 1 when a receive is completed. This bit is auto-cleared when a new reception is started.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{1-Wire Data Register ONEWIRE1\_DATA}{0xd08}
+\regfield{Reserved}{24}{8}{{0}}%
+\regfield{DATA}{8}{0}{{0}};
+\reglabel{Reset}\regnewline%
+\end{register}
+\begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
+\itemsep-1.5ex
+\item [DATA] A write to this register start a transmission of a byte of data. A read returns the last byte received.
+\end{reglist}\end{regdesc}
+
+\begin{register}{H}{1-Wire Start Read Register ONEWIRE1\_READ}{0xd0c}
+\regfield{Reserved}{32}{0}{{0}}%
+\reglabel{Reset}\regnewline%
+\end{register}
+
+\textbf{Note:} writing this register (with any value) starts a reception of a byte. Reading this register returns all-zero bits.
 \end{document}

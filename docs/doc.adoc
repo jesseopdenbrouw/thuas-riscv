@@ -240,7 +240,7 @@ Writing read-only registers causes an illegal instruction trap. Accessing a non-
 
 The Local Interrupt Controller is responsible for selecting which trap request must be serviced by the core. Interrupts have higher priority than exceptions. See https://github.com/riscv/riscv-isa-manual/issues/13[this issue]. The state of the serviced trap is visible in the CSR.
 
-The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7) and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, SPI2, I2C2, UART1, TIMER2, TIMER1, UART2, EXTI external input interrupt, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
+The LIC can handle 16 local interrupts (numbered 16 to 31), the Machine mode external timer interrupt (numbered 7) and the Machine mode software interrupt (numbered 3). Other standard RISC-V interrupts (numbered 0 to 2, 4 to 6 and 8 to 15) are not available. NMI has the highest priority, followed (currently) by the SPI1, I2C1, SPI2, I2C2, UART1, TIMER2, TIMER1, UART2, EXTI external input interrupt, ONEWIRE1, Machine Software Interrupt and external system timer interrupts. The NMI is connected to the watchdog timer.
 
 Exceptions are handled as set forward in Table 3.7 of ''The RISC-V Instruction Set Manual, Volume II: Privileged Architecture'': instruction access fault, instruction address misaligned, ECALL (M mode only), EBREAK, load/store access fault, load/store misaligned fault. Note that ECALL and EBREAK are user instructions and can be interrupted by an interrupt (i.e. when the ECALL or EBREAK instruction is about to be executed).
 
@@ -310,7 +310,7 @@ Note: the Cyclone V 5CEBA4F23C7 has 3,153,920 bits of onboard RAM available. Bec
 
 === I/O
 
-Currently, the I/O consists of one 32-bit data input and one 32-bit data output, two simple UARTs with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit, a CRC unit and the `TIME` and `TIMEH` memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return undefined data whereas writes will not write data. Unaligned accesses cause an exception. Each I/O module has a 256-byte address space. Note that not all I/O addresses are actually used. All I/O modules return all zero bits if not accessed.
+Currently, the I/O consists of one 32-bit data input and one 32-bit data output, two simple UARTs with interrupts, a simple timer with interrupt, a more elaborate timer with interrupt, two minimal I2C peripherals with interrupt, two general purpose SPI peripherals with interrupt, a watchdog timer, a software interrupt unit, a CRC unit, a simple 1-Wire unit and the `TIME` and `TIMEH` memory mapped time registers with interrupt. Note that the I/O can only be accessed as words and the addresses must be on 4-byte boundaries. If not on a 4-byte boundaries or not word size reads/writes, reads return all-zero bits whereas writes will not write data. Unaligned accesses cause an exception. Each I/O module has a 256-byte address space. Note that not all I/O addresses are actually used. All I/O modules return all-zero bits if not accessed.
 
 Note: GPIOA and MTIME are always included in synthesis.
 
@@ -339,6 +339,8 @@ The I/O houses a memory mapped MSI trigger register. Writing a 1 to the trigger 
 The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Whenever TIMEH:TIME (as viewed as a 64-bit register) is greater than or equal to TIMECMPH:TIMECMP (as viewed as a 64-bit register) an interrupt request is asserted. The interrupt request is negated if TIMEH:TIME is less than TIMECMPH:TIMECMP. This has to be handled by software. Note that TIMEH:TIME counts the number of microseconds since last reset. The toolchain expects this since `clock()` and `gettimeofday()` depend on this value. As such, the system clock frequency must be a integer multiple of 1 MHz. Note that TIMEH:TIME is writable by software.
 
 The CRC unit can calculate 8-bit, 16-bit, 24-bit and 32-bit CRCs with arbitrary polynomals. The CRCs are calculated on byte data with the msb of the bytes first. The polynomal has the same width as the calculated CRC. The CRC value can be loaded with a start value (often 0x00000000 or 0xffffffff).
+
+The 1-Wire unit can access one slave only. It does not implement enumeration of devices. It has one local interrupt for receive complete, transmit complete and presence (reset) complete. Wriing data starts by writing to the DATA register. Reading data starts by writing any data to the READ register. Data transmission speed is currently set to 16 kbits/s.
 
 When writing your own I/O modules, note that *all* memory accesses must be acknowledged, or an exception must be generated. The I/O module must return all zero bits when not accessed.
 
@@ -428,6 +430,7 @@ The SoC hardware is composed of the following VHDL files:
 * `dm.vhd` -- Description of the Debug Module.
 * `dtm.vhd` -- Description of the Debug Transport Module.
 * `crc.vhd` -- Description of the CRC module.
+* `onewire.h` -- Description of the 1-Wire module.
 * `riscv.vhd` -- Top-level description of the SoC. Connects all the building blocks to a viable SoC.
 * `riscv.sdc` -- Constraints file. Sets the target clock frequency.
 * `tb_riscv.vhd` -- VHDL testbench to simulate the design.
@@ -643,6 +646,7 @@ The pin assignments for the DE0-CV board are as follows. Note that not all signa
 |i2c1sda       | C16      | GPIO_0_D3, I2C1 SDA
 |i2c2scl       | K20      | GPIO_0_D5, I2C2 SCL
 |i2c2sda       | K22      | GPIO_0_D7, I2C2 SDA
+|onewire1dq    | M21      | GPIO_0_D9, 1-Wire DQ
 |tck           | P18      | GPIO_0_27, JTAG clock
 |tdi           | R17      | GPIO_0_29, JTAG data in
 |tdo           | T20      | GPIO_0_31, JTAG data out
@@ -709,6 +713,7 @@ Using VHDL generics, the design can be customized.
 |HAVE_MSI              | boolean   | TRUE     | Use Machine-mode Software Interrupt
 |HAVE_WDT              | boolean   | TRUE     | Use watchdog
 |HAVE_CRC              | booleab   | TRUE     | Use CRC unit
+|HAVE_ONWIRE1          | boolean   | TRUE     | Use ONEWIRE1
 |UART1_BREAK_RESETS    | boolean   | false    | UART1 BREAK reception triggers system reset
 |===
 
@@ -1032,7 +1037,8 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `mhpmcounter` -- program to test the HPM counters. The Zihpm hardware must be enabled for proper usage. Works on the board.
 * `monitor` -- simple monitor program. Works on the board. Uses strings, UART1, RAM, ROM, I/O and `sprintf` (and therefore `malloc` et al.).
 * `mult` -- integer multiplication with the C library. Set to the E extension with no hardware multiply/divide support. For simulations.
-* `mxhw` -- Program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized SoC to the terminal. Works on the board.
+* `mxhw` -- program to read out the `mxhw` and `mxspeed` custom CSRs and print the hardware configuration and clock speed of the synthesized SoC to the terminal. Works on the board.
+* `onewire1ds18b20` -- program to read the temperature from a DS18B20 device. Works on the board.
 * `qsort` -- sorts an integer array using the `qsort` C library function and prints the result to UART1. Works on the DE0-CV board.
 * `riemann_left` -- calculates the Riemann Left Sum of sin^2^ from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
 * `shift` -- shifts. For use in simulations.

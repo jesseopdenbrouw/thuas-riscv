@@ -20,7 +20,7 @@ void wdt_reset(void);
 #define WDT_EN (1 << 0)
 #define WDT_NMI (1 << 1)
 #define WDT_LOCK (1 << 7)
-#define WDT_PRESCALER(A) ((A & 0x00ffffff) << 8)
+#define WDT_PRESCALER(A) (((A) & 0x00ffffff) << 8)
 
 #define WDT_PASSWORD (0x5c93a0f1)
 

@@ -19,6 +19,9 @@ uint32_t onewire1_transmit_byte(uint32_t data);
 uint32_t onewire1_receive_byte(void);
 /* Receive multiple bytes */
 uint32_t onewire1_receive(uint8_t data[], uint32_t len);
+/* Calculate 1-Wire CRC on per byte basis */
+uint8_t onewire1_calccrc_byte(uint8_t data);
+uint8_t onewire1_calccrc(uint8_t data[], uint32_t len);
 
 #define ONEWIRE_RCIE     (1 << 3)
 #define ONEWIRE_TCIE     (1 << 4)

@@ -1,51 +1,59 @@
+#
+# XDC file for the ARTY S7-50
+# For use with the THUAS RISC-V RV32 System-on-a-Chip
+#
+
 ## Clock signal
 set_property -dict {PACKAGE_PIN R2 IOSTANDARD LVCMOS33} [get_ports {I_clk} ]
-create_clock -period 8.000 -name I_clk -waveform {0.000 4.000} -add [get_ports {I_clk} ]
+#create_clock -period 8.000 -name I_clk -waveform {0.000 4.000} -add [get_ports {I_clk} ]
 #create_clock -period 9.000 -name I_clk -waveform {0.000 4.500} -add [get_ports {I_clk} ]
-#create_clock -period 10.000 -name I_clk -waveform {0.000 5.000} -add [get_ports {I_clk} ]
+create_clock -period 10.000 -name I_clk -waveform {0.000 5.000} -add [get_ports {I_clk} ]
 
-## Reset
+## Reset - dedicated switch
 set_property -dict {PACKAGE_PIN C18 IOSTANDARD LVCMOS33} [get_ports {I_areset}]
 
-## Switches
+## Switches - SW0, SW1, SW1, SW3
 set_property -dict {PACKAGE_PIN H14 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[0]} ]
 set_property -dict {PACKAGE_PIN H18 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[1]} ]
 set_property -dict {PACKAGE_PIN G18 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[2]} ]
 set_property -dict {PACKAGE_PIN M5  IOSTANDARD SSTL135}  [get_ports {I_gpioapin[3]} ]
 
-## Push buttons
+## Push buttons - BTN0, BTN1, BTN2, BTN3
 set_property -dict {PACKAGE_PIN G15 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[4]} ]
 set_property -dict {PACKAGE_PIN K16 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[5]} ]
 set_property -dict {PACKAGE_PIN J16 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[6]} ]
 set_property -dict {PACKAGE_PIN H13 IOSTANDARD LVCMOS33} [get_ports {I_gpioapin[7]} ]
 
-## LEDS
+## LEDS - LD2, LD3, LD4, LD5
 set_property -dict {PACKAGE_PIN E18 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[0]} ]
 set_property -dict {PACKAGE_PIN F13 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[1]} ]
 set_property -dict {PACKAGE_PIN E13 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[2]} ]
 set_property -dict {PACKAGE_PIN H15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[3]} ]
 
-## RGB1
+## RGB1 - LD0_R, LD0_G, LD0_B
 set_property -dict {PACKAGE_PIN J15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[4]} ]
 set_property -dict {PACKAGE_PIN G17 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[5]} ]
 set_property -dict {PACKAGE_PIN F15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[6]} ]
 
-## RGB2
+## RGB2 - LD1_R, LD1_G, LD1_B
 set_property -dict {PACKAGE_PIN E15 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[7]} ]
 set_property -dict {PACKAGE_PIN F18 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[8]} ]
 set_property -dict {PACKAGE_PIN E14 IOSTANDARD LVCMOS33} [get_ports {O_gpioapout[9]} ]
 
-## UART1
+## UART1 - micro-USB
 set_property -dict {PACKAGE_PIN V12 IOSTANDARD LVCMOS33} [get_ports {I_uart1rxd}]
 set_property -dict {PACKAGE_PIN R12 IOSTANDARD LVCMOS33} [get_ports {O_uart1txd}]
 
-## I2C1 - Connected to ChipKit/Arduino
+## I2C1 - Connected to ChipKit/Arduino dedicated I2C pins
 set_property -dict {PACKAGE_PIN J14 IOSTANDARD LVCMOS33} [get_ports {IO_i2c1scl}]
 set_property -dict {PACKAGE_PIN J13 IOSTANDARD LVCMOS33} [get_ports {IO_i2c1sda}]
 
 ## I2C2 - Connected to ChipKit/Arduino (IO40 = SDA, IO41 = SCL)
 set_property -dict {PACKAGE_PIN U15 IOSTANDARD LVCMOS33} [get_ports {IO_i2c2scl}]
 set_property -dict {PACKAGE_PIN V16 IOSTANDARD LVCMOS33} [get_ports {IO_i2c2sda}]
+
+## ONEWIRE1 - Chipkit/Arduino ck_io35
+set_property -dict {PACKAGE_PIN R13 IOSTANDARD LVCMOS33 } [get_ports {IO_onewire1dq}];
 
 ## SPI1 - ChipKit IO39, IO38, IO37
 set_property -dict {PACKAGE_PIN U17 IOSTANDARD LVCMOS33} [get_ports {O_spi1sck}]

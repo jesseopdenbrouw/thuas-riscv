@@ -1,3 +1,8 @@
+#
+# XDC file for the THUAS RISC-V RV32 System-on-a-Chip
+#
+
+
 ## Clock signal
 set_property -dict {PACKAGE_PIN M9 IOSTANDARD LVCMOS33} [get_ports {I_clk} ]
 # Clock has 12 MHz oscillator (83.333333 ns)
@@ -36,6 +41,9 @@ set_property -dict {PACKAGE_PIN M4 IOSTANDARD LVCMOS33} [get_ports {IO_i2c1sda}]
 ## I2C2 - pins (PIO30, PIO31)
 set_property -dict {PACKAGE_PIN M13 IOSTANDARD LVCMOS33} [get_ports {IO_i2c2scl}]
 set_property -dict {PACKAGE_PIN J11 IOSTANDARD LVCMOS33} [get_ports {IO_i2c2sda}]
+
+## ONEWIRE1 - pin (PIO32)  !! NOTE: THIS IS AN XADC PIN !!
+set_property -dict {PACKAGE_PIN A13 IOSTANDARD LVCMOS33} [get_ports {IO_onewire1dq}]
 
 ## SPI1 (PIO26, PIO27, PIO28, PIO29)
 set_property -dict {PACKAGE_PIN L14 IOSTANDARD LVCMOS33} [get_ports {O_spi1sck}]
@@ -78,6 +86,7 @@ set_property -dict {PACKAGE_PIN J2 IOSTANDARD LVCMOS33} [get_ports {I_uart2rxd}]
 set_property -dict {PACKAGE_PIN H2 IOSTANDARD LVCMOS33} [get_ports {O_uart2txd}]
 
 ## JTAG connections (PIO44 to PIO48)
+set_property -dict {PACKAGE_PIN C1 IOSTANDARD LVCMOS33} [get_ports {I_trst} ]
 set_property -dict {PACKAGE_PIN B3 IOSTANDARD LVCMOS33} [get_ports {I_tms} ]
 set_property -dict {PACKAGE_PIN B4 IOSTANDARD LVCMOS33} [get_ports {O_tdo} ]
 set_property -dict {PACKAGE_PIN A3 IOSTANDARD LVCMOS33} [get_ports {I_tdi} ]

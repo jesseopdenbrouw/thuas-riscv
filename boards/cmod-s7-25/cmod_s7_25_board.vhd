@@ -49,6 +49,7 @@ entity cmod_s7_25_board is
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- JTAG connection
+          I_trst : in  std_logic;
           I_tck  : in  std_logic;
           I_tdi  : in  std_logic;
           O_tdo  : out std_logic;
@@ -80,7 +81,9 @@ entity cmod_s7_25_board is
           O_timer2oct : out std_logic;
           IO_timer2icoca : inout std_logic;
           IO_timer2icocb : inout std_logic;
-          IO_timer2icocc : inout std_logic
+          IO_timer2icocc : inout std_logic;
+          -- ONEWIRE1
+          IO_onewire1dq : inout std_logic
          );
 end entity cmod_s7_25_board;
 
@@ -127,9 +130,9 @@ begin
               HAVE_ZBS => false,
               -- Do we have Zicond (czero.{eqz|nez})?
               HAVE_ZICOND => false,
-              -- Do we have Zimop?
+              -- Have Zimop?
               HAVE_ZIMOP => false,
-              -- Do we have Zbkb (bitmanip for crytography)?
+              -- Have Zbkb (bitmanip instructions for cryptography)
               HAVE_ZBKB => false,
               -- Do we have HPM counters?
               HAVE_ZIHPM => false,
@@ -174,7 +177,9 @@ begin
               -- Use watchdog?
               HAVE_WDT => TRUE,
               -- Use CRC?
-              HAVE_CRC => false,
+              HAVE_CRC => TRUE,
+              -- Use ONEWIRE1
+              HAVE_ONEWIRE1 => TRUE,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
              )
@@ -212,7 +217,9 @@ begin
               O_timer2oct => O_timer2oct,
               IO_timer2icoca => IO_timer2icoca,
               IO_timer2icocb => IO_timer2icocb,
-              IO_timer2icocc => IO_timer2icocc
+              IO_timer2icocc => IO_timer2icocc,
+              -- ONEWIRE1
+              IO_onewire1dq => IO_onewire1dq
              );
 
 end architecture rtl;

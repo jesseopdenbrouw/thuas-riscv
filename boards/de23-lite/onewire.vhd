@@ -296,16 +296,8 @@ begin
                         onewire.busy      <= '0';
                         onewire.timer     <= 0;
 
-                        -- Explicit byte transmission, LSB first
-                        if onewire.startwr = '1' then
-                            onewire.startwr <= '0';
-                            onewire.busy <= '1';
-                            onewire.bit_counter <= 0;
-                            onewire.drive_low <= '1';
-                            onewire.timer <= 0;
-                            onewire.state <= tx_slot;
                        -- Reset and presence detection
-                        elsif onewire.reset = '1' then
+                        if onewire.reset = '1' then
                             -- Auto-clear the reset bit
                             onewire.reset <= '0';
                             onewire.busy <= '1';
@@ -313,7 +305,15 @@ begin
                             onewire.drive_low <= '1';
                             onewire.timer <= 0;
                             onewire.state <= reset_pulse;
-                        -- Start reception
+                        -- Explicit byte transmission, LSB first
+                        elsif onewire.startwr = '1' then
+                            onewire.startwr <= '0';
+                            onewire.busy <= '1';
+                            onewire.bit_counter <= 0;
+                            onewire.drive_low <= '1';
+                            onewire.timer <= 0;
+                            onewire.state <= tx_slot;
+                        -- Start reception of byte, LSB first
                         elsif onewire.startrv = '1' then
                             onewire.startrv <= '0';
                             onewire.read_reg  <= (others => '0');

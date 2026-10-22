@@ -24,13 +24,44 @@ int main(void)
 {
 	uint32_t presence;
 	uint8_t data[MAX];
+	/* Byte 0 = Device Family, byte 7 = CRC8, rest is device ID, LSB first */
+	uint8_t rom[8];
 	int16_t temp;
 	double tempd;
+	uint8_t crc = 0;
 
 	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
 	uart1_puts("1-Wire DS18B20 Test Program\r\n\n");
 
+	/* Start the reset sequence */
+	presence = onewire1_reset();
+
+	if (presence) {
+		/* Read the ROM */
+		onewire1_transmit_byte(READ_ROM);
+		onewire1_receive(rom, 8);
+		/* Print out the data */
+		uart1_puts("Device Family: 0x");
+		printhex(rom[0], 2);
+		/* byte 6 downto 1 has ID */
+		uart1_puts("\r\nDevice ID: 0x");
+		for (int i = 6; i > 0; i--) {
+			printhex(rom[i], 2);
+		}
+		/* Print out CRC8 */
+		uart1_puts("\r\nCRC8: 0x");
+		/* Calculate CRC8 over first 7 bytes */
+		crc = onewire1_calccrc(rom, 7);
+		printhex(crc, 2);
+		/* Check if match with calculated CRC8 */
+		if (crc == rom[7]) {
+			uart1_puts(" --> match!\r\n");
+		} else {
+			uart1_puts(" --> NO MATCH!\r\n");
+		}
+	}
+	
 	while (1) {
 		/* Start the reset sequence */
 		presence = onewire1_reset();

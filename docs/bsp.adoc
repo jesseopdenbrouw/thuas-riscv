@@ -537,6 +537,73 @@ Note: these functions work with 8-bit data.
 * When used with the STAT register, selects the Transaction Complete status bit.
 
 
+== 1-Wire device ONEWIRE1
+
+=== Functions
+
+`uint32_t onewire1_reset(void);`
+
+* Starts a reset operation and return presence (1) of not presence (0).
+
+`uint32_t onewire1_transmit_byte(uint32_t data);`
+
+* Transmits one byte over the 1-Wire bus.
+
+`uint32_t onewire1_receive_byte(void);`
+
+* Receives one byte over the 1-Wire bus.
+
+`uint32_t onewire1_receive(uint8_t data[], uint32_t len);`
+
+* Receives `len` bytes over the 1-Wire bus.
+
+`uint8_t onewire1_calccrc_byte(uint8_t data);`
+
+* Calculates and return one byte for CRC8 check. Only for internal use.
+
+`uint8_t onewire1_calccrc(uint8_t data[], uint32_t len);`
+
+* Calculates the CRC8 over `len` bytes.
+
+=== Macros
+
+`ONEWIRE_RCIE`
+
+* Sets the Receive Complete Interrupt Enable in the Control register.
+
+`ONEWIRE_TCIE`
+
+* Sets the Transmit Complete Interrupt Enable in the Control register.
+
+`ONEWIRE_PCIE`
+
+* Sets the Presence (reset) Complete Interrupt Enable in the Control register.
+
+`ONEWIRE_RESET`
+
+* Writing this bit 1 will start a reset sequence.
+
+`ONEWIRE_RC`
+
+* Receive Complete in the Status register.
+
+`ONEWIRE_TC`
+
+* Transmit Complete in the Status register.
+
+`ONEWIRE_PC`
+
+* Presence (reset) Complete in the Status register. This bit is set when the reset sequence has ended.
+
+`ONEWIRE_PRESENCE`
+
+* This bit indicates that a reset has lead to a presence pulse seen, in the Status register.
+
+`ONEWIRE_BUSY`
+
+* This bit is 1 when a operation is ongoing .
+
+
 
 == Utitlities
 

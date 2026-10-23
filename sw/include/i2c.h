@@ -42,8 +42,8 @@ uint8_t i2c2_receive_byte(void);
 uint32_t i2c2_receive(uint8_t address, uint8_t *buf, uint32_t len);
 
 /* Due to rounding toward 0, some speeds may be a bit too high */
-#define I2C_PRESCALER_FM(A) (((A/3UL/400000UL)-1) << 16)
-#define I2C_PRESCALER_SM(A) (((A/2UL/100000UL)-1) << 16)
+#define I2C_PRESCALER_FM(A) ((((A)/3UL/400000UL)-1) << 16)
+#define I2C_PRESCALER_SM(A) ((((A)/2UL/100000UL)-1) << 16)
 #define I2C_FAST_MODE       (1 << 2)
 #define I2C_STANDARD_MODE   (0 << 2)
 #define I2C_TCIE            (1 << 3)

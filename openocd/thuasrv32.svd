@@ -4,7 +4,7 @@
   <vendor>jesseopdenbrouw</vendor>
   <name>thuasrv32</name>
   <series>RISC-V</series>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
   <description>The THUAS RV32 RISC-V Processor</description>
 
   <!-- CPU core -->
@@ -38,7 +38,7 @@
     <!-- **************************************************************** -->
     <peripheral>
       <name>MTIME</name>
-      <description>Machine timer</description>
+      <description>Machine Timer</description>
       <groupName>MTIME</groupName>
       <baseAddress>0xF0000A00</baseAddress>
 
@@ -79,7 +79,7 @@
     <!-- **************************************************************** -->
     <peripheral>
       <name>GPIO</name>
-      <description>General purpose input/output port</description>
+      <description>General Purpose Input/Output Port</description>
       <groupName>GPIO</groupName>
       <baseAddress>0xF0000000</baseAddress>
 
@@ -979,6 +979,110 @@
       </registers>
     </peripheral>
 
+    <!-- ONEWIRE1 -->
+    <!-- **************************************************************** -->
+    <peripheral>
+      <name>ONEWIRE1</name>
+      <description>1-Wire Module 1</description>
+      <groupName>ONEWIRE1</groupName>
+      <baseAddress>0xF0000d00</baseAddress>
 
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x10</size>
+        <usage>registers</usage>
+      </addressBlock>
+
+      <registers>
+        <register>
+          <name>CTRL</name>
+          <description>Control register</description>
+          <addressOffset>0x00</addressOffset>
+          <fields>
+            <field>
+              <name>ONEWIRE_CTRL_RCIE</name>
+              <bitRange>[3:3]</bitRange>
+              <description>Onewire Receive Interrupt Enable</description>
+            </field>
+            <field>
+              <name>ONEWIRE_CTRL_TCIE</name>
+              <bitRange>[4:4]</bitRange>
+              <description>Onewire Transmit Interrupt Enable</description>
+            </field>
+            <field>
+              <name>ONEWIRE_CTRL_PCIE</name>
+              <bitRange>[5:5]</bitRange>
+              <description>Presence Complete Interrupt Enable</description>
+            </field>
+            <field>
+              <name>ONEWIRE_CTRL_RESET</name>
+              <bitRange>[6:6]</bitRange>
+              <description>Start Reset Sequence</description>
+            </field>
+            <field>
+              <name>ONEWIRE_CTRL_ONEBIT</name>
+              <bitRange>[7:7]</bitRange>
+              <description>Set One Bit Transmission Mode</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STAT</name>
+          <description>Status Register</description>
+          <addressOffset>0x04</addressOffset>
+          <fields>
+            <field>
+              <name>ONEWIRE_STAT_RC</name>
+              <bitRange>[3:3]</bitRange>
+              <description>Receive Complete</description>
+            </field>
+            <field>
+              <name>ONEWIRE_STAT_TC</name>
+              <bitRange>[4:4]</bitRange>
+              <description>Transmit Complete</description>
+            </field>
+            <field>
+              <name>ONEWIRE_STAT_PC</name>
+              <bitRange>[5:5]</bitRange>
+              <description>Presence Complete</description>
+            </field>
+            <field>
+              <name>ONEWIRE_STAT_PRESENCE</name>
+              <bitRange>[6:6]</bitRange>
+              <description>Presence Detected</description>
+            </field>
+            <field>
+              <name>ONEWIRE_STAT_BUSY</name>
+              <bitRange>[7:7]</bitRange>
+              <description>Busy</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>DATA</name>
+          <description>Data Register</description>
+          <addressOffset>0x08</addressOffset>
+          <fields>
+            <field>
+              <name>ONEWIRE_DATA_DATA</name>
+              <bitRange>[7:0]</bitRange>
+              <description>Data Register</description>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>READ</name>
+          <description>Start Read Register</description>
+          <addressOffset>0x0c</addressOffset>
+          <fields>
+            <field>
+              <name>ONEWIRE_READ_READ</name>
+              <description>Start Read Register</description>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
   </peripherals>
+
 </device>

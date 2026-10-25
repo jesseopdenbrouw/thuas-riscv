@@ -903,16 +903,18 @@ Note: the external timer will assert a pending interrupt if TIMEH:TIME (viewed a
 \subsection{ONEWIRE1 -- A Minimal 1-Wire Master}
 \begin{register}{H}{1-Wire Control Register ONEWIRE1\_CTRL}{0xd00}
 \label{onewire1ctrl}
-\regfield{Reserved}{25}{7}{{0}}%
+\regfield{Reserved}{24}{8}{{0}}%
+\regfield{ONEBIT}{1}{7}{{0}}%
 \regfield{RESET}{1}{6}{{0}}%
 \regfield{PCIE}{1}{5}{{0}}%
 \regfield{TCIE}{1}{4}{{0}}%
 \regfield{RCIE}{1}{3}{{0}}%
-\regfield{Reserved}{2}{0}{{0}}%%
+\regfield{Reserved}{3}{0}{{0}}%%
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]
 \itemsep-1.5ex
+\item [ONEBIT] When this bit is set, only the on bit is transmitted or received. This setup is needed to scan the bus for devices.
 \item [RESET] Writing this bit starts a reset sequence. This bit is auto-cleared when the reset sequence is completed.
 \item [PCIE] Presence (reset) complete interrupt enable. Triggers an interrupt when the reset sequence is completed.
 \item [TCIE] Transmit complete interrupt enable. Triggers an interrupt when a byte is transmitted.
@@ -926,7 +928,7 @@ Note: the external timer will assert a pending interrupt if TIMEH:TIME (viewed a
 \regfield{PC}{1}{5}{{0}}%
 \regfield{TC}{1}{4}{{0}}%
 \regfield{RC}{1}{3}{{0}}%
-\regfield{Reserved}{2}{0}{{0}}%
+\regfield{Reserved}{3}{0}{{0}}%
 \reglabel{Reset}\regnewline%
 \end{register}
 \begin{regdesc}[0.8\textwidth]\begin{reglist}[000000000]

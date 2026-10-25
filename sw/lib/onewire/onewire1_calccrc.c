@@ -7,8 +7,10 @@
 
 #include <thuasrv32.h>
 
+/* Global accumulation of CRC8 */
 static uint8_t crc = 0;
 
+/* CRC8 Table */
 static const uint8_t crc_array[] = {
 	0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
 	157, 195, 33, 127, 252, 162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220,
@@ -28,12 +30,14 @@ static const uint8_t crc_array[] = {
 	116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53
 };
 
+/* Calculate CRC8 with accumulated CRC */
 uint8_t onewire1_calccrc_byte(uint8_t data)
 {
 	crc = crc_array[crc ^ data];
 	return crc;
 }
 
+/* Calculate CRC8 over an array of bytes */
 uint8_t onewire1_calccrc(uint8_t data[], uint32_t len)
 {
 	crc = 0;

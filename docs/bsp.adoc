@@ -549,6 +549,10 @@ Note: these functions work with 8-bit data.
 
 * Transmits one byte over the 1-Wire bus.
 
+`uint32_t onewire1_transmit(uint8_t data[], uint32_t len);`
+
+* Transmit `len` bytes over the 1-Wire bus.
+
 `uint32_t onewire1_receive_byte(void);`
 
 * Receives one byte over the 1-Wire bus.
@@ -563,7 +567,31 @@ Note: these functions work with 8-bit data.
 
 `uint8_t onewire1_calccrc(uint8_t data[], uint32_t len);`
 
-* Calculates the CRC8 over `len` bytes.
+* Calculates the CRC8 of `data` over `len` bytes.
+
+`uint32_t onewire1_transmit_bit(uint32_t bit);`
+
+* Transmit one bit over the 1-Wire bus. The bit must be in bit 0 in `bit`.
+
+`uint32_t onewire1_receive_bit(void);`
+
+* Receive one bit over the 1-Wire bus, The bit is in bit 0 of the return value.
+
+`uint32_t onewire1_findfirst(uint8_t r[]);`
+
+* Search and retrieve first device on the bus. Returns 1 if a device was found. ROM code in `r`.
+
+`uint32_t onewire1_findnext(uint8_t r[]);`
+
+* Search and retrieve next device on the bus. Returns 1 if a device was found. ROM code in `r`.
+
+`void onewire1_targetsetup(uint8_t family_code);`
+
+Setup the search to find the device type `family_code` on the next call.
+
+`void onewire1_familyskipsetup(void);`
+
+Setup the search to skip the current device type on the next call.
 
 === Macros
 
@@ -582,6 +610,10 @@ Note: these functions work with 8-bit data.
 `ONEWIRE_RESET`
 
 * Writing this bit 1 will start a reset sequence.
+
+`ONEWIRE_ONEBIT`
+
+* Setting this bit to 1 will enable bit transmission mode.
 
 `ONEWIRE_RC`
 

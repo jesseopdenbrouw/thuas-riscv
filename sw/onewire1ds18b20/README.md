@@ -1,4 +1,4 @@
-# onewire1ds18b20.vhd
+# onewire1ds18b20
 
 Read the temperature of the 1-Wire DS18B20 device
 
@@ -9,8 +9,7 @@ measures the temperature in 1/16th degree Celsius.
 
 See: https://www.analog.com/media/en/technical-documentation/data-sheets/ds18b20.pdf
 
-The 1-Wire peripheral is very simple. It can mange only one slave device at the time.
-There is no provision for bus enumeration (Search ROM).
+Only one device may be attached to the bus.
 
 ## Status
 

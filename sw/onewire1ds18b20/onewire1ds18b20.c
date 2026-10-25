@@ -12,8 +12,14 @@
 
 #include <thuasrv32.h>
 
-#define MAX (2)
+#ifndef F_CPU
+#define F_CPU (50000000UL)
+#endif
+#ifndef BAUD_RATE
+#define BAUD_RATE (115200UL)
+#endif
 
+#define MAX (9)
 
 #define READ_ROM (0x33)
 #define SKIP_ROM (0xcc)

@@ -340,7 +340,7 @@ The I/O incorporates memory mapped TIMEH:TIME and TIMECMPH:TIMECMP registers. Wh
 
 The CRC unit can calculate 8-bit, 16-bit, 24-bit and 32-bit CRCs with arbitrary polynomals. The CRCs are calculated on byte data with the msb of the bytes first. The polynomal has the same width as the calculated CRC. The CRC value can be loaded with a start value (often 0x00000000 or 0xffffffff).
 
-The 1-Wire unit can access one slave only. It does not implement enumeration of devices. It has one local interrupt for receive complete, transmit complete and presence (reset) complete. Wriing data starts by writing to the DATA register. Reading data starts by writing any data to the READ register. Data transmission speed is currently set to 16 kbits/s.
+The 1-Wire unit can access multiple slaves, so it does implement enumeration of devices. It has one local interrupt for receive complete, transmit complete and presence (reset) complete. Writing data starts by writing to the DATA register. Reading data starts by writing any data to the READ register. Data transmission speed is currently fixed to 16 kbits/s.
 
 When writing your own I/O modules, note that *all* memory accesses must be acknowledged, or an exception must be generated. The I/O module must return all zero bits when not accessed.
 

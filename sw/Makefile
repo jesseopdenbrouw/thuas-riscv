@@ -53,6 +53,7 @@ SUBDIRS = add64 \
           mult \
           mxhw \
           onewire1ds18b20 \
+          onewire1scanbus \
           qsort \
           riemann_left \
           shift \

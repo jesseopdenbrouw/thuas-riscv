@@ -1,7 +1,7 @@
 PREFIX := ../../rtl/thuas-riscv
 
 # Note: ghdl does not expose records
-SIM := questa
+SIM := questa # nvc
 TOPLEVEL_LANG := vhdl
 
 # Top-level VHDL entity
@@ -38,6 +38,7 @@ VHDL_SOURCES := \
 			$(PREFIX)/timerb.vhd \
 			$(PREFIX)/uart.vhd \
 			$(PREFIX)/wdt.vhd \
+			$(PREFIX)/onewire.vhd \
 			$(PREFIX)/riscv.vhd \
 			rtl/de0_cv.vhd
 

@@ -167,6 +167,8 @@ begin
               HAVE_WDT => TRUE,
               -- Use CRC?
               HAVE_CRC => TRUE,
+              -- Use 1-Wire?
+              HAVE_ONEWIRE1 => TRUE,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
              )

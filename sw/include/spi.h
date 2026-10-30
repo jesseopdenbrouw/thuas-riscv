@@ -40,6 +40,12 @@ __attribute__((weak)) void spi2_csenable(void);
 __attribute__((weak)) void spi2_csdisable(void);
 
 /* For both SPI1 and SPI2 */
+/* MODE   CPOL CPHA
+ *  0       0    0
+ *  1       0    1
+ *  2       1    0
+ *  3       1    1
+ */
 #define SPI_MODE0  (0 << 1)
 #define SPI_MODE1  (1 << 1)
 #define SPI_MODE2  (2 << 1)

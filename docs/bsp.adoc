@@ -122,7 +122,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `GPIO_EXTC_EDGE_FALLING` +
 `GPIO_EXTC_EDGE_BOTH`
 
-* Selecting the edge(s) for the external input pin interrupt
+* Selecting the edge(s) for the external input pin interrupt.
 
 `gpioa_set_extc(pinnr, edge)`
 
@@ -156,7 +156,7 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 `uint32_t i2c1_transmit_address_only(uint8_t address)` +
 `uint32_t i2c2_transmit_address_only(uint8_t address)`
 
-* Transmit an addess on the  I2C bus, including START and STOP conditions. Can be used to detect targets. A return value of 0 indicates success (target acknowledged). Note: `address` must be shifted to the left by one bit.
+* Transmit an addess on the I2C bus, including START and STOP conditions. Can be used to detect targets. A return value of 0 indicates success (target acknowledged). Note: `address` must be shifted to the left by one bit.
 
 `uint32_t i2c1_transmit_byte(uint8_t data)` +
 `uint32_t i2c2_transmit_byte(uint8_t data)`
@@ -500,7 +500,7 @@ Note: these functions work with 8-bit data.
 
 `WDT_PASSWORD`
 
-* This macro expand to the watchdog password.
+* This macro expands to the watchdog password.
 
 
 == CRC
@@ -551,7 +551,7 @@ Note: these functions work with 8-bit data.
 
 `uint32_t onewire1_transmit(uint8_t data[], uint32_t len);`
 
-* Transmit `len` bytes over the 1-Wire bus.
+* Transmits `len` bytes over the 1-Wire bus.
 
 `uint32_t onewire1_receive_byte(void);`
 
@@ -587,11 +587,11 @@ Note: these functions work with 8-bit data.
 
 `void onewire1_targetsetup(uint8_t family_code);`
 
-Setup the search to find the device type `family_code` on the next call.
+* Setup the search to find the device type `family_code` on the next call.
 
 `void onewire1_familyskipsetup(void);`
 
-Setup the search to skip the current device type on the next call.
+* Setup the search to skip the current device type on the next call.
 
 === Macros
 
@@ -613,7 +613,7 @@ Setup the search to skip the current device type on the next call.
 
 `ONEWIRE_ONEBIT`
 
-* Setting this bit to 1 will enable bit transmission mode.
+* Setting this bit to 1 will enable bit transmission mode. Setting this bit to 0 will enable byte transmission mode.
 
 `ONEWIRE_RC`
 

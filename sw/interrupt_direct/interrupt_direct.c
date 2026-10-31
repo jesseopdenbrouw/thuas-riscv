@@ -45,7 +45,7 @@ int main(int argc, char *argv[], char *envp[])
 	/* Set the trap handler vector */
 	set_mtvec(trap_handler_direct, TRAP_DIRECT_MODE);
 
-	/* Initialize the USART*/
+	/* Initialize the UART */
 	uart1_init(BAUD_RATE, UART_CTRL_RCIE | UART_CTRL_EN);
 
 	/* Activate TIMER1 with a cycle of 1 Hz */
@@ -72,6 +72,9 @@ int main(int argc, char *argv[], char *envp[])
 
 	/* External input pin interrupt, pin 15, rising edge */	
 	GPIOA->EXTC = (15 << 3) | (1 << 1);
+
+	/* Activate ONEWIRE1 presence interrupt */
+	ONEWIRE1->CTRL = ONEWIRE_PCIE;
 
 	/* Enable RISC-V system timer IRQ */
 	enable_external_timer_irq();
@@ -144,6 +147,8 @@ int main(int argc, char *argv[], char *envp[])
 			I2C2->DATA = (0x48 << 1);
 			/* Trigger Machine Software IRQ (MSI) */
 			MSI->TRIG = 0x01;
+			/* Start ONEWIRE1 reset */
+			ONEWIRE1->CTRL |= ONEWIRE_RESET;
 		}
 	}
 

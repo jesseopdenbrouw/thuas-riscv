@@ -85,6 +85,7 @@ extern char __stack_size;
 #define TIMER2_IN_MCAUSE ((1<<31)+21)
 #define TIMER1_IN_MCAUSE ((1<<31)+20)
 #define EXTI_IN_MCAUSE ((1<<31)+18)
+#define ONEWIRE1_IN_MCAUSE ((1<<31)+17)
 /* Keep Machine Time timer (MTIME) at 7! */
 #define MTIME_IN_MCAUSE ((1<<31)+7)
 /* Keep Machine Software Interrupt (MSI) at 3! */
@@ -258,6 +259,9 @@ int32_t __trap_handler_execute(uint32_t _a0, uint32_t _a1, uint32_t _a2, uint32_
 	/* External input interrupt */
 	} else if (__mcause  == EXTI_IN_MCAUSE) {
                 external_input_handler();
+	/* ONEWIRE1 transmit/receive/presence interrupt */
+	} else if (__mcause == ONEWIRE1_IN_MCAUSE) {
+				onewire1_handler();
 	/* Check the cause of the exeption/interrupt/trap */
 	} else if (__mcause == ECALL_IN_MCAUSE) {
 		/* ECALL used, so system call. Most likely

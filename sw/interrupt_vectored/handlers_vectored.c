@@ -185,3 +185,14 @@ void external_msi_handler(void)
 	/* Toggle output bit 8 (led) */
 	GPIOA->POUT ^= 0x100;
 }
+
+/* ONEWIRE1 transmit/receive/presence handler */
+__attribute__ ((interrupt))
+void onewire1_handler(void)
+{
+    /* Remove interrupt flags */
+    ONEWIRE1->STAT = 0x00;
+    /* Toggle output bit 16 (7-seg display */
+    GPIOA->POUT ^= (1 << 16);
+}
+

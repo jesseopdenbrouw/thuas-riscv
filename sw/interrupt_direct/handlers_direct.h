@@ -1,7 +1,7 @@
 /*
  * handlers_direct.h -- prototypes for handlers
  *
- * (c) 2024  Jesse E.J. op den Brouw
+ * (c) 2026  Jesse E.J. op den Brouw
  *
  */
 
@@ -30,6 +30,8 @@ void i2c2_handler(void);
 void external_msi_handler(void);
 /* External input interrupt */
 void external_input_handler(void);
+/* ONEWIRE1 transmit/receive/presence interrupt */
+void onewire1_handler(void);
 /* Default (test) interrupt */
 void default_handler(void);
 

@@ -1,7 +1,7 @@
 /*
  * RISC-V RV32IM generic trap handler (vectored)
  *
- * (c) 2025, Jesse E.J. op den Brouw
+ * (c) 2026, Jesse E.J. op den Brouw
  *
  */
 
@@ -117,7 +117,7 @@ void trap_handler_jump_table(void)
 
 	/* Next are the core local interrupts (16 max) */
 	__asm__ volatile ("j default_handler;");
-	__asm__ volatile ("j default_handler;");
+	__asm__ volatile ("j onewire1_handler;");
 	__asm__ volatile ("j external_input_handler;");
 	__asm__ volatile ("j default_handler;");
 	__asm__ volatile ("j timer1_handler;");

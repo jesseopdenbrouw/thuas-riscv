@@ -28,7 +28,7 @@ else
 endif
 
 # Linker flags
-#LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) --specs=../lib/thuas.specs --specs=nano.specs $(EXTRA_LINKER_FLAGS)
+# NOTE: thuas.specs must come after nano.specs to use 'ecall' for syscalls
 LDFLAGS = -g -lm -Wall -nostartfiles -T $(LD_SCRIPT) $(LIBTHUASRV32STRING) $(MARCHABISTRING) --specs=nano.specs --specs=../lib/thuas.specs $(MORE_LINKER_FLAGS)
 
 # All header files

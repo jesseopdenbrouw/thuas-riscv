@@ -272,6 +272,7 @@ begin
                         if I_mem_request.addr(3 downto 2) = "00" then
                             O_mem_response.data(3) <= onewire.rcie;
                             O_mem_response.data(4) <= onewire.tcie;
+                            O_mem_response.data(5) <= onewire.pcie;
                             O_mem_response.data(6) <= onewire.reset;
                             O_mem_response.data(7) <= onewire.onebit;
                         elsif I_mem_request.addr(3 downto 2) = "01" then

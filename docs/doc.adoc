@@ -927,7 +927,7 @@ void trap_handler_jump_table(void)
 
     /* Next are the core local interrupts (16 max) */
     __asm__ volatile ("j default_handler;");
-    __asm__ volatile ("j default_handler;");
+    __asm__ volatile ("j onewire1_handler;");
     __asm__ volatile ("j external_input_handler;");
     __asm__ volatile ("j uart2_handler;");
     __asm__ volatile ("j timer1_handler;");
@@ -1043,6 +1043,7 @@ Some examples are to be used in de simulator only, mainly to test functionality 
 * `qsort` -- sorts an integer array using the `qsort` C library function and prints the result to UART1. Works on the DE0-CV board.
 * `riemann_left` -- calculates the Riemann Left Sum of sin^2^ from 0 to $2\pi$. For use in the simulator. The result must be $\pi$.
 * `shift` -- shifts. For use in simulations.
+* `snake` -- implementation of the snake game. Works on the board.
 * `spi1softnss` -- using the SPI1 peripheral to read out 16 bytes of the 25AA010A EEPROM slave, one byte at the time, using software Slave Select.
 * `spi1speed` -- using the SPI1 peripheral to read out (full speed) 16 bytes of the 25AA010A EEPROM slave, using software Slave Select. Uses UART1. Works on the board.
 * `spi1writeeeprom` -- using the SPI1 peripheral to write and read out (full speed) the 25AA010A EEPROM slave, using software Slave Select. Uses UART1. Works on the board.

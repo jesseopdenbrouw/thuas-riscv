@@ -7,7 +7,7 @@
 
 /* Terminal width and height */
 #define WIDTH  80
-#define HEIGHT 25
+#define HEIGHT 24
 /* Maximum snake length */
 #define MAX_SNAKE_LEN 100
 
@@ -71,6 +71,18 @@ void spawn_food(void) {
 	food.y = (lfsr_rand() % (HEIGHT - 2)) + 2;
 }
 
+/* Draw border */
+void draw_border(void)
+{
+	for (int y = 1; y <= HEIGHT; y++) {
+		for (int x = 1; x <= WIDTH; x++) {
+			if (y == 1 || y == HEIGHT || x == 1 || x == WIDTH) {
+				move_cursor(x, y);
+				uart1_putc('#');
+			}
+		}
+	}
+}
 /* Initialize the game */
 void init_game(void) {
 
@@ -91,21 +103,25 @@ void init_game(void) {
 	spawn_food();
 	clear_screen();
 	
-	/* Draw static borders once */
-	for (int y = 1; y <= HEIGHT; y++) {
-		for (int x = 1; x <= WIDTH; x++) {
-			if (y == 1 || y == HEIGHT || x == 1 || x == WIDTH) {
-				move_cursor(x, y);
-				uart1_putc('#');
-			}
-		}
-	}
+	/* Draw border */
+	draw_border();
 }
 
 /* Handle user input from keyboard */
 void handle_input(void) {
+
 	char input = uart1_getc_nonblocking();
+
+	/* No key */
 	if (input == 0) {
+		return;
+	}
+
+	/* ^R redraws screen */
+	if (input == 18) {
+		clear_screen();
+		disable_cursor();
+		draw_border();
 		return;
 	}
 	
@@ -143,7 +159,7 @@ void update_game(void) {
 		}
 	}
 	
-	/* Food Collision */
+	/* Food collision */
 	if (snake[0].x == food.x && snake[0].y == food.y) {
 		score += 10;
 		if (snake_len < MAX_SNAKE_LEN) {
@@ -184,7 +200,7 @@ int main(void) {
 	disable_cursor();
 	clear_screen();
 	move_cursor(5, 8);
-	uart1_puts("Play a game of snake!");
+	uart1_puts("Play a game of Snake!");
 	move_cursor(5, 15);
 	uart1_puts("Press a key to start the game");
 	uart1_getc();

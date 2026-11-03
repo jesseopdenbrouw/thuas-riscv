@@ -163,8 +163,8 @@ Note: `pin` is a pin list. Each bit in the 32-bit `pin` represents one pin with 
 
 * Transmit one byte on the I2C1/I2C2 peripherals. A return value of 0 indicates success (target acknowledged). 
 
-`int32_t i2c1_transmit(uint8_t address, uint8_t *buf, uint32_t len)` +
-`int32_t i2c2_transmit(uint8_t address, uint8_t *buf, uint32_t len)`
+`uint32_t i2c1_transmit(uint8_t address, uint8_t *buf, uint32_t len)` +
+`uint32_t i2c2_transmit(uint8_t address, uint8_t *buf, uint32_t len)`
 
 * Transmit a buffer pointed by `buf` with length `len` to the target with address `address`, including START and STOP conditions. Note: `address` must be shifted to the left by one bit.
 
@@ -539,6 +539,16 @@ Note: these functions work with 8-bit data.
 
 == 1-Wire device ONEWIRE1
 
+=== Structures
+
+----
+typedef struct {
+    uint8_t code;
+    char *devices;
+    char *description;
+} onewire_family_code_t;
+----
+
 === Functions
 
 `uint32_t onewire1_reset(void);`
@@ -592,6 +602,10 @@ Note: these functions work with 8-bit data.
 `void onewire1_familyskipsetup(void);`
 
 * Setup the search to skip the current device type on the next call.
+
+`const onewire_family_code_t *onewire1_getcred(uint8_t fam_code)`
+
+* Gives a pointer to a struct containing the credentials of a device with famuly code `fam_code`, or `NULL` of none is found.
 
 === Macros
 

@@ -11,6 +11,12 @@
 extern "C" {
 #endif
 
+typedef struct {
+    uint8_t code;
+    char *devices;
+    char *description;
+} onewire_family_code_t;
+
 /* Send a reset pulse to the device, returns presence */
 uint32_t onewire1_reset(void);
 /* Transmit one byte */
@@ -37,7 +43,8 @@ uint32_t onewire1_findnext(uint8_t r[]);
 void onewire1_targetsetup(uint8_t family_code);
 /* Setup the search to skip the current device type on the next call */
 void onewire1_familyskipsetup(void);
-
+/* Get part number(s) for a family code */
+const onewire_family_code_t *onewire1_getcred(uint8_t fam_code);
 
 #define ONEWIRE_RCIE     (1 << 3)
 #define ONEWIRE_TCIE     (1 << 4)

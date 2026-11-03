@@ -83,6 +83,7 @@ void draw_border(void)
 		}
 	}
 }
+
 /* Initialize the game */
 void init_game(void) {
 
@@ -227,9 +228,10 @@ int main(void) {
 		uart1_puts("Final Score: ");
 		printdec(score);
 		move_cursor(5, 15);
-		uart1_puts("Press key to continue");
+		uart1_puts("Press key to play another game or `q` to quit");
 		if (uart1_getc() == 'q') {
 			enable_cursor();
+			clear_screen();
 			while (1);
 		};
 	}

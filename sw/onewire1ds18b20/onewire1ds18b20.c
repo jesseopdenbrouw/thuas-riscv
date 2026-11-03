@@ -1,7 +1,7 @@
 /*
  * Read DS18B20 temperature devices
  *
- * The DS18B20s needs Vdd connected to power (3.3 V)
+ * The DS18B20s need Vdd connected to power (3.3 V)
  *
  * See: https://www.analog.com/media/en/technical-documentation/data-sheets/ds18b20.pdf
  *

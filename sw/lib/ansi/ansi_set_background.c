@@ -4,7 +4,7 @@
 
 #include <thuasrv32.h>
 
-void ansi_set_background_(uint32_t color)
+void ansi_set_background(uint32_t color)
 {
 	uart1_puts("\x1b[48;5;");
 	printdec(color);

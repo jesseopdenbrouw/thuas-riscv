@@ -17,7 +17,7 @@ typedef struct {
 
 point_t snake[MAX_SNAKE_LEN];
 int snake_len;
-point_t food;
+point_t food, old_tail;
 int dir_x, dir_y;
 int game_over;
 uint32_t score;
@@ -33,29 +33,29 @@ char uart1_getc_nonblocking(void) {
 }
 
 /* Clear screen */
-void clear_screen(void) {
-	uart1_puts("\x1b[2J");
-	uart1_puts("\x1b[H");
-}
+//void ansi_clear_screen(void) {
+//	uart1_puts("\x1b[2J");
+//	uart1_puts("\x1b[H");
+//}
 
 /* Move cursor to x,y position */
-void move_cursor(int x, int y) {
-	uart1_puts("\x1b[");
-	printdec(y);
-	uart1_putc(';');
-	printdec(x);
-	uart1_putc('H');
-}
+//void ansi_move_cursor(int x, int y) {
+//	uart1_puts("\x1b[");
+//	printdec(y);
+//	uart1_putc(';');
+//	printdec(x);
+//	uart1_putc('H');
+//}
 
-void disable_cursor(void)
-{
-	uart1_puts("\x1b[?25l");
-}
+//void ansi_disable_cursor(void)
+//{
+//	uart1_puts("\x1b[?25l");
+//}
 
-void enable_cursor(void)
-{
-	uart1_puts("\x1b[?25h");
-}
+//void ansi_enable_cursor(void)
+//{
+//	uart1_puts("\x1b[?25h");
+//}
 
 /* Standard Pseudo-Random Number Generator (PRNG) for embedded systems */
 uint32_t lfsr_rand(void) {
@@ -67,8 +67,20 @@ uint32_t lfsr_rand(void) {
 
 /* Make food */
 void spawn_food(void) {
-	food.x = (lfsr_rand() % (WIDTH - 2)) + 2;
-	food.y = (lfsr_rand() % (HEIGHT - 2)) + 2;
+
+	int retry;
+
+	do {
+		retry = 0;
+		food.x = (lfsr_rand() % (WIDTH - 2)) + 2;
+		food.y = (lfsr_rand() % (HEIGHT - 2)) + 2;
+		for (int i = 0; i < snake_len; i++) {
+			if (food.x == snake[i].x && food.y == snake[i].y) {
+				retry = 1;
+				break;
+			}
+		}
+	} while (retry);
 }
 
 /* Draw border */
@@ -77,7 +89,7 @@ void draw_border(void)
 	for (int y = 1; y <= HEIGHT; y++) {
 		for (int x = 1; x <= WIDTH; x++) {
 			if (y == 1 || y == HEIGHT || x == 1 || x == WIDTH) {
-				move_cursor(x, y);
+				ansi_move_cursor(x, y);
 				uart1_putc('#');
 			}
 		}
@@ -96,13 +108,17 @@ void init_game(void) {
 	snake[0] = (point_t){WIDTH / 2, HEIGHT / 2};
 	snake[1] = (point_t){(WIDTH / 2) - 1, HEIGHT / 2};
 	snake[2] = (point_t){(WIDTH / 2) - 2, HEIGHT / 2};
+
+	for (int i = 3; i < MAX_SNAKE_LEN; i++) {
+		snake[i] = (point_t) { 0, 0 };
+	}
 	
 	/* Move Right initially */
 	dir_x = 1;
 	dir_y = 0;
 	
 	spawn_food();
-	clear_screen();
+	ansi_clear_screen();
 	
 	/* Draw border */
 	draw_border();
@@ -120,8 +136,8 @@ void handle_input(void) {
 
 	/* ^R redraws screen */
 	if (input == 18) {
-		clear_screen();
-		disable_cursor();
+		ansi_clear_screen();
+		ansi_disable_cursor();
 		draw_border();
 		return;
 	}
@@ -135,12 +151,13 @@ void handle_input(void) {
 
 void update_game(void) {
 	/* Keep track of the tail to clear its old position off the screen later */
-	point_t old_tail = snake[snake_len - 1];
+	old_tail = snake[snake_len - 1];
 	
 	/* Move body forward */
 	for (int i = snake_len - 1; i > 0; i--) {
 		snake[i] = snake[i - 1];
 	}
+	//snake[snake_len-1] = (point_t) {0, 0};
 	
 	/* Move head */
 	snake[0].x += dir_x;
@@ -163,16 +180,17 @@ void update_game(void) {
 	/* Food collision */
 	if (snake[0].x == food.x && snake[0].y == food.y) {
 		score += 10;
-		if (snake_len < MAX_SNAKE_LEN) {
+		if (snake_len < MAX_SNAKE_LEN-1) {
 			snake_len++;
 		}
 		if (delay > 100) {
 			delay -= 2;
 		}
 		spawn_food();
-	} else {
-		/* Clear the old tail piece from the screen if we didn't grow */
-		move_cursor(old_tail.x, old_tail.y);
+	}
+	/* Clear the old tail piece from the screen if we didn't grow */
+	if (old_tail.x != 0 && old_tail.y != 0) {
+		ansi_move_cursor(old_tail.x, old_tail.y);
 		uart1_putc(' ');
 	}
 }
@@ -180,17 +198,19 @@ void update_game(void) {
 void render_game(void) {
 
 	/* Draw Food */
-	move_cursor(food.x, food.y);
+	ansi_move_cursor(food.x, food.y);
 	uart1_putc('*');
 	
 	/* Draw snake head */
-	move_cursor(snake[0].x, snake[0].y);
+	ansi_move_cursor(snake[0].x, snake[0].y);
 	uart1_putc('O');
 	
 	/* Draw snake body */
 	for (int i = 1; i < snake_len; i++) {
-		move_cursor(snake[i].x, snake[i].y);
-		uart1_putc('o');
+		if (snake[i].x != 0 && snake[i].y != 0) {
+			ansi_move_cursor(snake[i].x, snake[i].y);
+			uart1_putc('o');
+		}
 	}
 }
 
@@ -198,19 +218,30 @@ int main(void) {
 
 	uart1_init(BAUD_RATE, UART_CTRL_EN);
 
-	disable_cursor();
-	clear_screen();
-	move_cursor(5, 8);
+	ansi_disable_cursor();
+	ansi_clear_screen();
+
+	ansi_move_cursor(40, 10);
+	uart1_puts( "   ____          __      \r\n");
+	ansi_move_cursor(40, 11);
+	uart1_puts( "  / __/__  ___ _/ /_____ \r\n");
+	ansi_move_cursor(40, 12);
+	uart1_puts( " _\\ \\/ _ \\/ _ `/  '_/ -_)\r\n");
+	ansi_move_cursor(40, 13);
+	uart1_puts( "/___/_//_/\\_,_/_/\\_\\\\__/ \r\n");
+                         
+	ansi_move_cursor(5, 8);
 	uart1_puts("Play a game of Snake!");
-	move_cursor(5, 15);
+	ansi_move_cursor(5, 15);
 	uart1_puts("Press a key to start the game");
 	uart1_getc();
 	rand_state = csr_read(time);
+	rand_state = (rand_state == 0) ? 1 : rand_state;
 
 	while (1) {	
 		init_game();
 	
-		while (!game_over) {
+		while (1) {
 			handle_input();
 			update_game();
 			if (game_over) {
@@ -221,20 +252,19 @@ int main(void) {
 		}
 	
 		/* Game Over message */
-		clear_screen();
-		move_cursor(5, 8);
+		ansi_clear_screen();
+		ansi_move_cursor(5, 8);
 		uart1_puts("GAME OVER!");
-		move_cursor(5, 10);
+		ansi_move_cursor(5, 10);
 		uart1_puts("Final Score: ");
 		printdec(score);
-		move_cursor(5, 15);
+		ansi_move_cursor(5, 15);
 		uart1_puts("Press key to play another game or `q` to quit");
 		if (uart1_getc() == 'q') {
-			enable_cursor();
-			clear_screen();
+			ansi_enable_cursor();
+			ansi_clear_screen();
 			while (1);
 		};
 	}
-
 }
 

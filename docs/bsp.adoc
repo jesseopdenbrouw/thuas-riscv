@@ -549,6 +549,8 @@ typedef struct {
 } onewire_family_code_t;
 ----
 
+* Contains the credentials of the device. For use with the `onewire1_getcred` function.
+
 === Functions
 
 `uint32_t onewire1_reset(void);`
@@ -651,7 +653,18 @@ typedef struct {
 
 == ANSI Escape Sequences
 
-== Functions
+=== Structures
+
+----
+typedef struct {
+    int width;
+    int height;
+} ansi_screensize_t;
+----
+
+* Contains the width and height of the terminal. For use with the `ansi_get_screensize` function.
+
+=== Functions
 
 `void ansi_clear_screen(void);`
 
@@ -681,6 +694,10 @@ typedef struct {
 
 * Resets all outstanding coloring.
 
+`ansi_screensize_t ansi_get_screensize(void);`
+
+* Get the size of the terminal screen.
+
 === Macros
 
 `ANSI_BLACK` +
@@ -708,6 +725,10 @@ typedef struct {
 `uint32_t parsehex(char *s, char **ppchar)`
 
 * Parse a hexadecimal number from a null-terminated string. If `ppchar` is not NULL, then `ppchar` contains the address of a pointer, that will point to the first character after the hexadecimal number in the string.
+
+`int32_t parsedec(char *s, char **ppchar)`
+
+* Parse a signed decimal number from a null-terminated string. If `ppchar` is not NULL, then `ppchar` contains the address of a pointer, that will point to the first character after the decimal number in the string.
 
 `void printdec(int32_t v)`
 

@@ -14,12 +14,17 @@ ansi_screensize_t ansi_get_screensize(void)
 	/* Save cursor pos, set term size really big, ask cursor pos, restore cursor pos */
 	uart1_puts("\0337\033[r\033[999;999H\033[6n\0338");
 
+	/* Read in response from the terminal */
 	for (i = 0; i < sizeof buf / sizeof buf[0]; i++) {
 		buf[i] = uart1_getc();
+		/* Found R? Then the string has been sent back */
 		if (buf[i] == 'R') {
 			break;
 		}
 	}
+
+	/* Make sure that we don't leave the buffer */
+	buf[sizeof buf / sizeof buf[0] - 1] = '\0';
 
 	/* Check for ESC + '[' */
 	if (buf[0] == '\x1b' && buf[1] == '[') {

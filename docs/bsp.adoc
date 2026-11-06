@@ -649,6 +649,48 @@ typedef struct {
 
 * This bit is 1 when a operation is ongoing .
 
+== ANSI Escape Sequences
+
+== Functions
+
+`void ansi_clear_screen(void);`
+
+* Clears the screen and sets the cursor to (1, 1) (upper left corner).
+
+`void ansi_move_cursor(int x, int y);`
+
+* Sets the cursor on (x, y). Note: counting starts at 1 for x and y.
+
+`void ansi_disable_cursor(void);`
+
+* Disables the cursor.
+
+`void ansi_enable_cursor(void)`
+
+* Enables the cursor.
+
+`void ansi_set_color(uint32_t color);`
+
+* Sets the foreground color. One of 256 ANSI colors.
+
+`void ansi_set_background(uint32_t color);`
+
+* Sets the background color. One of 256 ANSI colors.
+
+`void ansi_reset_rendition(void);`
+
+* Resets all outstanding coloring.
+
+=== Macros
+
+`ANSI_BLACK` +
+`ANSI_RED` +
+`ANSI_GREEN` +
+`ANSI_YELLOW` +
+`ANSI_BLUE` +
+`ANSI_PURPLE` +
+`ANSI_CYAN` +
+`ANSI_WHITE`
 
 
 == Utitlities

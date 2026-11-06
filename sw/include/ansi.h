@@ -11,6 +11,12 @@
 extern "C" {
 #endif
 
+/* Screen size struct */
+typedef struct {
+	int width;
+	int height;
+} ansi_screensize_t;
+
 /* Clear the screen and set cursor to (1, 1) */
 void ansi_clear_screen(void);
 /* Move cursor to (x, y) */
@@ -25,6 +31,8 @@ void ansi_set_color(uint32_t color);
 void ansi_set_background(uint32_t color);
 /* Reset rendition */
 void ansi_reset_rendition(void);
+/* Get screen size */
+ansi_screensize_t ansi_get_screensize(void);
 
 #define ANSI_BLACK  0
 #define ANSI_RED    1

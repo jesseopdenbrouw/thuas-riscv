@@ -24,5 +24,7 @@
 #include <crc.h>
 #include <onewire.h>
 
+#include <ansi.h>
+
 #endif
 

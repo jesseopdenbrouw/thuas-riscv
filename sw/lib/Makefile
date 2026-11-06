@@ -45,4 +45,5 @@ clean:
 	make -C wdt clean
 	make -C crc clean
 	make -C onewire clean
+	make -C ansi clean
 	rm -f $(LIBTHUASRV32)

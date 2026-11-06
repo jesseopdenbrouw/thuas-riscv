@@ -1,10 +1,13 @@
+
+/* Get a unsigned hex number from UART1, n is the number of
+ * ASCII characters representing the hex number
+ */
+
 #include <ctype.h>
 #include <stdint.h>
 
 #include <thuasrv32.h>
 
-/* Get a unsigned hex number from UART1, n is the number of
- * ASCII characters representing the hex number */
 uint32_t gethex(int n) {
 
 	uint32_t v = 0;

@@ -1,8 +1,10 @@
+
+/* Print decimal number with UART1 */
+
 #include <stdint.h>
 
 #include <thuasrv32.h>
 
-/* Print decimal number with UART1 */
 void printdec(int32_t v) {
 
 	char buf[12] = { 0 };

@@ -4,14 +4,18 @@ This is the parent directory of the THUAS RV32 library files.
 
 ## Libraries
 
+* `ansi` - functions for manipulating the terminal.
 * `csr` - functions for counter CSRs.
+* `crc` - functions for handling the CRC unit
 * `i2c` - functions for handling I2C setup and transmissions.
 * `spi` - functions for handling SPI setup and transmissions.
 * `syscalls` - functions for imitating system calls, when not using traps. See below.
 * `timer` - functions for using the timers.
 * `uart` - functions for using the UART, including formatted printing.
 * `gpio` - functions for using GPIOA.
-* `util` - some utility functions
+* `util` - some utility functions.
+* `onewire` - functions for handling 1-Wire device.
+* `wdt` - functions for handling the watchdog timer.
 
 The result of compilation will be the library `libthuasrv32.a`.
 

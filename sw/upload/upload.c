@@ -26,7 +26,7 @@
 #include <stdio.h>
 
 /* Version */
-#define VERSION "0.4.1"
+#define VERSION "0.4.2"
 
 /* Test for Visual Studio */
 #if defined(_MSC_VER)
@@ -311,8 +311,8 @@ void show_devices(int verbose) {
 
 	printf("Searching for serial devices...\n");
 
-    for (int j = MIN_DEVICE_NUMBER; j < sizeof subdevice / sizeof subdevice[0]; j++) {
-        for (int i = 0; i <= MAX_DEVICE_NUMBER; i++) {
+    for (int j = 0; j < sizeof subdevice / sizeof subdevice[0]; j++) {
+        for (int i = MIN_DEVICE_NUMBER; i <= MAX_DEVICE_NUMBER; i++) {
             snprintf(device, sizeof device, "%s%s%d", GENERIC_SERIAL_DEVICE, subdevice[j], i);
 
             if (verbose) {

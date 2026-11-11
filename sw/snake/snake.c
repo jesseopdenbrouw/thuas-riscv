@@ -102,7 +102,7 @@ void init_game(void) {
 	game_over = 0;
 	score = 0;
 	snake_len = 3;
-	delay = 250;
+	delay = 150;
 	
 	/* Start in the middle */
 	snake[0] = (point_t){WIDTH / 2, HEIGHT / 2};

@@ -134,6 +134,12 @@ void handle_input(void) {
 		return;
 	}
 
+	/* Quit the game */
+	if (input == 'q') {
+		game_over = 1;
+		return;
+	}
+
 	/* ^R redraws screen */
 	if (input == 18) {
 		ansi_clear_screen();

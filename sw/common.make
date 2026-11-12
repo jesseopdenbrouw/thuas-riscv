@@ -72,5 +72,8 @@ UPLOAD_OPTIONS= -nv -d /dev/ttyUSB0
 endif
 
 # OpenOCD config file from software examples
+ifeq ($(OS),Windows_NT)
+OPENOCDCFG = "../../openocd/openocd-windows.cfg"
+else
 OPENOCDCFG = "../../openocd/openocd.cfg"
-
+endif

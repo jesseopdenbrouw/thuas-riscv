@@ -46,15 +46,18 @@ library work;
 use work.processor_common.all;
 
 entity gpio is
+    generic (
+          GPIO_OPENDRAIN : boolean
+         );
     port (I_clk : in std_logic;
           -- Asynchrous reset
           I_areset : in std_logic;
           -- Synchronous reser
           I_sreset : in std_logic;
-          -- 
+          -- Memory buses
           I_mem_request : in mem_request_type;
           O_mem_response : out mem_response_type;
-          --
+          -- Inputs, outputs and interrupt
           I_pin : in data_type;
           O_pout: out data_type;
           O_irq : out std_logic
@@ -69,6 +72,8 @@ type gpio_type is record
     pinsync2 : data_type;
     -- Output
     pout : data_type;
+    -- Port out open drain
+    pod : data_type;
     -- Edge to detect
     edge : std_logic_vector(1 downto 0);
     -- Pin number to detect from
@@ -101,6 +106,7 @@ begin
             gpio.pout <= all_zeros_c;
             gpio.pinsync <= all_zeros_c;
             gpio.pinsync2 <= all_zeros_c;
+            gpio.pod <= all_zeros_c;
             gpio.edge <= (others => '0');
             gpio.pinnr <= (others => '0');
             gpio.detectsync <= (others => '0');
@@ -113,6 +119,7 @@ begin
                 gpio.pout <= all_zeros_c;
                 gpio.pinsync <= all_zeros_c;
                 gpio.pinsync2 <= all_zeros_c;
+                gpio.pod <= all_zeros_c;
                 gpio.edge <= (others => '0');
                 gpio.pinnr <= (others => '0');
                 gpio.detectsync <= (others => '0');
@@ -139,6 +146,12 @@ begin
                             when "010" => gpio.pout <= gpio.pout or I_mem_request.data;
                             -- Bit clear (0x0c)
                             when "011" => gpio.pout <= gpio.pout and not I_mem_request.data;
+                            -- Write GPIO open drain select (0x10)
+                            when "100" => if GPIO_OPENDRAIN then
+                                              gpio.pod <= I_mem_request.data;
+                                          else
+                                              gpio.pod <= all_zeros_c;
+                                          end if;
                             -- Write GPIO external interrupt ctrl register (0x18)
                             when "110" => gpio.pinnr <= I_mem_request.data(7 downto 3);
                                           gpio.edge <= I_mem_request.data(2 downto 1);
@@ -154,6 +167,10 @@ begin
                             when "000" => O_mem_response.data <= gpio.pinsync2;
                             -- Read from external outputs (0x04)
                             when "001" => O_mem_response.data <= gpio.pout;
+                            -- Read from open drain select (0x10)
+                            when "100" => if GPIO_OPENDRAIN then
+                                              O_mem_response.data <= gpio.pod;
+                                          end if;
                             -- Read from external interrupt control register (0x18)
                             when "110" => O_mem_response.data(7 downto 3) <= gpio.pinnr;
                                           O_mem_response.data(2 downto 1) <= gpio.edge;
@@ -172,8 +189,37 @@ begin
             end if;
         end if;
     end process;
-
-    O_pout <= gpio.pout;
+    
+    -- If we can use open-drain outputs
+    -- POD POUT | Port
+    -- ---------+-----
+    --  0    0  |  0
+    --  0    1  |  1
+    --  1    0  |  0
+    --  1    1  |  Z
+    od: if GPIO_OPENDRAIN generate
+        process (gpio) is
+        begin
+            for i in gpio.pout'range loop
+                if gpio.pod(i) = '1' then
+                    if gpio.pout(i) = '1' then
+                        O_pout(i) <= 'Z';
+                    else
+                        O_pout(i) <= '0';
+                    end if;
+                else
+                    O_pout(i) <= gpio.pout(i);
+                end if;
+            end loop;
+        end process;
+    end generate;
+    
+    -- No open-drain outputs
+    odnot: if not GPIO_OPENDRAIN generate
+        O_pout <= gpio.pout;
+    end generate;
+    
+    -- Interrupt to the core
     O_irq <= gpio.detect;
     
 end architecture rtl;

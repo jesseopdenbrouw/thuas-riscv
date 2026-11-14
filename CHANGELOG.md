@@ -93,4 +93,5 @@ All dates are in dd.mm.yyyy format.
 | 21.10.2026 | 1.1.5.4  | [...] Added new 1-Wire ONEWIRE1 device | |
 | 25.10.2026 | 1.1.5.5  | [onewire] Added bit transmission to support scanning the bus for attached devices | |
 | 31.10.2026 | 1.1.5.6  | [onewire] fix reading PCIE bit from control register | |
+| 14.10.2026 | 1.1.5.7  | [gpio/...] implement selectable open-drain outputs | |
 

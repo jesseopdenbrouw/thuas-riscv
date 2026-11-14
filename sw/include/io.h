@@ -21,13 +21,14 @@ extern "C" {
  * General purpose I/O
  */
 typedef struct {
-    volatile uint32_t PIN;         /** Port input */
-    volatile uint32_t POUT;        /** Port output */
-	volatile uint32_t PSET;        /** Port pin set */
-	volatile uint32_t PCLR;        /** Port pin clear */
-    volatile uint32_t reserved[2];
-    volatile uint32_t EXTC;        /** External interrupt control */
-    volatile uint32_t EXTS;        /** External interrupt status */
+    volatile uint32_t PIN;         /** Port input, read-only */
+    volatile uint32_t POUT;        /** Port output, read-write */
+	volatile uint32_t PSET;        /** Port pin set, write-only */
+	volatile uint32_t PCLR;        /** Port pin clear, write-only */
+	volatile uint32_t POD;         /** Port output open-drain select, read-write */
+    volatile uint32_t reserved;
+    volatile uint32_t EXTC;        /** External interrupt control, read-write */
+    volatile uint32_t EXTS;        /** External interrupt status, read-write */
 } GPIO_struct_t;
 
 #define GPIOA_BASE (IO_BASE+0x00000000UL)
@@ -45,10 +46,10 @@ typedef struct {
  * UART1, UART2
  */
 typedef struct {
-    volatile uint32_t CTRL;        /** Control Register */
-    volatile uint32_t STAT;        /** Status Register */
-    volatile uint32_t DATA;        /** Data Register */
-    volatile uint32_t BAUD;        /** Baud Rate Register */
+    volatile uint32_t CTRL;        /** Control Register, read-write */
+    volatile uint32_t STAT;        /** Status Register, read-write */
+    volatile uint32_t DATA;        /** Data Register, read-write */
+    volatile uint32_t BAUD;        /** Baud Rate Register, read-write */
 } UART_struct_t;
 
 #define UART1_BASE (IO_BASE+0x00000100UL)
@@ -72,9 +73,9 @@ typedef struct {
  * I2C1, I2C2
  */
 typedef struct {
-    volatile uint32_t CTRL;
-    volatile uint32_t STAT;
-    volatile uint32_t DATA;
+    volatile uint32_t CTRL;     /** Control register, read-write */
+    volatile uint32_t STAT;     /** Status register, read-write */
+    volatile uint32_t DATA;     /** Data register, read-write */
 } I2C_struct_t;
 
 #define I2C1_BASE (IO_BASE+0x00000200UL)
@@ -94,9 +95,9 @@ typedef struct {
  * SPI1, SPI2
  */
 typedef struct {
-    volatile uint32_t CTRL;
-    volatile uint32_t STAT;
-    volatile uint32_t DATA;
+    volatile uint32_t CTRL;        /** Control register, read-write */
+    volatile uint32_t STAT;        /** Status register, read-write */
+    volatile uint32_t DATA;        /** Data register, read-write */
 } SPI_struct_t;
 
 #define SPI1_BASE (IO_BASE+0x00000400UL)
@@ -116,10 +117,10 @@ typedef struct {
  * TIMER1
  */
 typedef struct {
-    volatile uint32_t CTRL;
-    volatile uint32_t STAT;
-    volatile uint32_t CNTR;
-    volatile uint32_t CMPT;
+    volatile uint32_t CTRL;      /** Control register, read-write */
+    volatile uint32_t STAT;      /** Status register, read-write */
+    volatile uint32_t CNTR;      /** Counter register, read-write */
+    volatile uint32_t CMPT;      /** Compare match register, read-write */
 } TIMER1_struct_t;
 
 #define TIMER1_BASE (IO_BASE+0x00000600UL)
@@ -135,14 +136,14 @@ typedef struct {
  * TIMER2
  */
 typedef struct {
-    volatile uint32_t CTRL;
-    volatile uint32_t STAT;
-    volatile uint32_t CNTR;
-    volatile uint32_t CMPT;
-    volatile uint32_t PRSC;
-    volatile uint32_t CMPA;
-    volatile uint32_t CMPB;
-    volatile uint32_t CMPC;
+    volatile uint32_t CTRL;     /** Control register, read-write */
+    volatile uint32_t STAT;     /** Status register, read-write */
+    volatile uint32_t CNTR;     /** Counter register, read-write */
+    volatile uint32_t CMPT;     /** Compare match T register, read-write */
+    volatile uint32_t PRSC;     /** Prescale register, read-write */
+    volatile uint32_t CMPA;     /** Compare match A register, read-write */
+    volatile uint32_t CMPB;     /** Compare match B register, read-write */
+    volatile uint32_t CMPC;     /** Compare match C register, read-write */
 } TIMER2_struct_t;
 
 #define TIMER2_BASE (IO_BASE+0x00000700UL)
@@ -162,8 +163,8 @@ typedef struct {
  * Watchdog (WDT)
  */
 typedef struct {
-    volatile uint32_t CTRL;       /* Control Register */
-    volatile uint32_t TRIG;       /* Watchdog Reset Trigger Register */
+    volatile uint32_t CTRL;       /** Control Register, read-write */
+    volatile uint32_t TRIG;       /** Watchdog Reset Trigger Register, write_only */
 } WDT_struct_t;
 
 #define WDT_BASE (IO_BASE+0x00000800UL)
@@ -177,7 +178,7 @@ typedef struct {
  * RISC-V Machine Software Interrupt (MSI)
  */
 typedef struct {
-    volatile uint32_t TRIG;
+    volatile uint32_t TRIG;       /** MSI trigger register, read-write */
 } MSI_struct_t;
 
 #define MSI_BASE (IO_BASE+0x00000900UL)
@@ -199,11 +200,11 @@ typedef struct {
  * CRC unit
  */
 typedef struct {
-	volatile uint32_t CTRL;
-	volatile uint32_t STAT;
-	volatile uint32_t POLY;
-	volatile uint32_t SREG;
-	volatile uint32_t DATA; /* only low 8 bits used */
+	volatile uint32_t CTRL;     /** Control register, read-write */
+	volatile uint32_t STAT;     /** Status register, read-write */
+	volatile uint32_t POLY;     /** Polynomal register, read-write */
+	volatile uint32_t SREG;     /** Shift register, read-write */
+	volatile uint32_t DATA;     /** Data register, write-only */
 } CRC_struct_t;
 
 #define CRC_BASE (IO_BASE+0x00000c00UL)
@@ -219,10 +220,10 @@ typedef struct {
  * One-wire unit
  */
 typedef struct {
-	volatile uint32_t CTRL;      /* Control Register */
-    volatile uint32_t STAT;      /* Status Register */
-    volatile uint32_t DATA;      /* Data Register */
-    volatile uint32_t READ;      /* Start a Read Operation Register */
+	volatile uint32_t CTRL;      /** Control Register, read-write */
+    volatile uint32_t STAT;      /** Status Register, read-write */
+    volatile uint32_t DATA;      /** Data Register, read-write */
+    volatile uint32_t READ;      /** Start a Read Operation Register, write-only */
 } ONEWIRE_struct_t;
 
 #define ONEWIRE1_BASE (IO_BASE+0x00000d00UL)

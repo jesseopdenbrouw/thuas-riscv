@@ -14,6 +14,7 @@ extern "C" {
 uint32_t gpioa_readpin(uint32_t pins);
 void gpioa_writepin(uint32_t pins, uint32_t value);
 void gpioa_togglepin(uint32_t pins);
+void gpioa_setopendrain(uint32_t);
 
 #define GPIO_PIN_SET (1UL)
 #define GPIO_PIN_RESET (0UL)

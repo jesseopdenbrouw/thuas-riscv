@@ -4,7 +4,7 @@
   <vendor>jesseopdenbrouw</vendor>
   <name>thuasrv32</name>
   <series>RISC-V</series>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <description>The THUAS RV32 RISC-V Processor</description>
 
   <!-- CPU core -->
@@ -114,6 +114,11 @@
           <description>Bit Clear Register</description>
           <addressOffset>0x0c</addressOffset>
           <access>write-only</access>
+        </register>
+        <register>
+          <name>POD</name>
+          <description>Open Drain Register</description>
+          <addressOffset>0x10</addressOffset>
         </register>
         <register>
           <name>EXTC</name>

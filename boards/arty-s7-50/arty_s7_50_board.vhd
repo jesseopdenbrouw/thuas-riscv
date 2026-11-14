@@ -155,6 +155,8 @@ begin
               BUFFER_IO_RESPONSE => false,
               -- Use fast memory access?
               FAST_MEM => false,
+              -- Do wh have open drain?
+              GPIO_OPENDRAIN => false,
               -- Use UART1?
               HAVE_UART1 => TRUE,
               -- Use UART2?

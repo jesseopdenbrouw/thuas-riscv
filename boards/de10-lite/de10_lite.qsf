@@ -202,7 +202,7 @@ set_location_assignment PIN_AB2 -to O_gpioapout[15]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to O_gpioapout[15]
 set_location_assignment PIN_V10 -to O_spi2sck
 set_location_assignment PIN_V9 -to O_spi2mosi
-set_location_assignment PIN_C8 -to I_spi2miso
+set_location_assignment PIN_V8 -to I_spi2miso
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to I_spi2miso
 
 

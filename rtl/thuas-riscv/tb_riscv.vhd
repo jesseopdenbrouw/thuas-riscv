@@ -80,6 +80,7 @@ signal onewire1dq : std_logic;
 -- Set the bit time
 constant bittime : time := (50000000/115200) * 20 ns;
 -- Select character to send
+-- NOTE: THIS IS A 'TO' RANGE! 
 constant chartosend : std_logic_vector := "01000001";
 
 begin
@@ -127,7 +128,7 @@ begin
               ROM_ADDRESS_BITS => 16,
               -- Number of address bits for RAM
               RAM_ADDRESS_BITS => 15,
-              -- 4 high bits of ROM address
+              -- 4 high bits of ROM address 
               ROM_HIGH_NIBBLE => x"0",
               -- 4 high bits of boot ROM address
               BOOT_HIGH_NIBBLE => x"1",
@@ -139,6 +140,8 @@ begin
               BUFFER_IO_RESPONSE => false,
               -- Fast memory access (severly reduces Fmax)?
               FAST_MEM => false,
+              -- GPIOA can have open drain outputs
+              GPIO_OPENDRAIN => TRUE,
               -- Use UART1?
               HAVE_UART1 => TRUE,
               -- Use UART2?
@@ -161,7 +164,7 @@ begin
               HAVE_WDT => TRUE,
               -- Use CRC?
               HAVE_CRC => TRUE,
-              -- Use ONEWIRE1
+              -- Use One-wire
               HAVE_ONEWIRE1 => TRUE,
               -- UART1 BREAK triggers system reset
               UART1_BREAK_RESETS => false
@@ -215,16 +218,14 @@ begin
         wait for 10 ns;
     end process;
     
-    -- Data generate
+    -- GPIO/UART/ONEWIRE generate
     process is
-    variable data_from_dtm_v : data_type;
     begin
         -- Reset is active high
         areset <= '1';
-        -- JTAG
-        tck <= '0';
-        tms <= '0';
-        tdi <= '0';
+        
+        onewire1dq <= 'H';
+
         -- RxD input is idle high
         uart1rxd <= '1';
         gpioapin <= x"ffffff40";
@@ -265,7 +266,43 @@ begin
 --        end loop;
         uart1rxd <= '1';
         
-        wait for 22020 ns;
+        wait;
+        
+        -- Send a byte to the 1-Wire device
+        for i in 7 downto 0 loop
+            if chartosend(i) = '0' then
+                onewire1dq <= '0';
+                wait for 60 us;
+                onewire1dq <= 'H';
+                wait for 62.5 us - 60 us;
+            else
+                onewire1dq <= '0';
+                wait for 6 us;
+                onewire1dq <= 'H';
+                wait for 62.5 us - 6 us;
+            end if;
+        end loop;
+        
+        
+        
+        wait;
+    end process;
+
+
+
+
+    
+    -- Debug generate
+    process is
+    variable data_from_dtm_v : data_type;
+    begin
+
+        -- JTAG
+        tck <= '0';
+        tms <= '0';
+        tdi <= '0';
+
+        wait for 22000 ns;
         wait until clk = '1';
         
 
@@ -334,7 +371,7 @@ begin
         data_from_dtm <= data_from_dtm_v;
         wait for 200 ns;
 
-        -- Write 0xffffffff to 0xf0000004
+        -- Write 0xffffffff to 0xf0000004 (GPIO output)
         -- First set data0 to 0xffffffff
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"ffffffff");
         wait for 200 ns;
@@ -383,12 +420,74 @@ begin
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307b0");
         wait for 200 ns;
 
+        -- Set hardware breakpoint
+        -- Write data0
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"000014b8");
+--        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"f0000104");
+        wait for 200 ns;
+        -- Write to tdata2
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307a2");
+        wait for 200 ns;
+        -- Write data0
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"00001044");
+--        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"00001041");
+        wait for 200 ns;
+        -- Write to tdata1
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307a1");
+        wait for 200 ns;
+        
         -- Try to resume
+        wait for 10000 ns;
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"40000001");
         wait for 200 ns;
         work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
         wait for 200 ns;
         
+        -- Read DM.dmstatus continuously, exit is breakpoint is hit
+        wait for 10000 ns;
+        loop
+            work.jtag_dmi_pkg.dmi_read(tck, tms, tdi, tdo, "0010001", data_from_dtm_v);
+            data_from_dtm <= data_from_dtm_v;
+            exit when data_from_dtm_v(8) = '1';
+        end loop;
+
+        wait for 10000 ns;
+        
+        -- Try to resume
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"40000001");
+        wait for 200 ns;
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
+        wait for 200 ns;
+
+        -- Read DM.dmstatus continuously, exit is breakpoint is hit
+        wait for 10000 ns;
+        loop
+            work.jtag_dmi_pkg.dmi_read(tck, tms, tdi, tdo, "0010001", data_from_dtm_v);
+            data_from_dtm <= data_from_dtm_v;
+            exit when data_from_dtm_v(8) = '1';
+        end loop;
+        wait for 10000 ns;
+        
+        -- Remove hardware breakpoint
+        -- Write data0
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"00000000");
+        wait for 200 ns;
+        -- Write to tdata1
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307a1");
+        wait for 200 ns;
+        -- Write data0
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0000100", x"00000000");
+        wait for 200 ns;
+        -- Write to tdata2
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010111", x"002307a2");
+        wait for 200 ns;
+
+        -- Try to resume
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"40000001");
+        wait for 200 ns;
+        work.jtag_dmi_pkg.dmi_write(tck, tms, tdi, tdo, "0010000", x"00000001");
+        wait for 200 ns;
+
         wait;
         
     end process;

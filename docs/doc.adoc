@@ -653,11 +653,12 @@ The pin assignments for the DE0-CV board are as follows. Note that not all signa
 |tms           | T18      | GPIO_0_33, JTAG select
 |===
 
-Some pins are connected to the onboard GPIO headers. The DE0-CV board has two headers but currently only GPIO 0 is used.
+Some pins are connected to the onboard GPIO headers. The DE0-CV board has two headers but currently only GPIO 0 (left header) is used.
+On the DE0-CV board, SPI2 is connected to the SD card header. On the DE10-Lite board, SPI2 is connected to the GPIO header.
 
-.View of the GPIO headers.
+.View of the GPIO header.
 [[fig_gpio]]
-image::images/de0-cv-gpio.svg[DE0-CV GPIO pin layout]
+image::images/pins_de0cv_de10.svg[DE0-CV GPIO pin layout]
 
 === Simulation
 

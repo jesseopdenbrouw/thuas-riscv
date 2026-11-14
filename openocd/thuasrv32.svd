@@ -4,7 +4,7 @@
   <vendor>jesseopdenbrouw</vendor>
   <name>thuasrv32</name>
   <series>RISC-V</series>
-  <version>0.4.0</version>
+  <version>0.4.1</version>
   <description>The THUAS RV32 RISC-V Processor</description>
 
   <!-- CPU core -->
@@ -53,22 +53,22 @@
       <registers>
         <register>
           <name>MTIME</name>
-          <description>System time register - low</description>
+          <description>System Time Register - Low</description>
           <addressOffset>0x00</addressOffset>
         </register>
         <register>
           <name>MTIMEH</name>
-          <description>System time register - high</description>
+          <description>System Time Register - High</description>
           <addressOffset>0x04</addressOffset>
         </register>
         <register>
           <name>MTIMECMP</name>
-          <description>Time compare register - low</description>
+          <description>Time Compare Register - Low</description>
           <addressOffset>0x08</addressOffset>
         </register>
         <register>
           <name>MTIMECMPH</name>
-          <description>Time compare register - high</description>
+          <description>Time Compare Register - High</description>
           <addressOffset>0x0C</addressOffset>
         </register>
       </registers>
@@ -87,37 +87,37 @@
 
       <addressBlock>
         <offset>0</offset>
-        <size>0x10</size>
+        <size>0x20</size>
         <usage>registers</usage>
       </addressBlock>
 
       <registers>
         <register>
           <name>PIN</name>
-          <description>Parallel input register</description>
+          <description>Parallel Input Register</description>
           <addressOffset>0x00</addressOffset>
           <access>read-only</access>
         </register>
         <register>
           <name>POUT</name>
-          <description>Parallel output register</description>
+          <description>Parallel Output Register</description>
           <addressOffset>0x04</addressOffset>
         </register>
         <register>
           <name>PSET</name>
-          <description>Bit set register</description>
+          <description>Bit Set Register</description>
           <addressOffset>0x08</addressOffset>
           <access>write-only</access>
         </register>
         <register>
           <name>PCLR</name>
-          <description>Bit clear register</description>
+          <description>Bit Clear Register</description>
           <addressOffset>0x0c</addressOffset>
           <access>write-only</access>
         </register>
         <register>
           <name>EXTC</name>
-          <description>External input interrupt control register</description>
+          <description>External Input Interrupt Control Register</description>
           <addressOffset>0x18</addressOffset>
           <fields>
             <field>
@@ -128,19 +128,19 @@
             <field>
               <name>PINNR</name>
               <bitRange>[7:3]</bitRange>
-              <description>GPIO Pin input Select</description>
+              <description>GPIO Pin Input Select</description>
             </field>
           </fields>
         </register>
         <register>
           <name>EXTS</name>
-          <description>External input interrupt status register</description>
+          <description>External Input Interrupt Status Register</description>
           <addressOffset>0x1C</addressOffset>
           <fields>
             <field>
               <name>DETECT</name>
               <bitRange>[0:0]</bitRange>
-              <description>Edge detected</description>
+              <description>Edge Detected</description>
             </field>
           </fields>
         </register>
@@ -169,38 +169,38 @@
       <registers>
         <register>
           <name>CTRL</name>
-          <description>Control register</description>
+          <description>Control Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>
               <name>UART_CTRL_EN</name>
               <bitRange>[0:0]</bitRange>
-              <description>UART enable flag</description>
+              <description>UART Enable Flag</description>
             </field>
             <field>
               <name>UART_CTRL_SIZE</name>
               <bitRange>[2:1]</bitRange>
-              <description>Data size in frame</description>
+              <description>Data Size in Frame</description>
             </field>
             <field>
               <name>UART_CTRL_RCIE</name>
               <bitRange>[3:3]</bitRange>
-              <description>Receive Complete interrupt enable</description>
+              <description>Receive Complete Interrupt Enable</description>
             </field>
             <field>
               <name>UART_CTRL_TCIE</name>
               <bitRange>[4:4]</bitRange>
-              <description>Transmit Complete interrupt enable</description>
+              <description>Transmit Complete Interrupt Enable</description>
             </field>
             <field>
               <name>UART_CTRL_BRIE</name>
               <bitRange>[5:5]</bitRange>
-              <description>Break Received interrupt enable</description>
+              <description>Break Received Interrupt Enable</description>
             </field>
             <field>
               <name>UART_CTRL_STOP2</name>
               <bitRange>[6:6]</bitRange>
-              <description>Two STOP bits enable</description>
+              <description>Two STOP Bits Enable</description>
             </field>
             <field>
               <name>UART_CTRL_PARITY</name>
@@ -211,7 +211,7 @@
         </register>
         <register>
           <name>STAT</name>
-          <description>Status register</description>
+          <description>Status Register</description>
           <addressOffset>0x04</addressOffset>
           <fields>
             <field>
@@ -248,25 +248,25 @@
         </register>
         <register>
           <name>DATA</name>
-          <description>Data register</description>
+          <description>Data Register</description>
           <addressOffset>0x08</addressOffset>
           <fields>
             <field>
               <name>DATA</name>
               <bitRange>[9:0]</bitRange>
-              <description>Data to transmit or receive</description>
+              <description>Data to Transmit or Receive</description>
             </field>
           </fields>
         </register>
         <register>
           <name>BAUD</name>
-          <description>Baud rate divisor register</description>
+          <description>Baud Rate Divisor Prescaler Register</description>
           <addressOffset>0x0c</addressOffset>
           <fields>
             <field>
               <name>PRESCALER</name>
               <bitRange>[15:0]</bitRange>
-              <description>Baud rate prescaler</description>
+              <description>Baud Rate Prescaler</description>
             </field>
           </fields>
         </register>
@@ -313,13 +313,13 @@
       <registers>
         <register>
           <name>CTRL</name>
-          <description>Control register</description>
+          <description>Control Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>
               <name>I2C_CTRL_FM</name>
               <bitRange>[2:2]</bitRange>
-              <description>I2C Fast Mode select</description>
+              <description>I2C Fast Mode Select</description>
             </field>
             <field>
               <name>I2C_CTRL_TCIE</name>
@@ -329,39 +329,39 @@
             <field>
               <name>I2C_CTRL_STOP</name>
               <bitRange>[8:8]</bitRange>
-              <description>I2C Transmit STOP condition</description>
+              <description>I2C Transmit STOP Condition</description>
             </field>
             <field>
               <name>I2C_CTRL_START</name>
               <bitRange>[9:9]</bitRange>
-              <description>I2C Transmit START condition</description>
+              <description>I2C Transmit START Condition</description>
             </field>
             <field>
               <name>I2C_CTRL_HARDSTOP</name>
               <bitRange>[10:10]</bitRange>
-              <description>I2C Transmit direct STOP condition</description>
+              <description>I2C Transmit Direct STOP Condition</description>
             </field>
             <field>
               <name>I2C_CTRL_MACK</name>
               <bitRange>[11:11]</bitRange>
-              <description>I2C Master Acknowlegde enable</description>
+              <description>I2C Master Acknowlegde Enable</description>
             </field>
             <field>
               <name>I2C_CTRL_BAUD</name>
               <bitRange>[31:16]</bitRange>
-              <description>I2C Baudrate Fiels</description>
+              <description>I2C Baudrate Divisor</description>
             </field>
           </fields>
         </register>
         <register>
           <name>STAT</name>
-          <description>Status register</description>
+          <description>Status Register</description>
           <addressOffset>0x04</addressOffset>
           <fields>
             <field>
               <name>I2C_STAT_TRANS</name>
               <bitRange>[2:2]</bitRange>
-              <description>I2C Tramission in progress</description>
+              <description>I2C Tramission in Progress</description>
             </field>
             <field>
               <name>I2C_STAT_TC</name>
@@ -382,7 +382,7 @@
         </register>
         <register>
           <name>DATA</name>
-          <description>Data register</description>
+          <description>Data Register</description>
           <addressOffset>0x08</addressOffset>
           <fields>
             <field>
@@ -433,7 +433,7 @@
       <registers>
         <register>
           <name>CTRL</name>
-          <description>Control register</description>
+          <description>Control Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>
@@ -460,14 +460,14 @@
         </register>
         <register>
           <name>TRIG</name>
-          <description>Trigger register</description>
+          <description>Trigger Register</description>
           <addressOffset>0x04</addressOffset>
           <access>write-only</access>
           <fields>
             <field>
               <name>WDT_TRIG_PASSWORD</name>
               <bitRange>[31:0]</bitRange>
-              <description>Password field</description>
+              <description>Password Field</description>
             </field>
           </fields>
         </register>
@@ -494,13 +494,13 @@
       <registers>
         <register>
           <name>TRIG</name>
-          <description>Trigger register</description>
+          <description>Trigger Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>
               <name>MSI_TRIG</name>
               <bitRange>[0:0]</bitRange>
-              <description>MSI Trigger field</description>
+              <description>MSI Trigger Field</description>
             </field>
           </fields>
         </register>
@@ -527,7 +527,7 @@
       <registers>
         <register>
           <name>CTRL</name>
-          <description>Control register</description>
+          <description>Control Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>
@@ -559,7 +559,7 @@
         </register>
         <register>
           <name>STAT</name>
-          <description>Status register</description>
+          <description>Status Register</description>
           <addressOffset>0x04</addressOffset>
           <fields>
             <field>
@@ -571,7 +571,7 @@
         </register>
         <register>
           <name>DATA</name>
-          <description>Data register</description>
+          <description>Data Register</description>
           <addressOffset>0x08</addressOffset>
           <fields>
             <field>
@@ -622,7 +622,7 @@
       <registers>
         <register>
           <name>CTRL</name>
-          <description>Control register</description>
+          <description>Control Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>
@@ -639,7 +639,7 @@
         </register>
         <register>
           <name>STAT</name>
-          <description>Status register</description>
+          <description>Status Register</description>
           <addressOffset>0x04</addressOffset>
           <fields>
             <field>
@@ -651,7 +651,7 @@
         </register>
         <register>
           <name>CNTR</name>
-          <description>Counter register</description>
+          <description>Counter Register</description>
           <addressOffset>0x08</addressOffset>
         </register>
         <register>
@@ -682,7 +682,7 @@
       <registers>
         <register>
           <name>CTRL</name>
-          <description>Control register</description>
+          <description>Control Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>
@@ -799,7 +799,7 @@
         </register>
         <register>
           <name>STAT</name>
-          <description>Status register</description>
+          <description>Status Register</description>
           <addressOffset>0x04</addressOffset>
           <fields>
             <field>
@@ -826,7 +826,7 @@
         </register>
         <register>
           <name>CNTR</name>
-          <description>Counter register</description>
+          <description>Counter Register</description>
           <addressOffset>0x08</addressOffset>
           <fields>
             <field>
@@ -918,7 +918,7 @@
       <registers>
         <register>
           <name>CTRL</name>
-          <description>Control register</description>
+          <description>Control Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>
@@ -930,7 +930,7 @@
         </register>
         <register>
           <name>STAT</name>
-          <description>Status register</description>
+          <description>Status Register</description>
           <addressOffset>0x04</addressOffset>
           <fields>
             <field>
@@ -942,7 +942,7 @@
         </register>
         <register>
           <name>POLY</name>
-          <description>Polynomal register</description>
+          <description>Polynomal Register</description>
           <addressOffset>0x08</addressOffset>
           <fields>
             <field>
@@ -954,13 +954,13 @@
         </register>
         <register>
           <name>SREG</name>
-          <description>CRC calculation register</description>
+          <description>CRC Calculation Register</description>
           <addressOffset>0x0c</addressOffset>
           <fields>
             <field>
               <name>CRC_SREG_SREG</name>
               <bitRange>[31:0]</bitRange>
-              <description>CRC calculated CRC Register</description>
+              <description>CRC Calculated CRC Register</description>
             </field>
           </fields>
         </register>
@@ -996,7 +996,7 @@
       <registers>
         <register>
           <name>CTRL</name>
-          <description>Control register</description>
+          <description>Control Register</description>
           <addressOffset>0x00</addressOffset>
           <fields>
             <field>

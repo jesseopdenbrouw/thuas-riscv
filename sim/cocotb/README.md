@@ -13,5 +13,5 @@ cocotb uses a simulator as a backend. Tested with QuestaSim and [nvc](https://ww
 
 ## Notes
 
- You have to install the cocotb systems. See the website.
+You have to install the cocotb system. See the website.
 

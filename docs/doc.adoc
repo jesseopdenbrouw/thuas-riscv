@@ -314,7 +314,7 @@ Currently, the I/O consists of one 32-bit data input and one 32-bit data output,
 
 Note: GPIOA and MTIME are always included in synthesis.
 
-GPIOA has separate inputs and output, both 32 bits. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons (DE0-CV board). Note that KEY4 a.k.a. FPGA_RESET is connected to the reset of the SoC. All inputs are fed to twos-stage synchronizers. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt if a rising and/or falling edge is detected. An edge is detected 3 clocks after the assertion, so a trap is initiated in the 4th cycle. GPIOA has a bit-set and bit-clear register that atomically sets and clears bits in the output register.
+GPIOA has separate inputs and output, both 32 bits. Because of that, there is no data direction register. Currently the inputs come from the slide switches and the push buttons (DE0-CV board). Note that KEY4 a.k.a. FPGA_RESET is connected to the reset of the SoC. All inputs are fed to twos-stage synchronizers. The outputs are connected to the 10 red leds and to the two least significant 7-segment displays. Also two output pins are connected to facilitate SPI software generated NSS signals. The GPIOA module is equipped with a pin input edge detector generating an interrupt if a rising and/or falling edge is detected. An edge is detected 3 clocks after the assertion, so a trap is initiated in the 4th cycle. GPIOA has a bit-set and bit-clear register that atomically sets and clears bits in the output register. Outputs can be set in open-drain mode.
 
 UART1 can transmit and receive data at 7, 8 or 9 bits, no/even/odd parity and 1 or 2 stop bits. Tested speeds are 9600 bps, 115200 bps and 230400 bps. Several status flags are implemented to guide transmission. Receive, transmitted and BREAK character (local) interrupts are provided (one vector). These interrupt requests must be negated by software. A BREAK condition is found if UART1 samples 1 start bit + number of data bits + 1 stop bit to be low. UART1 does not provide hardware flow control. UART1 can generate a system wide reset when a BREAK condition is found.
 
@@ -664,6 +664,8 @@ image::images/pins_de0cv_de10.svg[DE0-CV GPIO pin layout]
 
 The design can be fully simulated, using QuestaSim Intel Starter or ModelSim Intel Starter. You need a (free) license for QuestaSim. During simulation, all essential signals can be viewed, as is the RAM. The RAM is viewed as 32-bit entries, so we need to do some manual calculations to correctly find byte, half word and word accesses. Simulation can be started from Quartus. Please note that the bootloader is normally disabled when simulating.
 
+The simulation stimuli are spread over two processes. One process creates are character on UART1 RX input and usage of the 1-Wire device. The second process generated instructions for the on-chip debug unit.
+
 The design can also be simulated with http://ghdl.free.fr/[GHDL]. See the `sim/ghdl` sub-directory. After simulating with GHDL, the wavevorms can be viewed with https://gtkwave.sourceforge.net/[GTKWave].
 
 The design can be simulated using https://www.cocotb.org/[cocotb]. See the `sim/cocotb` sub-directory. Please note that cocotb uses a simulator as backend. It works with QuestaSim and https://www.nickg.me.uk/nvc/[nvc]. GDHL cannot be used as GDHL does not support reading and writing record elements.
@@ -703,6 +705,7 @@ Using VHDL generics, the design can be customized.
 |IO_HIGH_NIBBLE        | slv(3..0) | x"F"     | I/O at 0xFyyyyyyy
 |BUFFER_IO_RESPONSE    | boolean   | false    | Extra buffer with I/O response
 |FAST_MEM              | boolean   | false    | Enable fast memory access
+|GPIO_OPENDRAIN        | boolean   | false    | Enable open-drain outputs
 |HAVE_UART1            | boolean   | TRUE     | Use UART1
 |HAVE_UART2            | boolean   | false    | Use UART2
 |HAVE_SPI1             | boolean   | TRUE     | Use SPI1

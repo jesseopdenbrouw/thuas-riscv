@@ -468,6 +468,10 @@ entity riscv is
           HAVE_ZBS : boolean;
           -- Do we have Zicond (czero.{eqz|nez})?
           HAVE_ZICOND : boolean;
+          -- Have Zimop?
+          HAVE_ZIMOP : boolean;
+          -- Have Zbkb (bitmanip instructions for cryptography)
+          HAVE_ZBKB : boolean;
           -- Do we have HPM counters?
           HAVE_ZIHPM : boolean;
           -- Do we enable vectored mode for mtvec?
@@ -488,9 +492,13 @@ entity riscv is
           IO_HIGH_NIBBLE : memory_high_nibble;
           -- Buffer I/O response
           BUFFER_IO_RESPONSE : boolean;
+          -- Fast memory access (severly reduces Fmax)?
+          FAST_MEM : boolean;
+          -- Do wh have open drain?
+          GPIO_OPENDRAIN : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
-          -- Do we have UART2?
+          -- Do we have UART1?
           HAVE_UART2 : boolean;
           -- Do we have SPI1?
           HAVE_SPI1 : boolean;
@@ -510,13 +518,14 @@ entity riscv is
           HAVE_WDT : boolean;
           -- Use CRC?
           HAVE_CRC : boolean;
+          -- Use ONEWIRE1
+          HAVE_ONEWIRE1 : boolean;
           -- UART1 BREAK triggers system reset
           UART1_BREAK_RESETS : boolean
          );
     port (I_clk : in std_logic;
           I_areset : in std_logic;
           -- JTAG connection
-          I_trst : in  std_logic;
           I_tms  : in  std_logic;
           I_tck  : in  std_logic;
           I_tdi  : in  std_logic;
@@ -548,7 +557,9 @@ entity riscv is
           O_timer2oct : out std_logic;
           IO_timer2icoca : inout std_logic;
           IO_timer2icocb : inout std_logic;
-          IO_timer2icocc : inout std_logic
+          IO_timer2icocc : inout std_logic;
+          -- ONEWIRE1
+          IO_onewire1dq : inout std_logic
          );
 end entity riscv;
 ----

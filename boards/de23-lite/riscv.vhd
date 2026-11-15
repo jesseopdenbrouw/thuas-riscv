@@ -103,6 +103,8 @@ entity riscv is
           BUFFER_IO_RESPONSE : boolean;
           -- Fast memory access (severly reduces Fmax)?
           FAST_MEM : boolean;
+          -- Do wh have open drain?
+          GPIO_OPENDRAIN : boolean;
           -- Do we have UART1?
           HAVE_UART1 : boolean;
           -- Do we have UART1?
@@ -465,6 +467,9 @@ end component io_bus_switch;
 
 -- General Purpose I/O with one external interrupt
 component gpio is
+    generic (
+          GPIO_OPENDRAIN : boolean
+         );
     port (
           I_clk : in std_logic;
           I_areset : in std_logic;
@@ -1120,6 +1125,9 @@ begin
 
     -- Always have GPIOA
     gpioa: gpio
+    generic map (
+                 GPIO_OPENDRAIN => GPIO_OPENDRAIN
+                )
     port map (
               I_clk => clk_int,
               I_areset => areset_sys_int,

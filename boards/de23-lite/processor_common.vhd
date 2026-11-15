@@ -45,7 +45,7 @@ use ieee.numeric_std.all;
 package processor_common is
 
     -- Hardware version, BCD encoded
-    constant HW_VERSION : integer := 16#01_01_05_06#;
+    constant HW_VERSION : integer := 16#01_01_05_07#;
 
     
     -- Used data types
@@ -507,6 +507,8 @@ package processor_common is
                   BUFFER_IO_RESPONSE : boolean;
                   -- Fast memory access (severly reduces Fmax)?
                   FAST_MEM : boolean;
+                  -- Do wh have open drain?
+                  GPIO_OPENDRAIN : boolean;
                   -- Do we have UART1?
                   HAVE_UART1 : boolean;
                   -- Do we have UART1?

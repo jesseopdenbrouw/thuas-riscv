@@ -9,8 +9,9 @@ from cocotb.utils import get_sim_time
 from cocotb.clock import Clock
 from datetime import datetime
 
-STEPS = 20000
-LOGFILE = "driver.log"
+SIMTIME = 1 # in milliseconds
+STEPS = (int)(SIMTIME*1000000/20)
+LOGFILE = "simresults.log"
 
 # Need these to convert ordinal number to enumeration
 STATE = ["boot0 ", "boot1 ", "exec  ", "mem   ", "flush ", "flush2", "md    ", "md2   ", "trap  ", "trap2 ", "trap3 ", "mret  ", "mret2 ", "wfi   ", "debug ", "debugflush", "debugflush2", "debugflush3"]

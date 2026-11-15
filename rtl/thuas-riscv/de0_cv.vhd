@@ -147,7 +147,7 @@ begin
               BUFFER_IO_RESPONSE => false,
               -- Fast memory access (severly reduces Fmax)?
               FAST_MEM => false,
-              -- Do wh have open drain?
+              -- Do we have open drain?
               GPIO_OPENDRAIN => false,
               -- Use UART1?
               HAVE_UART1 => TRUE,

@@ -8,18 +8,15 @@ TOPLEVEL_LANG := vhdl
 TOPLEVEL := de0_cv
 
 # Python test module (without .py)
-COCOTB_TEST_MODULES := test_top
+COCOTB_TEST_MODULES := sim_top
 
 # VHDL source files
-#VHDL_SOURCES := $(wildcard $(PREFIX)/*.vhd)
-#VHDL_SOURCES := $(filter-out $(PREFIX)/tb_riscv.vhd,$(VHDL_SOURCES))
-#VHDL_SOURCES := $(PREFIX)/processor_common.vhd $(VHDL_SOURCES)
-
 VHDL_SOURCES := \
 			$(PREFIX)/processor_common.vhd \
 			$(PREFIX)/rom_image.vhd \
 			$(PREFIX)/bootrom_image.vhd \
 			$(PREFIX)/ram_image.vhd \
+			$(PREFIX)/jtag_dmi_pkg.vhd \
 			$(PREFIX)/address_decode.vhd \
 			$(PREFIX)/core.vhd \
 			$(PREFIX)/crc.vhd \

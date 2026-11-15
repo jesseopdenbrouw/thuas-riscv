@@ -1474,7 +1474,7 @@ The OCD takes up a fair amount of ALMs (500 - 700) and lowers the $f_{max}$ with
 
 === Compiling OpenOCD yourself
 
-On Linux, compiling OpenOCD is straight-forward. You have to install the FTDI library ifr
+On Linux, compiling OpenOCD is straight-forward. You have to install the FTDI library if
 you are using an FTDI chip. You also need `libtool` and `autoconf`:
 
 [source,subs=attributes+]
@@ -1497,7 +1497,7 @@ Start the bootstrap:
 ./bootstrap
 ----
 
-Configure OpenOCD, enable the internal JimTCL if you don't have JimTVC installed:
+Configure OpenOCD, enable the internal JimTCL if you don't have JimTCL installed:
 
 [source,subs=attributes+]
 ----

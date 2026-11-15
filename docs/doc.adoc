@@ -1472,6 +1472,54 @@ and run the code on the target:
 
 The OCD takes up a fair amount of ALMs (500 - 700) and lowers the $f_{max}$ with about 5 MHz.
 
+=== Compiling OpenOCD yourself
+
+On Linux, compiling OpenOCD is straight-forward. You have to install the FTDI library ifr
+you are using an FTDI chip. You also need `libtool` and `autoconf`:
+
+[source,subs=attributes+]
+----
+sudo apt-get install libtool pkg-config texinfo libusb-dev libusb-1.0.0-dev libftdi-dev autoconf
+----
+
+Now download the source, make sure you use `--recursive`:
+
+[source,subs=attributes+]
+----
+git clone --recursive https://git.code.sf.net/p/openocd/code openocd-code
+cd openocd-code
+----
+
+Start the bootstrap:
+
+[source,subs=attributes+]
+----
+./bootstrap
+----
+
+Configure OpenOCD, enable the internal JimTCL if you don't have JimTVC installed:
+
+[source,subs=attributes+]
+----
+./configure --prefix=/opt/openocd/ --enable-internal-jimtcl --enable-ftdi
+----
+
+Start `make`:
+
+[source,subs=attributes+]
+----
+make -j8
+----
+
+Install OpenOCD:
+
+[source,subs=attributes+]
+----
+sudo make install
+----
+
+Don't forget to add the OpenOCD binary path to `$PATH`
+
 
 == Support for Windows tools [[sec_win]]
 

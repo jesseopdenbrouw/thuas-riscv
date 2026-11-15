@@ -188,20 +188,6 @@ onewire.state.reset_recovery 0 0 1 0 1
 onewire.state.tx_slot 0 1 0 0 1 
 onewire.state.rx_bits 1 0 0 0 1 
 
-State Machine - riscv0|spi2gen.spi2|spi.state
-Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
-spi.state.idle 0 0 0 0 
-spi.state.first 0 0 1 1 
-spi.state.second 0 1 0 1 
-spi.state.leadout 1 0 0 1 
-
-State Machine - riscv0|spi1gen.spi1|spi.state
-Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
-spi.state.idle 0 0 0 0 
-spi.state.first 0 0 1 1 
-spi.state.second 0 1 0 1 
-spi.state.leadout 1 0 0 1 
-
 State Machine - riscv0|i2c1gen.i2c1|i2c.state
 Name i2c.state.stretch i2c.state.send_stopbit_third i2c.state.send_stopbit_second i2c.state.send_stopbit_first i2c.state.send_data_second i2c.state.send_data_first i2c.state.send_startbit i2c.state.idle 
 i2c.state.idle 0 0 0 0 0 0 0 0 
@@ -223,6 +209,20 @@ i2c.state.send_stopbit_first 0 0 0 1 0 0 0 1
 i2c.state.send_stopbit_second 0 0 1 0 0 0 0 1 
 i2c.state.send_stopbit_third 0 1 0 0 0 0 0 1 
 i2c.state.stretch 1 0 0 0 0 0 0 1 
+
+State Machine - riscv0|spi1gen.spi1|spi.state
+Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
+spi.state.idle 0 0 0 0 
+spi.state.first 0 0 1 1 
+spi.state.second 0 1 0 1 
+spi.state.leadout 1 0 0 1 
+
+State Machine - riscv0|spi2gen.spi2|spi.state
+Name spi.state.leadout spi.state.second spi.state.first spi.state.idle 
+spi.state.idle 0 0 0 0 
+spi.state.first 0 0 1 1 
+spi.state.second 0 1 0 1 
+spi.state.leadout 1 0 0 1 
 
 State Machine - riscv0|debuggen.dtm0|state2
 Name state2.ir_update state2.ir_exit2 state2.ir_pause state2.ir_exit1 state2.ir_shift state2.ir_capture state2.ir_scan state2.run_idle state2.dr_update state2.dr_exit2 state2.dr_pause state2.dr_exit1 state2.dr_shift state2.dr_capture state2.dr_scan state2.logic_reset 

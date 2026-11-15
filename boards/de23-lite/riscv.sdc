@@ -124,6 +124,8 @@ set_false_path -from [get_ports IO_timer2icoca]
 set_false_path -from [get_ports IO_timer2icocb]
 set_false_path -from [get_ports IO_timer2icocc]
 
+set_false_path -from [get_ports IO_onewire1dq]
+
 set_false_path -to [get_ports O_tdo]
 
 set_false_path -to [get_ports O_gpioapout*]

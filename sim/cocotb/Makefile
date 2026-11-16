@@ -1,7 +1,9 @@
 PREFIX := ../../rtl/thuas-riscv
 
 # Note: ghdl does not expose records
-SIM := questa # nvc
+SIM := questa
+#SIM := nvc
+
 TOPLEVEL_LANG := vhdl
 
 # Top-level VHDL entity
@@ -9,6 +11,7 @@ TOPLEVEL := de0_cv
 
 # Python test module (without .py)
 COCOTB_TEST_MODULES := sim_top
+#COCOTB_TEST_MODULES := address_top
 
 # VHDL source files
 VHDL_SOURCES := \

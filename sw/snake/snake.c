@@ -83,6 +83,14 @@ void spawn_food(void) {
 	} while (retry);
 }
 
+/* Draw the score in the lower left corner */
+void draw_score(void)
+{
+	ansi_move_cursor(5, HEIGHT);
+	uart1_puts("Score: ");
+	printdec(score);
+}
+
 /* Draw border */
 void draw_border(void)
 {
@@ -94,6 +102,7 @@ void draw_border(void)
 			}
 		}
 	}
+	draw_score();
 }
 
 /* Initialize the game */
@@ -105,9 +114,9 @@ void init_game(void) {
 	delay = 150;
 	
 	/* Start in the middle */
-	snake[0] = (point_t){WIDTH / 2, HEIGHT / 2};
-	snake[1] = (point_t){(WIDTH / 2) - 1, HEIGHT / 2};
-	snake[2] = (point_t){(WIDTH / 2) - 2, HEIGHT / 2};
+	snake[0] = (point_t) { WIDTH / 2, HEIGHT / 2 };
+	snake[1] = (point_t) { (WIDTH / 2) - 1, HEIGHT / 2 };
+	snake[2] = (point_t) { (WIDTH / 2) - 2, HEIGHT / 2 };
 
 	for (int i = 3; i < MAX_SNAKE_LEN; i++) {
 		snake[i] = (point_t) { 0, 0 };
@@ -135,7 +144,7 @@ void handle_input(void) {
 	}
 
 	/* Quit the game */
-	if (input == 'q') {
+	if (input == 'q' || input == 'Q') {
 		game_over = 1;
 		return;
 	}
@@ -163,7 +172,6 @@ void update_game(void) {
 	for (int i = snake_len - 1; i > 0; i--) {
 		snake[i] = snake[i - 1];
 	}
-	//snake[snake_len-1] = (point_t) {0, 0};
 	
 	/* Move head */
 	snake[0].x += dir_x;
@@ -186,6 +194,7 @@ void update_game(void) {
 	/* Food collision */
 	if (snake[0].x == food.x && snake[0].y == food.y) {
 		score += 10;
+		draw_score();
 		if (snake_len < MAX_SNAKE_LEN-1) {
 			snake_len++;
 		}

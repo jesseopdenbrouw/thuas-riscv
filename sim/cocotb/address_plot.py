@@ -20,7 +20,7 @@ except:
 # Plot
 plt.figure(figsize=(10, 5))
 
-plt.step(df["time_ns"], df["address"], label="address", where="post")
+plt.step(df["time_ns"], df["address"], label="PC address", where="post")
 #plt.plot(df["time_ns"], df["address"], label="address", marker='.', linestyle='none')
 
 plt.gca().yaxis.set_major_formatter(
@@ -28,7 +28,7 @@ plt.gca().yaxis.set_major_formatter(
 )
 
 plt.xlabel("Time (ns)")
-plt.ylabel("Address")
+plt.ylabel("PC Address")
 plt.title("Simulation results")
 plt.grid(True)
 plt.legend()

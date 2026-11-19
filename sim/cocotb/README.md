@@ -18,12 +18,14 @@ cocotb uses a simulator as a backend. Tested with QuestaSim and [nvc](https://ww
 It is possible to simulate the design and capture the addresses the PC is assigned to. 
 This will give you an overview of the sequential accesses and jumps. The complementary
 file `address_plot.py` plots the addresses in a graph. You need the `matplotlib` and
-`pandas` libraries.
+`pandas` libraries. The simulation output is found in the file `address.csv`. Note that
+the addresses are printed in decimal format. In the plot, the addresses are in
+hexadecimal, as you would expect.
 
 ### Usage
 
 In the Makefile, set the simulator to `nvc` and select the Python file `address_top.py`
-(don't enter the `.py`. Now run the simulator with `make`. After the simulation is
+(don't enter the `.py`). Now run the simulator with `make`. After the simulation is
 completed, start the Python script `address_plot.py` and wait for the graph to be
 displayed. Please use `nvc` as this simulator is much faster then `questa`.
 

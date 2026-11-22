@@ -1,7 +1,6 @@
 .old/*
 docs/*.synctex.gz
 rtl/thuas-riscv-test/*
-eclipse/*
 rtl/thuas-riscv/db
 rtl/thuas-riscv/rtl_work
 rtl/thuas-riscv/output_files

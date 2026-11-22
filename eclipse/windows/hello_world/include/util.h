@@ -13,6 +13,8 @@ extern "C" {
 
 /* Parse hex number from string */
 uint32_t parsehex(char *s, char **ppchar);
+/* Parse a decimal number from a string */
+int32_t parsedec(char *s, char **ppchar);
 /* Print hex number to UART1 */
 void printhex(uint32_t v, int n);
 /* Print signed decimal number to UART1 */

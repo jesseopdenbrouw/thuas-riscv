@@ -17,6 +17,6 @@ uint64_t csr_get_instret(void)
 					  "   bne %0, %2, 1b"
 					  : "+r" (th), "+r" (tl), "+r" (tt));
 
-    theinstr = ((uint64_t)th << 32ULL) | (uint64_t) tl;
+	theinstr = ((uint64_t)th << 32ULL) | (uint64_t) tl;
 	return theinstr;
 }

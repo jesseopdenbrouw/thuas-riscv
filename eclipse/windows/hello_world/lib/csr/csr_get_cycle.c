@@ -18,6 +18,6 @@ uint64_t csr_get_cycle(void)
 					  "   bne %0, %2, 1b"
 					  : "+r" (th), "+r" (tl), "+r" (tt));
 
-    thecycle = ((uint64_t)th << 32ULL) | (uint64_t) tl;
+	thecycle = ((uint64_t)th << 32ULL) | (uint64_t) tl;
 	return thecycle;
 }

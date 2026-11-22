@@ -64,7 +64,7 @@ uint64_t csr_get_mhpmcounter9(void);
 
 #define csr_set(csr, val)						\
 ({												\
-	uint32_t __v = (uint32_t)(val);i			\
+	uint32_t __v = (uint32_t)(val);				\
 	__asm__ __volatile__ ("csrs " #csr ", %0"	\
 			      : : "rK" (__v)				\
 			      : "memory");					\
@@ -98,6 +98,8 @@ uint64_t csr_get_mhpmcounter9(void);
 
 /* mxhw CSR */
 #define CSR_MXHW_GPIOA     (1 << 0)
+#define CSR_MXHW_FASTMEM   (1 << 2)
+#define CSR_MXHW_ZBKB      (1 << 3)
 #define CSR_MXHW_UART1     (1 << 4)
 #define CSR_MXHW_UART2     (1 << 5)
 #define CSR_MXHW_I2C1      (1 << 6)
@@ -111,7 +113,7 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_MXHW_BOOT      (1 << 18)
 #define CSR_MXHW_REGRAM    (1 << 19)
 #define CSR_MXHW_ZBA       (1 << 20)
-/* #define CSR_MXHW_FASTSTORE (1 << 21) */
+#define CSR_MXHW_ZIMOP     (1 << 21)
 #define CSR_MXHW_ZICOND    (1 << 22)
 #define CSR_MXHW_ZBS       (1 << 23)
 #define CSR_MXHW_BREAK     (1 << 24)
@@ -120,12 +122,14 @@ uint64_t csr_get_mhpmcounter9(void);
 #define CSR_MXHW_OCD       (1 << 27)
 #define CSR_MXHW_MSI       (1 << 28)
 #define CSR_MXHW_BUFFER    (1 << 29)
+#define CSR_MXHW_ZBB       (1 << 30)
+#define CSR_MXHW_CRC       (1 << 31)
 
 /* HPM selection bits */
 #define CSR_HPM_JUMP       (1 << 0)
 #define CSR_HPM_BRANCH     (1 << 0)
 #define CSR_HPM_STALLS     (1 << 1)
-#define CRR_HPM_STORES     (1 << 2)
+#define CSR_HPM_STORES     (1 << 2)
 #define CSR_HPM_LOADS      (1 << 3)
 #define CSR_HPM_ECALLS     (1 << 4)
 #define CSR_HPM_EBREAKS    (1 << 5)

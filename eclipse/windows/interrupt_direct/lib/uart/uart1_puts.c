@@ -11,7 +11,7 @@
 #endif
 /* Transmission speed */
 #ifndef BAUD_RATE
-#define BAUD_RATE (9600UL)
+#define BAUD_RATE (115200UL)
 #endif
 
 /* Send a null-terminated string over the UART1 */

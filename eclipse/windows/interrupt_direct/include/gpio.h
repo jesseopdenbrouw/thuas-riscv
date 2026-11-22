@@ -14,6 +14,7 @@ extern "C" {
 uint32_t gpioa_readpin(uint32_t pins);
 void gpioa_writepin(uint32_t pins, uint32_t value);
 void gpioa_togglepin(uint32_t pins);
+void gpioa_setopendrain(uint32_t);
 
 #define GPIO_PIN_SET (1UL)
 #define GPIO_PIN_RESET (0UL)
@@ -52,6 +53,12 @@ void gpioa_togglepin(uint32_t pins);
 #define GPIO_PIN_31 (1UL << 31UL)
 
 #define GPIO_PIN_ALL (0xffffffffUL)
+
+#define GPIO_EXTC_EDGE_RISING (1 << 1)
+#define GPIO_EXTC_EDGE_FALLING (2 << 1)
+#define GPIO_EXTC_EDGE_BOTH (3 << 1)
+#define gpioa_set_extc(A, B) \
+	GPIOA->EXTC = ((((A) & 0x1f) << 3) | (B))
 
 #ifdef __cplusplus
 }

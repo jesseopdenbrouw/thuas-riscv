@@ -1,5 +1,5 @@
 /*
- * spi1_receive.c -- receive a number of bytes from I2C1
+ * spi1_receive.c -- receive a number of bytes from SPI1
  *
  */
 

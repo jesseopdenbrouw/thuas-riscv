@@ -17,6 +17,6 @@ uint64_t csr_get_time(void)
 					  "   bne %0, %2, 1b"
 					  : "+r" (th), "+r" (tl), "+r" (tt));
 
-    thetime = ((uint64_t)th << 32ULL) | (uint64_t) tl;
+	thetime = ((uint64_t)th << 32ULL) | (uint64_t) tl;
 	return thetime;
 }

@@ -1,0 +1,49 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    //
+    // launch.json - for THUASRV32 projects.
+    //
+    // Update the configurations to suit your ELF executable and your GDB executable.
+    //
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "RISC-V: OpenOCD (C/C++)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/interrupt_direct.elf",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "RISC-V: Build",
+            "MIMode": "gdb",
+            "miDebuggerPath": "riscv32-unknown-elf-gdb",
+            "debugServerPath": "openocd",
+            "debugServerArgs": "-f ${workspaceFolder}/etc/openocd.cfg",
+            "serverStarted": "Listening on port 3333 for gdb connections",
+            "filterStderr": true,
+            "serverLaunchTimeout": 10000,
+            "setupCommands": [
+                {
+                    "text": "file \"${workspaceFolder}/build/interrupt_direct.elf\"",
+                    "description": "Select the firmware ELF"
+                },
+                {
+                    "text": "target extended-remote localhost:3333",
+                    "description": "Connect to OpenOCD"
+                },
+                {
+                    "text": "load",
+                    "description": "Load the firmware"
+                },
+                {
+                    "text": "break main",
+                    "description": "Stop at main"
+                }
+            ],
+            "launchCompleteCommand": "exec-continue",
+            "svdPath": "${workspaceFolder}/etc/thuasrv32.svd"
+        }
+    ]
+}

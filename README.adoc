@@ -128,7 +128,7 @@ It is an all-hardware solution, there is no program buffer involved
 (yes, the program buffer is optional). All processor registers (including
 CSRs) can be read and written (when possible). Memory can be read and
 written. There is one hardware breakpoint available. The on-chip debugger
-is compatible with OpenOCD, GDB and Eclipse-CDT.
+is compatible with OpenOCD, GDB, Eclipse-CDT and VS Code.
 
 == Bootloader
 

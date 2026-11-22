@@ -13,13 +13,14 @@ The bootloader is located at address 0x10000000. The bootloader
 is able to load an S-record file into the ROM at address
 0x00000000 using the `upload` program. By default, the
 bootloader is disabled. The on-chip debugger is compatible
-with OpenOCD and GDB. By default, the on-chip debugger is enabled.
+with OpenOCD, GDB, Eclipse-CDT and VS Code. By default,r
+the on-chip debugger is enabled.
 
 == On-chip Debugger
 
 The on-chip debugger is compatible with the
 https://docs.riscv.org/reference/debug/v1.0/index.html[RISC-V Debug Specification v1.0]
-It supports OpenOCD, GDB and Eclipse-CDT.
+It supports OpenOCD, GDB, Eclipse-CDT and VS Code.
 
 == Bootloader
 

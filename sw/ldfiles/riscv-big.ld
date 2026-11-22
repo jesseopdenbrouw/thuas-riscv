@@ -22,7 +22,8 @@ __stack_size = 0x400;
 
 PHDRS
 {
-  ROM PT_LOAD;
+  ROM PT_LOAD FLAGS(5);
+  RAM PT_LOAD FLAGS(6);
 }
 
 SECTIONS

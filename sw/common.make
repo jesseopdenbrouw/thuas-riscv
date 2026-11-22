@@ -43,8 +43,9 @@ endif
 CRT_PATH = ../crt
 CRT = startup.c
 
-# Needed for binutils >= 2.39, set to empty otherwise
-MORE_LINKER_FLAGS=-Wl,--no-warn-rwx-segments
+# Not needed anymore because the linker files
+# are updated with the correct load flags.
+#MORE_LINKER_FLAGS=-Wl,--no-warn-rwx-segments
 
 # Linker script
 LD_SCRIPT = ../ldfiles/riscv.ld

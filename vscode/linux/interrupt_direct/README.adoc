@@ -24,4 +24,3 @@ passed to a shell.
 NOTE: GLOBAL nano.specs file BEFORE thuas.specs file! This way you will get
 system calls using ECALL.
 
-

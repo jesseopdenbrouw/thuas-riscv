@@ -6,35 +6,35 @@
 C_SRCS += \
 ../lib/uart/uart1_getc.c \
 ../lib/uart/uart1_gets.c \
+../lib/uart/uart1_hasreceived.c \
 ../lib/uart/uart1_init.c \
 ../lib/uart/uart1_printf.c \
 ../lib/uart/uart1_printlonglong.c \
 ../lib/uart/uart1_printulonglong.c \
 ../lib/uart/uart1_putc.c \
-../lib/uart/uart1_puts.c \
-../lib/uart/uart_hasreceived.c 
+../lib/uart/uart1_puts.c 
 
 OBJS += \
 ./lib/uart/uart1_getc.o \
 ./lib/uart/uart1_gets.o \
+./lib/uart/uart1_hasreceived.o \
 ./lib/uart/uart1_init.o \
 ./lib/uart/uart1_printf.o \
 ./lib/uart/uart1_printlonglong.o \
 ./lib/uart/uart1_printulonglong.o \
 ./lib/uart/uart1_putc.o \
-./lib/uart/uart1_puts.o \
-./lib/uart/uart_hasreceived.o 
+./lib/uart/uart1_puts.o 
 
 C_DEPS += \
 ./lib/uart/uart1_getc.d \
 ./lib/uart/uart1_gets.d \
+./lib/uart/uart1_hasreceived.d \
 ./lib/uart/uart1_init.d \
 ./lib/uart/uart1_printf.d \
 ./lib/uart/uart1_printlonglong.d \
 ./lib/uart/uart1_printulonglong.d \
 ./lib/uart/uart1_putc.d \
-./lib/uart/uart1_puts.d \
-./lib/uart/uart_hasreceived.d 
+./lib/uart/uart1_puts.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

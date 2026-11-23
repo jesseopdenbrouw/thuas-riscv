@@ -39,3 +39,43 @@
 2026-09-30 14:16:29.478: [INFO] BookmarksLoadDropped droppedNodes=0
 2026-09-30 14:16:29.478: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
 2026-09-30 15:24:31.265: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-23 12:00:36.871: [INFO] CurrentProfilePath: D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-11-23 12:00:36.871: [INFO] Profiles total count: 1
+2026-11-23 12:00:36.871: [INFO] Profile: name=Profile 1 path=D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-09-30T14:16:35.802Z
+2026-11-23 12:00:36.871: [INFO] LastUsedProfileDir: D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-11-23 12:00:36.871: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-09-30T14:16:35.802Z
+2026-11-23 12:00:36.871: [INFO] OnDoneLoading sync enabled: 0
+2026-11-23 12:00:36.871: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-11-23 12:00:36.871: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-11-23 12:00:36.871: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-23 12:07:19.844: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-23 12:07:58.282: [INFO] CurrentProfilePath: D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-11-23 12:07:58.282: [INFO] Profiles total count: 1
+2026-11-23 12:07:58.282: [INFO] Profile: name=Profile 1 path=D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-09-30T14:16:35.802Z
+2026-11-23 12:07:58.282: [INFO] LastUsedProfileDir: D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-11-23 12:07:58.282: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-09-30T14:16:35.802Z
+2026-11-23 12:07:58.282: [INFO] OnDoneLoading sync enabled: 0
+2026-11-23 12:07:58.282: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-11-23 12:07:58.282: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-11-23 12:07:58.282: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-23 12:08:43.545: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-23 12:09:42.968: [INFO] CurrentProfilePath: D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-11-23 12:09:42.968: [INFO] Profiles total count: 1
+2026-11-23 12:09:42.969: [INFO] Profile: name=Profile 1 path=D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-09-30T14:16:35.802Z
+2026-11-23 12:09:42.969: [INFO] LastUsedProfileDir: D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-11-23 12:09:42.969: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-09-30T14:16:35.802Z
+2026-11-23 12:09:42.969: [INFO] OnDoneLoading sync enabled: 0
+2026-11-23 12:09:42.969: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-11-23 12:09:42.969: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-11-23 12:09:42.969: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-23 12:11:11.204: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-23 12:26:13.506: [INFO] CurrentProfilePath: D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-11-23 12:26:13.506: [INFO] Profiles total count: 1
+2026-11-23 12:26:13.506: [INFO] Profile: name=Profile 1 path=D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-11-23T12:09:50.283Z
+2026-11-23 12:26:13.506: [INFO] LastUsedProfileDir: D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-11-23 12:26:13.506: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\PROJECTS\RISCVDEV\thuas-riscv\eclipse\windows\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-11-23T12:09:50.283Z
+2026-11-23 12:26:13.506: [INFO] OnDoneLoading sync enabled: 0
+2026-11-23 12:26:13.506: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-11-23 12:26:13.506: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-11-23 12:26:13.506: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-23 12:31:25.102: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1

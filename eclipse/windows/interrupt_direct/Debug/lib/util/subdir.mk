@@ -6,6 +6,7 @@
 C_SRCS += \
 ../lib/util/delayms.c \
 ../lib/util/gethex.c \
+../lib/util/parsedec.c \
 ../lib/util/parsehex.c \
 ../lib/util/printdec.c \
 ../lib/util/printhex.c \
@@ -15,6 +16,7 @@ C_SRCS += \
 OBJS += \
 ./lib/util/delayms.o \
 ./lib/util/gethex.o \
+./lib/util/parsedec.o \
 ./lib/util/parsehex.o \
 ./lib/util/printdec.o \
 ./lib/util/printhex.o \
@@ -24,6 +26,7 @@ OBJS += \
 C_DEPS += \
 ./lib/util/delayms.d \
 ./lib/util/gethex.d \
+./lib/util/parsedec.d \
 ./lib/util/parsehex.d \
 ./lib/util/printdec.d \
 ./lib/util/printhex.d \

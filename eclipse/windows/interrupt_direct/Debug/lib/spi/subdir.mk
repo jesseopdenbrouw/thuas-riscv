@@ -14,7 +14,10 @@ C_SRCS += \
 ../lib/spi/spi2_csdisable.c \
 ../lib/spi/spi2_csenable.c \
 ../lib/spi/spi2_init.c \
-../lib/spi/spi2_transfer.c 
+../lib/spi/spi2_receive.c \
+../lib/spi/spi2_transfer.c \
+../lib/spi/spi2_transmit.c \
+../lib/spi/spi2_transmit_receive.c 
 
 OBJS += \
 ./lib/spi/spi1_csdisable.o \
@@ -27,7 +30,10 @@ OBJS += \
 ./lib/spi/spi2_csdisable.o \
 ./lib/spi/spi2_csenable.o \
 ./lib/spi/spi2_init.o \
-./lib/spi/spi2_transfer.o 
+./lib/spi/spi2_receive.o \
+./lib/spi/spi2_transfer.o \
+./lib/spi/spi2_transmit.o \
+./lib/spi/spi2_transmit_receive.o 
 
 C_DEPS += \
 ./lib/spi/spi1_csdisable.d \
@@ -40,7 +46,10 @@ C_DEPS += \
 ./lib/spi/spi2_csdisable.d \
 ./lib/spi/spi2_csenable.d \
 ./lib/spi/spi2_init.d \
-./lib/spi/spi2_transfer.d 
+./lib/spi/spi2_receive.d \
+./lib/spi/spi2_transfer.d \
+./lib/spi/spi2_transmit.d \
+./lib/spi/spi2_transmit_receive.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

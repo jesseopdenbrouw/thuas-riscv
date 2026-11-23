@@ -5,16 +5,19 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../lib/gpio/gpioa_readpin.c \
+../lib/gpio/gpioa_setopendrain.c \
 ../lib/gpio/gpioa_togglepin.c \
 ../lib/gpio/gpioa_writepin.c 
 
 OBJS += \
 ./lib/gpio/gpioa_readpin.o \
+./lib/gpio/gpioa_setopendrain.o \
 ./lib/gpio/gpioa_togglepin.o \
 ./lib/gpio/gpioa_writepin.o 
 
 C_DEPS += \
 ./lib/gpio/gpioa_readpin.d \
+./lib/gpio/gpioa_setopendrain.d \
 ./lib/gpio/gpioa_togglepin.d \
 ./lib/gpio/gpioa_writepin.d 
 

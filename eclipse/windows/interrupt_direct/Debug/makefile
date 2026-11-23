@@ -13,11 +13,14 @@ RM := rm -rf
 -include lib/util/subdir.mk
 -include lib/uart/subdir.mk
 -include lib/timer/subdir.mk
+-include lib/syscalls/subdir.mk
 -include lib/spi/subdir.mk
+-include lib/onewire/subdir.mk
 -include lib/i2c/subdir.mk
 -include lib/gpio/subdir.mk
 -include lib/csr/subdir.mk
 -include lib/crc/subdir.mk
+-include lib/ansi/subdir.mk
 -include crt/subdir.mk
 -include subdir.mk
 -include objects.mk

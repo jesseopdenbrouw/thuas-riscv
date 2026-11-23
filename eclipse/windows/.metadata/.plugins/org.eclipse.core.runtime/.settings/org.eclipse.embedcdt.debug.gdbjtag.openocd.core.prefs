@@ -13,4 +13,4 @@ gdb.openocd.preRun.other=
 gdb.openocd.preRunReset.type=halt
 gdb.server.doStart=true
 gdb.server.executable=${openocd_path}/${openocd_executable}
-gdb.server.other=-f openocd/openocd.cfg
+gdb.server.other=-f openocd/openocd-windows.cfg

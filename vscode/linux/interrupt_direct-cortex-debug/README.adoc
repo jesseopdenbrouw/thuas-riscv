@@ -1,0 +1,27 @@
+= `interrupt_direct`
+
+This is the VS Code version of `interrupt_direct`
+
+You need:
+
+* VS code
+* RISC-V GNU C/C++ compiler
+* RISC-V GNU GDB debugger
+* RISC-V GNU binutils
+* OpenOCD
+* C/C++ extension for VS Code
+* Cortex-Debug extension for VS Code
+* MCU Peripheral Viewer extension for VS Code
+
+You have to update the ELF executable name to your needs.
+You have to supply all the C source files.
+
+Please add the compiler, debugger and OpenOCD to your `$PATH` environment variable.
+
+In the `tasks.json` file, the arguments to `riscv32-unknown-elf-gcc` must NOT contain spaces
+(set them as separate arguments). Don't use wildcards like `*`, because the arguments are NOT
+passed to a shell but using fork/exec.
+
+NOTE: GLOBAL nano.specs file BEFORE thuas.specs file! This way you will get
+system calls using ECALL.
+

@@ -1,0 +1,68 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    //
+    // This file defines the build tasks for the project.
+    // It is used by VS Code to run the build commands
+    // and manage the build process.
+    //
+    // tasks.json - for THUASRV32 projects.
+    //
+    // Update the build configuration to match your C files and ELF executable.
+    //
+    // NOTE: GLOBAL nano.specs BEFORE thuas.specs! This way you get system calls
+    //       from the nano.specs library, and the THUASRV32 specific code from
+    //       the thuas.specs library.
+    //
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "RISC-V: Create build directory",
+            "type": "process",
+            "command": "mkdir",
+            "args": [
+                "-p",
+                "${workspaceFolder}/build"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "RISC-V: Build",
+            "type": "process",
+            "command": "riscv32-unknown-elf-gcc",
+            "args": [
+                "-march=rv32im_zicsr",
+                "-mabi=ilp32",
+                "-g",
+                "-O2",
+                "-nostartfiles",
+                "-Wl,-T,etc/riscv.ld",
+                "-Wl,--gc-sections",
+                "-I",
+                "${workspaceFolder}/include",
+                "-L",
+                "${workspaceFolder}/lib",
+                "-specs=nano.specs",    // NOTE: GLOBAL nano.specs BEFORE thuas.specs!
+                "-specs=${workspaceFolder}/lib/thuas.specs",
+                "startup.c",
+                "__io_getchar.c",
+                "__io_putchar.c",
+                "trap_handler_direct.c",
+                "handlers_direct.c",
+                "interrupt_direct.c",
+                "-o",
+                "build/interrupt_direct.elf"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "RISC-V: Create build directory",
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        }
+    ]
+}

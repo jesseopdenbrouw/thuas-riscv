@@ -1,0 +1,4 @@
+{
+    "mcu-debug.peripheral-viewer.svdPathConfig": "svdPath",
+    "mcu-debug.peripheral-viewer.debugLevel": 2
+}

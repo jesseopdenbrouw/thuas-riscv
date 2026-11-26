@@ -1,0 +1,18 @@
+{
+    // This file is needed so that IntelliSense knows that the define
+    // `__riscv_xlen` is set to 32 when compiling for RV32.
+    "configurations": [
+        {
+            "name": "RISC-V RV32",
+            "compilerPath": "riscv32-unknown-elf-gcc",
+            "compilerArgs": [
+                "-march=rv32im_zicsr",
+                "-mabi=ilp32"
+            ],
+            "includePath": [
+                "${workspaceFolder}/include"
+            ]
+        }
+    ],
+    "version": 4
+}

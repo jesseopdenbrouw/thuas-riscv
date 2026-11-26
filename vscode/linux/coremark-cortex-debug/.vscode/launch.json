@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    //
+    // launch.json - for THUASRV32 projects.
+    //
+    // Update the configurations to suit your ELF executable and your GDB executable.
+    //
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "RISC-V: OpenOCD (Cortex-Debug)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "executable": "${workspaceFolder}/build/coremark.elf",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "RISC-V: Build",
+            "servertype": "openocd",
+            "serverpath": "openocd",
+            "configFiles": [
+                "${workspaceFolder}/etc/openocd.cfg"
+            ],
+            "gdbPath": "riscv32-unknown-elf-gdb",
+            "toolchainPrefix": "riscv32-unknown-elf",
+            "runToEntryPoint": "main",
+            "svdPath": "${workspaceFolder}/etc/thuasrv32.svd"
+        }
+    ]
+}

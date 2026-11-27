@@ -112,7 +112,7 @@ SECTIONS
     _edata = .;
 
   . = ALIGN(4);
-  .bss :
+  .bss (NOLOAD) :
   {
     /* This is used by the startup in order to initialize the .bss section */
     _sbss = .;         /* define a global symbol at bss start */
@@ -124,7 +124,7 @@ SECTIONS
 
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
-  } >RAM :RAM
+  } >RAM :NONE
 
 
   /* End of uninitialized data segment (used by syssbrk.c for heap) */
